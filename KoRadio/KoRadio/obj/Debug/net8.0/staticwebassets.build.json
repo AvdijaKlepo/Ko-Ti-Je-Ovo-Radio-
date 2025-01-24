@@ -1,8 +1,8 @@
 {
   "Version": 1,
-  "Hash": "igcdoazfQ4FUw0NpVtrLRrw0sTxDLR/z0C/sfzbxDqc=",
-  "Source": "KoRadio",
-  "BasePath": "_content/KoRadio",
+  "Hash": "A2ztFiFXhtBb2EkHENDypKURKu1KVFuLJbwe5OMifoo=",
+  "Source": "KoRadio.API",
+  "BasePath": "_content/KoRadio.API",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],

@@ -1,0 +1,10 @@
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\bin\Debug\netstandard2.1\KoRadio.Model.deps.json
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\bin\Debug\netstandard2.1\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\bin\Debug\netstandard2.1\KoRadio.Model.pdb
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.AssemblyInfoInputs.cache
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.AssemblyInfo.cs
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.csproj.CoreCompileInputs.cache
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.sourcelink.json
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio.Model\obj\Debug\netstandard2.1\KoRadio.Model.pdb

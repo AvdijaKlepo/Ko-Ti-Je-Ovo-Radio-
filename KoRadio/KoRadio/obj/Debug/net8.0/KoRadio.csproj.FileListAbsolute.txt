@@ -34,3 +34,4 @@ C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio\obj\Debug\net8.0\refin
 C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.pdb
 C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio\obj\Debug\net8.0\ref\KoRadio.dll
+C:\Users\Avdija\Documents\Razvoj softvera\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.sourcelink.json

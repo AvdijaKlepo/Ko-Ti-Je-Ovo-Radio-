@@ -1,9 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35506.116 d17.12
+VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio", "KoRadio\KoRadio.csproj", "{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.API", "KoRadio\KoRadio.API.csproj", "{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Model", "KoRadio.Model\KoRadio.Model.csproj", "{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Services", "KoRadio.Services\KoRadio.Services.csproj", "{7F723CC6-467F-4AAA-92DF-BB65F04511C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF} = {F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,14 @@ Global
 		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
