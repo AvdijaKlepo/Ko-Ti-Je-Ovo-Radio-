@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.API", "KoRadio\KoRadio.API.csproj", "{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF} = {F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Model", "KoRadio.Model\KoRadio.Model.csproj", "{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}"
 EndProject

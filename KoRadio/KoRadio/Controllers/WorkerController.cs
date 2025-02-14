@@ -4,24 +4,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using KoRadio.Services;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.Database;
 
 namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	public class WorkerController : ControllerBase
+	public class WorkerController : BaseController<Model.Worker,WorkerSearchObject>
 	{
-		protected readonly IWorkerService _service;
+
 
 		public WorkerController(IWorkerService service)
-		{
-			_service = service;
+		:base(service){
+			
 		}
 
-		[HttpGet]
-		public List<WorkerModel> GetList([FromQuery]WorkerSearchObject searchObject)
-		{
-			return _service.GetList(searchObject);
-		}
+	
 	}
 }

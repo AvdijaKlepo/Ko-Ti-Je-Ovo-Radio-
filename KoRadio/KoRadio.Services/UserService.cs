@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,80 +12,67 @@ using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using User = KoRadio.Services.Database.User;
 
 namespace KoRadio.Services
 {
-	public class UserService:IUserService
+	public class UserService:BaseCRUDService<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
 	{
-		private readonly KoTiJeOvoRadioContext _context;
-		private readonly IMapper _mapper;
-
-		public UserService(KoTiJeOvoRadioContext context,IMapper mapper)
+		public UserService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
-			_context = context;
-			_mapper = mapper;
 		}
 
-		public List<UserModel> GetUsers(UserSearchObject searchObject)
+		public override IQueryable<User> AddFilter(UserSearchObject searchObject, IQueryable<User> query)
 		{
-			List<UserModel> result = new();
-			var query = _context.Users.AsQueryable();
-
+			query = base.AddFilter(searchObject, query);
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
 				query = query.Where(x => x.FirstName.StartsWith(searchObject.FirstNameGTE));
 			}
+
 			if (!string.IsNullOrWhiteSpace(searchObject?.LastNameGTE))
 			{
 				query = query.Where(x => x.LastName.StartsWith(searchObject.LastNameGTE));
 			}
+
 			if (!string.IsNullOrWhiteSpace(searchObject?.Email))
 			{
-				query = query.Where(x => x.Email.StartsWith(searchObject.Email));
+				query = query.Where(x => x.Email == searchObject.Email);
 			}
 
-			if (searchObject?.IsUserRolesIncluded==true)
+
+			if (searchObject.IsUserRolesIncluded == true)
 			{
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
 
-			var list = query.ToList();
-			result = _mapper.Map(list, result);
-			return result;
+			return query;
 		}
 
-		public UserModel Insert(UserInsertRequest request)
+		public override void BeforeInsert(UserInsertRequest request, User entity)
 		{
-			if (request.Password != request.ConfirmPassword)
+			if (request.Password!=request.ConfirmPassword)
 			{
 				throw new Exception("Lozinke se ne poklapaju!");
 			}
-
-			User entity = new User();
-			_mapper.Map(request, entity);
 			entity.PasswordSalt = GenerateSalt();
-			entity.PasswordHash = GenerateHash(entity.PasswordSalt,request.Password);
-			_context.Add(entity);
-			_context.SaveChanges();
-
-			return _mapper.Map<UserModel>(entity);
+			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
+			base.BeforeInsert(request, entity);
 		}
 
-		public UserModel Update(int id, UserUpdateRequest request)
+		public override void BeforeUpdate(UserUpdateRequest request, User entity)
 		{
-			var entity = _context.Users.Find(id);
-			_mapper.Map(request, entity);
 			if (request.Password != request.ConfirmPassword)
 			{
 				throw new Exception("Lozinke se ne poklapaju!");
-				entity.PasswordSalt = GenerateSalt();
-				entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
+				
 			}
-			
-			_context.SaveChanges();
-
-			return _mapper.Map<UserModel>(entity);
+			entity.PasswordSalt = GenerateSalt();
+			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
+			base.BeforeUpdate(request, entity);
 		}
+
+	
 
 		public static string GenerateSalt()
 		{

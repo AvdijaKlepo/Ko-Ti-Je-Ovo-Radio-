@@ -10,31 +10,16 @@ namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	public class UserController : ControllerBase
+	public class UserController : BaseCRUDController<Model.User,UserSearchObject,UserInsertRequest,UserUpdateRequest>
 	{
-		private readonly IUserService _service;
+		
 
 		public UserController(IUserService service)
+			: base(service)
 		{
-			_service = service;
+			
 		}
 
-		[HttpGet]
-		public List<UserModel> GetUsers([FromQuery]UserSearchObject searchObject)
-		{
-			return _service.GetUsers(searchObject);
-		}
-
-		[HttpPost]
-		public UserModel Insert(UserInsertRequest request)
-		{
-			return _service.Insert(request);
-		}
-
-		[HttpPut("{id}")]
-		public UserModel Update(int id,UserUpdateRequest request)
-		{
-			return _service.Update(id, request);
-		}
+		
 	}
 }

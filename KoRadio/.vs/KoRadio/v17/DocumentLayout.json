@@ -3,44 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\database\\userrole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\database\\userrole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\worker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\worker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\workerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\workerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\searchobject\\workersearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\searchobject\\workersearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\database\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\database\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\userrolesmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\userrolesmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\rolesmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\rolesmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\koradio.services.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\koradio.services.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}|KoRadio\\KoRadio.API.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}|KoRadio\\KoRadio.API.csproj|solutionrelative:koradio\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.services\\workerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\workerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\koradio\\koradio.model\\searchobject\\usersearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\searchobject\\usersearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,137 +34,84 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "KoTiJeOvoRadioContext.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
-              "RelativeDocumentMoniker": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
-              "RelativeToolTip": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\User.cs",
+              "RelativeDocumentMoniker": "KoRadio.Model\\User.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\User.cs",
+              "RelativeToolTip": "KoRadio.Model\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T13:19:19.196Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "KoRadio.Services",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\KoRadio.Services.csproj",
-              "RelativeDocumentMoniker": "KoRadio.Services\\KoRadio.Services.csproj",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\KoRadio.Services.csproj",
-              "RelativeToolTip": "KoRadio.Services\\KoRadio.Services.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-01-24T13:11:34.702Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio\\Program.cs",
-              "RelativeDocumentMoniker": "KoRadio\\Program.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio\\Program.cs",
-              "RelativeToolTip": "KoRadio\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T13:08:14.987Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-10T11:41:30.705Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "UserRole.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\UserRole.cs",
-              "RelativeDocumentMoniker": "KoRadio.Services\\Database\\UserRole.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\UserRole.cs",
-              "RelativeToolTip": "KoRadio.Services\\Database\\UserRole.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAUAAAAAAAAAA==",
+              "Title": "Worker.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\Worker.cs",
+              "RelativeDocumentMoniker": "KoRadio.Model\\Worker.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\Worker.cs",
+              "RelativeToolTip": "KoRadio.Model\\Worker.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:53:00.739Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\User.cs",
-              "RelativeDocumentMoniker": "KoRadio.Services\\Database\\User.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\Database\\User.cs",
-              "RelativeToolTip": "KoRadio.Services\\Database\\User.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAA1wBsAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:52:57.293Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\UserService.cs",
-              "RelativeDocumentMoniker": "KoRadio.Services\\UserService.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\UserService.cs",
-              "RelativeToolTip": "KoRadio.Services\\UserService.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAgwCwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:49:43.367Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "WorkerService.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\WorkerService.cs",
-              "RelativeDocumentMoniker": "KoRadio.Services\\WorkerService.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\WorkerService.cs",
-              "RelativeToolTip": "KoRadio.Services\\WorkerService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:49:42.751Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UserRolesModel.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\UserRolesModel.cs",
-              "RelativeDocumentMoniker": "KoRadio.Model\\UserRolesModel.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\UserRolesModel.cs",
-              "RelativeToolTip": "KoRadio.Model\\UserRolesModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:49:31.233Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UserModel.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\UserModel.cs",
-              "RelativeDocumentMoniker": "KoRadio.Model\\UserModel.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\UserModel.cs",
-              "RelativeToolTip": "KoRadio.Model\\UserModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:49:22.41Z",
+              "WhenOpened": "2025-02-10T11:41:26.206Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "RolesModel.cs",
-              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\RolesModel.cs",
-              "RelativeDocumentMoniker": "KoRadio.Model\\RolesModel.cs",
-              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\RolesModel.cs",
-              "RelativeToolTip": "KoRadio.Model\\RolesModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAACAAAAAAAAAA==",
+              "Title": "UserSearchObject.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\SearchObject\\UserSearchObject.cs",
+              "RelativeDocumentMoniker": "KoRadio.Model\\SearchObject\\UserSearchObject.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\SearchObject\\UserSearchObject.cs",
+              "RelativeToolTip": "KoRadio.Model\\SearchObject\\UserSearchObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-24T12:39:59.569Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-10T11:38:23.841Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "WorkerSearchObject.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\SearchObject\\WorkerSearchObject.cs",
+              "RelativeDocumentMoniker": "KoRadio.Model\\SearchObject\\WorkerSearchObject.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Model\\SearchObject\\WorkerSearchObject.cs",
+              "RelativeToolTip": "KoRadio.Model\\SearchObject\\WorkerSearchObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-10T11:38:14.065Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\UserService.cs",
+              "RelativeDocumentMoniker": "KoRadio.Services\\UserService.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\UserService.cs",
+              "RelativeToolTip": "KoRadio.Services\\UserService.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAgwDAAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-10T11:37:49.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "WorkerService.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\WorkerService.cs",
+              "RelativeDocumentMoniker": "KoRadio.Services\\WorkerService.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj softvera\\KoRadio\\KoRadio.Services\\WorkerService.cs",
+              "RelativeToolTip": "KoRadio.Services\\WorkerService.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAApwB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-10T11:37:43.135Z"
             }
           ]
         }

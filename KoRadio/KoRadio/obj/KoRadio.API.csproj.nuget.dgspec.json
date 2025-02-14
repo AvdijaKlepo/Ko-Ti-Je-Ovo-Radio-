@@ -135,7 +135,7 @@
             },
             "System.Linq.Dynamic.Core": {
               "target": "Package",
-              "version": "[1.5.1, )"
+              "version": "[1.6.0.1, )"
             }
           },
           "imports": [

@@ -8,8 +8,8 @@ using KoRadio.Model.SearchObject;
 
 namespace KoRadio.Services.Interfaces
 {
-	public interface IWorkerService
+	public interface IWorkerService:IService<Model.Worker,WorkerSearchObject>
 	{
-		List<WorkerModel> GetList(WorkerSearchObject searchObject);
+		
 	}
 }

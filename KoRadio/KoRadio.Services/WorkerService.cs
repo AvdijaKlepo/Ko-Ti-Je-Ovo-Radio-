@@ -10,35 +10,27 @@ using MapsterMapper;
 using KoRadio.Services.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Worker = KoRadio.Services.Database.Worker;
 
 namespace KoRadio.Services
 {
-	public class WorkerService:IWorkerService
+	public class WorkerService:BaseService<Model.Worker,WorkerSearchObject,Database.Worker>,IWorkerService
 	{
-		private readonly KoTiJeOvoRadioContext _context;
-		public IMapper _mapper { get; set; }
+	
 
 		public WorkerService(KoTiJeOvoRadioContext context,IMapper mapper)
+		:base(context,mapper){ }
+
+		public override IQueryable<Worker> AddFilter(WorkerSearchObject searchObject, IQueryable<Worker> query)
 		{
-			_context = context;
-			_mapper = mapper;
-		}
-		public virtual List<WorkerModel> GetList(WorkerSearchObject searchObject)
-		{
-			List<WorkerModel> result = new List<WorkerModel>();
-			var query = _context.Workers.Include(x=>x.User).AsQueryable();
-			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
+			query = base.AddFilter(searchObject, query);
+			if (searchObject.isNameIncluded == true)
 			{
-				query = query.Include(x => x.User).Where(x => x.User.FirstName.StartsWith(searchObject.FirstNameGTE));
-			}
-			if (!string.IsNullOrWhiteSpace(searchObject?.LastNameGTE))
-			{
-				query = query.Include(x => x.User).Where(x => x.User.LastName.StartsWith(searchObject.LastNameGTE));
+				query = query.Include(x => x.User);
 			}
 
-			var list = query.ToList();
-			result = _mapper.Map(list, result);
-			return result;
+
+			return query;
 		}
 	}
 }

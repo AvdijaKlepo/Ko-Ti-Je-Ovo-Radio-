@@ -1281,7 +1281,7 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
-      "System.Linq.Dynamic.Core/1.5.1": {
+      "System.Linq.Dynamic.Core/1.6.0.1": {
         "type": "package",
         "compile": {
           "lib/net8.0/System.Linq.Dynamic.Core.dll": {
@@ -3968,10 +3968,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "System.Linq.Dynamic.Core/1.5.1": {
-      "sha512": "Uj3xYJHWFs1zXjTrTrPAB3KEPtUirYwFjCmYO+cqcNC/TM0GMjbHtvQYwSr8T3zv/BihVvcpiTOpzn/naVii4g==",
+    "System.Linq.Dynamic.Core/1.6.0.1": {
+      "sha512": "u1ome4HL3OS5lq2QbxIAmHv+i5uewSf2hqosGr8O5FjkseqSx4Fmt1Pn+8fjyex7/rQOOYrXk+iTkxxEgSc9yA==",
       "type": "package",
-      "path": "system.linq.dynamic.core/1.5.1",
+      "path": "system.linq.dynamic.core/1.6.0.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4026,7 +4026,7 @@
         "lib/uap10.0.10240/System.Linq.Dynamic.Core.pri",
         "lib/uap10.0.10240/System.Linq.Dynamic.Core.xml",
         "logo.png",
-        "system.linq.dynamic.core.1.5.1.nupkg.sha512",
+        "system.linq.dynamic.core.1.6.0.1.nupkg.sha512",
         "system.linq.dynamic.core.nuspec"
       ]
     },
@@ -4840,7 +4840,7 @@
       "Mapster >= 7.4.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.0",
-      "System.Linq.Dynamic.Core >= 1.5.1"
+      "System.Linq.Dynamic.Core >= 1.6.0.1"
     ]
   },
   "packageFolders": {
@@ -4913,7 +4913,7 @@
           },
           "System.Linq.Dynamic.Core": {
             "target": "Package",
-            "version": "[1.5.1, )"
+            "version": "[1.6.0.1, )"
           }
         },
         "imports": [
@@ -4935,17 +4935,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1903",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'System.Linq.Dynamic.Core' 1.5.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-4cv2-4hjh-77rx",
-      "libraryId": "System.Linq.Dynamic.Core",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }

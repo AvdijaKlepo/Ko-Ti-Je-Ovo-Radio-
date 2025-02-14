@@ -1407,7 +1407,7 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
-      "System.Linq.Dynamic.Core/1.5.1": {
+      "System.Linq.Dynamic.Core/1.6.0.1": {
         "type": "package",
         "compile": {
           "lib/net8.0/System.Linq.Dynamic.Core.dll": {
@@ -1780,7 +1780,7 @@
           "KoRadio.Model": "1.0.0",
           "Mapster": "7.4.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.0",
-          "System.Linq.Dynamic.Core": "1.5.1"
+          "System.Linq.Dynamic.Core": "1.6.0.1"
         },
         "compile": {
           "bin/placeholder/KoRadio.Services.dll": {}
@@ -4567,10 +4567,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "System.Linq.Dynamic.Core/1.5.1": {
-      "sha512": "Uj3xYJHWFs1zXjTrTrPAB3KEPtUirYwFjCmYO+cqcNC/TM0GMjbHtvQYwSr8T3zv/BihVvcpiTOpzn/naVii4g==",
+    "System.Linq.Dynamic.Core/1.6.0.1": {
+      "sha512": "u1ome4HL3OS5lq2QbxIAmHv+i5uewSf2hqosGr8O5FjkseqSx4Fmt1Pn+8fjyex7/rQOOYrXk+iTkxxEgSc9yA==",
       "type": "package",
-      "path": "system.linq.dynamic.core/1.5.1",
+      "path": "system.linq.dynamic.core/1.6.0.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4625,7 +4625,7 @@
         "lib/uap10.0.10240/System.Linq.Dynamic.Core.pri",
         "lib/uap10.0.10240/System.Linq.Dynamic.Core.xml",
         "logo.png",
-        "system.linq.dynamic.core.1.5.1.nupkg.sha512",
+        "system.linq.dynamic.core.1.6.0.1.nupkg.sha512",
         "system.linq.dynamic.core.nuspec"
       ]
     },
