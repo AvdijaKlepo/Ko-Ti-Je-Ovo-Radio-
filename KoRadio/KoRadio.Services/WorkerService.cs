@@ -24,6 +24,15 @@ namespace KoRadio.Services
 		public override IQueryable<Worker> AddFilter(WorkerSearchObject searchObject, IQueryable<Worker> query)
 		{
 			query = base.AddFilter(searchObject, query);
+			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
+			{
+				query = query.Where(x => x.User.FirstName.StartsWith(searchObject.FirstNameGTE));
+			}
+
+			if (!string.IsNullOrWhiteSpace(searchObject?.LastNameGTE))
+			{
+				query = query.Where(x => x.User.LastName.StartsWith(searchObject.LastNameGTE));
+			}
 			if (searchObject.isNameIncluded == true)
 			{
 				query = query.Include(x => x.User);

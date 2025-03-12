@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/providers/worker_provider.dart';
 import 'package:ko_radio_desktop/screens/worker_list_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_)=> WorkerProvider())
+    ],
+    child: const MyApp(),));
 }
 
 class MyApp extends StatelessWidget {

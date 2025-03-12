@@ -94,5 +94,24 @@ namespace KoRadio.Services
 			byte[] inArray = algorithm.ComputeHash(dst);
 			return Convert.ToBase64String(inArray);
 		}
+
+		public Model.User Login(string username, string password)
+		{
+			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).FirstOrDefault(x => x.Email == username);
+
+			if (entity == null)
+			{
+				return null;
+			}
+
+			var hash = GenerateHash(entity.PasswordSalt, password);
+
+			if (hash != entity.PasswordHash)
+			{
+				return null;
+			}
+
+			return _mapper.Map<Model.User>(entity);
+		}
 	}
 }
