@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_desktop/models/role.dart';
+import 'package:ko_radio_desktop/models/user_role.dart';
 
 part 'user.g.dart';
 @JsonSerializable()
@@ -7,8 +9,10 @@ class User{
   String? firstName;
   String? lastName;
   String? email;
+  Role? role;
+  List<UserRole>? userRoles;
 
-  User({required this.firstName, required this.lastName, this.email});
+  User();
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 

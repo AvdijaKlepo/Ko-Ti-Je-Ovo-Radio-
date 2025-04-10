@@ -9,11 +9,11 @@ public partial class Service
 
     public string? ServiceName { get; set; }
 
-    public int? FreelancerId { get; set; }
+    public byte[]? Image { get; set; }
 
-    public int? CompanyId { get; set; }
+    public byte[]? ImageThumb { get; set; }
 
-    public virtual Company? Company { get; set; }
+    public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
-    public virtual Freelancer? Freelancer { get; set; }
+    public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 }

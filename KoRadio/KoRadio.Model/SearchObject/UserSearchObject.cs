@@ -12,6 +12,8 @@ namespace KoRadio.Model.SearchObject
 		public string? Email { get; set; }
 		public bool? IsUserRolesIncluded { get; set; }
 
+		public bool? IsFreelancerIncluded { get; set; }
+
 		public string? OrderBy { get; set; }
 
 

@@ -5,6 +5,437 @@
     "version": "1.0"
   },
   "paths": {
+    "/Freelancer": {
+      "post": {
+        "tags": [
+          "Freelancer"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerInsertRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerInsertRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerInsertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "FirstNameGTE",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "LastNameGTE",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ExperianceYears",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ServiceId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "IsServiceIncluded",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreelancerPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreelancerPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreelancerPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Freelancer/{id}": {
+      "put": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Service": {
+      "post": {
+        "tags": [
+          "Service"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceInsertRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceInsertRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceInsertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "name": "ServiceName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Service/{id}": {
+      "put": {
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/User/Login": {
       "post": {
         "tags": [
@@ -125,6 +556,13 @@
           },
           {
             "name": "IsUserRolesIncluded",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsFreelancerIncluded",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -313,118 +751,188 @@
           }
         }
       }
-    },
-    "/Worker": {
-      "get": {
-        "tags": [
-          "Worker"
-        ],
-        "parameters": [
-          {
-            "name": "FirstNameGTE",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "LastNameGTE",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "isNameIncluded",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerPagedResult"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerPagedResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerPagedResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/Worker/{id}": {
-      "get": {
-        "tags": [
-          "Worker"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Worker"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Worker"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Worker"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
+      "Freelancer": {
+        "type": "object",
+        "properties": {
+          "freelancerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hourlyRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "availability": {
+            "type": "string",
+            "nullable": true
+          },
+          "experianceYears": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "freelancerServices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FreelancerService"
+            },
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FreelancerInsertRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hourlyRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "availability": {
+            "type": "string",
+            "nullable": true
+          },
+          "experianceYears": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FreelancerPagedResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "resultList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Freelancer"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FreelancerService": {
+        "type": "object",
+        "properties": {
+          "freelancerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "serviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "service": {
+            "$ref": "#/components/schemas/Service"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FreelancerUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "hourlyRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "availability": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "experianceYears": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Role": {
         "type": "object",
         "properties": {
@@ -438,6 +946,78 @@
           },
           "roleDescription": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "imageThumb": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceInsertRequest": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServicePagedResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "resultList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Service"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
             "nullable": true
           }
         },
@@ -468,6 +1048,11 @@
               "$ref": "#/components/schemas/UserRole"
             },
             "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -493,6 +1078,11 @@
           },
           "confirmPassword": {
             "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
             "nullable": true
           }
         },
@@ -562,6 +1152,11 @@
           "confirmPassword": {
             "type": "string",
             "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -584,50 +1179,6 @@
           },
           "summary": {
             "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Worker": {
-        "type": "object",
-        "properties": {
-          "workerId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "bio": {
-            "type": "string",
-            "nullable": true
-          },
-          "rating": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          }
-        },
-        "additionalProperties": false
-      },
-      "WorkerPagedResult": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "resultList": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Worker"
-            },
             "nullable": true
           }
         },

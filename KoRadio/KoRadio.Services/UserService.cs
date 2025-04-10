@@ -25,6 +25,17 @@ namespace KoRadio.Services
 		public override IQueryable<User> AddFilter(UserSearchObject searchObject, IQueryable<User> query)
 		{
 			query = base.AddFilter(searchObject, query);
+
+			query = query.GroupJoin(
+							_context.Freelancers,
+							user => user.UserId,
+							freelancer => freelancer.UserId,
+							(user, freelancer) => new { user, freelancer }
+						)
+						.Where(x => !x.freelancer.Any()) 
+						.Select(x => x.user);
+
+
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
 				query = query.Where(x => x.FirstName.StartsWith(searchObject.FirstNameGTE));
@@ -46,6 +57,9 @@ namespace KoRadio.Services
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
 
+		
+			
+
 			return query;
 		}
 
@@ -58,6 +72,7 @@ namespace KoRadio.Services
 			entity.PasswordSalt = GenerateSalt();
 			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
 			base.BeforeInsert(request, entity);
+
 		}
 
 		public override void BeforeUpdate(UserUpdateRequest request, User entity)

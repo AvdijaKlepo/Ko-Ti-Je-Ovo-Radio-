@@ -1,5 +1,268 @@
 [
   {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Insert",
+    "RelativePath": "Freelancer",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.FreelancerInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Freelancer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetList",
+    "RelativePath": "Freelancer",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "FirstNameGTE",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "LastNameGTE",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Location",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ExperianceYears",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ServiceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsServiceIncluded",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.PagedResult\u00601[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Freelancer/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.FreelancerUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Freelancer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "Freelancer/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Freelancer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Insert",
+    "RelativePath": "Service",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.ServiceInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Service",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetList",
+    "RelativePath": "Service",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ServiceName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.PagedResult\u00601[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Service/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.ServiceUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Service",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "Service/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Service",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "User",
@@ -50,6 +313,11 @@
       },
       {
         "Name": "IsUserRolesIncluded",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsFreelancerIncluded",
         "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
@@ -189,77 +457,5 @@
       }
     ],
     "EndpointName": "GetWeatherForecast"
-  },
-  {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Worker, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.WorkerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-    "Method": "GetList",
-    "RelativePath": "Worker",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "FirstNameGTE",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "LastNameGTE",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "isNameIncluded",
-        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Page",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "PageSize",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "KoRadio.Model.PagedResult\u00601[[KoRadio.Model.Worker, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Worker, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.WorkerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-    "Method": "GetById",
-    "RelativePath": "Worker/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "KoRadio.Model.Worker",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   }
 ]

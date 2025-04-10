@@ -17,9 +17,11 @@ namespace KoRadio.Model.Request
 
 		public string? ConfirmPassword { get; set; }
 
-		
+		public byte[]? Image { get; set; }
 
-	
+
+
+
 
 	}
 }

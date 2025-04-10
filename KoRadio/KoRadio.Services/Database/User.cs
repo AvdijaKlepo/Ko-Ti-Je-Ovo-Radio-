@@ -19,15 +19,11 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual ICollection<Estimate> Estimates { get; set; } = new List<Estimate>();
+    public byte[]? Image { get; set; }
 
-    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+    public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
-    public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
-
+    public virtual ICollection<Freelancer> Freelancers { get; set; } = new List<Freelancer>();
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
-    public virtual Worker? Worker { get; set; }
-
-    public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
 }

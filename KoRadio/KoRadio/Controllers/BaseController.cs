@@ -7,7 +7,7 @@ namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	[Authorize]
+
 	public class BaseController<TModel,TSearch> : ControllerBase  where TSearch:BaseSearchObject
 	{
 		protected readonly IService<TModel, TSearch> _service;

@@ -5,19 +5,23 @@ namespace KoRadio.Services.Database;
 
 public partial class Freelancer
 {
-    public int WorkerId { get; set; }
+    public int FreelancerId { get; set; }
+
+    public int? UserId { get; set; }
 
     public string? Bio { get; set; }
 
-    public virtual ICollection<Estimate> Estimates { get; set; } = new List<Estimate>();
+    public decimal? Rating { get; set; }
 
-    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+    public decimal? HourlyRate { get; set; }
 
-    public virtual ICollection<JobAvailability> JobAvailabilities { get; set; } = new List<JobAvailability>();
+    public string? Availability { get; set; }
 
-    public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+    public int? ExperianceYears { get; set; }
 
-    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+    public string? Location { get; set; }
 
-    public virtual Worker Worker { get; set; } = null!;
+    public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
+
+    public virtual User? User { get; set; }
 }

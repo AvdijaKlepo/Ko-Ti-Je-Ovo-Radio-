@@ -7,21 +7,19 @@ public partial class Company
 {
     public int CompanyId { get; set; }
 
-    public string? CompanyName { get; set; }
-
     public string? Bio { get; set; }
 
-    public virtual ICollection<CompanyWorker> CompanyWorkers { get; set; } = new List<CompanyWorker>();
+    public decimal? Rating { get; set; }
 
-    public virtual ICollection<Estimate> Estimates { get; set; } = new List<Estimate>();
+    public string? Location { get; set; }
 
-    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+    public string? PhoneNumber { get; set; }
 
-    public virtual ICollection<JobAvailability> JobAvailabilities { get; set; } = new List<JobAvailability>();
+    public int? ExperianceYears { get; set; }
 
-    public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+    public string? Availability { get; set; }
 
-    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+    public byte[]? Image { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 }

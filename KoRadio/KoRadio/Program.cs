@@ -11,8 +11,10 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTransient<IWorkerService, WorkerService>();
+
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IFreelanceService, FreelanacerService>();
+builder.Services.AddTransient<IServicesService, ServicesService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
