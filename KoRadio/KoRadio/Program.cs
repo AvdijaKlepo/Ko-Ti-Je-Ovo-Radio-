@@ -7,6 +7,7 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,11 @@ builder.Services.AddSwaggerGen(c =>
 	} });
 
 });
+builder.Services.AddControllers()
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	});
 var connectionString = builder.Configuration.GetConnectionString("KoRadio");
 builder.Services.AddDbContext<KoTiJeOvoRadioContext>(options =>
 	options.UseSqlServer(connectionString));
@@ -45,6 +51,7 @@ builder.Services.AddMapster();
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
+MapsterConfig.RegisterMappings();
 
 var app = builder.Build();
 

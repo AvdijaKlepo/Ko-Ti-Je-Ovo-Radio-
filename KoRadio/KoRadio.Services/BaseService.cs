@@ -39,7 +39,14 @@ namespace KoRadio.Services
 
 
 			var list = query.ToList();
+			
+
+
 			var resultList = _mapper.Map(list, result);
+			for (int i = 0; i < resultList.Count; i++)
+			{
+				BeforeGet(resultList[i], list[i]);
+			}
 			Model.PagedResult<TModel> response = new();
 			response.ResultList = resultList;
 			response.Count = count;
@@ -63,5 +70,6 @@ namespace KoRadio.Services
 
 
 		}
+		public virtual void BeforeGet(TModel request,TDbEntity entity) { }
 	}
 }

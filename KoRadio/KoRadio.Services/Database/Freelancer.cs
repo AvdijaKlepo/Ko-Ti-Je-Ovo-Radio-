@@ -21,6 +21,12 @@ public partial class Freelancer
 
     public string? Location { get; set; }
 
+    public int? WorkingDays { get; set; }
+
+    public TimeOnly? StartTime { get; set; }
+
+    public TimeOnly? EndTime { get; set; }
+
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 
     public virtual User? User { get; set; }

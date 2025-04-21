@@ -125,6 +125,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                    decoration: InputDecoration(labelText: "Location"),
                   name: "location",
                 )),
+                
               ],
             ),
              Row(
@@ -139,10 +140,43 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         
                        ],
                     ),
-          ],
-        ),
-      )
+                   Column(
+                    children: [
+                      FormBuilderCheckboxGroup<String>(
+                      name: 'workingDays',
+                      decoration: InputDecoration(labelText: "Working Days"),
+                      options: [
+                        'Monday',
+                        'Tuesday',
+                        'Wednesday',
+                        'Thursday',
+                        'Friday',
+                        'Saturday',
+                        'Sunday'
+                      ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+                    ),
+                    FormBuilderDateTimePicker(
+                      name: 'startTime',
+                      decoration:
+                          InputDecoration(labelText: "Početak radnog vremena."),
+                      inputType: InputType.time,
+                    ),
+                    FormBuilderDateTimePicker(
+                      name: 'endTime',
+                      decoration:
+                          InputDecoration(labelText: "Kraj radnog vremena"),
+                      inputType: InputType.time,
+                    )
 
+                    ],
+
+                   )
+                  
+          ],
+        )
+          
+      
+      )
     );
   }
 
@@ -153,24 +187,63 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           BackButton(),
-          ElevatedButton(onPressed: (){
-           _formKey.currentState?.saveAndValidate();
-  var formData = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
+          ElevatedButton(
+              onPressed: () {
+                _formKey.currentState?.saveAndValidate();
+                var formData = Map<String, dynamic>.from(
+                    _formKey.currentState?.value ?? {});
+               if (formData["startTime"] is DateTime) {
+                  formData["startTime"] = (formData["startTime"] as DateTime)
+                      .toIso8601String()
+                      .substring(11, 19); 
+                }
+                if (formData["endTime"] is DateTime) {
+                  formData["endTime"] = (formData["endTime"] as DateTime)
+                      .toIso8601String()
+                      .substring(11, 19); 
+                }
+                Map<String, int> dayMap = {
+                  'Sunday': 0,
+                  'Monday': 1,
+                  'Tuesday': 2,
+                  'Wednesday': 3,
+                  'Thursday': 4,
+                  'Friday': 5,
+                  'Saturday': 6,
+                };
 
- 
-  var selectedServices = formData["serviceId"];
-  formData["serviceId"] = (selectedServices is List)
-      ? selectedServices.map((id) => int.tryParse(id.toString()) ?? 0).toList()
-      : (selectedServices != null ? [int.tryParse(selectedServices.toString()) ?? 0] : []);
-                  debugPrint(_formKey.currentState?.value.toString());
+                if (formData["workingDays"] != null) {
+                  formData["workingDays"] =
+                      (formData["workingDays"] as List<String>)
+                          .map((day) => dayMap[day])
+                          .whereType<int>()
+                          .toList();
+                }
 
-            freelancerProvider.insert(formData);
-      
-          }, child: Text("Save"))
+
+                
+             
+                
+                debugPrint("Final form data: ${formData.toString()}");
+
+                var selectedServices = formData["serviceId"];
+                formData["serviceId"] = (selectedServices is List)
+                    ? selectedServices
+                        .map((id) => int.tryParse(id.toString()) ?? 0)
+                        .toList()
+                    : (selectedServices != null
+                        ? [int.tryParse(selectedServices.toString()) ?? 0]
+                        : []);
+                debugPrint(_formKey.currentState?.value.toString());
+
+                freelancerProvider.insert(formData);
+              },
+              child: Text("Save"))
         ],
       ),
     );
   }
+  
 }
 
 

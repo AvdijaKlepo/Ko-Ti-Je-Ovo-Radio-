@@ -12,6 +12,6 @@ public partial class UserRole
     public int? RoleId { get; set; }
 
     public DateTime? ChangedAt { get; set; }
-    public Role Role { get; set; }
     public User User { get; set; }
+    public Role Role { get; set; }
 }

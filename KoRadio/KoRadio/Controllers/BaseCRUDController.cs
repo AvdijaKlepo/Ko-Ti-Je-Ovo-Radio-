@@ -14,7 +14,7 @@ namespace KoRadio.API.Controllers
 		}
 
 		[HttpPost]
-		public TModel Insert(TInsert request)
+		public TModel Insert([FromBody]TInsert request)
 		{
 			return (_service as ICRUDService<TModel, TSearch, TInsert, TUpdate>).Insert(request);
 		}

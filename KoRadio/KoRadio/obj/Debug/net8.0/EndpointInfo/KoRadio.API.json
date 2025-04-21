@@ -755,6 +755,18 @@
   },
   "components": {
     "schemas": {
+      "DayOfWeek": {
+        "enum": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "type": "string"
+      },
       "Freelancer": {
         "type": "object",
         "properties": {
@@ -792,6 +804,23 @@
           },
           "location": {
             "type": "string",
+            "nullable": true
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayOfWeek"
+            },
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
             "nullable": true
           },
           "freelancerServices": {
@@ -840,6 +869,23 @@
           },
           "location": {
             "type": "string",
+            "nullable": true
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayOfWeek"
+            },
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
             "nullable": true
           },
           "serviceId": {
@@ -920,6 +966,19 @@
           "experianceYears": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "workingDays": {
+            "$ref": "#/components/schemas/DayOfWeek"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
             "nullable": true
           },
           "serviceId": {

@@ -25,5 +25,4 @@ public partial class User
 
     public virtual ICollection<Freelancer> Freelancers { get; set; } = new List<Freelancer>();
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-
 }

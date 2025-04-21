@@ -1901,7 +1901,7 @@
       },
       "KoRadio.Model/1.0.0": {
         "type": "project",
-        "framework": ".NETStandard,Version=v2.1",
+        "framework": ".NETCoreApp,Version=v8.0",
         "compile": {
           "bin/placeholder/KoRadio.Model.dll": {}
         },

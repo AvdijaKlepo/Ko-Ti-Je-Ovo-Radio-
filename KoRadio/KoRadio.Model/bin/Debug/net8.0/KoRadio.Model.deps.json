@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "KoRadio.Model/1.0.0": {
+        "runtime": {
+          "KoRadio.Model.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "KoRadio.Model/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

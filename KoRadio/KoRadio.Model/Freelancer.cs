@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace KoRadio.Model
@@ -22,6 +23,13 @@ namespace KoRadio.Model
         public int? ExperianceYears { get; set; }
 
         public string? Location { get; set; }
+
+    
+		public List<DayOfWeek>? WorkingDays { get; set; } 
+
+		public TimeOnly? StartTime { get; set; }
+
+		public TimeOnly? EndTime { get; set; }
 
 
 		public  ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();

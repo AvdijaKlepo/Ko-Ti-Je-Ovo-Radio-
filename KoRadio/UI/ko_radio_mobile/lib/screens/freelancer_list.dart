@@ -70,7 +70,7 @@ class _FreelancerListState extends State<FreelancerList> {
                               width: 100,
                               height: 100,
                             ),
-                            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDetails())),
+                            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDetails(e))),
                     ),
                     Text(
                         '${e.user.firstName} ${e.availability} ${e.hourlyRate}'),

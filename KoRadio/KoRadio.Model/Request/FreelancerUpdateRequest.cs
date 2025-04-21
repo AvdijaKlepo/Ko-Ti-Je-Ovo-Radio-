@@ -16,6 +16,11 @@ namespace KoRadio.Model.Request
 		public string? Location { get; set; }
 
 		public int? ExperianceYears { get; set; }
+		public DayOfWeek? WorkingDays { get; set; }
+
+		public TimeOnly? StartTime { get; set; }
+
+		public TimeOnly? EndTime { get; set; }
 
 		public  ICollection<int> ServiceId { get; set; } = new List<int>();
 

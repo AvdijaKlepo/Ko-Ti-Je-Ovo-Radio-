@@ -15,8 +15,12 @@ class Freelancer{
   String? availability;
   int? experianceYears;
   String? location;
+  int? workingDays;
+  String? startTime;
+  String? endTime;
   List<FreelancerService>? freelancerServices;
   User user;
+  
 
 
   

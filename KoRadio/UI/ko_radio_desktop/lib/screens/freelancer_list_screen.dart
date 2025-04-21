@@ -54,6 +54,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
   }
    TextEditingController _gteNameEditingController = TextEditingController();
   TextEditingController _gteLastNameEditingController = TextEditingController();
+  String? service='true';
   Widget _buildSearch() {
     return  Padding(
       padding: const EdgeInsets.all(8.0),
@@ -67,6 +68,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
             var filter= {
               'FirstNameGTE': _gteNameEditingController.text,
               'LastNameGTE': _gteLastNameEditingController.text,
+              'IsServiceIncluded=':service
              
               
             };
