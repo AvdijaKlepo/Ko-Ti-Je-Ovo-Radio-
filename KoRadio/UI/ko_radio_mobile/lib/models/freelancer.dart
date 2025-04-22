@@ -15,12 +15,13 @@ class Freelancer{
   String? availability;
   int? experianceYears;
   String? location;
+  List<String>? workingDays;
   List<FreelancerService>? freelancerServices;
   User user;
 
 
   
-  Freelancer({required this.bio, required this.rating, required this.hourlyRate, required this.availability, required this.experianceYears, required this.location, required this.freelancerServices,required this.user});
+  Freelancer({required this.bio, required this.rating, required this.hourlyRate, required this.availability, required this.experianceYears, required this.location, required this.freelancerServices,required this.user,required this.workingDays});
 
   factory Freelancer.fromJson(Map<String, dynamic> json) => _$FreelancerFromJson(json);
 

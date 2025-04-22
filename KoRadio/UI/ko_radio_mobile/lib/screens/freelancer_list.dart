@@ -50,34 +50,32 @@ class _FreelancerListState extends State<FreelancerList> {
   Widget build(BuildContext context) {
     return MasterScreen(
       child: ListView.builder(
-        itemCount: result?.result?.length ?? 0,
+        itemCount: result?.result.length ?? 0,
         itemBuilder: (context, index) {
           var e = result!.result[index];
-          return Container(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    InkWell(
-                      child: e.user.image != null
-                          ? Container(
-                              width: 100,
-                              height: 100,
-                              child: imageFromString(e.user.image!),
-                            )
-                          : Image.network(
-                              "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                              width: 100,
-                              height: 100,
-                            ),
-                            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDetails(e))),
-                    ),
-                    Text(
-                        '${e.user.firstName} ${e.availability} ${e.hourlyRate}'),
-                  ],
-                )
-              ],
-            ),
+          return Column(
+            children: [
+              Row(
+                children: [
+                  InkWell(
+                    child: e.user.image != null
+                        ? Container(
+                            width: 100,
+                            height: 100,
+                            child: imageFromString(e.user.image!),
+                          )
+                        : Image.network(
+                            "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                            width: 100,
+                            height: 100,
+                          ),
+                          onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDetails(e))),
+                  ),
+                  Text(
+                      '${e.user.firstName} ${e.availability} ${e.hourlyRate}'),
+                ],
+              )
+            ],
           );
         },
       ),

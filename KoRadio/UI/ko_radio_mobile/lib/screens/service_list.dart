@@ -56,7 +56,7 @@ child:
                           Text("${e.serviceName}")
                         ],
                       )),
-                  onTap:()=> Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>FreelancerList(e.serviceId)))
+                  onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerList(e.serviceId)))
                 )
               : SizedBox.shrink();
         },

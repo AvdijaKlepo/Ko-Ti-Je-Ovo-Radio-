@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.model\\freelancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\freelancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.services\\basecrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\basecrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -21,10 +25,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.model\\request\\freelancerinsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\request\\freelancerinsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.model\\freelancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}|KoRadio.Model\\KoRadio.Model.csproj|solutionrelative:koradio.model\\freelancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvoj softvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.services\\database\\freelancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -94,7 +94,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -102,20 +102,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "Freelancer.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Model\\Freelancer.cs",
               "RelativeDocumentMoniker": "KoRadio.Model\\Freelancer.cs",
               "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Model\\Freelancer.cs",
               "RelativeToolTip": "KoRadio.Model\\Freelancer.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAgwCYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAiwB0AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-11T08:29:29.385Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "FreelancerInsertRequest.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Model\\Request\\FreelancerInsertRequest.cs",
               "RelativeDocumentMoniker": "KoRadio.Model\\Request\\FreelancerInsertRequest.cs",
@@ -123,12 +123,11 @@
               "RelativeToolTip": "KoRadio.Model\\Request\\FreelancerInsertRequest.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAA9wCYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-10T11:23:52.421Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-10T11:23:52.421Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "FreelanacerService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\FreelanacerService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\FreelanacerService.cs",
@@ -136,12 +135,11 @@
               "RelativeToolTip": "KoRadio.Services\\FreelanacerService.cs",
               "ViewState": "AgIAAFsAAAAAAAAAAADwv3YAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-10T11:14:25.895Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-10T11:14:25.895Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "BaseService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\BaseService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\BaseService.cs",
@@ -149,12 +147,11 @@
               "RelativeToolTip": "KoRadio.Services\\BaseService.cs",
               "ViewState": "AgIAACMAAAAAAAAAAAAswEIAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-14T11:05:37.495Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-14T11:05:37.495Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "BaseCRUDService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\BaseCRUDService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\BaseCRUDService.cs",
@@ -191,7 +188,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "DayOfWeekEnum.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Model\\Enums\\DayOfWeekEnum.cs",
               "RelativeDocumentMoniker": "KoRadio.Model\\Enums\\DayOfWeekEnum.cs",
@@ -199,8 +196,7 @@
               "RelativeToolTip": "KoRadio.Model\\Enums\\DayOfWeekEnum.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-16T12:02:05.698Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-16T12:02:05.698Z"
             },
             {
               "$type": "Document",
@@ -212,8 +208,7 @@
               "RelativeToolTip": "KoRadio.Services\\Database\\Freelancer.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-11T08:29:19.115Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-11T08:29:19.115Z"
             },
             {
               "$type": "Document",
@@ -237,8 +232,7 @@
               "RelativeToolTip": "KoRadio\\Program.cs",
               "ViewState": "AgIAAB8AAAAAAAAAAAAAADUAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-14T10:58:31.007Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-14T10:58:31.007Z"
             },
             {
               "$type": "Document",
