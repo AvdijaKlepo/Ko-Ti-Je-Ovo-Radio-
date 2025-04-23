@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IFreelanceService, FreelanacerService>();
 builder.Services.AddTransient<IServicesService, ServicesService>();
+builder.Services.AddTransient<IJobService, JobService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

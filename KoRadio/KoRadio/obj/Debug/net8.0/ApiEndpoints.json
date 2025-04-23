@@ -144,6 +144,125 @@
     ]
   },
   {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Insert",
+    "RelativePath": "Job",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.JobInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Job",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetList",
+    "RelativePath": "Job",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "JobId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.PagedResult\u00601[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Job/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.JobUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Job",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "Job/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Job",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Service",

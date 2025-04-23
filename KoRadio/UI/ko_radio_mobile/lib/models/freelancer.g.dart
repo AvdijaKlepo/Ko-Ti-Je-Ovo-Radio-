@@ -20,7 +20,10 @@ Freelancer _$FreelancerFromJson(Map<String, dynamic> json) => Freelancer(
       workingDays: (json['workingDays'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-    )..freelancerId = (json['freelancerId'] as num?)?.toInt();
+    )
+      ..freelancerId = (json['freelancerId'] as num?)?.toInt()
+      ..startTime = json['startTime'] as String?
+      ..endTime = json['endTime'] as String?;
 
 Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
     <String, dynamic>{
@@ -32,6 +35,8 @@ Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
       'experianceYears': instance.experianceYears,
       'location': instance.location,
       'workingDays': instance.workingDays,
+      'startTime': instance.startTime,
+      'endTime': instance.endTime,
       'freelancerServices': instance.freelancerServices,
       'user': instance.user,
     };

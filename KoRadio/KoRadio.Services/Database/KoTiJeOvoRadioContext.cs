@@ -25,6 +25,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<FreelancerService> FreelancerServices { get; set; }
 
+    public virtual DbSet<Job> Jobs { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
@@ -35,7 +37,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;TrustServerCertificate=true;Trusted_Connection=true;Initial Catalog=KoTiJeOvoRadio;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -124,6 +126,25 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasOne(d => d.Service).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.ServiceId)
                 .HasConstraintName("FK__Freelance__Servi__1CBC4616");
+        });
+
+        modelBuilder.Entity<Job>(entity =>
+        {
+            entity.HasKey(e => e.JobId).HasName("PK__Jobs__056690C234DE197E");
+
+            entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
+            entity.Property(e => e.JobDate).HasColumnType("datetime");
+            entity.Property(e => e.PayEstimate).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.PayInvoice).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Freelancer).WithMany(p => p.Jobs)
+                .HasForeignKey(d => d.FreelancerId)
+                .HasConstraintName("FK__Jobs__Freelancer__503BEA1C");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Jobs)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Jobs__UserID__4F47C5E3");
         });
 
         modelBuilder.Entity<Role>(entity =>

@@ -29,5 +29,7 @@ public partial class Freelancer
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 
+    public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+
     public virtual User? User { get; set; }
 }

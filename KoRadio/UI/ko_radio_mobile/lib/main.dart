@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
+import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
@@ -12,6 +13,7 @@ void main() {
     ChangeNotifierProvider(create: (_)=>ServiceProvider()),
     ChangeNotifierProvider(create: (_)=>FreelancerProvider()),
     ChangeNotifierProvider(create: (_)=>UserProvider()),
+    ChangeNotifierProvider(create: (_)=>JobProvider()),
 
   ],
   child: const MyApp(),
