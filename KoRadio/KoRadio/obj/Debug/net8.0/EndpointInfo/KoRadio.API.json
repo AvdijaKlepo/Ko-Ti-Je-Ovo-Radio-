@@ -1213,19 +1213,38 @@
           },
           "endEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "payEstimate": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "payInvoice": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "jobDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "jobDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "jobsServices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobsService"
+            },
+            "nullable": true
           },
           "freelancer": {
             "$ref": "#/components/schemas/Freelancer"
@@ -1255,19 +1274,39 @@
           },
           "endEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "payEstimate": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "payInvoice": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "jobDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "jobDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1293,10 +1332,6 @@
       "JobUpdateRequest": {
         "type": "object",
         "properties": {
-          "jobId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "userId": {
             "type": "integer",
             "format": "int32",
@@ -1313,25 +1348,67 @@
           },
           "endEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "payEstimate": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "payInvoice": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "jobDate": {
             "type": "string",
             "format": "date-time"
           },
-          "freelancer": {
-            "$ref": "#/components/schemas/Freelancer"
+          "jobDescription": {
+            "type": "string",
+            "nullable": true
           },
-          "user": {
-            "$ref": "#/components/schemas/User"
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "JobsService": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "service": {
+            "$ref": "#/components/schemas/Service"
           }
         },
         "additionalProperties": false

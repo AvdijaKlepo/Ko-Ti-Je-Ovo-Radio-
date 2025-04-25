@@ -16,4 +16,6 @@ public partial class Service
     public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
+
+    public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 }

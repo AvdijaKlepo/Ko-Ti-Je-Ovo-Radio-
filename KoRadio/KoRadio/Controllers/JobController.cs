@@ -9,9 +9,11 @@ namespace KoRadio.API.Controllers
     [Route("[controller]")]
     [ApiController]
     public class JobController : BaseCRUDController<Model.Job, JobSearchObject, JobInsertRequest, JobUpdateRequest>
-    {
+	{
+
+
 		public JobController(IJobService service)
-			  : base(service)
+			: base(service)
 		{
 
 		}

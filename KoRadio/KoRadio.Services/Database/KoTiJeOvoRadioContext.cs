@@ -27,6 +27,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<Job> Jobs { get; set; }
 
+    public virtual DbSet<JobsService> JobsServices { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
@@ -37,7 +39,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;TrustServerCertificate=true;Trusted_Connection=true;Initial Catalog=KoTiJeOvoRadio;");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -134,8 +136,9 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.JobDate).HasColumnType("datetime");
-            entity.Property(e => e.PayEstimate).HasColumnType("decimal(18, 0)");
-            entity.Property(e => e.PayInvoice).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.JobDescription).HasMaxLength(255);
+            entity.Property(e => e.PayEstimate).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.PayInvoice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.Jobs)
@@ -145,6 +148,25 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Jobs__UserID__4F47C5E3");
+        });
+
+        modelBuilder.Entity<JobsService>(entity =>
+        {
+            entity.HasKey(e => new { e.JobId, e.ServiceId }).HasName("PK__JobsServ__B9372BC2B802A0FE");
+
+            entity.ToTable("JobsService");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.JobsServices)
+                .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__JobsServi__JobId__7849DB76");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.JobsServices)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__JobsServi__Servi__793DFFAF");
         });
 
         modelBuilder.Entity<Role>(entity =>

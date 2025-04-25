@@ -7,10 +7,10 @@ part of 'job.dart';
 // **************************************************************************
 
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
-      endEstimate: json['endEstimate'] as String,
+      endEstimate: json['endEstimate'] as String?,
       startEstimate: json['startEstimate'] as String,
-      payEstimate: (json['payEstimate'] as num).toDouble(),
-      payInvoice: (json['payInvoice'] as num).toDouble(),
+      payEstimate: (json['payEstimate'] as num?)?.toDouble(),
+      payInvoice: (json['payInvoice'] as num?)?.toDouble(),
       jobDate: DateTime.parse(json['jobDate'] as String),
     )
       ..jobId = (json['jobId'] as num?)?.toInt()
@@ -19,15 +19,27 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           : Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>)
       ..user = json['user'] == null
           ? null
-          : User.fromJson(json['user'] as Map<String, dynamic>);
+          : User.fromJson(json['user'] as Map<String, dynamic>)
+      ..service = json['service'] == null
+          ? null
+          : Service.fromJson(json['service'] as Map<String, dynamic>)
+      ..jobDescription = json['jobDescription'] as String?
+      ..image = json['image'] as String?
+      ..jobServices = (json['jobServices'] as List<dynamic>?)
+          ?.map((e) => JobsService.fromJson(e as Map<String, dynamic>))
+          .toList();
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobId': instance.jobId,
       'freelancer': instance.freelancer,
       'user': instance.user,
+      'service': instance.service,
       'startEstimate': instance.startEstimate,
       'endEstimate': instance.endEstimate,
       'payEstimate': instance.payEstimate,
       'payInvoice': instance.payInvoice,
       'jobDate': instance.jobDate.toIso8601String(),
+      'jobDescription': instance.jobDescription,
+      'image': instance.image,
+      'jobServices': instance.jobServices,
     };
