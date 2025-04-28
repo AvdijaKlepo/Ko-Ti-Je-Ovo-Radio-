@@ -112,6 +112,8 @@ namespace KoRadio.Services
 
 		public Model.User Login(string username, string password)
 		{
+			
+
 			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).FirstOrDefault(x => x.Email == username);
 
 			if (entity == null)

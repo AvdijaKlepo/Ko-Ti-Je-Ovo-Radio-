@@ -16,6 +16,7 @@ namespace KoRadio.Model
 		public virtual ICollection<Model.UserRole> UserRoles { get; set; } = new List<Model.UserRole>();
 
 		public byte[]? Image { get; set; }
+		public Freelancer? Freelancer { get; set; }
 
 
 	}

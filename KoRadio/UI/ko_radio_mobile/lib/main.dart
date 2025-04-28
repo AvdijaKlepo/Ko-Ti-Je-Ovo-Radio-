@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
+import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +58,9 @@ class MyApp extends StatelessWidget {
 }
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+    TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -77,18 +81,100 @@ class LoginPage extends StatelessWidget {
                    
                   ),
                   TextField(
+                    controller: usernameController,
                     decoration: InputDecoration(
                         labelText: "Username", prefixIcon: Icon(Icons.email)),
                   ),
                   SizedBox(height: 10),
                   TextField(
+                    controller: passwordController,
                     decoration: InputDecoration(
+                      
                         labelText: "Password",
                         prefixIcon: Icon(Icons.password)),
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ServiceListScreen())));
+                      onPressed: () async {
+                        var provider = UserProvider();
+                        AuthProvider.username = usernameController.text;
+                        AuthProvider.password = passwordController.text;
+
+                        try {
+                          
+                          UserProvider userProvider = new UserProvider();
+
+                          var user = await userProvider.login(AuthProvider.username, AuthProvider.password);
+
+                     
+
+                          AuthProvider.user?.userId = user.userId;
+                          AuthProvider.user?.firstName = user.firstName;
+                          AuthProvider.user?.lastName = user.lastName;
+                          AuthProvider.userRoles = user.userRoles?.isNotEmpty == true ? user.userRoles!.first : null;
+
+                          //AuthProvider.userRole = user.userRole;
+
+                          print('UserId: ${AuthProvider.userRoles?.role.roleName}');
+
+
+                         if (
+                                  AuthProvider.userRoles!.role.roleName=="Administrator") {
+                                    print(AuthProvider.userRoles!.role.roleName);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ServiceListScreen(),
+                                ));
+                                  }
+               
+                          
+                        
+                         
+                        } on Exception catch (e) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Error"),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("Ok"))
+                                    ],
+                                    content: Text(e.toString()),
+                                  ));
+                        }
+                        try{
+                          if (
+                                  AuthProvider.userRoles!.role.roleName=="Freelancer") {
+                                    print(AuthProvider.userRoles!.role.roleName);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => FreelancerJobsScreen(),
+                                ));
+                                  }
+                            
+                          //var data = await provider.get();
+                          //AuthProvider.user?.firstName =
+                            //  data.result['resultList'].firstName;
+
+                          //Navigator.of(context).push(MaterialPageRoute(
+                           //   builder: (context) => MasterScreen()));
+                          
+                        
+                         
+                        } on Exception catch (e) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Error"),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("Ok"))
+                                    ],
+                                    content: Text(e.toString()),
+                                  ));
+                        }
+
                       },
                       child: Text("Login")),
                       ElevatedButton(

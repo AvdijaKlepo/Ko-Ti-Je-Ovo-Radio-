@@ -63,29 +63,47 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                     itemCount: result!.result.length,
                     itemBuilder: (context, index) {
                       var e = result!.result[index];
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Row(
+
+                      return Column(
+                        children: [
+                          SingleChildScrollView(
+                            child: Column(
                               children: [
-                                Text('Vrijeme'),
-                                SizedBox(width: 10),
-                                Text('Servis'),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Column(
+                                Row(
                                   children: [
-                                    Text('Početak: ${e.startEstimate}',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    Text('Završetak: ${e.endEstimate}'),
+                                    Text('Vrijeme'),
+                                    SizedBox(width: 10),
+                                    Text('Servis'),
                                   ],
                                 ),
+                                Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text('Početak: ${e.startEstimate}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        Text('Završetak: ${e.endEstimate}'),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                  
                               ],
+
                             ),
-                            ElevatedButton(
+                          ),
+                          
+                        ],
+                        
+                      );
+                      
+                    },
+                    
+                    
+                  )),
+                  
+                  floatingActionButton:   ElevatedButton(
                               child: Text('Rezerviši'),
                               onPressed: () {
                                 Navigator.of(context).push(
@@ -96,11 +114,8 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                                 );
                               },
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  )),
+                            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+                          
       ),
     );
   }
