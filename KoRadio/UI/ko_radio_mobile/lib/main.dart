@@ -115,8 +115,9 @@ class LoginPage extends StatelessWidget {
                           //AuthProvider.userRole = user.userRole;
 
                           print('UserId: ${AuthProvider.userRoles?.role.roleName}');
+                    
 
-
+                
                          if (
                                   AuthProvider.userRoles!.role.roleName=="Administrator") {
                                     print(AuthProvider.userRoles!.role.roleName);
@@ -173,7 +174,45 @@ class LoginPage extends StatelessWidget {
                                     ],
                                     content: Text(e.toString()),
                                   ));
+
+                                  
                         }
+                         try{
+                          if (
+                                  AuthProvider.userRoles!.role.roleName=="User") {
+                                    print(AuthProvider.userRoles!.role.roleName);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ServiceListScreen(),
+                                ));
+                                  }
+                            
+                          //var data = await provider.get();
+                          //AuthProvider.user?.firstName =
+                            //  data.result['resultList'].firstName;
+
+                          //Navigator.of(context).push(MaterialPageRoute(
+                           //   builder: (context) => MasterScreen()));
+                          
+                        
+                         
+                        } on Exception catch (e) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Error"),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("Ok"))
+                                    ],
+                                    content: Text(e.toString()),
+                                  ));
+
+                                  
+                        }
+                       
+                        
 
                       },
                       child: Text("Login")),

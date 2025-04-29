@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -14,9 +15,14 @@ import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:provider/provider.dart';
 
 class BookJob extends StatefulWidget {
-  BookJob(this.selectedDay,{super.key});
-  DateTime selectedDay;
+  BookJob({Key? key, this.selectedDay, this.jobDescription, this.startEstimate, this.image, this.serviceId}) : super(key: key);
+  final DateTime? selectedDay;
+  final String? jobDescription;
+  final String? startEstimate;
+  final String? image;
+  final int? serviceId;
   
+
 
   @override
   State<BookJob> createState() => _BookJobState();
@@ -42,7 +48,11 @@ class _BookJobState extends State<BookJob> {
 
     super.initState();
     _initialValue={
-      'jobDate':widget.selectedDay
+      'jobDate':widget.selectedDay,
+      'jobDescription':widget.jobDescription,
+      'startEstimate':widget.startEstimate,
+      'image':widget.image,
+      'serviceId':widget.serviceId
     };
     initForm();
   }

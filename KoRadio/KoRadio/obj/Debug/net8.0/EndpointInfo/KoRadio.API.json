@@ -1533,6 +1533,9 @@
             "type": "string",
             "format": "byte",
             "nullable": true
+          },
+          "freelancer": {
+            "$ref": "#/components/schemas/Freelancer"
           }
         },
         "additionalProperties": false

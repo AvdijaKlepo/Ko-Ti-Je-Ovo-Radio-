@@ -53,7 +53,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => BookJob(widget.selectedDay),
+                            builder: (context) => BookJob(selectedDay:  widget.selectedDay),
                           ),
                         );
                       },
@@ -109,7 +109,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        BookJob(widget.selectedDay),
+                                        BookJob(selectedDay: widget.selectedDay,),
                                   ),
                                 );
                               },
