@@ -20,6 +20,7 @@ namespace KoRadio.Services
 		{
 			
 		}
+		
 		public TModel Insert(TInsert request)
 		{
 		

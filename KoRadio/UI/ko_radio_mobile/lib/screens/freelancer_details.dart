@@ -74,7 +74,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                   setState(() {
                  
                     _selectedDay = selectedDay;
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDaySchedule(selectedDay)));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>FreelancerDaySchedule(selectedDay, widget.e.freelancerId)));
                     
                 
                   });

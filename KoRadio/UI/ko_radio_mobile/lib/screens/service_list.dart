@@ -7,7 +7,8 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:provider/provider.dart';
 class ServiceListScreen extends StatefulWidget {
-  const ServiceListScreen({super.key});
+  ServiceListScreen({super.key});
+
 
   @override
   State<ServiceListScreen> createState() => _ServiceListScreenState();

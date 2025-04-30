@@ -43,4 +43,32 @@ class UserProvider extends BaseProvider<User>{
       throw new Exception("Unknown error.");
     }
   }
+
+  Future<User> registration(Map<dynamic, dynamic> data) async {
+  var url = "${BaseProvider.baseUrl}User/Registration";
+  var uri = Uri.parse(url);
+  var headers = {
+    ...createHeaders(),
+    "Content-Type": "application/json",
+  };
+
+  try {
+    var response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (isValidResponse(response)) {
+      var json = jsonDecode(response.body);
+      return fromJson(json); // Assuming fromJson is implemented
+    } else {
+      throw Exception("Došlo je do greške. Pokušajte ponovo.");
+    }
+  } catch (e) {
+    throw Exception("Greška prilikom registracije: ${e.toString()}");
+  }
+}
+
+ 
 }

@@ -21,7 +21,7 @@ class Job{
   DateTime jobDate;
   String? jobDescription;
   String? image;
-  List<JobsService>? jobServices;
+  List<JobsService>? jobsServices;
 
   
 

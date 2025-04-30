@@ -13,12 +13,10 @@ class MasterScreen extends StatefulWidget {
 }
 
 class _MasterScreenState extends State<MasterScreen> {
-   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-        const ServiceListScreen(),
+
       
 
-  ];
+
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   void _navigateTo(Widget page) {
@@ -40,7 +38,7 @@ class _MasterScreenState extends State<MasterScreen> {
           BottomNavigationBarItem(
             icon: InkWell(
               child: Icon(Icons.home),
-              onTap: () => Navigator.of(context).pushReplacement(
+              onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => ServiceListScreen())),
             ),
             label: 'Servisi',

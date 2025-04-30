@@ -105,6 +105,8 @@ class LoginPage extends StatelessWidget {
 
                           var user = await userProvider.login(AuthProvider.username, AuthProvider.password);
 
+                          AuthProvider.user = user;
+
                      
 
                           AuthProvider.user?.userId = user.userId;

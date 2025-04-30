@@ -21,8 +21,20 @@ namespace KoRadio.Services
 
 		public override IQueryable<Job> AddFilter(JobSearchObject search, IQueryable<Job> query)
 		{
+			query = base.AddFilter(search, query);
 			query = query.Include(x=>x.JobsServices).ThenInclude(x => x.Service);
-			return base.AddFilter(search, query);
+			query = query.Include(x => x.User);
+			query = query.Include(x => x.Freelancer);
+			if (search?.FreelancerId != null)
+			{
+				query = query.Where(x => x.FreelancerId == search.FreelancerId);
+			}
+			if (search?.UserId != null)
+			{
+				query = query.Where(x => x.UserId == search.UserId);
+
+			}
+			return query;
 			
 		}
 		public override void BeforeInsert(JobInsertRequest request, Database.Job entity)

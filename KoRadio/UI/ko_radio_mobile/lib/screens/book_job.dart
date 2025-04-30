@@ -10,18 +10,20 @@ import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:provider/provider.dart';
 
 class BookJob extends StatefulWidget {
-  BookJob({Key? key, this.selectedDay, this.jobDescription, this.startEstimate, this.image, this.serviceId}) : super(key: key);
+  BookJob({Key? key, this.selectedDay, this.jobDescription, this.startEstimate, this.image, this.serviceId, this.freelancerId, this.userId}) : super(key: key);
   final DateTime? selectedDay;
   final String? jobDescription;
   final String? startEstimate;
   final String? image;
   final int? serviceId;
-  
+  final int? freelancerId;
+  final int? userId;
 
 
   @override
@@ -52,7 +54,9 @@ class _BookJobState extends State<BookJob> {
       'jobDescription':widget.jobDescription,
       'startEstimate':widget.startEstimate,
       'image':widget.image,
-      'serviceId':widget.serviceId
+      'serviceId':widget.serviceId,
+      'freelancerId':widget.freelancerId,
+      'userId':AuthProvider.user?.userId
     };
     initForm();
   }
@@ -120,6 +124,8 @@ class _BookJobState extends State<BookJob> {
                           name: "jobDescription")),
                 ],
               ),
+             
+              
                Row(
                        children: [
                           Expanded(
@@ -193,6 +199,8 @@ class _BookJobState extends State<BookJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
+                formData["freelancerId"] = widget.freelancerId;
+                formData["userId"] = AuthProvider.user?.userId;
                
                 debugPrint(_formKey.currentState?.value.toString());
                   var selectedServices = formData["serviceId"];

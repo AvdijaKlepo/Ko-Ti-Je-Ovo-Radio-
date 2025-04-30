@@ -25,7 +25,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           : Service.fromJson(json['service'] as Map<String, dynamic>)
       ..jobDescription = json['jobDescription'] as String?
       ..image = json['image'] as String?
-      ..jobServices = (json['jobServices'] as List<dynamic>?)
+      ..jobsServices = (json['jobsServices'] as List<dynamic>?)
           ?.map((e) => JobsService.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -41,5 +41,5 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobDate': instance.jobDate.toIso8601String(),
       'jobDescription': instance.jobDescription,
       'image': instance.image,
-      'jobServices': instance.jobServices,
+      'jobsServices': instance.jobsServices,
     };

@@ -28,6 +28,13 @@ namespace KoRadio.API.Controllers
 			return (_service as IUserService).Login(username, password);
 		}
 
+		[HttpPost("Registration")]
+		[AllowAnonymous]
+
+		public Model.User Registrate(UserInsertRequest request)
+		{
+			return (_service as IUserService).Registration(request);
+		}
 
 		
 	}

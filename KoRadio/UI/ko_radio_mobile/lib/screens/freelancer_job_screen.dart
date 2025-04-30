@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
+import 'package:ko_radio_mobile/screens/confirm_job.dart';
 import 'package:provider/provider.dart';
 
 class FreelancerJobsScreen extends StatefulWidget {
@@ -34,7 +36,10 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   }
 
   _getServices() async {
-    var job = await jobProvider.get();
+    var filter = {
+      'FreelancerId':AuthProvider.freelancer?.freelancerId
+    };
+    var job = await jobProvider.get(filter:   filter);
     setState(() {
       result = job;
     });
@@ -74,7 +79,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                           ),
                           Row(
                             children: [
-                              ElevatedButton(onPressed: ()=>  Navigator.of(context).push(MaterialPageRoute(builder: (context)=> BookJob(selectedDay:  e.jobDate,jobDescription: e.jobDescription,image: e.image,serviceId: e.service?.serviceId,))), child:  Column(
+                              ElevatedButton(onPressed: ()=>  Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ConfirmJob(e))), child:  Column(
                                 children: [
                                   Text('Početak: ${e.startEstimate}',
                                       style: TextStyle(

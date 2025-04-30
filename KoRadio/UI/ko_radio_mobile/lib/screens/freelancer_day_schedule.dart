@@ -7,8 +7,9 @@ import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:provider/provider.dart';
 
 class FreelancerDaySchedule extends StatefulWidget {
-  FreelancerDaySchedule(this.selectedDay, {super.key});
+  FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
   DateTime selectedDay;
+  final int? freelancerId;
 
   @override
   State<FreelancerDaySchedule> createState() => _FreelancerDayScheduleState();
@@ -53,7 +54,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => BookJob(selectedDay:  widget.selectedDay),
+                            builder: (context) => BookJob(selectedDay:  widget.selectedDay,freelancerId: widget.freelancerId,),
                           ),
                         );
                       },

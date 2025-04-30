@@ -5,6 +5,7 @@ using System.Linq.Dynamic.Core;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Core;
 using KoRadio.Model;
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
@@ -127,6 +128,19 @@ namespace KoRadio.Services
 			{
 				return null;
 			}
+
+			return _mapper.Map<Model.User>(entity);
+		}
+		public Model.User Registration(UserInsertRequest request)
+		{
+
+
+			User entity = _mapper.Map<User>(request);
+
+
+			BeforeInsert(request, entity);
+			_context.Add(entity);
+			_context.SaveChanges();
 
 			return _mapper.Map<Model.User>(entity);
 		}

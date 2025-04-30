@@ -8,7 +8,9 @@ namespace KoRadio.Model.SearchObject
 {
     public class JobSearchObject: BaseSearchObject
 	{
-        public int JobId { get; set; }
+        public int? JobId { get; set; }
+        public int? FreelancerId { get; set; }
+        public int? UserId { get; set; }
 
     }
 }

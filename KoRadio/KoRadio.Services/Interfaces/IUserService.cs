@@ -14,5 +14,6 @@ namespace KoRadio.Services.Interfaces
 	public interface IUserService:ICRUDService<Model.User,UserSearchObject,UserInsertRequest,UserUpdateRequest>
 	{
 		Model.User Login(string username, string password);
+		Model.User Registration(UserInsertRequest request);
 	}
 }

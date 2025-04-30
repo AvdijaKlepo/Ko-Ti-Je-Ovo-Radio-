@@ -121,27 +121,34 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
 
   Widget _save() {
   return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(onPressed: () {
-              _formKey.currentState?.saveAndValidate();
-              debugPrint(_formKey.currentState?.value.toString());
-
+    padding: const EdgeInsets.all(8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () async {
+            if (_formKey.currentState?.saveAndValidate() ?? false) {
               var request = Map.from(_formKey.currentState!.value);
-              
               request['image'] = _base64Image;
 
-              userProvider.insert(request);
-
-
-        
-              
-            }, child: Text("Sačuvaj"))
-          ],
+              try {
+                var user = await userProvider.registration(request);
+                // Handle successful registration, maybe show dialog/snackbar
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Uspješna registracija: ${user.firstName}"),
+                ));
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Greška: ${e.toString()}"),
+                ));
+              }
+            }
+          },
+          child: Text("Sačuvaj"),
         ),
-      );
+      ],
+    ),
+  );
 }
   File? _image;
   String? _base64Image;
