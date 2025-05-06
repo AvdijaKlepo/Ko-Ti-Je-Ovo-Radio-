@@ -121,10 +121,8 @@ class _ConfirmJobState extends State<ConfirmJob> {
           ),
         ));
   }
-  String formatTimeOnly(DateTime? time) {
-  if (time == null) return '';
-  return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
-}
+
+
 
   Widget _save() {
   return Padding(
@@ -136,20 +134,31 @@ class _ConfirmJobState extends State<ConfirmJob> {
           onPressed: () async {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               final formData = _formKey.currentState!.value;
-     
+      
               // Extract values
               final payEstimate = formData['payEstimate'] as double?;
-              final endEstimate = formData['endEstimate'];
- 
+              final endEstimate = (formData['endEstimate'] as DateTime?);
+    
+
               try {
                 await jobProvider.update(
                   widget.jobId!.jobId!,
                   {
+                    'endEstimate': endEstimate != null
+    ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
+    : null,
+
                     'payEstimate': payEstimate,
-                    'endEstimate': endEstimate,
-                  },
+                    'freelancerId':widget.jobId?.freelancer?.freelancerId,
+                    'startEstimate':widget.jobId?.startEstimate,
+                    'userId':widget.jobId?.user?.userId,
+                    'serviceId':widget.jobId?.jobsServices?.map((e) => e.service?.serviceId).toList(),
+                    'jobDescription':widget.jobId?.jobDescription,
+                    'image':widget.jobId?.image,
+                    'jobDate':widget.jobId?.jobDate.toIso8601String()
+                  }
                 );
-                print(endEstimate);
+                
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Job updated successfully')),
@@ -159,6 +168,7 @@ class _ConfirmJobState extends State<ConfirmJob> {
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Failed to update job: $e')),
+                  
                 );
               }
             } else {
