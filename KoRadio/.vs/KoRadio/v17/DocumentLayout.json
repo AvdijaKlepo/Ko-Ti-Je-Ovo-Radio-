@@ -58,8 +58,7 @@
               "RelativeToolTip": "KoRadio.Model\\Request\\JobInsertRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T13:08:40.443Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-06T13:08:40.443Z"
             },
             {
               "$type": "Document",
@@ -84,8 +83,7 @@
               "RelativeToolTip": "KoRadio.Services\\Database\\Job.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T12:06:07.432Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-06T12:06:07.432Z"
             },
             {
               "$type": "Document",
@@ -97,8 +95,7 @@
               "RelativeToolTip": "KoRadio.Model\\Job.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T12:06:03.648Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-06T12:06:03.648Z"
             },
             {
               "$type": "Document",
@@ -110,8 +107,7 @@
               "RelativeToolTip": "KoRadio.Model\\Request\\JobUpdateRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T12:05:52.444Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-06T12:05:52.444Z"
             },
             {
               "$type": "Document",
@@ -123,8 +119,7 @@
               "RelativeToolTip": "KoRadio.Services\\FreelanacerService.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-30T12:33:15.051Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-30T12:33:15.051Z"
             }
           ]
         },
@@ -142,8 +137,7 @@
               "RelativeToolTip": "KoRadio.Model\\SearchObject\\JobSearchObject.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-30T12:34:45.808Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-30T12:34:45.808Z"
             },
             {
               "$type": "Document",

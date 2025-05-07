@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
@@ -43,14 +44,15 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
  Widget build(BuildContext context) {
   return MasterScreen(
 child: 
+
       ListView.builder(
-        itemCount: result?.result?.length ?? 0,
+        itemCount: result?.result.length ?? 0,
         itemBuilder: (context, index) {
           var e = result!.result[index];
           return e.serviceName != null
               ? InkWell(
                   child: Container(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Column(
                         children: [
                           imageFromString(e.image!),

@@ -25,27 +25,70 @@ class _MasterScreenState extends State<MasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-            child: Text('Ko Ti Je Ovo Radio?', style: GoogleFonts.lobster())),
-      ),
-      body: Expanded(
-        child: widget.child,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: InkWell(
-              child: Icon(Icons.home),
-              onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ServiceListScreen())),
-            ),
-            label: 'Servisi',
+   return Scaffold(
+  drawer: Drawer(
+    child: ListView(
+      children: [
+        DrawerHeader(child: Text('Ko Ti Je Ovo Radio?')),
+        ListTile(
+          title: Text('Tile 1'),
+        )
+      ],
+    ),
+  ),
+  appBar: AppBar(
+    automaticallyImplyLeading: false, 
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+    
+        Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine')
-        ],
+        ),
+
+
+        Expanded(
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Ko Ti Je Ovo Radio?',
+                style: GoogleFonts.lobster(
+                  textStyle: TextStyle(
+                    color: Color.fromRGBO(27, 76, 125, 1),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+   
+        Icon(Icons.person),
+      ],
+    ),
+  ),
+  body: widget.child, 
+  bottomNavigationBar: BottomNavigationBar(
+    items: [
+      BottomNavigationBarItem(
+        icon: InkWell(
+          child: Icon(Icons.home),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => ServiceListScreen()),
+          ),
+        ),
+        label: 'Početna',
       ),
-    );
+      BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
+    ],
+  ),
+);
+
   }
 }
