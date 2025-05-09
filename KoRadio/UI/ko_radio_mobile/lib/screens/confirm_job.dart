@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
@@ -19,7 +17,7 @@ class ConfirmJob extends StatefulWidget {
 }
 
 class _ConfirmJobState extends State<ConfirmJob> {
- final _formKey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
 
   late JobProvider jobProvider;
@@ -28,45 +26,39 @@ class _ConfirmJobState extends State<ConfirmJob> {
   SearchResult<Job>? jobResult;
   SearchResult<Service>? serviceResult;
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
   }
+
   @override
-  void initState(){
+  void initState() {
     jobProvider = context.read<JobProvider>();
     serviceProvider = context.read<ServiceProvider>();
 
     super.initState();
-    _initialValue={
-  
-    };
+    _initialValue = {};
     initForm();
   }
-   Future initForm() async {
-    var filter = {
-      'JobId':widget.jobId
-    };
+
+  Future initForm() async {
+    var filter = {'JobId': widget.jobId};
     jobResult = await jobProvider.get(filter: filter);
     serviceResult = await serviceProvider.get();
     print("Fetched user first name: ${jobResult?.result}");
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return  MasterScreen(
+    return MasterScreen(
       child: Scaffold(
-        body:  Column(children: [
-        _buildForm(),
-        _save()
-
-      ],),
+        body: Column(
+          children: [_buildForm(), _save()],
+        ),
       ),
     );
   }
-  
+
   Widget _buildForm() {
     return FormBuilder(
         key: _formKey,
@@ -79,109 +71,90 @@ class _ConfirmJobState extends State<ConfirmJob> {
               Text('${widget.jobId?.jobDescription}'),
               Text('${widget.jobId?.jobDate}'),
               Text('${widget.jobId?.user?.firstName}'),
-              Text(
-  widget.jobId!.jobsServices
-      ?.map((e) => e.service?.serviceName)
-      .where((name) => name != null)
-      .join(', ') ?? 'No services'
-),
- Row(
+              Text(widget.jobId!.jobsServices
+                      ?.map((e) => e.service?.serviceName)
+                      .where((name) => name != null)
+                      .join(', ') ??
+                  'No services'),
+              Row(
                 children: [
                   Expanded(
                       child: FormBuilderDateTimePicker(
-                    decoration:
-                        InputDecoration(labelText: 'Trajanje posla'),
+                    decoration: InputDecoration(labelText: 'Trajanje posla'),
                     name: "endEstimate",
                     inputType: InputType.time,
-                  
                   )),
                 ],
               ),
-               Row(
+              Row(
                 children: [
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration:
-                        InputDecoration(labelText: 'Moguća Cijena'),
+                    decoration: InputDecoration(labelText: 'Moguća Cijena'),
                     name: "payEstimate",
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
                     valueTransformer: (value) => double.tryParse(value ?? ''),
-                  
                   )),
                 ],
               ),
-
-
-             
-              
-              
-                  
             ],
           ),
         ));
   }
 
-
-
   Widget _save() {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ElevatedButton(
-          onPressed: () async {
-            if (_formKey.currentState?.saveAndValidate() ?? false) {
-              final formData = _formKey.currentState!.value;
-      
-              // Extract values
-              final payEstimate = formData['payEstimate'] as double?;
-              final endEstimate = (formData['endEstimate'] as DateTime?);
-    
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState?.saveAndValidate() ?? false) {
+                final formData = _formKey.currentState!.value;
 
-              try {
-                await jobProvider.update(
-                  widget.jobId!.jobId!,
-                  {
+                // Extract values
+                final payEstimate = formData['payEstimate'] as double?;
+                final endEstimate = (formData['endEstimate'] as DateTime?);
+
+                try {
+                  await jobProvider.update(widget.jobId!.jobId!, {
                     'endEstimate': endEstimate != null
-    ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
-    : null,
-
+                        ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
+                        : null,
                     'payEstimate': payEstimate,
-                    'freelancerId':widget.jobId?.freelancer?.freelancerId,
-                    'startEstimate':widget.jobId?.startEstimate,
-                    'userId':widget.jobId?.user?.userId,
-                    'serviceId':widget.jobId?.jobsServices?.map((e) => e.service?.serviceId).toList(),
-                    'jobDescription':widget.jobId?.jobDescription,
-                    'image':widget.jobId?.image,
-                    'jobDate':widget.jobId?.jobDate.toIso8601String()
-                  }
-                );
-                
+                    'freelancerId': widget.jobId?.freelancer?.freelancerId,
+                    'startEstimate': widget.jobId?.startEstimate,
+                    'userId': widget.jobId?.user?.userId,
+                    'serviceId': widget.jobId?.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+                    'jobDescription': widget.jobId?.jobDescription,
+                    'image': widget.jobId?.image,
+                    'jobDate': widget.jobId?.jobDate.toIso8601String()
+                  });
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Job updated successfully')),
-                );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Job updated successfully')),
+                  );
 
-                Navigator.pop(context); 
-              } catch (e) {
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to update job: $e')),
+                  );
+                }
+              } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to update job: $e')),
-                  
+                  SnackBar(content: Text('Validation failed')),
                 );
               }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Validation failed')),
-              );
-            }
-          },
-          child: Text("Sačuvaj"),
-        ),
-      ],
-    ),
-  );
-}
-
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
+    );
+  }
 }

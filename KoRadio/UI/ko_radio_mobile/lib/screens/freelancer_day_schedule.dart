@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
+import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
@@ -9,7 +10,7 @@ import 'package:provider/provider.dart';
 class FreelancerDaySchedule extends StatefulWidget {
   FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
   DateTime selectedDay;
-  final int? freelancerId;
+  final Freelancer? freelancerId;
 
   @override
   State<FreelancerDaySchedule> createState() => _FreelancerDayScheduleState();
@@ -54,7 +55,10 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => BookJob(selectedDay:  widget.selectedDay,freelancerId: widget.freelancerId,),
+                            builder: (context) => BookJob(
+                              selectedDay: widget.selectedDay,
+                              
+                            ),
                           ),
                         );
                       },
@@ -89,34 +93,27 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
                                     ),
                                   ],
                                 ),
-                                  
                               ],
-
                             ),
                           ),
-                          
                         ],
-                        
                       );
-                      
                     },
-                    
-                    
                   )),
-                  
-                  floatingActionButton:   ElevatedButton(
-                              child: Text('Rezerviši'),
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        BookJob(selectedDay: widget.selectedDay,),
-                                  ),
-                                );
-                              },
-                            ),
-                            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-                          
+        floatingActionButton: ElevatedButton(
+          child: Text('${widget.freelancerId?.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}'),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BookJob(
+                  selectedDay: widget.selectedDay,
+                  freelancer: widget.freelancerId,
+                ),
+              ),
+            );
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
   }

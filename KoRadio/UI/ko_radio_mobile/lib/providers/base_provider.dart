@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -10,13 +8,12 @@ import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
-  static String? baseUrl= const String.fromEnvironment("baseUrl", 
+  static String? baseUrl = const String.fromEnvironment("baseUrl",
       defaultValue: "http://localhost:5053/");
   String _endpoint = "";
 
   BaseProvider(String endpoint) {
     _endpoint = endpoint;
-  
   }
 
   Future<SearchResult<T>> get({dynamic filter}) async {
@@ -25,6 +22,37 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (filter != null) {
       var queryString = getQueryString(filter);
       url = "$url?$queryString";
+    }
+
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.get(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+
+      var result = SearchResult<T>();
+
+      result.count = data['count'];
+
+      for (var item in data['resultList']) {
+        result.result.add(fromJson(item));
+      }
+
+      return result;
+    } else {
+      throw new Exception("Unknown error");
+    }
+    // print("response: ${response.request} ${response.statusCode}, ${response.body}");
+  }
+
+  Future<SearchResult<T>> getById(int? id, {dynamic filter}) async {
+    var url = "$baseUrl$_endpoint";
+
+    if (filter != null) {
+      var queryString = getQueryString(filter);
+      url = "$url?$queryString/$id";
     }
 
     var uri = Uri.parse(url);

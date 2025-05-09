@@ -13,10 +13,6 @@ class MasterScreen extends StatefulWidget {
 }
 
 class _MasterScreenState extends State<MasterScreen> {
-
-      
-
-
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   void _navigateTo(Widget page) {
@@ -25,70 +21,71 @@ class _MasterScreenState extends State<MasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
-  drawer: Drawer(
-    child: ListView(
-      children: [
-        DrawerHeader(child: Text('Ko Ti Je Ovo Radio?')),
-        ListTile(
-          title: Text('Tile 1'),
-        )
-      ],
-    ),
-  ),
-  appBar: AppBar(
-    automaticallyImplyLeading: false, 
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-    
-        Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
+    return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(child: Text('Ko Ti Je Ovo Radio?')),
+            ListTile(
+              title: Text('Tile 1'),
+              onTap: ()=> Navigator.pop(context), 
+              
+            )
+          ],
         ),
-
-
-        Expanded(
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                'Ko Ti Je Ovo Radio?',
-                style: GoogleFonts.lobster(
-                  textStyle: TextStyle(
-                    color: Color.fromRGBO(27, 76, 125, 1),
+      ),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
+            ElevatedButton(onPressed: ()=>{
+              Navigator.pop(context)
+            }, child: Icon(Icons.arrow_back))
+            ,
+            Expanded(
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Ko Ti Je Ovo Radio?',
+                    style: GoogleFonts.lobster(
+                      textStyle: TextStyle(
+                        color: Color.fromRGBO(27, 76, 125, 1),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            Icon(Icons.person),
+          ],
         ),
-
-   
-        Icon(Icons.person),
-      ],
-    ),
-  ),
-  body: widget.child, 
-  bottomNavigationBar: BottomNavigationBar(
-    items: [
-      BottomNavigationBarItem(
-        icon: InkWell(
-          child: Icon(Icons.home),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => ServiceListScreen()),
-          ),
-        ),
-        label: 'Početna',
       ),
-      BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
-    ],
-  ),
-);
 
+      body: widget.child,
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: InkWell(
+              child: Icon(Icons.home),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ServiceListScreen()),
+              ),
+            ),
+            label: 'Početna',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
+        ],
+      ),
+    );
   }
 }

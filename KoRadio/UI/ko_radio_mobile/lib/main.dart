@@ -11,14 +11,14 @@ import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_)=>ServiceProvider()),
-    ChangeNotifierProvider(create: (_)=>FreelancerProvider()),
-    ChangeNotifierProvider(create: (_)=>UserProvider()),
-    ChangeNotifierProvider(create: (_)=>JobProvider()),
-
-  ],
-  child: const MyApp(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ServiceProvider()),
+      ChangeNotifierProvider(create: (_) => FreelancerProvider()),
+      ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => JobProvider()),
+    ],
+    child: const MyApp(),
   ));
 }
 
@@ -46,8 +46,9 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Colors.blue, primary: const Color.fromRGBO(27, 76, 125, 25)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            primary: const Color.fromRGBO(27, 76, 125, 25)),
         useMaterial3: true,
       ),
       home: Center(
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-    TextEditingController usernameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -77,8 +78,7 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset(
-                   "assets/images/logo.png",
-                   
+                    "assets/images/logo.png",
                   ),
                   TextField(
                     controller: usernameController,
@@ -89,7 +89,6 @@ class LoginPage extends StatelessWidget {
                   TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
-                      
                         labelText: "Password",
                         prefixIcon: Icon(Icons.password)),
                   ),
@@ -100,37 +99,33 @@ class LoginPage extends StatelessWidget {
                         AuthProvider.password = passwordController.text;
 
                         try {
-                          
                           UserProvider userProvider = new UserProvider();
 
-                          var user = await userProvider.login(AuthProvider.username, AuthProvider.password);
+                          var user = await userProvider.login(
+                              AuthProvider.username, AuthProvider.password);
 
                           AuthProvider.user = user;
-
-                     
 
                           AuthProvider.user?.userId = user.userId;
                           AuthProvider.user?.firstName = user.firstName;
                           AuthProvider.user?.lastName = user.lastName;
-                          AuthProvider.userRoles = user.userRoles?.isNotEmpty == true ? user.userRoles!.first : null;
+                          AuthProvider.userRoles =
+                              user.userRoles?.isNotEmpty == true
+                                  ? user.userRoles!.first
+                                  : null;
 
                           //AuthProvider.userRole = user.userRole;
 
-                          print('UserId: ${AuthProvider.userRoles?.role.roleName}');
-                    
+                          print(
+                              'UserId: ${AuthProvider.userRoles?.role.roleName}');
 
-                
-                         if (
-                                  AuthProvider.userRoles!.role.roleName=="Administrator") {
-                                    print(AuthProvider.userRoles!.role.roleName);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ServiceListScreen(),
-                                ));
-                                  }
-               
-                          
-                        
-                         
+                          if (AuthProvider.userRoles!.role.roleName ==
+                              "Administrator") {
+                            print(AuthProvider.userRoles!.role.roleName);
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ServiceListScreen(),
+                            ));
+                          }
                         } on Exception catch (e) {
                           showDialog(
                               context: context,
@@ -145,24 +140,21 @@ class LoginPage extends StatelessWidget {
                                     content: Text(e.toString()),
                                   ));
                         }
-                        try{
-                          if (
-                                  AuthProvider.userRoles!.role.roleName=="Freelancer") {
-                                    print(AuthProvider.userRoles!.role.roleName);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => FreelancerJobsScreen(),
-                                ));
-                                  }
-                            
+                        try {
+                          if (AuthProvider.userRoles!.role.roleName ==
+                              "Freelancer") {
+                            print(AuthProvider.userRoles!.role.roleName);
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => FreelancerJobsScreen(),
+                            ));
+                          }
+
                           //var data = await provider.get();
                           //AuthProvider.user?.firstName =
-                            //  data.result['resultList'].firstName;
+                          //  data.result['resultList'].firstName;
 
                           //Navigator.of(context).push(MaterialPageRoute(
-                           //   builder: (context) => MasterScreen()));
-                          
-                        
-                         
+                          //   builder: (context) => MasterScreen()));
                         } on Exception catch (e) {
                           showDialog(
                               context: context,
@@ -176,27 +168,21 @@ class LoginPage extends StatelessWidget {
                                     ],
                                     content: Text(e.toString()),
                                   ));
-
-                                  
                         }
-                         try{
-                          if (
-                                  AuthProvider.userRoles!.role.roleName=="User") {
-                                    print(AuthProvider.userRoles!.role.roleName);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ServiceListScreen(),
-                                ));
-                                  }
-                            
+                        try {
+                          if (AuthProvider.userRoles!.role.roleName == "User") {
+                            print(AuthProvider.userRoles!.role.roleName);
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ServiceListScreen(),
+                            ));
+                          }
+
                           //var data = await provider.get();
                           //AuthProvider.user?.firstName =
-                            //  data.result['resultList'].firstName;
+                          //  data.result['resultList'].firstName;
 
                           //Navigator.of(context).push(MaterialPageRoute(
-                           //   builder: (context) => MasterScreen()));
-                          
-                        
-                         
+                          //   builder: (context) => MasterScreen()));
                         } on Exception catch (e) {
                           showDialog(
                               context: context,
@@ -210,17 +196,13 @@ class LoginPage extends StatelessWidget {
                                     ],
                                     content: Text(e.toString()),
                                   ));
-
-                                  
                         }
-                       
-                        
-
                       },
                       child: Text("Login")),
-                      ElevatedButton(
+                  ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => RegistrastionScreen())));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: ((context) => RegistrastionScreen())));
                       },
                       child: Text("Registracija"))
                 ],
@@ -232,6 +214,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
-
-

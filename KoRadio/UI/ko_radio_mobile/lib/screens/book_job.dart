@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -11,20 +10,19 @@ import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:provider/provider.dart';
 
 class BookJob extends StatefulWidget {
-  BookJob({Key? key, this.selectedDay, this.jobDescription, this.startEstimate, this.image, this.serviceId, this.freelancerId, this.userId}) : super(key: key);
+  BookJob(
+      {Key? key,
+      this.selectedDay,
+      this.freelancer})
+      : super(key: key);
   final DateTime? selectedDay;
-  final String? jobDescription;
-  final String? startEstimate;
-  final String? image;
-  final int? serviceId;
-  final int? freelancerId;
-  final int? userId;
-
+  final Freelancer? freelancer;
 
   @override
   State<BookJob> createState() => _BookJobState();
@@ -36,52 +34,56 @@ class _BookJobState extends State<BookJob> {
 
   late JobProvider jobProvider;
   late ServiceProvider serviceProvider;
+  late FreelancerProvider freelancerProvider;
 
   SearchResult<Job>? jobResult;
   SearchResult<Service>? serviceResult;
+  SearchResult<Freelancer>? freelancerResult;
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
   }
+
+  
+
   @override
-  void initState(){
+  void initState() {
     jobProvider = context.read<JobProvider>();
     serviceProvider = context.read<ServiceProvider>();
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      freelancerProvider = context.read<FreelancerProvider>();
+
+    });
 
     super.initState();
-    _initialValue={
-      'jobDate':widget.selectedDay,
-      'jobDescription':widget.jobDescription,
-      'startEstimate':widget.startEstimate,
-      'image':widget.image,
-      'serviceId':widget.serviceId,
-      'freelancerId':widget.freelancerId,
-      'userId':AuthProvider.user?.userId
+    _initialValue = {
+      'jobDate': widget.selectedDay,
+      
     };
     initForm();
   }
-   Future initForm() async {
+
+  Future initForm() async {
     jobResult = await jobProvider.get();
     serviceResult = await serviceProvider.get();
+    freelancerResult = await freelancerProvider.get();
     print("Fetched user first name: ${jobResult?.result}");
-    setState(() {
-      
-    });
+
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return  MasterScreen(
+    return MasterScreen(
       child: Scaffold(
-        body:  Column(children: [
-        _buildForm(),
-        _save()
-
-      ],),
+        body: Column(
+          children: [_buildForm(), _save()],
+        ),
       ),
     );
   }
-  
+
   Widget _buildForm() {
     return FormBuilder(
         key: _formKey,
@@ -111,7 +113,6 @@ class _BookJobState extends State<BookJob> {
                         InputDecoration(labelText: 'Vrijeme rezervacije'),
                     name: "startEstimate",
                     inputType: InputType.time,
-                  
                   )),
                 ],
               ),
@@ -124,41 +125,49 @@ class _BookJobState extends State<BookJob> {
                           name: "jobDescription")),
                 ],
               ),
-             
-              
-               Row(
-                       children: [
-                          Expanded(
-                            child:   FormBuilderCheckboxGroup<int>(
-                              name: "serviceId",
-                              decoration: InputDecoration(labelText: "Servis"),
-                              options: serviceResult?.result.map((item) => FormBuilderFieldOption<int>(value: item.serviceId ,child: Text(item.serviceName ?? ""),),).toList() ?? [],
-                              )
-                          ),
-                        
-                       ],
-                    ),
-                     Row(
-                  children: [
-                    Expanded(child: FormBuilderField(
-                      name:"image",
-                      builder: (field){
-                        return InputDecorator(decoration: InputDecoration(labelText: "Proslijedite sliku problema"),
-                        child: Expanded(child: ListTile(
+              Row(
+                children: [
+                  Expanded(
+                      child: FormBuilderCheckboxGroup<int>(
+                    name: "serviceId",
+                    decoration: InputDecoration(labelText: "Servis"),
+                    options: widget.freelancer!.freelancerServices?.map(
+                              (item) => FormBuilderFieldOption<int>(
+                                value: item.service!.serviceId,
+                                child: Text(item.service?.serviceName ?? ""),
+                              ),
+                            )
+                            .toList() ??
+                        [],
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: FormBuilderField(
+                    name: "image",
+                    builder: (field) {
+                      return InputDecorator(
+                        decoration: InputDecoration(
+                            labelText: "Proslijedite sliku problema"),
+                        child: Expanded(
+                            child: ListTile(
                           leading: Icon(Icons.image),
                           title: Text("Slika"),
                           trailing: Icon(Icons.file_upload),
                           onTap: getImage,
-                        )),);
-                      },
-                    ))
-                  ],
-                )
+                        )),
+                      );
+                    },
+                  ))
+                ],
+              )
             ],
           ),
         ));
   }
-  
+
   File? _image;
   String? _base64Image;
 
@@ -166,21 +175,22 @@ class _BookJobState extends State<BookJob> {
     var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
     if (result != null && result.files.single.path != null) {
-        _image = File(result.files.single.path!);
-        _base64Image = base64Encode(_image!.readAsBytesSync());
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
     }
   }
-  
+
   Widget _save() {
     return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(onPressed: () {
-              _formKey.currentState?.saveAndValidate();
-              debugPrint(_formKey.currentState?.value.toString());
-           var formData = Map<String, dynamic>.from(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                _formKey.currentState?.saveAndValidate();
+                debugPrint(_formKey.currentState?.value.toString());
+                var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
 
                 if (formData["startEstimate"] is DateTime) {
@@ -195,15 +205,14 @@ class _BookJobState extends State<BookJob> {
                       (formData["jobDate"] as DateTime).toIso8601String();
                 }
 
-
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
-                formData["freelancerId"] = widget.freelancerId;
+                formData["freelancerId"] = widget.freelancer?.freelancerId;
                 formData["userId"] = AuthProvider.user?.userId;
-               
+
                 debugPrint(_formKey.currentState?.value.toString());
-                  var selectedServices = formData["serviceId"];
+                var selectedServices = formData["serviceId"];
                 formData["serviceId"] = (selectedServices is List)
                     ? selectedServices
                         .map((id) => int.tryParse(id.toString()) ?? 0)
@@ -214,11 +223,10 @@ class _BookJobState extends State<BookJob> {
                 debugPrint(_formKey.currentState?.value.toString());
 
                 jobProvider.insert(formData);
-
-              
-            }, child: Text("Sačuvaj"))
-          ],
-        ),
-      );
+              },
+              child: Text("Sačuvaj"))
+        ],
+      ),
+    );
   }
 }

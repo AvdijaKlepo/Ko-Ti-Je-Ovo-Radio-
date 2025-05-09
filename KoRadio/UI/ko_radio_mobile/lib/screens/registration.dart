@@ -23,133 +23,145 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
   late UserProvider userProvider;
   SearchResult<User>? userResult;
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
   }
 
   @override
-  void initState(){
+  void initState() {
     userProvider = context.read<UserProvider>();
 
-    _initialValue = {
-    };
+    _initialValue = {};
 
     initForm();
-    
   }
-    Future initForm() async {
+
+  Future initForm() async {
     userResult = await userProvider.get();
     print("Fetched user first name: ${userResult?.result}");
-    setState(() {
-      
-    });
+    setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
-    return  MasterScreen(
+    return MasterScreen(
       child: Scaffold(
         body: Column(
-          children: [
-            _buildForm(),
-            _save()
-          ],
+          children: [_buildForm(), _save()],
         ),
       ),
     );
   }
-  
+
   Widget _buildForm() {
-    return FormBuilder(key: _formKey, initialValue: _initialValue,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                SizedBox(width: 10,),
-               
-                Expanded(child: FormBuilderTextField(
-                  decoration: InputDecoration(labelText: "First Name"),
-                  name: 'firstName',
-                )),
-                SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Last name"),
-                  name: "lastName",
-                )),
-                 SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Email"),
-                  name: "email",
-                )),
-                 SizedBox(width: 10,),
-                  Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Lozinka"),
-                  name: "password",
-                )),
-                 SizedBox(width: 10,),
-                  Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Potvrdi Lozinku"),
-                  name: "confirmPassword",
-                )),
-               
-              ],
-            ),
-             Row(
-                  children: [
-                    Expanded(child: FormBuilderField(
-                      name:"image",
-                      builder: (field){
-                        return InputDecorator(decoration: InputDecoration(labelText: "Odaberi sliku"),
-                        child: Expanded(child: ListTile(
+    return FormBuilder(
+        key: _formKey,
+        initialValue: _initialValue,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: "First Name"),
+                    name: 'firstName',
+                  )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: "Last name"),
+                    name: "lastName",
+                  )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: "Email"),
+                    name: "email",
+                  )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: "Lozinka"),
+                    name: "password",
+                  )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: "Potvrdi Lozinku"),
+                    name: "confirmPassword",
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: FormBuilderField(
+                    name: "image",
+                    builder: (field) {
+                      return InputDecorator(
+                        decoration: InputDecoration(labelText: "Odaberi sliku"),
+                        child: Expanded(
+                            child: ListTile(
                           leading: Icon(Icons.image),
                           title: Text("Select image"),
                           trailing: Icon(Icons.file_upload),
                           onTap: getImage,
-                        )),);
-                      },
-                    ))
-                  ],
-                )
-             
-          ],
-        ),
-      )
-
-    );
+                        )),
+                      );
+                    },
+                  ))
+                ],
+              )
+            ],
+          ),
+        ));
   }
 
   Widget _save() {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ElevatedButton(
-          onPressed: () async {
-            if (_formKey.currentState?.saveAndValidate() ?? false) {
-              var request = Map.from(_formKey.currentState!.value);
-              request['image'] = _base64Image;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState?.saveAndValidate() ?? false) {
+                var request = Map.from(_formKey.currentState!.value);
+                request['image'] = _base64Image;
 
-              try {
-                var user = await userProvider.registration(request);
-                // Handle successful registration, maybe show dialog/snackbar
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Uspješna registracija: ${user.firstName}"),
-                ));
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Greška: ${e.toString()}"),
-                ));
+                try {
+                  var user = await userProvider.registration(request);
+                  // Handle successful registration, maybe show dialog/snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Uspješna registracija: ${user.firstName}"),
+                  ));
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Greška: ${e.toString()}"),
+                  ));
+                }
               }
-            }
-          },
-          child: Text("Sačuvaj"),
-        ),
-      ],
-    ),
-  );
-}
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
+    );
+  }
+
   File? _image;
   String? _base64Image;
 
@@ -157,10 +169,8 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
     var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
     if (result != null && result.files.single.path != null) {
-        _image = File(result.files.single.path!);
-        _base64Image = base64Encode(_image!.readAsBytesSync());
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
     }
   }
 }
-
- 
