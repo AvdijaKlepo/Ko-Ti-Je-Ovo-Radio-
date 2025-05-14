@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/service.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/screens/freelancer_confirmed_requests.dart';
 import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 
@@ -22,35 +24,14 @@ class _MasterScreenState extends State<MasterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(child: Text('Ko Ti Je Ovo Radio?')),
-            ListTile(
-              title: Text('Tile 1'),
-              onTap: ()=> Navigator.pop(context), 
-              
-            )
-          ],
-        ),
-      ),
+     
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Builder(
-              builder: (context) => IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-            ),
-            ElevatedButton(onPressed: ()=>{
-              Navigator.pop(context)
-            }, child: Icon(Icons.arrow_back))
-            ,
+           
+            
             Expanded(
               child: Center(
                 child: FittedBox(
@@ -66,16 +47,24 @@ class _MasterScreenState extends State<MasterScreen> {
                 ),
               ),
             ),
-            Icon(Icons.person),
+       
           ],
         ),
       ),
 
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar:
+      AuthProvider.userRoles?.role.roleName == "User" ?
+      
+       BottomNavigationBar(
+    
+        
         items: [
           BottomNavigationBarItem(
+           
+            
             icon: InkWell(
+              
               child: Icon(Icons.home),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => ServiceListScreen()),
@@ -85,7 +74,27 @@ class _MasterScreenState extends State<MasterScreen> {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
         ],
-      ),
+      ):
+       BottomNavigationBar(
+    
+        
+        items: [
+          BottomNavigationBarItem(
+           
+            
+            icon: InkWell(
+              
+              child: Icon(Icons.home),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ServiceListScreen()),
+              ),
+            ),
+            label: 'Početna',
+          ),
+          BottomNavigationBarItem(icon: InkWell(child: Icon(Icons.shop),onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConfirmedRequests())),), label: 'Pregled poslova'),
+        ],
+      )
+
     );
   }
 }

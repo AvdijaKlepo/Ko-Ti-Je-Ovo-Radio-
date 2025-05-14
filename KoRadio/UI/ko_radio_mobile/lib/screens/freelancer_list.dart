@@ -79,7 +79,10 @@ class _FreelancerListState extends State<FreelancerList> {
               var e = result!.result[index];
               return Column(
                 children: [
+                          
+                  Center(child:Text('${e.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}') ,),
                   Row(
+                
                     children: [
                       InkWell(
                         child: e.user.image != null
@@ -100,16 +103,16 @@ class _FreelancerListState extends State<FreelancerList> {
                                 builder: (context) => FreelancerDetails(e))),
                       ),
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                       
                         children: [
-                          Text('${e.user.firstName}'),
-                          Text('${e.user.lastName}'),
-                          Row(
-                            children: [
-                              Icon(Icons.money),
-                              Text(': ${e.hourlyRate}'),
-                              Text('${e.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}')
-                            ],
-                          ),
+                          Text('${e.user.firstName} ${e.user.lastName}'),
+                          Text('Iskustvo: ${e.experianceYears} godina'),
+                          Text('Ocjena: ${e.rating != 0 ? e.rating : 'Neocijenjen'}'),
+                          Text('Lokacija: ${e.location}')
+                         
+                       
+                         
                         ],
                       )
                     ],

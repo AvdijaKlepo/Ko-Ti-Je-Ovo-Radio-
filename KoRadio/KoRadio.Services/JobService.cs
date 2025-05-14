@@ -24,7 +24,7 @@ namespace KoRadio.Services
 			query = base.AddFilter(search, query);
 			query = query.Include(x=>x.JobsServices).ThenInclude(x => x.Service);
 			query = query.Include(x => x.User);
-			query = query.Include(x => x.Freelancer);
+			query = query.Include(x => x.Freelancer).ThenInclude(x=>x.User);
 			if (search?.FreelancerId != null)
 			{
 				query = query.Where(x => x.FreelancerId == search.FreelancerId);
@@ -32,6 +32,11 @@ namespace KoRadio.Services
 			if (search?.UserId != null)
 			{
 				query = query.Where(x => x.UserId == search.UserId);
+
+			}
+			if (search?.JobDate != null)
+			{
+				query = query.Where(x => x.JobDate == search.JobDate);
 
 			}
 			return query;

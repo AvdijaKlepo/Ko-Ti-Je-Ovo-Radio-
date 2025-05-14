@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -47,61 +48,65 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   final DateTime now = DateTime.now();
 
   Widget build(BuildContext context) {
+ 
+  final filterJob = result?.result.where((element) => element.payEstimate==null && element.jobDate.toIso8601String().split('T')[0]==now.toIso8601String().split('T')[0]).toList();
+
     return MasterScreen(
         child: Scaffold(
-            body: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text("${DateFormat().format(now)}"), Text("Danas")],
-        ),
-        Column(
-          children: [
-            ListView.builder(
-                itemCount: result!.result.length,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemBuilder: ((context, index) {
-                  var e = result!.result[index];
-                  print(e);
-                  return Column(
-                    children: [
-                      SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text('Vrijeme'),
-                                SizedBox(width: 10),
-                                Text('Servis'),
-                              ],
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Center(child: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(now)}',style: GoogleFonts.roboto(),)),
+          ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: result != null && result!.result.isNotEmpty
+              ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(child: Text('Dobrodošli ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}',style: Theme.of(context).textTheme.titleMedium,)),
+                  Center(child: Text('Ukupno zahtjeva: ${filterJob?.length}',style: Theme.of(context).textTheme.titleMedium,)),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filterJob?.length,
+                      itemBuilder: (context, index) {
+                        final job = filterJob![index];
+                        return Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.access_time, color: Colors.blue),
+                            title: Text(
+                              "Početak: ${job.startEstimate}",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (context) => ConfirmJob(e))),
-                                  child: Column(
-                                    children: [
-                                      Text('Početak: ${e.startEstimate}',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Text('Završetak: ${e.endEstimate}'),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                })),
-          ],
-        )
-      ],
-    )));
+                            subtitle: job.endEstimate != null
+                                ? Text("Kraj: ${job.endEstimate}")
+                                : null,
+                            trailing: const Icon(Icons.work_outline),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                
+                ],
+              )
+              : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Nema terminova za ovaj dan.'),
+                   
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
   }
 }

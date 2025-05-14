@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
@@ -49,7 +50,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.blue,
             primary: const Color.fromRGBO(27, 76, 125, 25)),
+            
         useMaterial3: true,
+        fontFamily: GoogleFonts.roboto().fontFamily,
       ),
       home: Center(
         child: LoginPage(),

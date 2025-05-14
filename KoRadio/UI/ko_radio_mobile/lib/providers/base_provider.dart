@@ -28,6 +28,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var headers = createHeaders();
 
     var response = await http.get(uri, headers: headers);
+    print("response: ${response.request} ${response.statusCode},");
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
@@ -44,6 +45,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     } else {
       throw new Exception("Unknown error");
     }
+    
     // print("response: ${response.request} ${response.statusCode}, ${response.body}");
   }
 

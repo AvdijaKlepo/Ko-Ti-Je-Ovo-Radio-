@@ -11,6 +11,7 @@ namespace KoRadio.Model.SearchObject
         public int? JobId { get; set; }
         public int? FreelancerId { get; set; }
         public int? UserId { get; set; }
+        public DateTime? JobDate  { get; set; }
 
     }
 }

@@ -7,7 +7,7 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:provider/provider.dart';
 
-enum options { Radnici, Firme }
+
 
 class ServiceListScreen extends StatefulWidget {
   ServiceListScreen({super.key});
@@ -16,7 +16,6 @@ class ServiceListScreen extends StatefulWidget {
   State<ServiceListScreen> createState() => _ServiceListScreenState();
 }
 
-options view = options.Radnici;
 
 class _ServiceListScreenState extends State<ServiceListScreen> {
   late ServiceProvider serviceProvider;
@@ -50,22 +49,41 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         child: Expanded(
             child: ListView.builder(
       itemCount: result?.result.length ?? 0,
-      itemBuilder: (context, index) {
-        var e = result!.result[index];
-        return e.serviceName != null
-            ? InkWell(
-                child: Container(
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: Column(
-                      children: [
-                        imageFromString(e.image!),
-                        Text("${e.serviceName}")
-                      ],
-                    )),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => FreelancerList(e.serviceId))))
-            : SizedBox.shrink();
-      },
+     itemBuilder: (context, index) {
+  var e = result!.result[index];
+  return e.serviceName != null
+      ? InkWell(
+          child: Container(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.maxWidth * 1;
+                      final height = width * 0.45;
+                      return SizedBox(
+                        width: width,
+                        height: height,
+                        child: imageFromString(
+                          e.image!,
+                          width: width,
+                          height: height,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 8),
+                  Text("${e.serviceName}", style: TextStyle(fontSize: 16)),
+                ],
+              )),
+          onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => FreelancerList(e.serviceId))),
+        )
+      : SizedBox.shrink();
+}
+
     )));
   }
 }

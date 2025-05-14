@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -12,6 +14,7 @@ class FreelancerDaySchedule extends StatefulWidget {
   DateTime selectedDay;
   final Freelancer? freelancerId;
 
+
   @override
   State<FreelancerDaySchedule> createState() => _FreelancerDayScheduleState();
 }
@@ -19,6 +22,7 @@ class FreelancerDaySchedule extends StatefulWidget {
 class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
+ 
   @override
   void initState() {
     super.initState();
@@ -36,85 +40,105 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   }
 
   _getServices() async {
-    var freelancer = await jobProvider.get();
+    var filter={'FreelancerId':widget.freelancerId?.freelancerId,'JobDate':widget.selectedDay.toIso8601String().split('T')[0],
+    };
+
+   
+    var freelancer = await jobProvider.get(filter: filter);
+  
     setState(() {
       result = freelancer;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MasterScreen(
-      child: Scaffold(
-        body: result == null
-            ? Center(child: CircularProgressIndicator())
-            : (result!.result.isEmpty
-                ? Center(
-                    child: ElevatedButton(
-                      child: Text('Rezerviši'),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => BookJob(
-                              selectedDay: widget.selectedDay,
-                              
+Widget build(BuildContext context) { 
+  final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
+  return MasterScreen(
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: TextStyle(color: Color.fromRGBO(51, 63, 72, 1) // #333F48
+,),),),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: result != null && result!.result.isNotEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Ukupno termina: ${filterJob!.length}",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filterJob?.length,
+                      itemBuilder: (context, index) {
+                        final job = filterJob![index];
+                        return Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.access_time, color: Colors.blue),
+                            title: Text(
+                              "Početak: ${job.startEstimate}",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
+                            subtitle: job.endEstimate != null
+                                ? Text("Kraj: ${job.endEstimate}")
+                                : null,
+                            trailing: const Icon(Icons.work_outline),
                           ),
                         );
                       },
                     ),
-                  )
-                : ListView.builder(
-                    itemCount: result!.result.length,
-                    itemBuilder: (context, index) {
-                      var e = result!.result[index];
-
-                      return Column(
-                        children: [
-                          SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text('Vrijeme'),
-                                    SizedBox(width: 10),
-                                    Text('Servis'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text('Početak: ${e.startEstimate}',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                        Text('Završetak: ${e.endEstimate}'),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                  ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => BookJob(
+                            selectedDay: widget.selectedDay,
+                            freelancer: widget.freelancerId,
                           ),
-                        ],
-                      );
-                    },
-                  )),
-        floatingActionButton: ElevatedButton(
-          child: Text('${widget.freelancerId?.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}'),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => BookJob(
-                  selectedDay: widget.selectedDay,
-                  freelancer: widget.freelancerId,
+                        ),
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Dodaj termin'),
+                    ),
+                  ),
+                ],
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Nema termina za ovaj dan.'),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => BookJob(
+                            selectedDay: widget.selectedDay,
+                            freelancer: widget.freelancerId,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Rezerviši'),
+                    )
+                  ],
                 ),
               ),
-            );
-          },
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
-    );
-  }
+    ),
+  );
+}
 }

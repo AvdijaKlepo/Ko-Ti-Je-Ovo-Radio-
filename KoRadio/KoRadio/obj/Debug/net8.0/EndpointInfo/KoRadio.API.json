@@ -316,6 +316,14 @@
             }
           },
           {
+            "name": "JobDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -510,6 +518,21 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "GetServiceByFreelancer",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "FreelancerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
