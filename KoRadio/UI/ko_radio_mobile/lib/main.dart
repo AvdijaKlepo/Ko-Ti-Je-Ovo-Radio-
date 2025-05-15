@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
@@ -70,12 +69,12 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: const Text("Login"),
       ),
       body: Center(
         child: Center(
           child: Container(
-            constraints: BoxConstraints(maxHeight: 400, maxWidth: 400),
+            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
             child: Card(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,13 +84,13 @@ class LoginPage extends StatelessWidget {
                   ),
                   TextField(
                     controller: usernameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                         labelText: "Username", prefixIcon: Icon(Icons.email)),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: passwordController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                         labelText: "Password",
                         prefixIcon: Icon(Icons.password)),
                   ),
@@ -102,7 +101,7 @@ class LoginPage extends StatelessWidget {
                         AuthProvider.password = passwordController.text;
 
                         try {
-                          UserProvider userProvider = new UserProvider();
+                          UserProvider userProvider = UserProvider();
 
                           var user = await userProvider.login(
                               AuthProvider.username, AuthProvider.password);
@@ -126,19 +125,19 @@ class LoginPage extends StatelessWidget {
                               "Administrator") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ServiceListScreen(),
+                              builder: (context) => const ServiceListScreen(),
                             ));
                           }
                         } on Exception catch (e) {
                           showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                    title: Text("Error"),
+                                    title: const Text("Error"),
                                     actions: [
                                       TextButton(
                                           onPressed: () =>
                                               Navigator.pop(context),
-                                          child: Text("Ok"))
+                                          child: const Text("Ok"))
                                     ],
                                     content: Text(e.toString()),
                                   ));
@@ -148,7 +147,7 @@ class LoginPage extends StatelessWidget {
                               "Freelancer") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => FreelancerJobsScreen(),
+                              builder: (context) => const FreelancerJobsScreen(),
                             ));
                           }
 
@@ -162,12 +161,12 @@ class LoginPage extends StatelessWidget {
                           showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                    title: Text("Error"),
+                                    title: const Text("Error"),
                                     actions: [
                                       TextButton(
                                           onPressed: () =>
                                               Navigator.pop(context),
-                                          child: Text("Ok"))
+                                          child: const Text("Ok"))
                                     ],
                                     content: Text(e.toString()),
                                   ));
@@ -176,7 +175,7 @@ class LoginPage extends StatelessWidget {
                           if (AuthProvider.userRoles!.role.roleName == "User") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ServiceListScreen(),
+                              builder: (context) => const ServiceListScreen(),
                             ));
                           }
 
@@ -190,24 +189,24 @@ class LoginPage extends StatelessWidget {
                           showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                    title: Text("Error"),
+                                    title: const Text("Error"),
                                     actions: [
                                       TextButton(
                                           onPressed: () =>
                                               Navigator.pop(context),
-                                          child: Text("Ok"))
+                                          child: const Text("Ok"))
                                     ],
                                     content: Text(e.toString()),
                                   ));
                         }
                       },
-                      child: Text("Login")),
+                      child: const Text("Login")),
                   ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: ((context) => RegistrastionScreen())));
+                            builder: ((context) => const RegistrastionScreen())));
                       },
-                      child: Text("Registracija"))
+                      child: const Text("Registracija"))
                 ],
               ),
             ),

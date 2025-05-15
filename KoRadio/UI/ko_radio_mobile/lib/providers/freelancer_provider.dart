@@ -1,7 +1,6 @@
 
 
 import 'package:ko_radio_mobile/models/freelancer.dart';
-import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/base_provider.dart';
 
 

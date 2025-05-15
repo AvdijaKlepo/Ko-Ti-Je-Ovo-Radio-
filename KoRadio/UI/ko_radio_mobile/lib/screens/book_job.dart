@@ -16,12 +16,7 @@ import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:provider/provider.dart';
 
 class BookJob extends StatefulWidget {
-  BookJob(
-      {Key? key,
-      this.selectedDay,
-      this.freelancer,
-      this.job})
-      : super(key: key);
+  const BookJob({super.key, this.selectedDay, this.freelancer, this.job});
   final DateTime? selectedDay;
   final Freelancer? freelancer;
   final Job? job;
@@ -46,8 +41,6 @@ class _BookJobState extends State<BookJob> {
     super.didChangeDependencies();
   }
 
-  
-
   @override
   void initState() {
     jobProvider = context.read<JobProvider>();
@@ -55,14 +48,10 @@ class _BookJobState extends State<BookJob> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       freelancerProvider = context.read<FreelancerProvider>();
-
     });
 
     super.initState();
-    _initialValue = {
-      'jobDate': widget.selectedDay,
-      
-    };
+    _initialValue = {'jobDate': widget.selectedDay};
     initForm();
   }
 
@@ -78,7 +67,6 @@ class _BookJobState extends State<BookJob> {
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
-      
       child: Scaffold(
         body: Column(
           children: [_buildForm(), _save()],
@@ -93,120 +81,154 @@ class _BookJobState extends State<BookJob> {
         initialValue: _initialValue,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: AuthProvider.userRoles?.role.roleName=="User" ? 
-          Column(
-            children: [
-             
-              Row(
-                children: [
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                      child: FormBuilderDateTimePicker(
-                    decoration: InputDecoration(labelText: 'Datum rezervacije'),
-                    name: "jobDate",
-                    inputType: InputType.date,
-                  )),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderDateTimePicker(
-                    decoration:
-                        InputDecoration(labelText: 'Vrijeme rezervacije'),
-                    name: "startEstimate",
-                    inputType: InputType.time,
-                  )),
-                ],
-              ),
-             
-              
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderTextField(
+          child: AuthProvider.userRoles?.role.roleName == "User"
+              ? Column(
+                  children: [
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                            child: FormBuilderDateTimePicker(
                           decoration:
-                              InputDecoration(labelText: 'Opis problema'),
-                          name: "jobDescription")),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderCheckboxGroup<int>(
-                    name: "serviceId",
-                    decoration: InputDecoration(labelText: "Servis"),
-                    options: widget.freelancer!.freelancerServices?.map(
-                              (item) => FormBuilderFieldOption<int>(
-                                value: item.service!.serviceId,
-                                child: Text(item.service?.serviceName ?? ""),
-                              ),
-                            )
-                            .toList() ??
-                        [],
-                  )),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderField(
-                    name: "image",
-                    builder: (field) {
-                      return InputDecorator(
-                        decoration: InputDecoration(
-                            labelText: "Proslijedite sliku problema"),
-                        child: Expanded(
-                            child: ListTile(
-                          leading: Icon(Icons.image),
-                          title: Text("Slika"),
-                          trailing: Icon(Icons.file_upload),
-                          onTap: getImage,
+                              const InputDecoration(labelText: 'Datum rezervacije'),
+                          name: "jobDate",
+                          inputType: InputType.date,
                         )),
-                      );
-                    },
-                  ))
-                ],
-              )
-            ],
-          ): Column(
-            children: [
-              Text('${widget.job?.startEstimate}'),
-              Text('${widget.job?.jobDescription}'),
-              Text('${widget.job?.jobDate}'),
-              Text('${widget.job?.user?.firstName}'),
-              Text(widget.job!.jobsServices
-                      ?.map((e) => e.service?.serviceName)
-                      .where((name) => name != null)
-                      .join(', ') ??
-                  'No services'),
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderDateTimePicker(
-                    decoration: InputDecoration(labelText: 'Trajanje posla'),
-                    name: "endEstimate",
-                    inputType: InputType.time,
-                  )),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: 'Moguća Cijena'),
-                    name: "payEstimate",
-                    keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
-                    valueTransformer: (value) => double.tryParse(value ?? ''),
-                  )),
-                ],
-              ),
-            ],
-          ),
-          
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: FormBuilderDateTimePicker(
+                          decoration:
+                              const InputDecoration(labelText: 'Vrijeme rezervacije'),
+                          name: "startEstimate",
+                          inputType: InputType.time,
+                        )),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: FormBuilderTextField(
+                                decoration:
+                                    const InputDecoration(labelText: 'Opis problema'),
+                                name: "jobDescription")),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: FormBuilderCheckboxGroup<int>(
+                          name: "serviceId",
+                          decoration: const InputDecoration(labelText: "Servis"),
+                          options: widget.freelancer!.freelancerServices
+                                  ?.map(
+                                    (item) => FormBuilderFieldOption<int>(
+                                      value: item.service!.serviceId,
+                                      child:
+                                          Text(item.service?.serviceName ?? ""),
+                                    ),
+                                  )
+                                  .toList() ??
+                              [],
+                        )),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: FormBuilderField(
+                          name: "image",
+                          builder: (field) {
+                            return InputDecorator(
+                              decoration: const InputDecoration(
+                                  labelText: "Proslijedite sliku problema"),
+                              child: Expanded(
+                                  child: ListTile(
+                                leading: const Icon(Icons.image),
+                                title: const Text("Slika"),
+                                trailing: const Icon(Icons.file_upload),
+                                onTap: getImage,
+                              )),
+                            );
+                          },
+                        ))
+                      ],
+                    )
+                  ],
+                )
+              : Column(
+                  children: [
+                    Text('${widget.job?.startEstimate}'),
+                    Text('${widget.job?.jobDescription}'),
+                    Text('${widget.job?.jobDate}'),
+                    Text('${widget.job?.user?.firstName}'),
+                    Text(widget.job!.jobsServices
+                            ?.map((e) => e.service?.serviceName)
+                            .where((name) => name != null)
+                            .join(', ') ??
+                        'No services'),
+                    widget.job?.endEstimate == null &&
+                            widget.job?.payEstimate == null
+                        ? Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                      child: FormBuilderDateTimePicker(
+                                    decoration: const InputDecoration(
+                                        labelText: 'Trajanje posla'),
+                                    name: "endEstimate",
+                                    inputType: InputType.time,
+                                  )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                      child: FormBuilderTextField(
+                                    decoration: const InputDecoration(
+                                        labelText: 'Moguća Cijena'),
+                                    name: "payEstimate",
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    valueTransformer: (value) =>
+                                        double.tryParse(value ?? ''),
+                                  )),
+                                ],
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              Text('${widget.job?.endEstimate}'),
+                              Text('${widget.job?.payEstimate}'),
+                            ],
+                          ),
+                    widget.job?.endEstimate != null &&
+                            widget.job?.payEstimate != null
+                        ? Row(
+                            children: [
+                              
+                              Expanded(
+                                  child: FormBuilderTextField(
+                                decoration: const InputDecoration(
+                                    labelText: 'Finalna Cijena'),
+                                name: "payInvoice",
+                                keyboardType: const TextInputType.numberWithOptions(
+                                    decimal: true),
+                                valueTransformer: (value) =>
+                                    double.tryParse(value ?? ''),
+                              )),
+                            ],
+                          )
+                        : const SizedBox()
+                  ],
+                ),
         ));
   }
 
@@ -250,8 +272,9 @@ class _BookJobState extends State<BookJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
-            final payEstimate = formData['payEstimate'] as double?;
+                final payEstimate = formData['payEstimate'] as double?;
                 final endEstimate = (formData['endEstimate'] as DateTime?);
+                final payInvoice = formData['payInvoice'] as double?;
 
                 debugPrint(_formKey.currentState?.value.toString());
                 var selectedServices = formData["serviceId"];
@@ -264,13 +287,41 @@ class _BookJobState extends State<BookJob> {
                         : []);
                 debugPrint(_formKey.currentState?.value.toString());
 
-                if(widget.job==null){
-                      formData["freelancerId"] = widget.freelancer?.freelancerId;
-                formData["userId"] = AuthProvider.user?.userId;
-                   jobProvider.insert(formData);
-                } else{
-                formData["freelancerId"] = AuthProvider.freelancer?.freelancerId;
-                formData["userId"] = widget.job?.user?.userId;
+                if (widget.job == null) {
+                  formData["freelancerId"] = widget.freelancer?.freelancerId;
+                  formData["userId"] = AuthProvider.user?.userId;
+                  jobProvider.insert(formData);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Poslan zahtjev.')),
+                  );
+
+                  Navigator.pop(context);
+                } 
+                
+                     if(widget.job?.payEstimate!=null && widget.job?.endEstimate!=null){
+                    jobProvider.update(widget.job!.jobId!, {
+                       'endEstimate': widget.job?.endEstimate,
+                    'payEstimate': widget.job?.payEstimate,
+                    'freelancerId': widget.job?.freelancer?.freelancerId,
+                    'startEstimate': widget.job?.startEstimate,
+                    'userId': widget.job?.user?.userId,
+                    'serviceId': widget.job?.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+                    'jobDescription': widget.job?.jobDescription,
+                    'image': widget.job?.image,
+                    'jobDate': widget.job?.jobDate.toIso8601String(),
+                      'payInvoice': payInvoice
+                    });ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Job updated successfully')), );
+                    Navigator.pop(context);
+                  }
+                  
+                
+                else {
+                  formData["freelancerId"] =
+                      AuthProvider.freelancer?.freelancerId;
+                  formData["userId"] = widget.job?.user?.userId;
                   jobProvider.update(widget.job!.jobId!, {
                     'endEstimate': endEstimate != null
                         ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
@@ -284,16 +335,23 @@ class _BookJobState extends State<BookJob> {
                         .toList(),
                     'jobDescription': widget.job?.jobDescription,
                     'image': widget.job?.image,
-                    'jobDate': widget.job?.jobDate.toIso8601String()
+                    'jobDate': widget.job?.jobDate.toIso8601String(),
+                    'payInvoice': payInvoice
                   });
-                     ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Job updated successfully')),
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Job updated successfully')),
                   );
+                         Navigator.pop(context);
                 }
 
-               
+             
+                 
+              
+
+
+                
               },
-              child: Text("Sačuvaj"))
+              child: const Text("Sačuvaj"))
         ],
       ),
     );

@@ -80,7 +80,7 @@ class _ConfirmJobState extends State<ConfirmJob> {
                 children: [
                   Expanded(
                       child: FormBuilderDateTimePicker(
-                    decoration: InputDecoration(labelText: 'Trajanje posla'),
+                    decoration: const InputDecoration(labelText: 'Trajanje posla'),
                     name: "endEstimate",
                     inputType: InputType.time,
                   )),
@@ -90,10 +90,10 @@ class _ConfirmJobState extends State<ConfirmJob> {
                 children: [
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: 'Moguća Cijena'),
+                    decoration: const InputDecoration(labelText: 'Moguća Cijena'),
                     name: "payEstimate",
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     valueTransformer: (value) => double.tryParse(value ?? ''),
                   )),
                 ],
@@ -136,7 +136,7 @@ class _ConfirmJobState extends State<ConfirmJob> {
                   });
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Job updated successfully')),
+                    const SnackBar(content: Text('Job updated successfully')),
                   );
 
                   Navigator.pop(context);
@@ -147,11 +147,11 @@ class _ConfirmJobState extends State<ConfirmJob> {
                 }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Validation failed')),
+                  const SnackBar(content: Text('Validation failed')),
                 );
               }
             },
-            child: Text("Sačuvaj"),
+            child: const Text("Sačuvaj"),
           ),
         ],
       ),

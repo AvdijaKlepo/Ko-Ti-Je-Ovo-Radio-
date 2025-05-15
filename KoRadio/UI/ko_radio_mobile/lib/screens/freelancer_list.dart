@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
-import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
-import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_details.dart';
 import 'package:provider/provider.dart';
@@ -86,11 +84,11 @@ class _FreelancerListState extends State<FreelancerList> {
                     children: [
                       InkWell(
                         child: e.user.image != null
-                            ? Container(
+                            ? SizedBox(
                                 height: 130,
                                 child: Padding(
+                                  padding: const EdgeInsets.all(10),
                                   child: imageFromString(e.user.image!),
-                                  padding: EdgeInsets.all(10),
                                 ),
                               )
                             : Image.network(

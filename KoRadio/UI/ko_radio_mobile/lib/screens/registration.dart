@@ -63,44 +63,44 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
             children: [
               Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: "First Name"),
+                    decoration: const InputDecoration(labelText: "First Name"),
                     name: 'firstName',
                   )),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: "Last name"),
+                    decoration: const InputDecoration(labelText: "Last name"),
                     name: "lastName",
                   )),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: "Email"),
+                    decoration: const InputDecoration(labelText: "Email"),
                     name: "email",
                   )),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: "Lozinka"),
+                    decoration: const InputDecoration(labelText: "Lozinka"),
                     name: "password",
                   )),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
                       child: FormBuilderTextField(
-                    decoration: InputDecoration(labelText: "Potvrdi Lozinku"),
+                    decoration: const InputDecoration(labelText: "Potvrdi Lozinku"),
                     name: "confirmPassword",
                   )),
                 ],
@@ -112,12 +112,12 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                     name: "image",
                     builder: (field) {
                       return InputDecorator(
-                        decoration: InputDecoration(labelText: "Odaberi sliku"),
+                        decoration: const InputDecoration(labelText: "Odaberi sliku"),
                         child: Expanded(
                             child: ListTile(
-                          leading: Icon(Icons.image),
-                          title: Text("Select image"),
-                          trailing: Icon(Icons.file_upload),
+                          leading: const Icon(Icons.image),
+                          title: const Text("Select image"),
+                          trailing: const Icon(Icons.file_upload),
                           onTap: getImage,
                         )),
                       );
@@ -155,7 +155,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                 }
               }
             },
-            child: Text("Sačuvaj"),
+            child: const Text("Sačuvaj"),
           ),
         ],
       ),

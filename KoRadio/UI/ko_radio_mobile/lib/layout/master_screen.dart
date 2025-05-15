@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ko_radio_mobile/models/service.dart';
+
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 
-import 'package:ko_radio_mobile/screens/freelancer_list.dart';
+
 import 'package:ko_radio_mobile/screens/service_list.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -15,11 +15,9 @@ class MasterScreen extends StatefulWidget {
 }
 
 class _MasterScreenState extends State<MasterScreen> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  void _navigateTo(Widget page) {
-    _navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => page));
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,7 @@ class _MasterScreenState extends State<MasterScreen> {
                   child: Text(
                     'Ko Ti Je Ovo Radio?',
                     style: GoogleFonts.lobster(
-                      textStyle: TextStyle(
+                      textStyle: const TextStyle(
                         color: Color.fromRGBO(27, 76, 125, 1),
                       ),
                     ),
@@ -65,14 +63,14 @@ class _MasterScreenState extends State<MasterScreen> {
             
             icon: InkWell(
               
-              child: Icon(Icons.home),
+              child: const Icon(Icons.home),
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ServiceListScreen()),
+                MaterialPageRoute(builder: (context) => const ServiceListScreen()),
               ),
             ),
             label: 'Početna',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
+          const BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Trgovine'),
         ],
       ):
        BottomNavigationBar(
@@ -84,14 +82,14 @@ class _MasterScreenState extends State<MasterScreen> {
             
             icon: InkWell(
               
-              child: Icon(Icons.home),
+              child: const Icon(Icons.home),
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ServiceListScreen()),
+                MaterialPageRoute(builder: (context) => const ServiceListScreen()),
               ),
             ),
             label: 'Početna',
           ),
-          BottomNavigationBarItem(icon: InkWell(child: Icon(Icons.shop),onTap:()=> {},), label: 'Trgovine'),
+          BottomNavigationBarItem(icon: InkWell(child: const Icon(Icons.shop),onTap:()=> {},), label: 'Trgovine'),
         ],
       )
 

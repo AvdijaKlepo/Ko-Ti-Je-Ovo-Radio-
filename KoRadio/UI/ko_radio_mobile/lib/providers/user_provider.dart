@@ -17,22 +17,22 @@ class UserProvider extends BaseProvider<User>{
       String username, String password) async {
     var url =
 
-        "${BaseProvider.baseUrl}User/Login?username=${username}&password=${password}";
+        "${BaseProvider.baseUrl}User/Login?username=$username&password=$password";
 
     var uri = Uri.parse(url);
     var headers = createHeaders();
 
-    var response;
+    http.Response response;
     try {
       response = await http.post(uri, headers: headers);
-    } on Exception catch (e) {
-      throw new Exception("Greška prilikom prijave.");
+    } on Exception {
+      throw Exception("Greška prilikom prijave.");
     }
     if (username.isEmpty || password.isEmpty) {
-      throw new Exception("Molimo unesite korisničko ime i lozinku.");
+      throw Exception("Molimo unesite korisničko ime i lozinku.");
     }
     if (response.body == "") {
-      throw new Exception("Pogrešno korisničko ime ili lozinka.");
+      throw Exception("Pogrešno korisničko ime ili lozinka.");
     }
       print("API Response: ${response.body}"); 
 
@@ -40,7 +40,7 @@ class UserProvider extends BaseProvider<User>{
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw new Exception("Unknown error.");
+      throw Exception("Unknown error.");
     }
   }
 

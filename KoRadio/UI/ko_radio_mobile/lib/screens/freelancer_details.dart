@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
@@ -67,8 +66,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                      
                          widget.e.user.image != null
                             ?  Padding(
+                                  padding: const EdgeInsets.all(10),
                                   child: imageFromString(widget.e.user.image!,height: 100,width: 100),
-                                  padding: EdgeInsets.all(10),
                                 )
                              
                             : Image.network(
@@ -116,8 +115,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
       },
       calendarStyle: CalendarStyle(
         isTodayHighlighted: true,
-        selectedDecoration: BoxDecoration(
-          color: const Color.fromRGBO(27, 76, 125, 1),
+        selectedDecoration: const BoxDecoration(
+          color: Color.fromRGBO(27, 76, 125, 1),
           shape: BoxShape.circle,
         ),
         todayDecoration: BoxDecoration(

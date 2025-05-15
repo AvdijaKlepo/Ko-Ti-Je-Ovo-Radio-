@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
   return MasterScreen(
     child: Scaffold(
       appBar: AppBar(
-        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: TextStyle(color: Color.fromRGBO(51, 63, 72, 1) 
+        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: const TextStyle(color: Color.fromRGBO(51, 63, 72, 1) 
 ,),),),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -75,9 +75,9 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: filterJob?.length,
+                      itemCount: filterJob.length,
                       itemBuilder: (context, index) {
-                        final job = filterJob![index];
+                        final job = filterJob[index];
                         return Card(
                           elevation: 2,
                           shape: RoundedRectangleBorder(

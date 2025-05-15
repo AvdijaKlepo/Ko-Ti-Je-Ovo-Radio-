@@ -7,7 +7,6 @@ import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
-import 'package:ko_radio_mobile/screens/confirm_job.dart';
 import 'package:provider/provider.dart';
 
 enum options { Neodobreni, Odobreni }
@@ -58,6 +57,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   @override
   final DateTime now = DateTime.now();
 
+  @override
   Widget build(BuildContext context) {
     return MasterScreen(
       child: Scaffold(
@@ -66,7 +66,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           title: Center(
               child: Text(
             'Dobrodošli ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.titleLarge,
           )),
         ),
         body: Padding(
@@ -115,7 +115,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                                                 .split('T')[0] ==
                                             now
                                                 .toIso8601String()
-                                                .split('T')[0]))
+                                                .split('T')[0]) && element.payInvoice==null)
                                 .toList();
                             filterJob = filtered;
                           });
@@ -140,9 +140,14 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                             ),
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             child: ListTile(
-                              onTap: () => Navigator.of(context).push(
+                              onTap: () =>
+                              
+                               Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (context) => BookJob(job:job))),
+
+
+
                               leading: const Icon(Icons.access_time,
                                   color: Colors.blue),
                               title: Text(
@@ -163,11 +168,11 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                     const SizedBox(height: 10),
                   ],
                 )
-              : Center(
+              : const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Nema terminova za ovaj dan.'),
+                      Text('Nema terminova za ovaj dan.'),
                     ],
                   ),
                 ),

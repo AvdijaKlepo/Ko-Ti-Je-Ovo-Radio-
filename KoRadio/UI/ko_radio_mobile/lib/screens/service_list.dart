@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 
 class ServiceListScreen extends StatefulWidget {
-  ServiceListScreen({super.key});
+  const ServiceListScreen({super.key});
 
   @override
   State<ServiceListScreen> createState() => _ServiceListScreenState();
@@ -54,7 +54,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   return e.serviceName != null
       ? InkWell(
           child: Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -74,14 +74,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 8),
-                  Text("${e.serviceName}", style: TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text("${e.serviceName}", style: const TextStyle(fontSize: 16)),
                 ],
               )),
           onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => FreelancerList(e.serviceId))),
         )
-      : SizedBox.shrink();
+      : const SizedBox.shrink();
 }
 
     )));
