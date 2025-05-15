@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
-import 'package:ko_radio_mobile/screens/freelancer_confirmed_requests.dart';
+
 import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 
@@ -91,7 +91,7 @@ class _MasterScreenState extends State<MasterScreen> {
             ),
             label: 'Početna',
           ),
-          BottomNavigationBarItem(icon: InkWell(child: Icon(Icons.shop),onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConfirmedRequests())),), label: 'Pregled poslova'),
+          BottomNavigationBarItem(icon: InkWell(child: Icon(Icons.shop),onTap:()=> {},), label: 'Trgovine'),
         ],
       )
 

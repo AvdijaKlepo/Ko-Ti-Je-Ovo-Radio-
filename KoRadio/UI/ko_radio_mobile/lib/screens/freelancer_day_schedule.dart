@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
   return MasterScreen(
     child: Scaffold(
       appBar: AppBar(
-        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: TextStyle(color: Color.fromRGBO(51, 63, 72, 1) // #333F48
+        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: TextStyle(color: Color.fromRGBO(51, 63, 72, 1) 
 ,),),),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -106,7 +106,8 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(
                           builder: (context) => BookJob(
                             selectedDay: widget.selectedDay,
-                            freelancer: widget.freelancerId,
+                            freelancer: widget.freelancerId
+                     
                           ),
                         ),
                       ),
@@ -127,7 +128,8 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(
                           builder: (context) => BookJob(
                             selectedDay: widget.selectedDay,
-                            freelancer: widget.freelancerId,
+                            freelancer: widget.freelancerId
+                     
                           ),
                         ),
                       ),

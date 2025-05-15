@@ -10,6 +10,8 @@ import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:ko_radio_mobile/screens/confirm_job.dart';
 import 'package:provider/provider.dart';
 
+enum options { Neodobreni, Odobreni }
+
 class FreelancerJobsScreen extends StatefulWidget {
   const FreelancerJobsScreen({super.key});
 
@@ -17,9 +19,12 @@ class FreelancerJobsScreen extends StatefulWidget {
   State<FreelancerJobsScreen> createState() => _FreelancerJobsScreenState();
 }
 
+options view = options.Neodobreni;
+
 class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
+  List<Job>? filterJob;
   @override
   void initState() {
     super.initState();
@@ -41,6 +46,12 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
     var job = await jobProvider.get(filter: filter);
     setState(() {
       result = job;
+      filterJob = job.result
+          .where((element) =>
+              element.payEstimate == null &&
+              element.jobDate.toIso8601String().split('T')[0] ==
+                  now.toIso8601String().split('T')[0])
+          .toList();
     });
   }
 
@@ -48,65 +59,120 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   final DateTime now = DateTime.now();
 
   Widget build(BuildContext context) {
- 
-  final filterJob = result?.result.where((element) => element.payEstimate==null && element.jobDate.toIso8601String().split('T')[0]==now.toIso8601String().split('T')[0]).toList();
-
     return MasterScreen(
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Center(child: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(now)}',style: GoogleFonts.roboto(),)),
-          ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: result != null && result!.result.isNotEmpty
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Center(
+              child: Text(
+            'Dobrodošli ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}',
+            style: Theme.of(context).textTheme.titleMedium,
+          )),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: result != null && result!.result.isNotEmpty
               ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(child: Text('Dobrodošli ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}',style: Theme.of(context).textTheme.titleMedium,)),
-                  Center(child: Text('Ukupno zahtjeva: ${filterJob?.length}',style: Theme.of(context).textTheme.titleMedium,)),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filterJob?.length,
-                      itemBuilder: (context, index) {
-                        final job = filterJob![index];
-                        return Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            leading: const Icon(Icons.access_time, color: Colors.blue),
-                            title: Text(
-                              "Početak: ${job.startEstimate}",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: job.endEstimate != null
-                                ? Text("Kraj: ${job.endEstimate}")
-                                : null,
-                            trailing: const Icon(Icons.work_outline),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                
-                ],
-              )
-              : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Nema terminova za ovaj dan.'),
-                   
+                    Center(
+                        child: Text(
+                      'Raspored za ${DateFormat('dd.MM.yyyy').format(now)}',
+                      style: GoogleFonts.roboto(),
+                    )),
+                    Center(
+                      child: SegmentedButton<options>(
+                        showSelectedIcon: false,
+                        segments: const <ButtonSegment<options>>[
+                          ButtonSegment(
+                              value: options.Neodobreni,
+                              label: Text('Neodobreni'),
+                              icon:
+                                  Icon(Icons.check_box_outline_blank_outlined)),
+                          ButtonSegment(
+                              value: options.Odobreni,
+                              label: Text('Odobreni'),
+                              icon: Icon(Icons.check_box_outlined)),
+                        ],
+                        selected: <options>{view},
+                        onSelectionChanged: (Set<options> newSelection) {
+                          setState(() {
+                            view = newSelection.first;
+                            final filtered = result?.result
+                                .where((element) =>
+                                    (view == options.Neodobreni &&
+                                        element.payEstimate == null &&
+                                        element.jobDate
+                                                .toIso8601String()
+                                                .split('T')[0] ==
+                                            now
+                                                .toIso8601String()
+                                                .split('T')[0]) ||
+                                    (view == options.Odobreni &&
+                                        element.payEstimate != null &&
+                                        element.jobDate
+                                                .toIso8601String()
+                                                .split('T')[0] ==
+                                            now
+                                                .toIso8601String()
+                                                .split('T')[0]))
+                                .toList();
+                            filterJob = filtered;
+                          });
+                        },
+                      ),
+                    ),
+                    Center(
+                        child: Text(
+                      'Ukupno zahtjeva: ${filterJob?.length}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    )),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filterJob?.length,
+                        itemBuilder: (context, index) {
+                          final job = filterJob![index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => BookJob(job:job))),
+                              leading: const Icon(Icons.access_time,
+                                  color: Colors.blue),
+                              title: Text(
+                                "Početak termina: ${job.startEstimate.toString().substring(0, 5)}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: job.endEstimate != null
+                                  ? Text(
+                                      "Kraj: ${job.endEstimate.toString().substring(0, 5)}")
+                                  : null,
+                              trailing: const Icon(Icons.work_outline),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                   ],
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Nema terminova za ovaj dan.'),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        );
+        ),
+      ),
+    );
   }
 }

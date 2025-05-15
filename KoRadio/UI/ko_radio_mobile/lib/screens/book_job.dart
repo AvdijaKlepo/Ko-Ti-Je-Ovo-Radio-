@@ -19,10 +19,12 @@ class BookJob extends StatefulWidget {
   BookJob(
       {Key? key,
       this.selectedDay,
-      this.freelancer})
+      this.freelancer,
+      this.job})
       : super(key: key);
   final DateTime? selectedDay;
   final Freelancer? freelancer;
+  final Job? job;
 
   @override
   State<BookJob> createState() => _BookJobState();
@@ -91,8 +93,10 @@ class _BookJobState extends State<BookJob> {
         initialValue: _initialValue,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: AuthProvider.userRoles?.role.roleName=="User" ? 
+          Column(
             children: [
+             
               Row(
                 children: [
                   SizedBox(
@@ -117,6 +121,8 @@ class _BookJobState extends State<BookJob> {
                   )),
                 ],
               ),
+             
+              
               Row(
                 children: [
                   Expanded(
@@ -165,7 +171,42 @@ class _BookJobState extends State<BookJob> {
                 ],
               )
             ],
+          ): Column(
+            children: [
+              Text('${widget.job?.startEstimate}'),
+              Text('${widget.job?.jobDescription}'),
+              Text('${widget.job?.jobDate}'),
+              Text('${widget.job?.user?.firstName}'),
+              Text(widget.job!.jobsServices
+                      ?.map((e) => e.service?.serviceName)
+                      .where((name) => name != null)
+                      .join(', ') ??
+                  'No services'),
+              Row(
+                children: [
+                  Expanded(
+                      child: FormBuilderDateTimePicker(
+                    decoration: InputDecoration(labelText: 'Trajanje posla'),
+                    name: "endEstimate",
+                    inputType: InputType.time,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: FormBuilderTextField(
+                    decoration: InputDecoration(labelText: 'Moguća Cijena'),
+                    name: "payEstimate",
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    valueTransformer: (value) => double.tryParse(value ?? ''),
+                  )),
+                ],
+              ),
+            ],
           ),
+          
         ));
   }
 
@@ -209,8 +250,8 @@ class _BookJobState extends State<BookJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
-                formData["freelancerId"] = widget.freelancer?.freelancerId;
-                formData["userId"] = AuthProvider.user?.userId;
+            final payEstimate = formData['payEstimate'] as double?;
+                final endEstimate = (formData['endEstimate'] as DateTime?);
 
                 debugPrint(_formKey.currentState?.value.toString());
                 var selectedServices = formData["serviceId"];
@@ -223,7 +264,34 @@ class _BookJobState extends State<BookJob> {
                         : []);
                 debugPrint(_formKey.currentState?.value.toString());
 
-                jobProvider.insert(formData);
+                if(widget.job==null){
+                      formData["freelancerId"] = widget.freelancer?.freelancerId;
+                formData["userId"] = AuthProvider.user?.userId;
+                   jobProvider.insert(formData);
+                } else{
+                formData["freelancerId"] = AuthProvider.freelancer?.freelancerId;
+                formData["userId"] = widget.job?.user?.userId;
+                  jobProvider.update(widget.job!.jobId!, {
+                    'endEstimate': endEstimate != null
+                        ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
+                        : null,
+                    'payEstimate': payEstimate,
+                    'freelancerId': widget.job?.freelancer?.freelancerId,
+                    'startEstimate': widget.job?.startEstimate,
+                    'userId': widget.job?.user?.userId,
+                    'serviceId': widget.job?.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+                    'jobDescription': widget.job?.jobDescription,
+                    'image': widget.job?.image,
+                    'jobDate': widget.job?.jobDate.toIso8601String()
+                  });
+                     ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Job updated successfully')),
+                  );
+                }
+
+               
               },
               child: Text("Sačuvaj"))
         ],
