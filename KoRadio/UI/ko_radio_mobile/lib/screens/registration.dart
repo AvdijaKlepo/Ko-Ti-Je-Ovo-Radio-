@@ -44,13 +44,10 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MasterScreen(
-      child: Scaffold(
-        body: Column(
+    return  Column(
           children: [_buildForm(), _save()],
-        ),
-      ),
-    );
+        );
+      
   }
 
   Widget _buildForm() {

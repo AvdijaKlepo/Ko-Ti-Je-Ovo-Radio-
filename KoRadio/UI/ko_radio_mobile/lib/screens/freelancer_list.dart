@@ -51,76 +51,77 @@ class _FreelancerListState extends State<FreelancerList> {
   Widget build(BuildContext context) {
     return MasterScreen(
       child: Column(
-        children: [
-          SegmentedButton<options>(
-            segments: const <ButtonSegment<options>>[
-              ButtonSegment(
-                  value: options.Radnici,
-                  label: Text('Radnici'),
-                  icon: Icon(Icons.construction)),
-              ButtonSegment(
-                  value: options.Firme,
-                  label: Text('Firme'),
-                  icon: Icon(Icons.business)),
-            ],
-            selected: <options>{view},
-            onSelectionChanged: (Set<options> newSelection) {
-              setState(() {
-                view = newSelection.first;
-              });
-            },
-          ),
-          Expanded(
-              child: ListView.builder(
-            itemCount: result?.result.length ?? 0,
-            itemBuilder: (context, index) {
-              var e = result!.result[index];
-              return Column(
-                children: [
-                          
-                  Center(child:Text('${e.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}') ,),
-                  Row(
-                
-                    children: [
-                      InkWell(
-                        child: e.user.image != null
-                            ? SizedBox(
-                                height: 130,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: imageFromString(e.user.image!),
+          children: [
+            SegmentedButton<options>(
+              segments: const <ButtonSegment<options>>[
+                ButtonSegment(
+                    value: options.Radnici,
+                    label: Text('Radnici'),
+                    icon: Icon(Icons.construction)),
+                ButtonSegment(
+                    value: options.Firme,
+                    label: Text('Firme'),
+                    icon: Icon(Icons.business)),
+              ],
+              selected: <options>{view},
+              onSelectionChanged: (Set<options> newSelection) {
+                setState(() {
+                  view = newSelection.first;
+                });
+              },
+            ),
+            Expanded(
+                child: ListView.builder(
+              itemCount: result?.result.length ?? 0,
+              itemBuilder: (context, index) {
+                var e = result!.result[index];
+                return Column(
+                  children: [
+                            
+                    Center(child:Text('${e.freelancerServices?.map((e)=>e.service?.serviceName).join(', ')}') ,),
+                    Row(
+                  
+                      children: [
+                        InkWell(
+                          child: e.user.image != null
+                              ? SizedBox(
+                                  height: 130,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: imageFromString(e.user.image!),
+                                  ),
+                                )
+                              : Image.network(
+                                  "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                                  width: 100,
+                                  height: 100,
                                 ),
-                              )
-                            : Image.network(
-                                "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                                width: 100,
-                                height: 100,
-                              ),
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) => FreelancerDetails(e))),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                       
-                        children: [
-                          Text('${e.user.firstName} ${e.user.lastName}'),
-                          Text('Iskustvo: ${e.experianceYears} godina'),
-                          Text('Ocjena: ${e.rating != 0 ? e.rating : 'Neocijenjen'}'),
-                          Text('Lokacija: ${e.location}')
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => FreelancerDetails(e))),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                          
-                       
+                          children: [
+                            Text('${e.user.firstName} ${e.user.lastName}'),
+                            Text('Iskustvo: ${e.experianceYears} godina'),
+                            Text('Ocjena: ${e.rating != 0 ? e.rating : 'Neocijenjen'}'),
+                            Text('Lokacija: ${e.location}')
+                           
                          
-                        ],
-                      )
-                    ],
-                  )
-                ],
-              );
-            },
-          )),
-        ],
-      ),
+                           
+                          ],
+                        )
+                      ],
+                    )
+                  ],
+                );
+              },
+            )),
+          ],
+        ),
     );
+    
   }
 }

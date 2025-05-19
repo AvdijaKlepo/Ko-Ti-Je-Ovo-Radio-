@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
@@ -17,6 +19,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => FreelancerProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
       ChangeNotifierProvider(create: (_) => JobProvider()),
+      ChangeNotifierProvider(create: (_) => BottomNavProvider()),
     ],
     child: const MyApp(),
   ));
@@ -147,7 +150,7 @@ class LoginPage extends StatelessWidget {
                               "Freelancer") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const FreelancerJobsScreen(),
+                              builder: (context) =>  MasterScreen(),
                             ));
                           }
 
@@ -175,7 +178,7 @@ class LoginPage extends StatelessWidget {
                           if (AuthProvider.userRoles!.role.roleName == "User") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const ServiceListScreen(),
+                              builder: (context) =>  MasterScreen(),
                             ));
                           }
 

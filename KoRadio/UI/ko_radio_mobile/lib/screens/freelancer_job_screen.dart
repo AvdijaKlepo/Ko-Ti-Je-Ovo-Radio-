@@ -14,6 +14,7 @@ enum options { Neodobreni, Odobreni }
 class FreelancerJobsScreen extends StatefulWidget {
   const FreelancerJobsScreen({super.key});
 
+
   @override
   State<FreelancerJobsScreen> createState() => _FreelancerJobsScreenState();
 }
@@ -59,17 +60,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MasterScreen(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Center(
-              child: Text(
-            'Dobrodošli ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}',
-            style: Theme.of(context).textTheme.titleLarge,
-          )),
-        ),
-        body: Padding(
+    return  Padding(
           padding: const EdgeInsets.all(16.0),
           child: result != null && result!.result.isNotEmpty
               ? Column(
@@ -176,8 +167,8 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                     ],
                   ),
                 ),
-        ),
-      ),
-    );
+        );
+  
+
   }
 }

@@ -55,92 +55,88 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
 Widget build(BuildContext context) { 
   final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
   return MasterScreen(
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text('Raspored za ${DateFormat('dd.MM.yyyy').format(widget.selectedDay)}',style: GoogleFonts.roboto(textStyle: const TextStyle(color: Color.fromRGBO(51, 63, 72, 1) 
-,),),),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
+    child:   Padding(
         padding: const EdgeInsets.all(16.0),
         child: result != null && result!.result.isNotEmpty
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Ukupno termina: ${filterJob!.length}",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filterJob.length,
-                      itemBuilder: (context, index) {
-                        final job = filterJob[index];
-                        return Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            leading: const Icon(Icons.access_time, color: Colors.blue),
-                            title: Text(
-                              "Početak: ${job.startEstimate}",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: job.endEstimate != null
-                                ? Text("Kraj: ${job.endEstimate}")
-                                : null,
-                            trailing: const Icon(Icons.work_outline),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => BookJob(
-                            selectedDay: widget.selectedDay,
-                            freelancer: widget.freelancerId
-                     
-                          ),
-                        ),
-                      ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Dodaj termin'),
-                    ),
-                  ),
-                ],
-              )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ? Scaffold(
+              body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Nema termina za ovaj dan.'),
+                    Text(
+                      "Ukupno termina: ${filterJob!.length}",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => BookJob(
-                            selectedDay: widget.selectedDay,
-                            freelancer: widget.freelancerId
-                     
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filterJob.length,
+                        itemBuilder: (context, index) {
+                          final job = filterJob[index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              leading: const Icon(Icons.access_time, color: Colors.blue),
+                              title: Text(
+                                "Početak: ${job.startEstimate}",
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: job.endEstimate != null
+                                  ? Text("Kraj: ${job.endEstimate}")
+                                  : null,
+                              trailing: const Icon(Icons.work_outline),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BookJob(
+                              selectedDay: widget.selectedDay,
+                              freelancer: widget.freelancerId
+                       
+                            ),
                           ),
                         ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Dodaj termin'),
                       ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Rezerviši'),
-                    )
+                    ),
                   ],
                 ),
-              ),
-      ),
-    ),
-  );
+            )
+            : Scaffold(
+              body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Nema termina za ovaj dan.'),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BookJob(
+                              selectedDay: widget.selectedDay,
+                              freelancer: widget.freelancerId
+                       
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Rezerviši'),
+                      )
+                    ],
+                  ),
+                ),
+            ),
+      ));
+ 
 }
 }

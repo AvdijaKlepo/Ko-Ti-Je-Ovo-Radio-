@@ -66,13 +66,12 @@ class _BookJobState extends State<BookJob> {
 
   @override
   Widget build(BuildContext context) {
-    return MasterScreen(
-      child: Scaffold(
-        body: Column(
+    return MasterScreen(child:
+       Column(
           children: [_buildForm(), _save()],
-        ),
-      ),
-    );
+        ));
+      
+  
   }
 
   Widget _buildForm() {
