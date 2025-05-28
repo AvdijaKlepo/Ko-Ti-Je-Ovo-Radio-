@@ -135,7 +135,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                               
                                Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) => BookJob(job:job))),
+                                      builder: (context) => BookJob(job:job,freelancer: job.freelancer,))),
 
 
 

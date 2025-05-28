@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
@@ -99,7 +101,6 @@ class LoginPage extends StatelessWidget {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        var provider = UserProvider();
                         AuthProvider.username = usernameController.text;
                         AuthProvider.password = passwordController.text;
 
@@ -178,7 +179,7 @@ class LoginPage extends StatelessWidget {
                           if (AuthProvider.userRoles!.role.roleName == "User") {
                             print(AuthProvider.userRoles!.role.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>  MasterScreen(),
+                              builder: (context) =>  const MasterScreen(),
                             ));
                           }
 

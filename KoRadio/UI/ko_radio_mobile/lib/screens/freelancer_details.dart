@@ -56,8 +56,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return  MasterScreen(
-      child: Column(
+    return Scaffold(appBar: appBar(title: 'Kalendar dostupnosti', automaticallyImplyLeading: true),body:   Column(
             children: [
               Row(
                   
@@ -83,7 +82,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                             Text('${widget.e.user.firstName} ${widget.e.user.lastName}'),
                             Text('Iskustvo: ${widget.e.experianceYears} godina'),
                             Text('Ocjena: ${widget.e.rating != 0 ? widget.e.rating : 'Neocijenjen'}'),
-                            Text('Lokacija: ${widget.e.location}')
+                            Text('Lokacija: ${widget.e.location}'),
+                            Text('Radno vrijeme ${widget.e.startTime} - ${widget.e.endTime}')
                            
                          
                            
@@ -137,7 +137,6 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
       ),
               ),
             ],
-          ),
-    );
+          ));
   }
 }

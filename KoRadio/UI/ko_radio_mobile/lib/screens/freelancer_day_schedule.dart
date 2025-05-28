@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +12,7 @@ class FreelancerDaySchedule extends StatefulWidget {
   FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
   DateTime selectedDay;
   final Freelancer? freelancerId;
+  
 
 
   @override
@@ -54,8 +54,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   @override
 Widget build(BuildContext context) { 
   final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
-  return MasterScreen(
-    child:   Padding(
+  return Scaffold(appBar: appBar(title: 'Raspored ${widget.freelancerId!.user.firstName}a', automaticallyImplyLeading: true),body:   Padding(
         padding: const EdgeInsets.all(16.0),
         child: result != null && result!.result.isNotEmpty
             ? Scaffold(
@@ -100,7 +99,9 @@ Widget build(BuildContext context) {
                           MaterialPageRoute(
                             builder: (context) => BookJob(
                               selectedDay: widget.selectedDay,
-                              freelancer: widget.freelancerId
+                              freelancer: widget.freelancerId,
+                              bookedJobs: filterJob
+                            
                        
                             ),
                           ),

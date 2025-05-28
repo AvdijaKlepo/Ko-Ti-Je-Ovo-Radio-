@@ -5,17 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
-import 'package:ko_radio_mobile/screens/freelancer_list.dart';
+
+
 import 'package:ko_radio_mobile/screens/job_list.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
+import 'package:ko_radio_mobile/screens/settings.dart';
 import 'package:provider/provider.dart';
 
 
 
 class MasterScreen extends StatefulWidget {
-  MasterScreen({super.key,this.child});
-  final Widget? child;
+  const MasterScreen({super.key});
 
+  
 
 
 
@@ -30,17 +32,22 @@ class _MasterScreenState extends State<MasterScreen> {
 @override
 void initState() {
   super.initState();
+
 }
+
 int selectedIndex=0;
 
  final List<Widget> _pagesFreelancer = const [
     
     FreelancerJobsScreen(),
-    JobList()
+    JobList(),
+    Settings()
   ];
    final List<Widget> _pagesUser = const [
     
     ServiceListScreen(),
+    Settings(),
+    Settings()
   ];
 
 
@@ -56,7 +63,7 @@ int selectedIndex=0;
     return Scaffold(
      
       appBar: AppBar(
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -82,10 +89,13 @@ int selectedIndex=0;
         ),
       ),
 
-      body: widget.child ?? IndexedStack(
-              index: navProvider.selectedIndex,
-              children: AuthProvider.userRoles?.role.roleName == "User" ? _pagesUser : _pagesFreelancer,
-            ),
+      body: IndexedStack(
+        
+                index: navProvider.selectedIndex,
+                children: AuthProvider.userRoles?.role.roleName == "User" ? _pagesUser : _pagesFreelancer,
+              ),
+             
+      
       
       
       
@@ -100,8 +110,11 @@ int selectedIndex=0;
                       icon: Icon(Icons.home), label: 'Početna'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.paste), label: 'Poslovi'),
+                       BottomNavigationBarItem(
+                      icon: Icon(Icons.person), label: 'Račun'),
                 ],
-                onTap: navProvider.setIndex,
+                onTap:navProvider.setIndex,
+                
       ):
        BottomNavigationBar(
                 currentIndex:navProvider.selectedIndex,
@@ -112,6 +125,8 @@ int selectedIndex=0;
 
                   BottomNavigationBarItem(
                       icon: Icon(Icons.paste), label: 'Poslovi'),
+                       BottomNavigationBarItem(
+                      icon: Icon(Icons.person), label: 'Račun')
                 ],
                 onTap: navProvider.setIndex,
                 

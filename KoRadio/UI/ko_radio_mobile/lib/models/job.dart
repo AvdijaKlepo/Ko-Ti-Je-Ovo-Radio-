@@ -35,6 +35,8 @@ class Job{
 
   /// Connect the generated [_$PersonToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$JobToJson(this);
+
+  copyWith({DateTime? jobDate}) {}
 }
 
 	

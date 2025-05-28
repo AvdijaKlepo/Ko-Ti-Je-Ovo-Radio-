@@ -45,8 +45,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-            child: ListView.builder(
+    return  ListView.builder(
       itemCount: result?.result.length ?? 0,
      itemBuilder: (context, index) {
   var e = result!.result[index];
@@ -83,6 +82,6 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       : const SizedBox.shrink();
 }
 
-    ));
+    );
   }
 }
