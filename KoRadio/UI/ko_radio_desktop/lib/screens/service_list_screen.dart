@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
+import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/service_details_screen.dart';
@@ -15,6 +17,7 @@ class ServicesListScreen extends StatefulWidget {
 
 class _ServicesListScreenState extends State<ServicesListScreen> {
   late ServiceProvider serviceProvider;
+  late LocationProvider locationProvider;
    @override
   void initState(){
 
@@ -22,7 +25,11 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
       serviceProvider = context.read<ServiceProvider>();
       _getServices();
-   
+    });
+
+     WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
+      locationProvider = context.read<LocationProvider>();
+      _getLocations();
     });
   }
   @override
@@ -30,6 +37,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
     super.didChangeDependencies();
 
     serviceProvider = context.read<ServiceProvider>();
+    locationProvider = context.read<LocationProvider>();
   }
   _getServices() async{
     var fetchedUsers = await serviceProvider.get();
@@ -37,7 +45,14 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       result = fetchedUsers;
     });
   }
-  SearchResult<Service>? result = null;
+    _getLocations() async{
+    var fetchedLocations = await locationProvider.get();
+    setState(() {
+      locationResult = fetchedLocations;
+    });
+  }
+  SearchResult<Service>? result;
+  SearchResult<Location>? locationResult;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,7 +60,9 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
 
             children: [
               _buildSearch(),
-              _buildResultView()
+              _buildResultView(),
+              SizedBox(height: 8,),
+              _buildLocationView()
             ],
           ),
   
@@ -121,6 +138,42 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
             DataCell(e.image != null ? Container(width: 100,height:100,
             child: imageFromString(e.image!),): Text("")),
            
+
+
+
+        
+            ],
+            
+
+            )).toList().cast<DataRow>() ?? [],
+      ),
+        )
+      ),
+      );
+  }
+  
+  _buildLocationView() {
+     return Container(
+      width: double.infinity,
+      child:SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child:FittedBox(
+          
+      child: DataTable(
+        columns: [
+    
+          DataColumn(label: Text("Naziv"),),
+       
+ 
+        ],
+        rows: locationResult?.result.map((e)=>
+        
+         DataRow(
+         
+            cells:[
+              
+            DataCell(Text(e.locationName??  "")),
+          
 
 
 

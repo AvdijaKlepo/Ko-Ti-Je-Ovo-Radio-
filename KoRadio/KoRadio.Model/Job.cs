@@ -27,6 +27,8 @@ namespace KoRadio.Model
 		public string? JobDescription { get; set; }
 
 		public byte[]? Image { get; set; }
+		public string JobStatus { get; set; } = null!;
+
 		public ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 
 

@@ -20,6 +20,10 @@ namespace KoRadio.Model.Request
 
 		public byte[]? Image { get; set; }
 
+		public List<int> Roles { get; set; }
+		public int LocationId { get; set; }
+
+
 
 
 

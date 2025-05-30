@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/models/job.dart';
+import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
@@ -24,7 +25,9 @@ class _JobListState extends State<JobList> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       jobProvider = context.read<JobProvider>();
-      _getServices();
+      AuthProvider.userRoles?.role.roleName == "User" ?
+      _getServices() :
+      _getFreelancerServices();
     });
   }
 
@@ -37,6 +40,14 @@ class _JobListState extends State<JobList> {
 
   _getServices() async {
     var filter = {'FreelancerId:': AuthProvider.freelancer?.freelancerId};
+
+    var job = await jobProvider.get(filter: filter);
+    setState(() {
+      result = job;
+    });
+  }
+   _getFreelancerServices() async {
+    var filter = {'UserId:': AuthProvider.user?.userId};
 
     var job = await jobProvider.get(filter: filter);
     setState(() {
@@ -83,17 +94,17 @@ class _JobListState extends State<JobList> {
                     ),
                     if (selectedIndex == 0)
                       Text(
-                        'Broj završenih poslova: ${result?.result.where((element) => element.payInvoice != null).length}',
+                        'Broj završenih poslova: ${result?.result.where((element) => element.jobStatus==JobStatus.finished).length}',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     if (selectedIndex == 1)
                       Text(
-                        'Broj poslova u toku: ${result?.result.where((element) => element.payInvoice == null && element.payEstimate != null).length}',
+                        'Broj poslova u toku: ${result?.result.where((element) => element.jobStatus == JobStatus.approved).length}',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     if (selectedIndex == 2)
                       Text(
-                        'Broj neodobrenih poslova: ${result?.result.where((element) => element.payInvoice == null && element.payEstimate == null).length}',
+                        'Broj neodobrenih poslova: ${result?.result.where((element) => element.jobStatus == JobStatus.unapproved).length}',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     const SizedBox(height: 16),
@@ -117,7 +128,7 @@ class _JobListState extends State<JobList> {
 
   Widget _finishedJobs(BuildContext context) {
     final filterJob =
-        result?.result.where((element) => element.payInvoice != null).toList();
+        result?.result.where((element) => element.jobStatus==JobStatus.finished).toList();
     return filterJob !=null ? ListView.builder(
       itemCount: filterJob.length,
       itemBuilder: (context, index) {
@@ -157,7 +168,7 @@ class _JobListState extends State<JobList> {
   Widget _jobsInProgress(BuildContext context) {
     final filterJob = result?.result
         .where((element) =>
-            element.payInvoice == null && element.payEstimate != null)
+            element.jobStatus == JobStatus.approved)
         .toList();
     return filterJob !=null ? ListView.builder(
       itemCount: filterJob.length,
@@ -171,7 +182,7 @@ class _JobListState extends State<JobList> {
           ),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  JobDetails(job: job,))),
+            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  BookJob(job: job,freelancer: job.freelancer,))),
 
             leading: const Icon(Icons.access_time, color: Colors.blue),
             title: Text(
@@ -201,7 +212,7 @@ class _JobListState extends State<JobList> {
   Widget _unapprovedJobs(BuildContext context) {
     final filterJob = result?.result
         .where((element) =>
-            element.payEstimate == null && element.endEstimate == null)
+           element.jobStatus == JobStatus.unapproved)
         .toList();
     return filterJob !=null ? ListView.builder(
       itemCount: filterJob.length,

@@ -18,6 +18,8 @@ namespace KoRadio.Model.Request
 		public string? ConfirmPassword { get; set; }
 
 		public byte[]? Image { get; set; }
+		public int LocationId { get; set; }
+		public List<int> Roles { get; set; }
 
 
 

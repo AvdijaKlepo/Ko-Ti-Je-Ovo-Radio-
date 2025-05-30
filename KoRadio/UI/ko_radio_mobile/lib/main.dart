@@ -7,6 +7,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
@@ -22,6 +23,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => UserProvider()),
       ChangeNotifierProvider(create: (_) => JobProvider()),
       ChangeNotifierProvider(create: (_) => BottomNavProvider()),
+      ChangeNotifierProvider(create: (_) => LocationProvider()),
     ],
     child: const MyApp(),
   ));

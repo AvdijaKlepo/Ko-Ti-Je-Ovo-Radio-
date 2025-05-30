@@ -8,6 +8,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
+import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
@@ -15,6 +16,7 @@ import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
+import 'package:ko_radio_mobile/screens/freelancer_day_schedule.dart';
 import 'package:provider/provider.dart';
 
 class BookJob extends StatefulWidget {
@@ -126,7 +128,12 @@ class _BookJobState extends State<BookJob> {
     final endTime = parseTime(endTimeString);
 
     return Scaffold(
-      appBar: appBar(title: 'Rezerviši posao', automaticallyImplyLeading: true),
+      appBar: AppBar(title: const Text('Rezerviši posao'), automaticallyImplyLeading: false,
+      leading: IconButton(onPressed: (){
+        AuthProvider.userRoles?.role.roleName == "User" ?
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDaySchedule(_currentJobDate?? DateTime.now(), widget.freelancer))) : Navigator.pop(context);
+      },
+      icon: const Icon(Icons.arrow_back))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
@@ -179,7 +186,7 @@ class _BookJobState extends State<BookJob> {
                         var jobs = await jobProvider.get(filter: filter);
 
                         setState(() {
-                          _currentBookedJobs = jobs.result;
+                          _currentBookedJobs = jobs.result.where((element) => element.payEstimate!=null).toList();
                         });
                       },
                     ),
@@ -270,16 +277,18 @@ class _BookJobState extends State<BookJob> {
               'No services',
         ),
         const SizedBox(height: 15),
-        if (widget.job?.endEstimate == null && widget.job?.payEstimate == null)
+        if (widget.job?.jobStatus == JobStatus.unapproved)
           Column(
             children: [
               FormBuilderDateTimePicker(
                 name: "endEstimate",
                 inputType: InputType.time,
+                
                 decoration: const InputDecoration(
                   labelText: 'Trajanje posla',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.schedule),
+                  
                 ),
               ),
               const SizedBox(height: 15),
@@ -295,16 +304,12 @@ class _BookJobState extends State<BookJob> {
               ),
             ],
           )
-        else
+        else if(widget.job?.jobStatus == JobStatus.approved)
           Column(
             children: [
               _buildInfoRow('Kraj:', widget.job?.endEstimate ?? '-'),
               _buildInfoRow('Procjena cijene:', widget.job?.payEstimate?.toString() ?? '-'),
-            ],
-          ),
-        const SizedBox(height: 15),
-        if (widget.job?.endEstimate != null && widget.job?.payEstimate != null)
-          FormBuilderTextField(
+              FormBuilderTextField(
             name: "payInvoice",
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
@@ -314,6 +319,11 @@ class _BookJobState extends State<BookJob> {
             ),
             valueTransformer: (value) => double.tryParse(value ?? ''),
           ),
+            ],
+          ),
+        const SizedBox(height: 15),
+      
+          
       ],
     );
   }
@@ -348,24 +358,28 @@ class _BookJobState extends State<BookJob> {
 
   void _insertJob(Map<String, dynamic> formData) async {
     try {
+      formData['jobStatus'] = JobStatus.unapproved.name;
       jobProvider.insert(formData);
       
       _showMessage('Zahtjev proslijeđen radniku.');
     } on Exception catch (e) {
-      _showMessage('Greška u slanju zahtjeva. Molimo pokušajte ponovo.');
+      _showMessage('Greška u slanju zahtjeva. Molimo pokušajte ponovo.${e.toString()}');
     }
   }
 
   void _confirmJob(Map<String, dynamic> formData) async {
       final payEstimate = formData['payEstimate'] as double?;
-                final endEstimate = (formData['endEstimate'] as DateTime?);
+                final endEstimate = formData['endEstimate'] as DateTime?; 
                 final payInvoice = formData['payInvoice'] as double?;
+                final jobStatus = formData['jobStatus'] = JobStatus.approved.name;
                 
-    if (widget.job?.payEstimate!=null && widget.job?.endEstimate!=null) {
+    if (widget.job?.jobStatus==JobStatus.unapproved) {
   try {
     jobProvider.update(widget.job!.jobId!, {
-                 'endEstimate': widget.job?.endEstimate,
-                  'payEstimate': widget.job?.payEstimate,
+                 'endEstimate': endEstimate != null
+                        ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
+                        : null,
+                  'payEstimate': payEstimate,
                   'freelancerId': widget.job?.freelancer?.freelancerId,
                   'startEstimate': widget.job?.startEstimate,
                   'userId': widget.job?.user?.userId,
@@ -375,23 +389,23 @@ class _BookJobState extends State<BookJob> {
                   'jobDescription': widget.job?.jobDescription,
                   'image': widget.job?.image,
                   'jobDate': widget.job?.jobDate.toIso8601String(),
-                  'payInvoice': payInvoice!=null?payInvoice:null
+           
+                  'jobStatus': jobStatus
                 });
     _showMessage('Zahtjev odobren i proslijeđen respektivnom korisniku.');
     Navigator.pop(context);
   } on Exception catch (e) {
-    _showMessage('Greška u slanju zahtjeva. Molimo pokušajte ponovo.');
+    _showMessage('Greška u slanju zahtjeva. Molimo pokušajte ponovo.${e.toString()}');
   }
-}else{
+}
+else{
    formData["freelancerId"] =
                       AuthProvider.freelancer?.freelancerId;
                   formData["userId"] = widget.job?.user?.userId;
                   try{
                   jobProvider.update(widget.job!.jobId!, {
-                    'endEstimate': endEstimate != null
-                        ? '${endEstimate.hour.toString().padLeft(2, '0')}:${endEstimate.minute.toString().padLeft(2, '0')}:${endEstimate.second.toString().padLeft(2, '0')}'
-                        : null,
-                    'payEstimate': payEstimate,
+                    'endEstimate': widget.job?.endEstimate,
+                    'payEstimate': widget.job?.payEstimate,
                     'freelancerId': widget.job?.freelancer?.freelancerId,
                     'startEstimate': widget.job?.startEstimate,
                     'userId': widget.job?.user?.userId,
@@ -401,7 +415,8 @@ class _BookJobState extends State<BookJob> {
                     'jobDescription': widget.job?.jobDescription,
                     'image': widget.job?.image,
                     'jobDate': widget.job?.jobDate.toIso8601String(),
-                    'payInvoice': payInvoice
+                    'payInvoice': payInvoice,
+                    'jobStatus': JobStatus.finished.name
                   });
                   _showMessage('Zahtjev odobren i proslijeđen respektivnom korisniku.');
     Navigator.pop(context);
@@ -440,6 +455,7 @@ class _BookJobState extends State<BookJob> {
                           .toString().split('TimeOfDay(')[1].split(')')[0];
                           
                 }
+          
 
                 if (formData["jobDate"] is DateTime) {
                   formData["jobDate"] =
@@ -485,5 +501,10 @@ class _BookJobState extends State<BookJob> {
         ],
       ),
     );
+  }
+  
+  parseTime(String s) {
+    final parts = s.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 }

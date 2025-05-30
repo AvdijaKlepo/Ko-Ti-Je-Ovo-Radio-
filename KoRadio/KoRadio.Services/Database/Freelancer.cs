@@ -13,13 +13,7 @@ public partial class Freelancer
 
     public decimal? Rating { get; set; }
 
-    public decimal? HourlyRate { get; set; }
-
-    public string? Availability { get; set; }
-
     public int? ExperianceYears { get; set; }
-
-    public string? Location { get; set; }
 
     public int? WorkingDays { get; set; }
 

@@ -128,20 +128,19 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   Map<String, String> createHeaders() {
-    String username = AuthProvider.username ?? "";
-    String password = AuthProvider.password ?? "";
+   String username = AuthProvider.username ?? "";
+  String password = AuthProvider.password ?? "";
 
-    print("passed creds: $username, $password");
+  var headers = {
+    "Content-Type": "application/json",
+  };
 
-    String basicAuth =
-        "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+  if (username.isNotEmpty && password.isNotEmpty) {
+    String basicAuth = "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+    headers["Authorization"] = basicAuth;
+  }
 
-    var headers = {
-      "Content-Type": "application/json",
-      "Authorization": basicAuth
-    };
-
-    return headers;
+  return headers;
   }
 
   String getQueryString(Map params,

@@ -10,6 +10,7 @@ import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/job_list.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:ko_radio_mobile/screens/settings.dart';
+
 import 'package:provider/provider.dart';
 
 
@@ -46,7 +47,7 @@ int selectedIndex=0;
    final List<Widget> _pagesUser = const [
     
     ServiceListScreen(),
-    Settings(),
+    JobList(),
     Settings()
   ];
 

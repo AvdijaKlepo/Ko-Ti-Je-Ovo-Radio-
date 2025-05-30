@@ -29,6 +29,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<JobsService> JobsServices { get; set; }
 
+    public virtual DbSet<Location> Locations { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
@@ -39,7 +41,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true;");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -98,10 +100,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.ToTable("Freelancer");
 
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
-            entity.Property(e => e.Availability).HasMaxLength(255);
             entity.Property(e => e.Bio).HasMaxLength(255);
-            entity.Property(e => e.HourlyRate).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Location).HasMaxLength(255);
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
@@ -137,6 +136,11 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.JobDate).HasColumnType("datetime");
             entity.Property(e => e.JobDescription).HasMaxLength(255);
+            entity.Property(e => e.JobStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("unnaproved")
+                .HasColumnName("Job_Status");
             entity.Property(e => e.PayEstimate).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PayInvoice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
@@ -167,6 +171,14 @@ public partial class KoTiJeOvoRadioContext : DbContext
                 .HasForeignKey(d => d.ServiceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__JobsServi__Servi__793DFFAF");
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA4779B95C597");
+
+            entity.Property(e => e.LocationId).HasColumnName("LocationID");
+            entity.Property(e => e.LocationName).HasMaxLength(30);
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -201,8 +213,13 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.LocationId).HasColumnName("LocationID");
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.PasswordSalt).HasMaxLength(255);
+
+            entity.HasOne(d => d.Location).WithMany(p => p.Users)
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK__Users__LocationI__0E391C95");
         });
 
         modelBuilder.Entity<UserRole>(entity =>

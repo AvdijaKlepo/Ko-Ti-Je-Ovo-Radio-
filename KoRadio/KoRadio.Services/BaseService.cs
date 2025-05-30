@@ -23,6 +23,7 @@ namespace KoRadio.Services
 			_mapper = mapper;
 		}
 
+		
 		public PagedResult<TModel> GetPaged(TSearch search)
 		{
 			List<TModel> result = new();

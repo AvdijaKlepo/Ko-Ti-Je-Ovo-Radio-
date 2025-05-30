@@ -3,6 +3,7 @@ import 'package:ko_radio_desktop/layout/master_screen.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
+import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
@@ -13,7 +14,8 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (_)=> UserProvider()),
       ChangeNotifierProvider(create: (_)=>FreelancerProvider()),
-      ChangeNotifierProvider(create: (_)=>ServiceProvider())
+      ChangeNotifierProvider(create: (_)=>ServiceProvider()),
+      ChangeNotifierProvider(create: (_)=>LocationProvider()),
     ],
     child: const MyApp(),));
 }

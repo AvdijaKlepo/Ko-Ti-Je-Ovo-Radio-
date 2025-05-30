@@ -105,9 +105,8 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           DataColumn(label: Text("Email")),
           DataColumn(label: Text("Bio")),
           DataColumn(label: Text("ExperianceYears")),
-          DataColumn(label: Text("Availability")),
-          DataColumn(label: Text("HourlyRate")),
-          DataColumn(label: Text("Location")),
+
+
           DataColumn(label: Text("Rating")),
           DataColumn(label: Text("Services")),
         ],
@@ -121,9 +120,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
             DataCell(Text(e.user.email ?? "")),
             DataCell(Text(e.bio ?? "")),
             DataCell(Text(e.experianceYears.toString())),
-            DataCell(Text(e.availability?? "")),
-            DataCell(Text(e.hourlyRate.toString())),
-            DataCell(Text(e.location?? "")),
+   
             DataCell(Text(e.rating.toString())),
             DataCell(Wrap(
               spacing: 8.0,

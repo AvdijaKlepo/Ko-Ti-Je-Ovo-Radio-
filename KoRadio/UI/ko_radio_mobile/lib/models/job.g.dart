@@ -12,6 +12,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       payEstimate: (json['payEstimate'] as num?)?.toDouble(),
       payInvoice: (json['payInvoice'] as num?)?.toDouble(),
       jobDate: DateTime.parse(json['jobDate'] as String),
+      jobStatus: $enumDecode(_$JobStatusEnumMap, json['jobStatus']),
     )
       ..jobId = (json['jobId'] as num?)?.toInt()
       ..freelancer = json['freelancer'] == null
@@ -42,4 +43,13 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobDescription': instance.jobDescription,
       'image': instance.image,
       'jobsServices': instance.jobsServices,
+      'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
     };
+
+const _$JobStatusEnumMap = {
+  JobStatus.unapproved: 'unapproved',
+  JobStatus.approved: 'approved',
+  JobStatus.finished: 'finished',
+  JobStatus.cancelled: 'cancelled',
+  JobStatus.inProgress: 'inProgress',
+};

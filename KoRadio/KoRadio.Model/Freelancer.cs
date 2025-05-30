@@ -16,13 +16,7 @@ namespace KoRadio.Model
 
         public decimal? Rating { get; set; }
 
-        public decimal? HourlyRate { get; set; }
-
-        public string? Availability { get; set; }
-
         public int? ExperianceYears { get; set; }
-
-        public string? Location { get; set; }
 
     
 		public List<DayOfWeek>? WorkingDays { get; set; } 
@@ -33,6 +27,8 @@ namespace KoRadio.Model
 
 
 		public  ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
+
+  
         public User? User { get; set; }
     }
 }

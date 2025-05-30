@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/job.dart';
+import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
@@ -92,7 +93,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                             final filtered = result?.result
                                 .where((element) =>
                                     (view == options.Neodobreni &&
-                                        element.payEstimate == null &&
+                                        element.jobStatus == JobStatus.unapproved &&
                                         element.jobDate
                                                 .toIso8601String()
                                                 .split('T')[0] ==
@@ -100,7 +101,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                                                 .toIso8601String()
                                                 .split('T')[0]) ||
                                     (view == options.Odobreni &&
-                                        element.payEstimate != null &&
+                                        element.jobStatus == JobStatus.approved &&
                                         element.jobDate
                                                 .toIso8601String()
                                                 .split('T')[0] ==

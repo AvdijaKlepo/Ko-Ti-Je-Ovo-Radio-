@@ -17,6 +17,10 @@ namespace KoRadio.Model
 
 		public byte[]? Image { get; set; }
 		public Freelancer? Freelancer { get; set; }
+		public virtual Location? Location { get; set; }
+
+
+
 
 
 	}

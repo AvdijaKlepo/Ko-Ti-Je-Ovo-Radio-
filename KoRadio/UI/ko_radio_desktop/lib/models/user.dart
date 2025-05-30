@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/role.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 
@@ -11,6 +12,7 @@ class User{
   String? email;
   Role? role;
   List<UserRole>? userRoles;
+  Location? location;
 
   User();
 

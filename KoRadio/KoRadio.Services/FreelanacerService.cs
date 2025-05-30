@@ -28,6 +28,7 @@ namespace KoRadio.Services
 			query = base.AddFilter(searchObject, query);
 		
 			query = query.Include(x => x.User);
+			query = query.Include(x => x.User.Location);
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
 				query = query.Where(x => x.User.FirstName.StartsWith(searchObject.FirstNameGTE));
@@ -50,6 +51,11 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.FreelancerServices.Any(x => x.ServiceId == searchObject.ServiceId));
 			}
+			if (searchObject.LocationId!=null)
+			{
+				query = query.Where(x => x.User.Location.LocationId == searchObject.LocationId);
+
+			}
 		
 			
 
@@ -57,6 +63,7 @@ namespace KoRadio.Services
 			return query;
 		}
 
+	
 		public override void BeforeInsert(FreelancerInsertRequest request, Database.Freelancer entity)
 		{
 				
@@ -86,8 +93,22 @@ namespace KoRadio.Services
 				entity.WorkingDays = (int)workingDaysEnum;
 
 			}
+			if (request.Roles != null && request.Roles.Any())
+			{
+				foreach (var roleId in request.Roles)
+				{
+					_context.UserRoles.Add(new Database.UserRole
+					{
+						UserId = entity.UserId,
+						RoleId = roleId,
+						ChangedAt = DateTime.UtcNow
+					});
+				}
+				_context.SaveChanges();
+			}
 
 		}
+		
 
 		public override void BeforeUpdate(FreelancerUpdateRequest request, Database.Freelancer entity)
 		{

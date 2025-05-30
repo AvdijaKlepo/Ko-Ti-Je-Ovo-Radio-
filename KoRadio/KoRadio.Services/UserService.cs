@@ -64,6 +64,24 @@ namespace KoRadio.Services
 			return query;
 		}
 
+		public override void AfterInsert(UserInsertRequest request, User entity)
+		{
+			if (request.Roles != null && request.Roles.Any())
+			{
+				foreach (var roleId in request.Roles)
+				{
+					_context.UserRoles.Add(new Database.UserRole
+					{
+						UserId = entity.UserId,
+						RoleId = roleId,
+						ChangedAt = DateTime.UtcNow
+					});
+				}
+				_context.SaveChanges();
+			}
+			base.AfterInsert(request, entity);
+		}
+
 		public override void BeforeInsert(UserInsertRequest request, User entity)
 		{
 			if (request.Password!=request.ConfirmPassword)
@@ -72,6 +90,8 @@ namespace KoRadio.Services
 			}
 			entity.PasswordSalt = GenerateSalt();
 			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
+
+
 			base.BeforeInsert(request, entity);
 
 		}
@@ -134,15 +154,40 @@ namespace KoRadio.Services
 		public Model.User Registration(UserInsertRequest request)
 		{
 
+			using var transaction = _context.Database.BeginTransaction();
 
-			User entity = _mapper.Map<User>(request);
+			try
+			{
+				User entity = _mapper.Map<User>(request);
+				BeforeInsert(request, entity);
 
+				_context.Users.Add(entity);
+				_context.SaveChanges();  // Entity now has UserId populated
 
-			BeforeInsert(request, entity);
-			_context.Add(entity);
-			_context.SaveChanges();
+				// Handle roles AFTER ensuring the user was inserted
+				if (request.Roles != null && request.Roles.Any())
+				{
+					foreach (var roleId in request.Roles)
+					{
+						_context.UserRoles.Add(new Database.UserRole
+						{
+							UserId = entity.UserId,
+							RoleId = roleId,
+							ChangedAt = DateTime.UtcNow
+						});
+					}
+					_context.SaveChanges();
+				}
 
-			return _mapper.Map<Model.User>(entity);
+				transaction.Commit();
+
+				return _mapper.Map<Model.User>(entity);
+			}
+			catch
+			{
+				transaction.Rollback();
+				throw;
+			}
 		}
 	}
 }

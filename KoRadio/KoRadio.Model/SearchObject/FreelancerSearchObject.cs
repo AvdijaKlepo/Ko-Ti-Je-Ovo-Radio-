@@ -8,7 +8,7 @@ namespace KoRadio.Model.SearchObject
 	{
 		public string? FirstNameGTE { get; set; }
 		public string? LastNameGTE { get; set; }
-		public string? Location { get; set; }
+		public int? LocationId { get; set; }
 		public int? ExperianceYears { get; set; }
 		public int? ServiceId { get; set; }
 

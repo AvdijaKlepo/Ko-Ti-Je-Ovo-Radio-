@@ -2,6 +2,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
+import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/jobs_service.dart';
 import 'package:ko_radio_mobile/models/user.dart';
 import 'package:ko_radio_mobile/models/service.dart';
@@ -22,6 +23,7 @@ class Job{
   String? jobDescription;
   String? image;
   List<JobsService>? jobsServices;
+  JobStatus jobStatus;
 
   
 
@@ -29,7 +31,7 @@ class Job{
 
 
   
-  Job({required this.endEstimate,required this.startEstimate,required this.payEstimate,required this.payInvoice,required this.jobDate});
+  Job({required this.endEstimate,required this.startEstimate,required this.payEstimate,required this.payInvoice,required this.jobDate, required this.jobStatus});
 
   factory Job.fromJson(Map<String, dynamic> json) => _$JobFromJson(json);
 

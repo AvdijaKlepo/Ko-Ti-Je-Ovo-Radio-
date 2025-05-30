@@ -50,7 +50,8 @@ namespace KoRadio.Services
 		}
 		public virtual void BeforeInsert(TInsert request, TDbEntity entity) {}
 		public virtual void BeforeUpdate(TUpdate request, TDbEntity entity) {}
-		
+		public virtual void AfterInsert(TInsert request, TDbEntity entity) { }
+
 
 
 	}

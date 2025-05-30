@@ -72,10 +72,11 @@
             }
           },
           {
-            "name": "Location",
+            "name": "LocationId",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -454,6 +455,243 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Location/LocationRegistration": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Location": {
+      "post": {
+        "tags": [
+          "Location"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationInsertRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationInsertRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationInsertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Location/{id}": {
+      "put": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
                 }
               }
             }
@@ -1073,22 +1311,9 @@
             "format": "double",
             "nullable": true
           },
-          "hourlyRate": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "availability": {
-            "type": "string",
-            "nullable": true
-          },
           "experianceYears": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
-          },
-          "location": {
-            "type": "string",
             "nullable": true
           },
           "workingDays": {
@@ -1174,6 +1399,14 @@
             "nullable": true
           },
           "serviceId": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "roles": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -1326,6 +1559,10 @@
             "format": "byte",
             "nullable": true
           },
+          "jobStatus": {
+            "type": "string",
+            "nullable": true
+          },
           "jobsServices": {
             "type": "array",
             "items": {
@@ -1385,6 +1622,10 @@
           "image": {
             "type": "string",
             "format": "byte",
+            "nullable": true
+          },
+          "jobStatus": {
+            "type": "string",
             "nullable": true
           },
           "serviceId": {
@@ -1461,6 +1702,10 @@
             "format": "byte",
             "nullable": true
           },
+          "jobStatus": {
+            "type": "string",
+            "nullable": true
+          },
           "serviceId": {
             "type": "array",
             "items": {
@@ -1496,6 +1741,62 @@
           },
           "service": {
             "$ref": "#/components/schemas/Service"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationInsertRequest": {
+        "type": "object",
+        "properties": {
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationPagedResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "resultList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1623,6 +1924,9 @@
           },
           "freelancer": {
             "$ref": "#/components/schemas/Freelancer"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
           }
         },
         "additionalProperties": false
@@ -1654,6 +1958,18 @@
             "type": "string",
             "format": "byte",
             "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "locationId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -1726,6 +2042,18 @@
           "image": {
             "type": "string",
             "format": "byte",
+            "nullable": true
+          },
+          "locationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
             "nullable": true
           }
         },

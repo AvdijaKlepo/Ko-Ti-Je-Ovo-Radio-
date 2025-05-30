@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
+import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
+import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +28,9 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   late UserProvider userProvider;
   late ServiceProvider serviceProvider;
   late FreelancerProvider freelancerProvider;
+  late LocationProvider locationProvider;
   SearchResult<Service>? serviceResult;
+  SearchResult<Location>? locationResult;
   @override
   void didChangeDependencies(){
     super.didChangeDependencies();
@@ -37,6 +41,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     userProvider = context.read<UserProvider>();
     serviceProvider= context.read<ServiceProvider>();
     freelancerProvider=context.read<FreelancerProvider>();
+    locationProvider=context.read<LocationProvider>();
+    _getLocations();
     super.initState();
 
     _initialValue = {
@@ -47,6 +53,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     };
 
     initForm();
+  }
+  _getLocations() async{
+    var fetchedLocations = await locationProvider.get();
+    setState(() {
+      locationResult = fetchedLocations;
+    });
   }
   Future initForm() async {
     serviceResult = await serviceProvider.get();
@@ -101,30 +113,29 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   name: "bio",
                 )),
                  SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Rating"),
-                  name: "rating",
-                )),
+            
                  SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "HourlyRate"),
-                  name: "hourlyRate",
-                )),
+             
                  SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Availability"),
-                  name: "availability",
-                )),
+           
                 SizedBox(width: 10,),
                 Expanded(child: FormBuilderTextField(
                    decoration: InputDecoration(labelText: "ExperianceYears"),
                   name: "experianceYears",
                 )),
                   SizedBox(width: 10,),
-                Expanded(child: FormBuilderTextField(
-                   decoration: InputDecoration(labelText: "Location"),
-                  name: "location",
-                )),
+                  Expanded(child:  FormBuilderDropdown<int>(
+            name: 'locationId',
+            decoration: const InputDecoration(labelText: "Location"),
+            items: locationResult?.result
+                    .map((loc) => DropdownMenuItem(
+                          value: loc.locationId,
+                          child: Text(loc.locationName ?? ''),
+                        ))
+                    .toList() ??
+                [],
+          ))
+                ,
                 
               ],
             ),

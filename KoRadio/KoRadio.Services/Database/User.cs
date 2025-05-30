@@ -21,10 +21,14 @@ public partial class User
 
     public byte[]? Image { get; set; }
 
+    public int? LocationId { get; set; }
+
     public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
     public virtual ICollection<Freelancer> Freelancers { get; set; } = new List<Freelancer>();
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
 	public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+
+    public virtual Location? Location { get; set; }
 }
