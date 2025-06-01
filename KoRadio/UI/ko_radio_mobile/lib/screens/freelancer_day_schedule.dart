@@ -6,12 +6,14 @@ import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
+import 'package:ko_radio_mobile/screens/freelancer_details.dart';
 import 'package:provider/provider.dart';
 
 class FreelancerDaySchedule extends StatefulWidget {
   FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
   DateTime selectedDay;
-  final Freelancer? freelancerId;
+  Freelancer? freelancerId;
+
   
 
 
@@ -54,7 +56,15 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   @override
 Widget build(BuildContext context) { 
   final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
-  return Scaffold(appBar: appBar(title: 'Raspored ${widget.freelancerId!.user.firstName}a', automaticallyImplyLeading: true),body:   Padding(
+  return Scaffold(appBar: AppBar(
+    title:Text( 'Raspored ${widget.freelancerId!.user.firstName}a'), automaticallyImplyLeading: false,
+    leading:  IconButton(onPressed: (){
+     
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(widget.freelancerId!)));
+      },
+      icon: const Icon(Icons.arrow_back)),
+
+  ),body:   Padding(
         padding: const EdgeInsets.all(16.0),
         child: result != null && result!.result.isNotEmpty
             ? Scaffold(

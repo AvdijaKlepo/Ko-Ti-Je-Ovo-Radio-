@@ -49,7 +49,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       'userId':widget.user?.userId.toString(),
       'firstName':widget.user?.firstName,
       'lastName':widget.user?.lastName,
-      'email':widget.user?.email
+      'email':widget.user?.email,
+      'locationId':widget.user?.location?.locationId,
     };
 
     initForm();
@@ -71,7 +72,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   Widget build(BuildContext context) {
     
 
-      return Scaffold( body:
+      return Scaffold(appBar: AppBar(title: Text("Promoviši korisnika: ${widget.user?.firstName} ${widget.user?.lastName}"),), body:
        Column(children: [
         _buildForm(),
         _save()
@@ -125,10 +126,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 )),
                   SizedBox(width: 10,),
                   Expanded(child:  FormBuilderDropdown<int>(
+                    initialValue: _initialValue['locationId'],
             name: 'locationId',
             decoration: const InputDecoration(labelText: "Location"),
             items: locationResult?.result
                     .map((loc) => DropdownMenuItem(
+
                           value: loc.locationId,
                           child: Text(loc.locationName ?? ''),
                         ))
@@ -231,6 +234,9 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                           .toList();
                 }
 
+                formData["roles"]= [8];
+                formData["user"]=widget.user;
+
 
                 
              
@@ -247,7 +253,16 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         : []);
                 debugPrint(_formKey.currentState?.value.toString());
 
-                freelancerProvider.insert(formData);
+                try {
+                  freelancerProvider.insert(formData);
+              ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Uspješno zaposlen radnik: ${widget.user?.firstName} ${widget.user?.lastName}")));
+          Navigator.of(context).pop();
+                } catch (e) {
+                  debugPrint(e.toString());
+                }
+
+              
               },
               child: Text("Save"))
         ],

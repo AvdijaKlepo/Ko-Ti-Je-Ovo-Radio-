@@ -7,6 +7,7 @@ import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_details.dart';
+import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
 
 enum options { Radnici, Firme }
@@ -95,7 +96,10 @@ class _FreelancerListState extends State<FreelancerList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: appBar(title: 'Lista radnika', automaticallyImplyLeading: true),body:  SafeArea(
+    return Scaffold(appBar: AppBar(title: Text('Lista radnika'),automaticallyImplyLeading: false,
+    leading:  IconButton(onPressed: (){
+      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> MasterScreen()));
+    },icon: const Icon(Icons.arrow_back),) ,),body:  SafeArea(
   child: Padding(
     padding: const EdgeInsets.all(12),
     child: Column(

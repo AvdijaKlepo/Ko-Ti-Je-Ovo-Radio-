@@ -4,10 +4,11 @@ import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_day_schedule.dart';
+import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class FreelancerDetails extends StatefulWidget {
-  FreelancerDetails(this.e, {super.key});
+  FreelancerDetails(this.e,  {super.key});
   Freelancer e;
   
   @override
@@ -54,9 +55,16 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
     return _workingDayInts.contains(day.weekday);
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: appBar(title: 'Kalendar dostupnosti', automaticallyImplyLeading: true),body:   Column(
+    int? serviceId = widget.e.freelancerServices?.map((e) => e.serviceId).toList()[0];
+    return Scaffold(appBar: AppBar(title: Text('Kalendar radnika'),automaticallyImplyLeading: false,leading:
+    IconButton(onPressed: (){
+      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerList(serviceId!)));
+    },icon: const Icon(Icons.arrow_back),) ,)
+    
+    ,body:   Column(
             children: [
               Row(
                   

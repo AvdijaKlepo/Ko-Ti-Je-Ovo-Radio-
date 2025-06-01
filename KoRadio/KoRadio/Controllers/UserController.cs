@@ -11,7 +11,7 @@ namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	public class UserController : BaseCRUDController<Model.User,UserSearchObject,UserInsertRequest,UserUpdateRequest>
+	public class UserController : BaseCRUDController<Model.User, UserSearchObject,UserInsertRequest,UserUpdateRequest>
 	{
 		
 
@@ -31,7 +31,7 @@ namespace KoRadio.API.Controllers
 		[HttpPost("Registration")]
 		[AllowAnonymous]
 
-		public Model.User Registrate(UserInsertRequest request)
+		public Model.DTOs.UserDTO Registrate(UserInsertRequest request)
 		{
 			return (_service as IUserService).Registration(request);
 		}

@@ -29,6 +29,6 @@ namespace KoRadio.Model
 		public  ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 
   
-        public User? User { get; set; }
+        public User User { get; set; }
     }
 }

@@ -109,7 +109,10 @@ class _UserListScreenState extends State<UserListScreen> {
           DataColumn(label: Text("First Name"),),
           DataColumn(label: Text("Last Name")),
           DataColumn(label: Text("Email")),
-          DataColumn(label: Text("Hiring"))
+          DataColumn(label: Text("Lokacija")),
+
+          DataColumn(label: Text("Hiring")),
+         
         ],
         rows: result?.result.map((e)=>
          DataRow(
@@ -118,6 +121,7 @@ class _UserListScreenState extends State<UserListScreen> {
             DataCell(Text(e.firstName ?? "")),
             DataCell(Text(e.lastName?? "")),
             DataCell(Text(e.email ?? "")),
+            DataCell(Text(e.location?.locationName ?? "")),
             DataCell(ElevatedButton(onPressed: () async {
              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>UserDetailsScreen(user:e)));
 

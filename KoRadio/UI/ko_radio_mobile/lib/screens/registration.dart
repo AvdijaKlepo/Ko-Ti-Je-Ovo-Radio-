@@ -26,7 +26,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
   late LocationProvider locationProvider;
   SearchResult<User>? userResult;
   SearchResult<Location>? locationResult;
-
+  String? image="image";
   bool _isLoadingLocations = true;
 
   @override
@@ -106,7 +106,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
               const SizedBox(height: 16),
 
               FormBuilderField(
-                name: "image",
+                name: 'image',
                 builder: (field) {
                   return InputDecorator(
                     decoration: const InputDecoration(labelText: "Odaberi sliku"),
@@ -156,8 +156,10 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
           SnackBar(content: Text("Uspješna registracija: ${user.firstName}")),
         );
       } catch (e) {
+        print ("${_formKey.currentState!.value}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),
+          
         );
       }
     }

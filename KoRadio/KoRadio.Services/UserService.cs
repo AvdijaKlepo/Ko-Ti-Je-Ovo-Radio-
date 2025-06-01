@@ -36,6 +36,8 @@ namespace KoRadio.Services
 						.Where(x => !x.freelancer.Any()) 
 						.Select(x => x.user);
 
+			query = query.Include(x => x.Location);
+
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
@@ -151,7 +153,7 @@ namespace KoRadio.Services
 
 			return _mapper.Map<Model.User>(entity);
 		}
-		public Model.User Registration(UserInsertRequest request)
+		public Model.DTOs.UserDTO Registration(UserInsertRequest request)
 		{
 
 			using var transaction = _context.Database.BeginTransaction();
@@ -162,9 +164,8 @@ namespace KoRadio.Services
 				BeforeInsert(request, entity);
 
 				_context.Users.Add(entity);
-				_context.SaveChanges();  // Entity now has UserId populated
+				_context.SaveChanges();  
 
-				// Handle roles AFTER ensuring the user was inserted
 				if (request.Roles != null && request.Roles.Any())
 				{
 					foreach (var roleId in request.Roles)
@@ -178,10 +179,12 @@ namespace KoRadio.Services
 					}
 					_context.SaveChanges();
 				}
+				
+			
 
 				transaction.Commit();
 
-				return _mapper.Map<Model.User>(entity);
+				return _mapper.Map<Model.DTOs.UserDTO>(entity);
 			}
 			catch
 			{

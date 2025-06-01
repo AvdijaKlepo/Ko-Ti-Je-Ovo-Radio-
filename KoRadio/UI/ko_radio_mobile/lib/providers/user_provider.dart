@@ -61,7 +61,7 @@ class UserProvider extends BaseProvider<User>{
 
     if (isValidResponse(response)) {
       var json = jsonDecode(response.body);
-      return fromJson(json); // Assuming fromJson is implemented
+      return fromJson(json);
     } else {
       throw Exception("Došlo je do greške. Pokušajte ponovo.");
     }

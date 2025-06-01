@@ -32,7 +32,8 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
     provider = context.read<FreelancerProvider>();
   }
   _getFreelancers() async{
-    var fetchedUsers = await provider.get();
+    var filter = {'IsServiceIncluded':true};
+    var fetchedUsers = await provider.get(filter:   filter);
     setState(() {
       result = fetchedUsers;
     });
@@ -105,6 +106,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           DataColumn(label: Text("Email")),
           DataColumn(label: Text("Bio")),
           DataColumn(label: Text("ExperianceYears")),
+          DataColumn(label: Text("Lokacijea")),
 
 
           DataColumn(label: Text("Rating")),
@@ -115,11 +117,12 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
          DataRow(
             cells:[
               
-            DataCell(Text(e.user.firstName?? "")),
-            DataCell(Text(e.user.lastName ?? "")),
-            DataCell(Text(e.user.email ?? "")),
+            DataCell(Text(e.user?.firstName?? "")),
+            DataCell(Text(e.user?.lastName ?? "")),
+            DataCell(Text(e.user?.email ?? "")),
             DataCell(Text(e.bio ?? "")),
             DataCell(Text(e.experianceYears.toString())),
+            DataCell(Text(e.user!.location!.locationName.toString())),
    
             DataCell(Text(e.rating.toString())),
             DataCell(Wrap(

@@ -17,11 +17,19 @@ namespace KoRadio.Model
 
 		public byte[]? Image { get; set; }
 		public Freelancer? Freelancer { get; set; }
-		public virtual Location? Location { get; set; }
+
+		public Location? Location { get; set; }
+		
 
 
 
 
 
+	}
+
+	public class LocationResponse
+	{
+		public int LocationId { get; set; }
+		public string? LocationName { get; set; }
 	}
 }

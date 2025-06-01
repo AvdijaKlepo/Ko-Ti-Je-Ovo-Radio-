@@ -12,5 +12,8 @@ public class MapsterConfig
 
 		TypeAdapterConfig<KoRadio.Services.Database.Freelancer, KoRadio.Model.Freelancer>.NewConfig()
 			.Ignore(dest => dest.WorkingDays);
+
+
+
 	}
 }

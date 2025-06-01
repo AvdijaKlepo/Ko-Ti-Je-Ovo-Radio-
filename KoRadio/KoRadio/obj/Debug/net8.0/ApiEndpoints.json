@@ -742,7 +742,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "KoRadio.Model.User",
+        "Type": "KoRadio.Model.DTOs.UserDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
