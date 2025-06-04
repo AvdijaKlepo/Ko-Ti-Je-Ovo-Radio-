@@ -7,7 +7,7 @@ using KoRadio.Model.SearchObject;
 
 namespace KoRadio.Services.Interfaces
 {
-	public interface ICRUDService<TModel, TSearch,TInsert,TUpdate> : IService<TModel,TSearch> where TSearch:BaseSearchObject where TModel : class
+	public interface ICRUDService<TModel, TSearch,TInsert,TUpdate> : IService<TModel,TSearch> where TSearch:BaseSearchObject where TModel : class 
 	{
 		TModel Insert(TInsert insert);
 		TModel Update(int id, TUpdate request);

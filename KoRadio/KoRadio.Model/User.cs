@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -16,7 +17,7 @@ namespace KoRadio.Model
 		public virtual ICollection<Model.UserRole> UserRoles { get; set; } = new List<Model.UserRole>();
 
 		public byte[]? Image { get; set; }
-		public Freelancer? Freelancer { get; set; }
+		//public FreelancerDTO? Freelancer { get; set; }
 
 		public Location? Location { get; set; }
 		
@@ -27,9 +28,4 @@ namespace KoRadio.Model
 
 	}
 
-	public class LocationResponse
-	{
-		public int LocationId { get; set; }
-		public string? LocationName { get; set; }
-	}
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoRadio.Services
 {
-	public abstract class BaseService<TModel,TSearch,TDbEntity> : IService<TModel, TSearch> where TSearch : BaseSearchObject where TDbEntity:class where TModel:class
+	public abstract class BaseService<TModel,TSearch,TDbEntity> : IService<TModel, TSearch> where TSearch : BaseSearchObject where TDbEntity:class where TModel:class 
 	{
 		protected readonly KoTiJeOvoRadioContext _context;
 		protected readonly IMapper _mapper;

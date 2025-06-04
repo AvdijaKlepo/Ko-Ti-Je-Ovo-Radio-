@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Core;
 using KoRadio.Model;
+using KoRadio.Model.DTOs;
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
@@ -14,6 +15,7 @@ using KoRadio.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using User = KoRadio.Services.Database.User;
+
 
 namespace KoRadio.Services
 {
@@ -27,14 +29,8 @@ namespace KoRadio.Services
 		{
 			query = base.AddFilter(searchObject, query);
 
-			query = query.GroupJoin(
-							_context.Freelancers,
-							user => user.UserId,
-							freelancer => freelancer.UserId,
-							(user, freelancer) => new { user, freelancer }
-						)
-						.Where(x => !x.freelancer.Any()) 
-						.Select(x => x.user);
+			
+
 
 			query = query.Include(x => x.Location);
 
@@ -60,12 +56,28 @@ namespace KoRadio.Services
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
 
+			if(searchObject.IsFreelancerIncluded==false)
+			{
+				query = FilterOutFreelancers(query);
+			}
+			
 		
 			
 
 			return query;
 		}
-
+		private IQueryable<User> FilterOutFreelancers(IQueryable<User> query)
+		{
+			return query
+				.GroupJoin(
+					_context.Freelancers,
+					user => user.UserId,
+					freelancer => freelancer.UserId,
+					(user, freelancer) => new { user, freelancer }
+				)
+				.Where(x => !x.freelancer.Any())
+				.Select(x => x.user);
+		}
 		public override void AfterInsert(UserInsertRequest request, User entity)
 		{
 			if (request.Roles != null && request.Roles.Any())
@@ -192,5 +204,7 @@ namespace KoRadio.Services
 				throw;
 			}
 		}
+
+		
 	}
 }

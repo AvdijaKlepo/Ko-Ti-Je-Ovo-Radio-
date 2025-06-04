@@ -15,5 +15,6 @@ namespace KoRadio.Services.Interfaces
 	{
 		Model.User Login(string username, string password);
 		Model.DTOs.UserDTO Registration(UserInsertRequest request);
+	
 	}
 }

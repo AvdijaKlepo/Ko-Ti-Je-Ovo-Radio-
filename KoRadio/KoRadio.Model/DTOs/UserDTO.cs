@@ -11,7 +11,7 @@ namespace KoRadio.Model.DTOs
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
-		public string LocationName { get; set; }
-		public List<string> Roles { get; set; }
+		public LocationDTO Location { get; set; }
+	//	public List<string> Roles { get; set; }
 	}
 }

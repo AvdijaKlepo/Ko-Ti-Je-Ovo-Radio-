@@ -11,15 +11,21 @@ public partial class Company
 
     public decimal? Rating { get; set; }
 
-    public string? Location { get; set; }
-
     public string? PhoneNumber { get; set; }
 
     public int? ExperianceYears { get; set; }
 
-    public string? Availability { get; set; }
-
     public byte[]? Image { get; set; }
 
+    public int WorkingDays { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
+
+    public int? LocationId { get; set; }
+
     public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
+
+    public virtual Location? Location { get; set; }
 }

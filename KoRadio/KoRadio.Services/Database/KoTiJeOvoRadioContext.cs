@@ -41,7 +41,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,11 +52,14 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.ToTable("Company");
 
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
-            entity.Property(e => e.Availability).HasMaxLength(255);
             entity.Property(e => e.Bio).HasMaxLength(255);
-            entity.Property(e => e.Location).HasMaxLength(255);
+            entity.Property(e => e.LocationId).HasColumnName("LocationID");
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
+
+            entity.HasOne(d => d.Location).WithMany(p => p.Companies)
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK__Company__Locatio__0F2D40CE");
         });
 
         modelBuilder.Entity<CompanyEmployee>(entity =>

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace KoRadio.Model
+namespace KoRadio.Model.Request
 {
-
-
-
-    public partial class Company
+    public class CompanyInsertRequest
     {
-
 		public string? Bio { get; set; }
 
 		public decimal? Rating { get; set; }
@@ -28,8 +27,9 @@ namespace KoRadio.Model
 
 		public int? LocationId { get; set; }
 
-		public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
+		public ICollection<int> ServiceId { get; set; } = new List<int>();
+		public List<int> Roles { get; set; }
 
-		public virtual Location? Location { get; set; }
+
 	}
 }

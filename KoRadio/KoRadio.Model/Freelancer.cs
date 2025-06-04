@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,6 +30,6 @@ namespace KoRadio.Model
 		public  ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 
   
-        public User User { get; set; }
+        public UserDTO User { get; set; }
     }
 }

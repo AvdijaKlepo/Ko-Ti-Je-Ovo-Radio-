@@ -8,9 +8,8 @@ namespace KoRadio.Model.DTOs
 {
     public class FreelancerDTO
     {
-		public int FreelancerId { get; set; }
 
-		public int? UserId { get; set; }
+		public int FreelancerId { get; set; }
 
 		public string? Bio { get; set; }
 
@@ -26,12 +25,11 @@ namespace KoRadio.Model.DTOs
 		public TimeOnly? EndTime { get; set; }
 
 
-		public ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
+		public string? ServiceName { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
 		public string LocationName { get; set; }
-		public List<string> Roles { get; set; }
 
 	}
 }
