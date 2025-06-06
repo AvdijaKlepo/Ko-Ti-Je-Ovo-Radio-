@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure.Core;
 using KoRadio.Model;
@@ -13,13 +14,14 @@ using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using MapsterMapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using User = KoRadio.Services.Database.User;
 
 
 namespace KoRadio.Services
 {
-	public class UserService:BaseCRUDService<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
+	public class UserService:BaseCRUDServiceAsync<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
 	{
 		public UserService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
@@ -72,13 +74,13 @@ namespace KoRadio.Services
 				.GroupJoin(
 					_context.Freelancers,
 					user => user.UserId,
-					freelancer => freelancer.UserId,
+					freelancer => freelancer.FreelancerNavigation.UserId,
 					(user, freelancer) => new { user, freelancer }
 				)
 				.Where(x => !x.freelancer.Any())
 				.Select(x => x.user);
 		}
-		public override void AfterInsert(UserInsertRequest request, User entity)
+		public override async Task AfterInsertAsync(UserInsertRequest request, User entity, CancellationToken cancellationToken = default)
 		{
 			if (request.Roles != null && request.Roles.Any())
 			{
@@ -88,41 +90,47 @@ namespace KoRadio.Services
 					{
 						UserId = entity.UserId,
 						RoleId = roleId,
-						ChangedAt = DateTime.UtcNow
+						ChangedAt = DateTime.UtcNow,
+						CreatedAt = DateTime.UtcNow
 					});
 				}
 				_context.SaveChanges();
 			}
-			base.AfterInsert(request, entity);
+			await base.AfterInsertAsync(request, entity, cancellationToken);
 		}
 
-		public override void BeforeInsert(UserInsertRequest request, User entity)
-		{
-			if (request.Password!=request.ConfirmPassword)
-			{
-				throw new Exception("Lozinke se ne poklapaju!");
-			}
-			entity.PasswordSalt = GenerateSalt();
-			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
-
-
-			base.BeforeInsert(request, entity);
-
-		}
-
-		public override void BeforeUpdate(UserUpdateRequest request, User entity)
+		public override async Task BeforeInsertAsync(UserInsertRequest request, User entity, CancellationToken cancellationToken = default)
 		{
 			if (request.Password != request.ConfirmPassword)
 			{
-				throw new Exception("Lozinke se ne poklapaju!");
-				
+				throw new UserException("Lozinke se ne poklapaju!");
 			}
 			entity.PasswordSalt = GenerateSalt();
 			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
-			base.BeforeUpdate(request, entity);
+			entity.CreatedAt = DateTime.Now;
+			entity.IsDeleted = false;
+			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
-	
+
+		public override async Task BeforeUpdateAsync(UserUpdateRequest request, User entity, CancellationToken cancellationToken = default)
+		{
+			if (!string.IsNullOrWhiteSpace(request.Password) || !string.IsNullOrWhiteSpace(request.ConfirmPassword))
+			{
+				if (request.Password != request.ConfirmPassword)
+				{
+					throw new UserException("Lozinke se ne poklapaju!");
+				}
+
+				entity.PasswordSalt = GenerateSalt();
+				entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
+			}
+
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
+
+
+
 
 		public static string GenerateSalt()
 		{
@@ -163,21 +171,35 @@ namespace KoRadio.Services
 				return null;
 			}
 
-			return _mapper.Map<Model.User>(entity);
+			return Mapper.Map<Model.User>(entity);
 		}
-		public Model.DTOs.UserDTO Registration(UserInsertRequest request)
+		public async Task<Model.DTOs.UserDTO> Registration(UserInsertRequest request)
 		{
-
-			using var transaction = _context.Database.BeginTransaction();
+			
+			await using var transaction = await _context.Database.BeginTransactionAsync();
 
 			try
 			{
-				User entity = _mapper.Map<User>(request);
-				BeforeInsert(request, entity);
+				
+				var emailInUse = await _context.Users.AnyAsync(u => u.Email == request.Email);
+				if (emailInUse)
+					throw new UserException("Email se već koristi.");
 
+				var emailRegex = new Regex(@"^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$");
+				if (!emailRegex.IsMatch(request.Email))
+					throw new UserException("Pogrešan format emaila");
+
+
+
+				User entity = Mapper.Map<User>(request);
+
+				await BeforeInsertAsync(request, entity);
+
+	
 				_context.Users.Add(entity);
-				_context.SaveChanges();  
+				await _context.SaveChangesAsync();
 
+		
 				if (request.Roles != null && request.Roles.Any())
 				{
 					foreach (var roleId in request.Roles)
@@ -186,25 +208,36 @@ namespace KoRadio.Services
 						{
 							UserId = entity.UserId,
 							RoleId = roleId,
+							CreatedAt = DateTime.UtcNow,
 							ChangedAt = DateTime.UtcNow
 						});
 					}
-					_context.SaveChanges();
+					await _context.SaveChangesAsync();
 				}
-				
-			
 
-				transaction.Commit();
+	
+				await transaction.CommitAsync();
 
-				return _mapper.Map<Model.DTOs.UserDTO>(entity);
+	
+				entity.Location = await _context.Locations
+											   .FirstOrDefaultAsync(l => l.LocationId == entity.LocationId);
+				entity.UserRoles = await _context.UserRoles
+										  .Where(ur => ur.UserId == entity.UserId)
+										  .Include(ur => ur.Role)
+										  .ToListAsync();
+
+		
+				return Mapper.Map<Model.DTOs.UserDTO>(entity);
 			}
 			catch
 			{
-				transaction.Rollback();
+				await transaction.RollbackAsync();
 				throw;
 			}
 		}
 
-		
+
+
+
 	}
 }

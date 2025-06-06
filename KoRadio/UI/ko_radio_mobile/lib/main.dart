@@ -91,6 +91,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   TextField(
                     controller: usernameController,
+                   
                     decoration: const InputDecoration(
                         labelText: "Username", prefixIcon: Icon(Icons.email)),
                   ),
@@ -125,11 +126,11 @@ class LoginPage extends StatelessWidget {
                           //AuthProvider.userRole = user.userRole;
 
                           print(
-                              'UserId: ${AuthProvider.userRoles?.role.roleName}');
+                              'UserId: ${AuthProvider.userRoles?.role?.roleName}');
 
-                          if (AuthProvider.userRoles!.role.roleName ==
+                          if (AuthProvider.userRoles!.role?.roleName ==
                               "Administrator") {
-                            print(AuthProvider.userRoles!.role.roleName);
+                            print(AuthProvider.userRoles!.role?.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => const ServiceListScreen(),
                             ));
@@ -149,9 +150,9 @@ class LoginPage extends StatelessWidget {
                                   ));
                         }
                         try {
-                          if (AuthProvider.userRoles!.role.roleName ==
+                          if (AuthProvider.userRoles!.role?.roleName ==
                               "Freelancer") {
-                            print(AuthProvider.userRoles!.role.roleName);
+                            print(AuthProvider.userRoles!.role?.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) =>  MasterScreen(),
                             ));
@@ -178,8 +179,8 @@ class LoginPage extends StatelessWidget {
                                   ));
                         }
                         try {
-                          if (AuthProvider.userRoles!.role.roleName == "User") {
-                            print(AuthProvider.userRoles!.role.roleName);
+                          if (AuthProvider.userRoles!.role?.roleName == "User") {
+                            print(AuthProvider.userRoles!.role?.roleName);
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) =>  const MasterScreen(),
                             ));

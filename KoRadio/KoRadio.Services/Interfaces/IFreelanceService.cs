@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Interfaces
 {
-    public interface IFreelanceService:ICRUDService<Model.Freelancer,FreelancerSearchObject,FreelancerInsertRequest,FreelancerUpdateRequest>
+    public interface IFreelanceService:ICRUDServiceAsync<Model.Freelancer,FreelancerSearchObject,FreelancerInsertRequest,FreelancerUpdateRequest>
     {
     }
 }

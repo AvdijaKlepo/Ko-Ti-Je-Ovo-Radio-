@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services
 {
-    public class CompanyService: BaseCRUDService<Model.Company, CompanySearchObject,Database.Company, CompanyInsertRequest, CompanyUpdateRequest>, ICompanyService
+    public class CompanyService: BaseCRUDServiceAsync<Model.Company, CompanySearchObject,Database.Company, CompanyInsertRequest, CompanyUpdateRequest>, ICompanyService
 	{
          public CompanyService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
@@ -24,9 +24,8 @@ namespace KoRadio.Services
 			return base.AddFilter(search, query);
 		}
 
-		public override void BeforeInsert(CompanyInsertRequest request, Company entity)
+		public override async Task BeforeInsertAsync(CompanyInsertRequest request, Company entity, CancellationToken cancellationToken = default)
 		{
-			base.BeforeInsert(request, entity);
 			if (request.ServiceId != null && request.ServiceId.Any())
 			{
 
@@ -50,19 +49,19 @@ namespace KoRadio.Services
 				entity.WorkingDays = (int)workingDaysEnum;
 
 			}
-			
+			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
-		public override void BeforeGet(Model.Company request, Company entity)
+
+		public override async Task BeforeGetAsync(Model.Company request, Company entity)
 		{
-			base.BeforeGet(request, entity);
-
 			var flags = (WorkingDaysFlags)entity.WorkingDays;
-				request.WorkingDays = Enum.GetValues<DayOfWeek>()
-					.Where(day => flags.HasFlag((WorkingDaysFlags)(1 << (int)day)))
-					.ToList();
-		
+			request.WorkingDays = Enum.GetValues<DayOfWeek>()
+				.Where(day => flags.HasFlag((WorkingDaysFlags)(1 << (int)day)))
+				.ToList();
+			await base.BeforeGetAsync(request, entity);
 		}
+		
 
 	}
 }

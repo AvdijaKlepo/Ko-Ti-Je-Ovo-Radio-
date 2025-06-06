@@ -8,7 +8,7 @@ namespace KoRadio.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CompanyController : BaseCRUDController<Model.Company, CompanySearchObject, CompanyInsertRequest, CompanyUpdateRequest>
+    public class CompanyController : BaseCRUDControllerAsync<Model.Company, CompanySearchObject, CompanyInsertRequest, CompanyUpdateRequest>
 	{
 		public CompanyController(ICompanyService service)
 			: base(service)

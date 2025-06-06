@@ -1,6 +1,6 @@
 [
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Company",
     "HttpMethod": "POST",
@@ -26,7 +26,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "Company",
     "HttpMethod": "GET",
@@ -41,6 +41,21 @@
       {
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -57,7 +72,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Company/{id}",
     "HttpMethod": "PUT",
@@ -88,7 +103,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.CompanyUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Company/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Company, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.CompanySearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "Company/{id}",
     "HttpMethod": "GET",
@@ -114,7 +151,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Freelancer",
     "HttpMethod": "POST",
@@ -140,7 +177,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "Freelancer",
     "HttpMethod": "GET",
@@ -186,6 +223,21 @@
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -201,7 +253,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Freelancer/{id}",
     "HttpMethod": "PUT",
@@ -232,7 +284,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Freelancer/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "Freelancer/{id}",
     "HttpMethod": "GET",
@@ -258,7 +332,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Job",
     "HttpMethod": "POST",
@@ -284,7 +358,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "Job",
     "HttpMethod": "GET",
@@ -320,6 +394,21 @@
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -335,7 +424,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Job/{id}",
     "HttpMethod": "PUT",
@@ -366,7 +455,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.JobUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Job/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Job, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.JobSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "Job/{id}",
     "HttpMethod": "GET",
@@ -392,7 +503,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Location",
     "HttpMethod": "POST",
@@ -418,13 +529,18 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "Location",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "LocationName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
       {
         "Name": "Page",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
@@ -433,6 +549,21 @@
       {
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -449,7 +580,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Location/{id}",
     "HttpMethod": "PUT",
@@ -480,7 +611,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.LocationUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Location/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Location, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.LocationSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "Location/{id}",
     "HttpMethod": "GET",
@@ -514,6 +667,11 @@
     "Order": 0,
     "Parameters": [
       {
+        "Name": "LocationName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Page",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
@@ -521,6 +679,21 @@
       {
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -537,7 +710,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "Service",
     "HttpMethod": "POST",
@@ -563,7 +736,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "Service",
     "HttpMethod": "GET",
@@ -594,6 +767,21 @@
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -609,7 +797,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Service/{id}",
     "HttpMethod": "PUT",
@@ -640,7 +828,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.ServiceUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Service/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Service, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.ServiceSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "Service/{id}",
     "HttpMethod": "GET",
@@ -666,7 +876,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Insert",
     "RelativePath": "User",
     "HttpMethod": "POST",
@@ -692,7 +902,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetList",
     "RelativePath": "User",
     "HttpMethod": "GET",
@@ -738,6 +948,16 @@
         "Name": "PageSize",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -753,7 +973,7 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseCRUDController\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "User/{id}",
     "HttpMethod": "PUT",
@@ -784,7 +1004,29 @@
     ]
   },
   {
-    "ContainingType": "KoRadio.API.Controllers.BaseController\u00602[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.UserUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "User/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.User, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.UserSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "GetById",
     "RelativePath": "User/{id}",
     "HttpMethod": "GET",

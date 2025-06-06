@@ -6,22 +6,23 @@ part of 'user.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-User _$UserFromJson(Map<String, dynamic> json) => User()
-  ..userId = (json['userId'] as num?)?.toInt()
-  ..firstName = json['firstName'] as String?
-  ..lastName = json['lastName'] as String?
-  ..email = json['email'] as String?
-  ..userRoles = (json['userRoles'] as List<dynamic>?)
-      ?.map((e) => UserRole.fromJson(e as Map<String, dynamic>))
-      .toList()
-  ..image = json['image'] as String?
-  ..locationId = (json['locationId'] as num?)?.toInt()
-  ..location = json['location'] == null
-      ? null
-      : Location.fromJson(json['location'] as Map<String, dynamic>)
-  ..freelancer = json['freelancer'] == null
-      ? null
-      : Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>);
+User _$UserFromJson(Map<String, dynamic> json) => User(
+      userId: (json['userId'] as num).toInt(),
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      email: json['email'] as String,
+      phoneNumber: json['phoneNumber'] as String,
+      location: json['location'] == null
+          ? null
+          : Location.fromJson(json['location'] as Map<String, dynamic>),
+      isDeleted: json['isDeleted'] as bool,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      address: json['address'] as String,
+    )
+      ..userRoles = (json['userRoles'] as List<dynamic>?)
+          ?.map((e) => UserRole.fromJson(e as Map<String, dynamic>))
+          .toList()
+      ..image = json['image'] as String?;
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'userId': instance.userId,
@@ -30,7 +31,9 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'email': instance.email,
       'userRoles': instance.userRoles,
       'image': instance.image,
-      'locationId': instance.locationId,
+      'phoneNumber': instance.phoneNumber,
       'location': instance.location,
-      'freelancer': instance.freelancer,
+      'address': instance.address,
+      'isDeleted': instance.isDeleted,
+      'createdAt': instance.createdAt.toIso8601String(),
     };

@@ -8,7 +8,7 @@ namespace KoRadio.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class JobController : BaseCRUDController<Model.Job, JobSearchObject, JobInsertRequest, JobUpdateRequest>
+    public class JobController : BaseCRUDControllerAsync<Model.Job, JobSearchObject, JobInsertRequest, JobUpdateRequest>
 	{
 
 

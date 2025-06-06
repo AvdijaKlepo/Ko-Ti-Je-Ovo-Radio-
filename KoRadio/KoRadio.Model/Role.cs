@@ -11,6 +11,7 @@ namespace KoRadio.Model
 		public string RoleName { get; set; } = null!;
 
 		public string RoleDescription { get; set; } = null!;
+		public bool IsDeleted { get; set; }
 
 	}
 }

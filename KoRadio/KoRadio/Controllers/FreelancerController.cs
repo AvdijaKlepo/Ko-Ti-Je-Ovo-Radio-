@@ -11,7 +11,7 @@ namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	public class FreelancerController : BaseCRUDController<Model.Freelancer,FreelancerSearchObject,FreelancerInsertRequest,FreelancerUpdateRequest>
+	public class FreelancerController : BaseCRUDControllerAsync<Model.Freelancer,FreelancerSearchObject,FreelancerInsertRequest,FreelancerUpdateRequest>
 	{
 		
 

@@ -8,7 +8,7 @@ namespace KoRadio.Model.SearchObject
 {
     public class LocationSearchObject: BaseSearchObject
 	{
-       
 
+        public string? LocationName { get; set; }
     }
 }

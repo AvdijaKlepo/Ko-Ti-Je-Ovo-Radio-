@@ -52,23 +52,24 @@ class UserProvider extends BaseProvider<User>{
     "Content-Type": "application/json",
   };
 
-  try {
-    var response = await http.post(
-      uri,
-      headers: headers,
-      body: jsonEncode(data),
-    );
+  var jsonRequest = jsonEncode(data);
+    var response = await http.post(uri, headers: headers, body: jsonRequest);
 
     if (isValidResponse(response)) {
-      var json = jsonDecode(response.body);
-      return fromJson(json);
+      var data = jsonDecode(response.body);
+      return fromJson(data);
     } else {
-      throw Exception("Došlo je do greške. Pokušajte ponovo.");
+      throw new UserException("Unknown error");
     }
-  } catch (e) {
-    throw Exception("Greška prilikom registracije: ${e.toString()}");
-  }
 }
 
  
+}
+class UserException implements Exception {
+  final String exMessage;
+
+  UserException(this.exMessage);
+
+  @override
+  String toString() => exMessage;
 }

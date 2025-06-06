@@ -59,6 +59,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Location).WithMany(p => p.Companies)
                 .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Company__Locatio__0F2D40CE");
         });
 
@@ -73,6 +74,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.CompanyEmployees)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CompanyEm__UserI__17036CC0");
         });
 
@@ -85,7 +87,6 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
             entity.HasOne(d => d.Company).WithMany(p => p.CompanyServices)
                 .HasForeignKey(d => d.CompanyId)
@@ -102,14 +103,16 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.ToTable("Freelancer");
 
-            entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
+            entity.Property(e => e.FreelancerId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("FreelancerID");
             entity.Property(e => e.Bio).HasMaxLength(255);
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Freelancers)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Freelance__UserI__123EB7A3");
+            entity.HasOne(d => d.FreelancerNavigation).WithOne(p => p.Freelancer)
+                .HasForeignKey<Freelancer>(d => d.FreelancerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Freelance__Freel__17C286CF");
         });
 
         modelBuilder.Entity<FreelancerService>(entity =>
@@ -121,7 +124,6 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.FreelancerId)
@@ -150,10 +152,12 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.FreelancerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Jobs__Freelancer__503BEA1C");
 
             entity.HasOne(d => d.User).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Jobs__UserID__4F47C5E3");
         });
 
@@ -210,6 +214,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACDE55EC71");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.Address).HasMaxLength(50);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -219,24 +224,33 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.LocationId).HasColumnName("LocationID");
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.PasswordSalt).HasMaxLength(255);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(255);
 
             entity.HasOne(d => d.Location).WithMany(p => p.Users)
                 .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__LocationI__0E391C95");
         });
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.UserRolesId).HasName("PK__UserRole__43D8C0CDAC829069");
+            entity.HasKey(e => e.UserRoleId).HasName("PK__UserRole__3D978A551693E34E");
 
-            entity.HasIndex(e => e.RoleId, "IX_UserRoles_RoleID");
-
-            entity.HasIndex(e => e.UserId, "IX_UserRoles_UserID");
-
-            entity.Property(e => e.UserRolesId).HasColumnName("UserRolesID");
+            entity.Property(e => e.UserRoleId).HasColumnName("UserRoleID");
             entity.Property(e => e.ChangedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UserRoles__RoleI__16CE6296");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UserRoles__UserI__15DA3E5D");
         });
 
         OnModelCreatingPartial(modelBuilder);

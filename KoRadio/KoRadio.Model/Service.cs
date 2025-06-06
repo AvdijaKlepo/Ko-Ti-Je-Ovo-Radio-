@@ -9,12 +9,13 @@ namespace KoRadio.Model
 
     public  class Service
     {
-        public int ServiceId { get; set; }
+		public int ServiceId { get; set; }
 
-        public string? ServiceName { get; set; }
-		public byte[]? Image { get; set; }
+		public string ServiceName { get; set; } = null!;
 
-		public byte[]? ImageThumb { get; set; }
+		public byte[] Image { get; set; } = null!;
+
+		public bool IsDeleted { get; set; }
 
 	}
 }

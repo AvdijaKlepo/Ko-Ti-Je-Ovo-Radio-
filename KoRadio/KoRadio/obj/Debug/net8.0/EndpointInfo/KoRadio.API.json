@@ -72,6 +72,27 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -153,6 +174,27 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Company"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -307,6 +349,27 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -388,6 +451,27 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -529,6 +613,27 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -613,6 +718,27 @@
           }
         }
       },
+      "delete": {
+        "tags": [
+          "Job"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "get": {
         "tags": [
           "Job"
@@ -659,6 +785,13 @@
         ],
         "parameters": [
           {
+            "name": "LocationName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -672,6 +805,27 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -752,6 +906,13 @@
         ],
         "parameters": [
           {
+            "name": "LocationName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -765,6 +926,27 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -847,6 +1029,27 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -978,6 +1181,27 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1059,6 +1283,27 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -1303,6 +1548,20 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1384,6 +1643,27 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -1486,8 +1766,7 @@
           },
           "experianceYears": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "image": {
             "type": "string",
@@ -1511,8 +1790,10 @@
           },
           "locationId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean"
           },
           "companyServices": {
             "type": "array",
@@ -1715,24 +1996,17 @@
             "type": "integer",
             "format": "int32"
           },
-          "userId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "bio": {
             "type": "string",
             "nullable": true
           },
           "rating": {
             "type": "number",
-            "format": "double",
-            "nullable": true
+            "format": "double"
           },
           "experianceYears": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "workingDays": {
             "type": "array",
@@ -1743,13 +2017,17 @@
           },
           "startTime": {
             "type": "string",
-            "format": "time",
-            "nullable": true
+            "format": "time"
           },
           "endTime": {
             "type": "string",
-            "format": "time",
-            "nullable": true
+            "format": "time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "freelancerNavigation": {
+            "$ref": "#/components/schemas/User"
           },
           "freelancerServices": {
             "type": "array",
@@ -1757,9 +2035,6 @@
               "$ref": "#/components/schemas/FreelancerService"
             },
             "nullable": true
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false
@@ -1937,13 +2212,11 @@
           },
           "userId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "freelancerId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "startEstimate": {
             "type": "string",
@@ -1981,15 +2254,18 @@
             "type": "string",
             "nullable": true
           },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "freelancer": {
+            "$ref": "#/components/schemas/Freelancer"
+          },
           "jobsServices": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/JobsService"
             },
             "nullable": true
-          },
-          "freelancer": {
-            "$ref": "#/components/schemas/Freelancer"
           },
           "user": {
             "$ref": "#/components/schemas/User"
@@ -2173,16 +2449,9 @@
           "locationName": {
             "type": "string",
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "LocationDTO": {
-        "type": "object",
-        "properties": {
-          "locationName": {
-            "type": "string",
-            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -2243,6 +2512,9 @@
           "roleDescription": {
             "type": "string",
             "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -2263,10 +2535,8 @@
             "format": "byte",
             "nullable": true
           },
-          "imageThumb": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+          "isDeleted": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -2350,8 +2620,23 @@
             "format": "byte",
             "nullable": true
           },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "location": {
             "$ref": "#/components/schemas/Location"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2375,8 +2660,35 @@
             "type": "string",
             "nullable": true
           },
+          "userRoles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserRole"
+            },
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "location": {
-            "$ref": "#/components/schemas/LocationDTO"
+            "$ref": "#/components/schemas/Location"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2393,6 +2705,10 @@
             "nullable": true
           },
           "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
             "type": "string",
             "nullable": true
           },
@@ -2420,6 +2736,17 @@
           "locationId": {
             "type": "integer",
             "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2445,24 +2772,25 @@
       "UserRole": {
         "type": "object",
         "properties": {
-          "userRolesId": {
+          "userRoleId": {
             "type": "integer",
             "format": "int32"
           },
           "userId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "roleId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           },
           "changedAt": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           },
           "role": {
             "$ref": "#/components/schemas/Role"
@@ -2504,6 +2832,13 @@
               "type": "integer",
               "format": "int32"
             },
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "address": {
+            "type": "string",
             "nullable": true
           }
         },

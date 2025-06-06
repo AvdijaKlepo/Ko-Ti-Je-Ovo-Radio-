@@ -11,8 +11,6 @@ public partial class JobsService
 
     public DateTime? CreatedAt { get; set; }
 
-    public bool? IsDeleted { get; set; }
-
     public virtual Job Job { get; set; } = null!;
 
     public virtual Service Service { get; set; } = null!;

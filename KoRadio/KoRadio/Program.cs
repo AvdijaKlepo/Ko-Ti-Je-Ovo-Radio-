@@ -7,6 +7,7 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,14 @@ builder.Services.AddTransient<IServicesService, ServicesService>();
 builder.Services.AddTransient<IJobService, JobService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+	options.Filters.Add<ExceptionFilter>();
+})
+.AddJsonOptions(options =>
+{
+	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -41,11 +49,8 @@ builder.Services.AddSwaggerGen(c =>
 	} });
 
 });
-builder.Services.AddControllers()
-	.AddJsonOptions(options =>
-	{
-		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-	});
+
+
 var connectionString = builder.Configuration.GetConnectionString("KoRadio");
 builder.Services.AddDbContext<KoTiJeOvoRadioContext>(options =>
 	options.UseSqlServer(connectionString));
@@ -66,7 +71,31 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+	try
+	{
+		await next();
+	}
+	catch (Exception ex)
+	{
+		var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+		logger.LogError(ex, ex.Message);
 
+		if (!context.Response.HasStarted)
+		{
+			context.Response.StatusCode = 500;
+			context.Response.ContentType = "application/json";
+			var result = JsonSerializer.Serialize(new
+			{
+				errors = new { general = new[] { "Server error, check logs." } }
+			});
+			await context.Response.WriteAsync(result);
+		}
+	}
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

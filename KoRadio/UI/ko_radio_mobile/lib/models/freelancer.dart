@@ -8,22 +8,19 @@ import 'package:ko_radio_mobile/models/user.dart';
 part 'freelancer.g.dart';
 @JsonSerializable()
 class Freelancer{
-  int? freelancerId;
-  String? bio;
-  double? rating;
-  double? hourlyRate;
-  String? availability;
-  int? experianceYears;
-  String? location;
-  List<String>? workingDays;
-  String? startTime;
-  String? endTime;
-  List<FreelancerService>? freelancerServices;
-  User user;
+  int freelancerId;
+  String bio;
+  double rating;
+  int experianceYears;
+  List<String> workingDays;
+  String startTime;
+  String endTime;
+  List<FreelancerService> freelancerServices;
+  User freelancerNavigation;
 
 
   
-  Freelancer({required this.bio, required this.rating, required this.hourlyRate, required this.availability, required this.experianceYears, required this.location, required this.freelancerServices,required this.user,required this.workingDays});
+  Freelancer({required this.bio, required this.rating,  required this.experianceYears,required this.freelancerServices,required this.workingDays, required this.startTime, required this.endTime, required this.freelancerNavigation, required this.freelancerId});
 
   factory Freelancer.fromJson(Map<String, dynamic> json) => _$FreelancerFromJson(json);
 

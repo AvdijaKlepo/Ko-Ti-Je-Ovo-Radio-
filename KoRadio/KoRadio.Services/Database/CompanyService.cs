@@ -9,9 +9,7 @@ public partial class CompanyService
 
     public int ServiceId { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
-    public bool? IsDeleted { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public virtual Company Company { get; set; } = null!;
 

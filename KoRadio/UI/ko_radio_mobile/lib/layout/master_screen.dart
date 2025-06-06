@@ -93,7 +93,7 @@ int selectedIndex=0;
       body: IndexedStack(
         
                 index: navProvider.selectedIndex,
-                children: AuthProvider.userRoles?.role.roleName == "User" ? _pagesUser : _pagesFreelancer,
+                children: AuthProvider.userRoles?.role?.roleName == "User" ? _pagesUser : _pagesFreelancer,
               ),
              
       
@@ -102,7 +102,7 @@ int selectedIndex=0;
       
       
       bottomNavigationBar:
-      AuthProvider.userRoles?.role.roleName == "User" ?
+      AuthProvider.userRoles?.role?.roleName == "User" ?
       
        BottomNavigationBar(
    currentIndex: navProvider.selectedIndex,

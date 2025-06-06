@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace KoRadio.Services
 {
 	
-    public class LocationService:BaseCRUDService<Model.Location, LocationSearchObject, Database.Location, LocationInsertRequest, LocationUpdateRequest>, ILocationService
+    public class LocationService:BaseCRUDServiceAsync<Model.Location, LocationSearchObject, Database.Location, LocationInsertRequest, LocationUpdateRequest>, ILocationService
 	{
 		
 		public LocationService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
@@ -21,10 +21,15 @@ namespace KoRadio.Services
 
 		public override IQueryable<Location> AddFilter(LocationSearchObject search, IQueryable<Location> query)
 		{
+			if (!string.IsNullOrWhiteSpace(search?.LocationName))
+			{
+				query = query.Where(x => x.LocationName.StartsWith(search.LocationName));
+			}
 			return base.AddFilter(search, query);
+
 		}
 
-		public Model.PagedResult<Model.Location> GetForRegistration(LocationSearchObject locationSearchObject)
+		public async Task<Model.PagedResult<Model.Location>> GetForRegistration(LocationSearchObject locationSearchObject)
 		{
 			List<Model.Location> result = new();
 			var query = _context.Set<Database.Location>().AsQueryable();
@@ -43,10 +48,10 @@ namespace KoRadio.Services
 
 
 
-			var resultList = _mapper.Map(list, result);
+			var resultList = Mapper.Map(list, result);
 			for (int i = 0; i < resultList.Count; i++)
 			{
-				BeforeGet(resultList[i], list[i]);
+				 BeforeGetAsync(resultList[i], list[i]);
 			}
 			Model.PagedResult<Model.Location> response = new();
 			response.ResultList = resultList;

@@ -11,8 +11,6 @@ public partial class FreelancerService
 
     public DateTime? CreatedAt { get; set; }
 
-    public bool? IsDeleted { get; set; }
-
     public virtual Freelancer Freelancer { get; set; } = null!;
 
     public virtual Service Service { get; set; } = null!;

@@ -114,7 +114,7 @@ class LoginPage extends StatelessWidget {
 
 
                          if (
-                                  AuthProvider.userRoles!.role.roleName=="Administrator") {
+                                  AuthProvider.userRoles!.role.roleName=="Admin") {
                                     print(AuthProvider.userRoles!.role.roleName);
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => MasterScreen(),

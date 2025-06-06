@@ -57,7 +57,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
 Widget build(BuildContext context) { 
   final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
   return Scaffold(appBar: AppBar(
-    title:Text( 'Raspored ${widget.freelancerId!.user.firstName}a'), automaticallyImplyLeading: false,
+    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation.firstName}a'), automaticallyImplyLeading: false,
     leading:  IconButton(onPressed: (){
      
         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(widget.freelancerId!)));

@@ -11,5 +11,7 @@ namespace KoRadio.Model
 		public int LocationId { get; set; }
 
 		public string LocationName { get; set; } = null!;
+
+		public bool IsDeleted { get; set; }
 	}
 }

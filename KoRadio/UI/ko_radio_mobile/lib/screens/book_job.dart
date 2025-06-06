@@ -130,7 +130,7 @@ class _BookJobState extends State<BookJob> {
     return Scaffold(
       appBar: AppBar(title: const Text('Rezerviši posao'), automaticallyImplyLeading: false,
       leading: IconButton(onPressed: (){
-        AuthProvider.userRoles?.role.roleName == "User" ?
+        AuthProvider.userRoles?.role?.roleName == "User" ?
         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDaySchedule(_currentJobDate?? DateTime.now(), widget.freelancer))) : Navigator.pop(context);
       },
       icon: const Icon(Icons.arrow_back))),
@@ -139,7 +139,7 @@ class _BookJobState extends State<BookJob> {
         child: FormBuilder(
           key: _formKey,
           initialValue: _initialValue,
-          child: AuthProvider.userRoles?.role.roleName == "User"
+          child: AuthProvider.userRoles?.role?.roleName == "User"
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services
 {
-    public class ServicesService:BaseCRUDService<Model.Service, ServiceSearchObject, Database.Service, ServiceInsertRequest, ServiceUpdateRequest>,IServicesService
+    public class ServicesService:BaseCRUDServiceAsync<Model.Service, ServiceSearchObject, Database.Service, ServiceInsertRequest, ServiceUpdateRequest>,IServicesService
     {
         public ServicesService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
@@ -31,5 +31,7 @@ namespace KoRadio.Services
 
 			return query;
 		}
+
+	
 	}
 }

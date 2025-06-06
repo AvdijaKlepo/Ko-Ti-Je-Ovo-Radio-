@@ -8,18 +8,22 @@ import 'package:ko_radio_mobile/models/user_role.dart';
 part 'user.g.dart';
 @JsonSerializable()
 class User{
-  int? userId;
-  String? firstName;
-  String? lastName;
-  String? email;
+  int userId;
+  String firstName;
+  String lastName;
+  String email;
   List<UserRole>? userRoles;
   String? image;
-  int? locationId;
+  String phoneNumber;
   Location? location;
-  Freelancer? freelancer;
+  String address;
+  bool isDeleted;
+  DateTime createdAt;
 
 
-  User();
+
+
+  User({ required this.userId, required this.firstName, required this.lastName, required this.email,  required this.phoneNumber, required this.location, required this.isDeleted, required this.createdAt, required this.address});
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 

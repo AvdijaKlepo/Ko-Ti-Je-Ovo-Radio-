@@ -9,7 +9,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? baseUrl = const String.fromEnvironment("baseUrl",
-      defaultValue: "http://localhost:5053/");
+      defaultValue: "http://10.0.2.2:5053/");
   String _endpoint = "";
 
   BaseProvider(String endpoint) {
@@ -116,16 +116,27 @@ abstract class BaseProvider<T> with ChangeNotifier {
     throw Exception("Method not implemented");
   }
 
-  bool isValidResponse(Response response) {
-    if (response.statusCode < 299) {
-      return true;
-    } else if (response.statusCode == 401) {
-      throw Exception("Unauthorized");
-    } else {
-      print(response.body);
-      throw Exception("Something bad happened please try again");
-    }
+ bool isValidResponse(Response response) {
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    return true;
   }
+
+  String message = "Unknown error";
+
+  try {
+    var json = jsonDecode(response.body);
+    if (json is Map<String, dynamic> && json.containsKey("errors")) {
+      // Flatten error messages into a single string
+      final errors = (json["errors"] as Map).values.expand((v) => v).join('\n');
+      message = errors;
+    }
+  } catch (_) {
+    message = response.body; 
+  }
+
+  throw Exception(message);
+}
+
 
   Map<String, String> createHeaders() {
    String username = AuthProvider.username ?? "";
@@ -174,4 +185,13 @@ abstract class BaseProvider<T> with ChangeNotifier {
     });
     return query;
   }
+}
+
+class UserException implements Exception {
+  final String exMessage;
+
+  UserException(this.exMessage);
+
+  @override
+  String toString() => exMessage;
 }

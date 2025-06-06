@@ -12,7 +12,7 @@ namespace KoRadio.API.Controllers
     [ApiController]
 
     
-    public class LocationController : BaseCRUDController<Model.Location, LocationSearchObject, LocationInsertRequest, LocationUpdateRequest>
+    public class LocationController : BaseCRUDControllerAsync<Model.Location, LocationSearchObject, LocationInsertRequest, LocationUpdateRequest>
 	{
 
        
@@ -25,7 +25,7 @@ namespace KoRadio.API.Controllers
 
         [HttpGet("LocationRegistration")]
         [AllowAnonymous]
-		public PagedResult<Location> GetForRegistration([FromQuery]LocationSearchObject locationSearchObject)
+		public Task<PagedResult<Location>> GetForRegistration([FromQuery]LocationSearchObject locationSearchObject)
         {
 			return (_service as ILocationService).GetForRegistration(locationSearchObject);
 		}

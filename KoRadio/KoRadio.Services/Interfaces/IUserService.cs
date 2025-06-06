@@ -11,10 +11,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace KoRadio.Services.Interfaces
 {
-	public interface IUserService:ICRUDService<Model.User,UserSearchObject,UserInsertRequest,UserUpdateRequest>
+	public interface IUserService:ICRUDServiceAsync<Model.User,UserSearchObject,UserInsertRequest,UserUpdateRequest>
 	{
 		Model.User Login(string username, string password);
-		Model.DTOs.UserDTO Registration(UserInsertRequest request);
+		 Task<Model.DTOs.UserDTO> Registration(UserInsertRequest request);
 	
 	}
 }

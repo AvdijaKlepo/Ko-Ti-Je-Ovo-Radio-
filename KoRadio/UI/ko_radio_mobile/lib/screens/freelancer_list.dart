@@ -184,11 +184,11 @@ class _FreelancerListState extends State<FreelancerList> {
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: ListTile(
                   leading: InkWell(
-                    child: e.user.image != null
+                    child: e.freelancerNavigation.image != null
                         ? SizedBox(
                             width: 80,
                             height: 80,
-                            child: imageFromString(e.user.image!),
+                            child: imageFromString(e.freelancerNavigation.image!),
                           )
                         : Image.network(
                             "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
@@ -198,14 +198,14 @@ class _FreelancerListState extends State<FreelancerList> {
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => FreelancerDetails(e))),
                   ),
-                  title: Text('${e.user.firstName} ${e.user.lastName}'),
+                  title: Text('${e.freelancerNavigation.firstName} ${e.freelancerNavigation.lastName}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Iskustvo: ${e.experianceYears} godina'),
                       Text(
                           'Ocjena: ${e.rating != 0 ? e.rating : 'Neocijenjen'}'),
-                      Text('Lokacija: ${e.user.location?.locationName}'),
+                      Text('Lokacija: ${e.freelancerNavigation.location?.locationName}'),
                     ],
                   ),
                 ),

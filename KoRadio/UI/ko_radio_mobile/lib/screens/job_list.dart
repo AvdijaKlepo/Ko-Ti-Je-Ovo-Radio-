@@ -25,7 +25,7 @@ class _JobListState extends State<JobList> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       jobProvider = context.read<JobProvider>();
-      AuthProvider.userRoles?.role.roleName == "User" ?
+      AuthProvider.userRoles?.role?.roleName == "User" ?
       _getServices() :
       _getFreelancerServices();
     });

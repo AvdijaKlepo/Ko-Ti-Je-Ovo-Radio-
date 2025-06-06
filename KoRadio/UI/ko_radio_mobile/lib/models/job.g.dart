@@ -7,28 +7,23 @@ part of 'job.dart';
 // **************************************************************************
 
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
+      jobId: (json['jobId'] as num).toInt(),
       endEstimate: json['endEstimate'] as String?,
       startEstimate: json['startEstimate'] as String,
       payEstimate: (json['payEstimate'] as num?)?.toDouble(),
       payInvoice: (json['payInvoice'] as num?)?.toDouble(),
       jobDate: DateTime.parse(json['jobDate'] as String),
       jobStatus: $enumDecode(_$JobStatusEnumMap, json['jobStatus']),
-    )
-      ..jobId = (json['jobId'] as num?)?.toInt()
-      ..freelancer = json['freelancer'] == null
-          ? null
-          : Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>)
-      ..user = json['user'] == null
-          ? null
-          : User.fromJson(json['user'] as Map<String, dynamic>)
-      ..service = json['service'] == null
-          ? null
-          : Service.fromJson(json['service'] as Map<String, dynamic>)
-      ..jobDescription = json['jobDescription'] as String?
-      ..image = json['image'] as String?
-      ..jobsServices = (json['jobsServices'] as List<dynamic>?)
+      jobDescription: json['jobDescription'] as String,
+      image: json['image'] as String?,
+      jobsServices: (json['jobsServices'] as List<dynamic>?)
           ?.map((e) => JobsService.fromJson(e as Map<String, dynamic>))
-          .toList();
+          .toList(),
+      freelancer:
+          Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>),
+      user: User.fromJson(json['user'] as Map<String, dynamic>),
+      service: Service.fromJson(json['service'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobId': instance.jobId,

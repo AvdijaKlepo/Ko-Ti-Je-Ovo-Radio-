@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Interfaces
 {
-    public interface ILocationService: ICRUDService<Model.Location, Model.SearchObject.LocationSearchObject, Model.Request.LocationInsertRequest, Model.Request.LocationUpdateRequest>
+    public interface ILocationService: ICRUDServiceAsync<Model.Location, Model.SearchObject.LocationSearchObject, Model.Request.LocationInsertRequest, Model.Request.LocationUpdateRequest>
 	{
-        PagedResult<Location> GetForRegistration(LocationSearchObject locationSearchObject);
+        Task<PagedResult<Location>> GetForRegistration(LocationSearchObject locationSearchObject);
     }
 }

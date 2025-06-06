@@ -11,16 +11,16 @@ import 'package:ko_radio_mobile/models/service.dart';
 part 'job.g.dart';
 @JsonSerializable()
 class Job{
-  int? jobId;
-  Freelancer? freelancer;
-  User? user;
-  Service? service;
+  int jobId;
+  Freelancer freelancer;
+  User user;
+  Service service;
   String startEstimate;
   String? endEstimate;
   double? payEstimate;
   double? payInvoice;
   DateTime jobDate;
-  String? jobDescription;
+  String jobDescription;
   String? image;
   List<JobsService>? jobsServices;
   JobStatus jobStatus;
@@ -31,7 +31,7 @@ class Job{
 
 
   
-  Job({required this.endEstimate,required this.startEstimate,required this.payEstimate,required this.payInvoice,required this.jobDate, required this.jobStatus});
+  Job({ required this.jobId ,required this.endEstimate,required this.startEstimate,required this.payEstimate,required this.payInvoice,required this.jobDate, required this.jobStatus, required this.jobDescription, required this.image, required this.jobsServices, required this.freelancer, required this.user, required this.service});
 
   factory Job.fromJson(Map<String, dynamic> json) => _$JobFromJson(json);
 

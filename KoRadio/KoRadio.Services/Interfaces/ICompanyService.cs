@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Interfaces
 {
-    public interface ICompanyService : ICRUDService<Model.Company, CompanySearchObject, CompanyInsertRequest, CompanyUpdateRequest>
+    public interface ICompanyService : ICRUDServiceAsync<Model.Company, CompanySearchObject, CompanyInsertRequest, CompanyUpdateRequest>
 	{
     }
 }

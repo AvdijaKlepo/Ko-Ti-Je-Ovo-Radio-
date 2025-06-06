@@ -8,12 +8,14 @@ part of 'service.dart';
 
 Service _$ServiceFromJson(Map<String, dynamic> json) => Service(
       serviceId: (json['serviceId'] as num).toInt(),
-      serviceName: json['serviceName'] as String?,
-      image: json['image'] as String?,
+      serviceName: json['serviceName'] as String,
+      image: json['image'] as String,
+      isDeleted: json['isDeleted'] as bool,
     );
 
 Map<String, dynamic> _$ServiceToJson(Service instance) => <String, dynamic>{
       'serviceId': instance.serviceId,
       'serviceName': instance.serviceName,
       'image': instance.image,
+      'isDeleted': instance.isDeleted,
     };

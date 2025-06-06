@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:http/http.dart' as http;
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 
@@ -153,5 +154,28 @@ final isBeforeTimeNow = isToday &&
           },
         );
 }
+
+
+
+
+Future<T?> handleRequest<T>(
+  BuildContext context,
+  Future<T> Function() action,
+) async {
+  try {
+    return await action();
+  } catch (e) {
+    final message = e.toString().replaceFirst("Exception: ", "");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return null;
+  }
+}
+
+
 
 

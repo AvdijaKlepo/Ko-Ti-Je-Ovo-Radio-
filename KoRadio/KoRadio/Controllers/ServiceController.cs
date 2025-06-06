@@ -11,7 +11,7 @@ namespace KoRadio.API.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	public class ServiceController : BaseCRUDController<Model.Service,ServiceSearchObject,ServiceInsertRequest,ServiceUpdateRequest>
+	public class ServiceController : BaseCRUDControllerAsync<Model.Service,ServiceSearchObject,ServiceInsertRequest,ServiceUpdateRequest>
 	{
 		
 

@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/location.dart';
-import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
-import 'package:ko_radio_desktop/screens/service_details_screen.dart';
+import 'package:ko_radio_desktop/screens/location_dialog.dart';
+import 'package:ko_radio_desktop/screens/service_form_dialog.dart';
 import 'package:provider/provider.dart';
 
 class ServicesListScreen extends StatefulWidget {
@@ -18,173 +20,234 @@ class ServicesListScreen extends StatefulWidget {
 class _ServicesListScreenState extends State<ServicesListScreen> {
   late ServiceProvider serviceProvider;
   late LocationProvider locationProvider;
-   @override
-  void initState(){
 
+  List<Service> filteredServices = [];
+  List<Location> filteredLocations = [];
+
+  String serviceSearch = "";
+  String locationSearch = "";
+
+  Timer? _serviceDebounce;
+  Timer? _locationDebounce;
+
+  @override
+  void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceProvider = context.read<ServiceProvider>();
-      _getServices();
-    });
-
-     WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
       locationProvider = context.read<LocationProvider>();
-      _getLocations();
+      await _loadData();
     });
   }
-  @override
-  void didChangeDependencies(){
-    super.didChangeDependencies();
 
-    serviceProvider = context.read<ServiceProvider>();
-    locationProvider = context.read<LocationProvider>();
-  }
-  _getServices() async{
-    var fetchedUsers = await serviceProvider.get();
-    setState(() {
-      result = fetchedUsers;
-    });
-  }
-    _getLocations() async{
-    var fetchedLocations = await locationProvider.get();
-    setState(() {
-      locationResult = fetchedLocations;
-    });
-  }
-  SearchResult<Service>? result;
-  SearchResult<Location>? locationResult;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-          child: Column(
+  Future<void> _loadData() async {
+    final servicesResult = await serviceProvider.get();
+    final locationsResult = await locationProvider.get();
 
-            children: [
-              _buildSearch(),
-              _buildResultView(),
-              SizedBox(height: 8,),
-              _buildLocationView()
-            ],
-          ),
-  
+    setState(() {
+      filteredServices = servicesResult.result;
+      filteredLocations = locationsResult.result;
+    });
+  }
+
+  void _onServiceSearchChanged(String query) {
+    if (_serviceDebounce?.isActive ?? false) _serviceDebounce!.cancel();
+    _serviceDebounce = Timer(const Duration(milliseconds: 300), () async {
+      await _searchServices(query);
+    });
+  }
+
+  Future<void> _searchServices(String query) async {
+  final filter = <String, dynamic>{};
+
+  if (query.trim().isNotEmpty) {
+    filter['ServiceName'] = query.trim();
+  }
+
+  final result = await serviceProvider.get(filter: filter);
+
+  setState(() {
+    // Show filtered or full list depending on search query
+    filteredServices = result.result;
+    serviceSearch = query;
+  });
+}
+
+  void _onLocationSearchChanged(String query) {
+    if (_locationDebounce?.isActive ?? false) _locationDebounce!.cancel();
+    _locationDebounce = Timer(const Duration(milliseconds: 300), () async {
+      await _searchLocations(query);
+    });
+  }
+
+ Future<void> _searchLocations(String query) async {
+  final filter = <String, dynamic>{};
+
+  if (query.trim().isNotEmpty) {
+    filter['LocationName'] = query.trim();
+  }
+
+  final result = await locationProvider.get(filter: filter);
+
+  setState(() {
+    filteredLocations = result.result;
+    locationSearch = query;
+  });
+}
+
+  Future<void> _openServiceDialog({Service? service}) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => ServiceFormDialog(service: service),
     );
+    if (result == true) {
+      await _searchServices(serviceSearch); // refresh with current filter
+    }
   }
-  TextEditingController _gteNameEditingController = TextEditingController();
-  TextEditingController _gteLastNameEditingController = TextEditingController();
-  _buildSearch() {
-    return  Padding(
-      padding: const EdgeInsets.all(8.0),
+
+  Future<void> _openLocationDialog({Location? location}) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => LocationFormDialog(location: location),
+    );
+    if (result == true) {
+      await _searchLocations(locationSearch); // refresh with current filter
+    }
+  }
+
+  @override
+  void dispose() {
+    _serviceDebounce?.cancel();
+    _locationDebounce?.cancel();
+    super.dispose();
+  }
+
+ @override
+Widget build(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(12),
+    child: SizedBox(
+       // fixed height or flexible as needed
       child: Row(
         children: [
-          Expanded(child: TextField(controller: _gteNameEditingController, decoration: InputDecoration(labelText: "First Name"),)),
-          SizedBox(width: 8,),
-          Expanded(child: TextField(controller: _gteLastNameEditingController, decoration: InputDecoration(labelText: "Last Name"), )),
-          ElevatedButton(onPressed: () async {
-           
-            var filter= {
-              'FirstNameGTE': _gteNameEditingController.text,
-              'LastNameGTE': _gteLastNameEditingController.text,
-              'IsServiceIncluded': true
-              
-            };
-      
-           result = await serviceProvider.get(filter: filter);
-         
-
-
-           setState(() {
-             
-           });
-          
-          }, child: Text("Search")),
-          SizedBox(width: 8,),
-           ElevatedButton(onPressed: () async {
-            print("exec");
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ServiceDetailScreen()));
-          }, child: Text("Dodaj"))
-        
-          
-        ],
-      ),
-    );
-  }
-  
-  _buildResultView() {
-    return Container(
-      width: double.infinity,
-      child:SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child:FittedBox(
-          
-      child: DataTable(
-        columns: [
-    
-          DataColumn(label: Text("Service Name"),),
-          DataColumn(label: Text("Slika"),
-          
+          // SERVICES COLUMN
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search + Add
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          labelText: "Search Services",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: _onServiceSearchChanged,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add Service"),
+                      onPressed: () => _openServiceDialog(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: filteredServices.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text("No services found."),
+                        )
+                      : ListView.separated(
+                          itemCount: filteredServices.length,
+                          separatorBuilder: (_, __) => const Divider(),
+                          itemBuilder: (context, index) {
+                            final service = filteredServices[index];
+                            return ListTile(
+                              title: Text(service.serviceName ?? ""),
+                              leading: service.image != null
+                                  ? SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: imageFromString(service.image!),
+                                    )
+                                  : const Icon(Icons.miscellaneous_services),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _openServiceDialog(service: service),
+                              ),
+                              onTap: () => _openServiceDialog(service: service),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
- 
+
+          const SizedBox(width: 24),
+
+          // LOCATIONS COLUMN
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search + Add
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          labelText: "Search Locations",
+                          prefixIcon: Icon(Icons.location_on),
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: _onLocationSearchChanged,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add Location"),
+                      onPressed: () => _openLocationDialog(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: filteredLocations.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text("No locations found."),
+                        )
+                      : ListView.separated(
+                          itemCount: filteredLocations.length,
+                          separatorBuilder: (_, __) => const Divider(),
+                          itemBuilder: (context, index) {
+                            final location = filteredLocations[index];
+                            return ListTile(
+                              title: Text(location.locationName ?? ""),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _openLocationDialog(location: location),
+                              ),
+                              onTap: () => _openLocationDialog(location: location),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
         ],
-        rows: result?.result.map((e)=>
-        
-         DataRow(
-          onSelectChanged: (selected)=>{
-            if (selected==true){
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>ServiceDetailScreen(service:e)))
-            }
-          },
-            cells:[
-              
-            DataCell(Text(e.serviceName??  "")),
-            DataCell(e.image != null ? Container(width: 100,height:100,
-            child: imageFromString(e.image!),): Text("")),
-           
-
-
-
-        
-            ],
-            
-
-            )).toList().cast<DataRow>() ?? [],
       ),
-        )
-      ),
-      );
-  }
-  
-  _buildLocationView() {
-     return Container(
-      width: double.infinity,
-      child:SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child:FittedBox(
-          
-      child: DataTable(
-        columns: [
-    
-          DataColumn(label: Text("Naziv"),),
-       
- 
-        ],
-        rows: locationResult?.result.map((e)=>
-        
-         DataRow(
-         
-            cells:[
-              
-            DataCell(Text(e.locationName??  "")),
-          
+    ),
+  );
+}
 
-
-
-        
-            ],
-            
-
-            )).toList().cast<DataRow>() ?? [],
-      ),
-        )
-      ),
-      );
-  }
 }

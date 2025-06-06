@@ -85,10 +85,10 @@ class JobDetails extends StatelessWidget {
                    _buildDetailRow(
                       'Ime i prezime',
                       job.user != null
-                          ? '${job.freelancer?.user.firstName ?? ''} ${job.freelancer?.user.lastName ?? ''}'
+                          ? '${job.freelancer?.freelancerNavigation.firstName ?? ''} ${job.freelancer?.freelancerNavigation.lastName ?? ''}'
                           : 'Nepoznato'),
         
-                  _buildDetailRow('E-mail', job.freelancer?.user.email ?? 'Nepoznato'),
+                  _buildDetailRow('E-mail', job.freelancer?.freelancerNavigation.email ?? 'Nepoznato'),
         
                   const Divider(height: 32),
         
