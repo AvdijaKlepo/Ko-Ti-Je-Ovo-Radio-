@@ -8,4 +8,6 @@ class AuthProvider {
   static User? user;
   static Role? role;
   static UserRole? userRoles;
+  static String? connectionId;
+  static bool isSignedIn = false;
 }

@@ -8,6 +8,7 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:ko_radio_mobile/screens/freelancer_details.dart';
 import 'package:provider/provider.dart';
+import 'package:ko_radio_mobile/models/job_status.dart';
 
 class FreelancerDaySchedule extends StatefulWidget {
   FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
@@ -43,6 +44,8 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
 
   _getServices() async {
     var filter={'FreelancerId':widget.freelancerId?.freelancerId,'JobDate':widget.selectedDay.toIso8601String().split('T')[0],
+    'JobStatus':JobStatus.approved.name
+    
     };
 
    
@@ -55,9 +58,9 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
 
   @override
 Widget build(BuildContext context) { 
-  final filterJob = result?.result.where((element) => element.payEstimate!=null).toList();
+
   return Scaffold(appBar: AppBar(
-    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation.firstName}a'), automaticallyImplyLeading: false,
+    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a'), automaticallyImplyLeading: false,
     leading:  IconButton(onPressed: (){
      
         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(widget.freelancerId!)));
@@ -72,15 +75,15 @@ Widget build(BuildContext context) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Ukupno termina: ${filterJob!.length}",
+                      "Ukupno termina: ${result! .result.length}",
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: filterJob.length,
+                        itemCount: result?.result.length,
                         itemBuilder: (context, index) {
-                          final job = filterJob[index];
+                          final job = result!.result[index];
                           return Card(
                             elevation: 2,
                             shape: RoundedRectangleBorder(
@@ -110,7 +113,7 @@ Widget build(BuildContext context) {
                             builder: (context) => BookJob(
                               selectedDay: widget.selectedDay,
                               freelancer: widget.freelancerId,
-                              bookedJobs: filterJob
+                              bookedJobs: result!.result,
                             
                        
                             ),

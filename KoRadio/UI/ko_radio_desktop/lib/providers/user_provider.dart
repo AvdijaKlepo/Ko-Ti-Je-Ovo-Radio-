@@ -15,10 +15,10 @@ class UserProvider extends BaseProvider<User>{
   }
 
    Future<User> login(
-      String username, String password) async {
+      String username, String password, String? connectionId) async {
     var url =
 
-        "${BaseProvider.baseUrl}User/Login?username=${username}&password=${password}";
+        "${BaseProvider.baseUrl}User/Login?username=${username}&password=${password}&connectionId=$connectionId";
 
     var uri = Uri.parse(url);
     var headers = createHeaders();

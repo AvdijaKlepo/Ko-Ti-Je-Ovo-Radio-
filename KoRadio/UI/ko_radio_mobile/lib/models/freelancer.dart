@@ -12,15 +12,18 @@ class Freelancer{
   String bio;
   double rating;
   int experianceYears;
-  List<String> workingDays;
+  List<String>? workingDays;
   String startTime;
   String endTime;
   List<FreelancerService> freelancerServices;
-  User freelancerNavigation;
+  User? freelancerNavigation;
+  bool isApplicant;
+  bool isDeleted;
 
 
   
-  Freelancer({required this.bio, required this.rating,  required this.experianceYears,required this.freelancerServices,required this.workingDays, required this.startTime, required this.endTime, required this.freelancerNavigation, required this.freelancerId});
+  Freelancer({required this.bio, required this.rating,  required this.experianceYears,required this.freelancerServices,
+  required this.workingDays, required this.startTime, required this.endTime, required this.freelancerNavigation, required this.freelancerId, required this.isApplicant, required  this.isDeleted});
 
   factory Freelancer.fromJson(Map<String, dynamic> json) => _$FreelancerFromJson(json);
 

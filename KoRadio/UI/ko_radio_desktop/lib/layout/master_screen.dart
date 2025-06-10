@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ko_radio_desktop/main.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
@@ -19,6 +20,10 @@ class _MasterScreenState extends State<MasterScreen> {
     const FreelancerListScreen(),
     const UserListScreen(),
     const ServicesListScreen(),
+    LoginPage(),
+    LoginPage(),
+    LoginPage(),
+  
   ];
 
   @override
@@ -86,6 +91,7 @@ class _MasterScreenState extends State<MasterScreen> {
                 icon: Icon(Icons.logout_outlined),
                 selectedIcon: Icon(Icons.logout),
                 label: Text('Odjava'),
+
               ),
             ],
           ),

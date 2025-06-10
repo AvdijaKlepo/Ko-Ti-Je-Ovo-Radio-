@@ -23,5 +23,11 @@ namespace KoRadio.API.Controllers
 		{
 			return (_service as ICRUDService<TModel, TSearch, TInsert, TUpdate>).Update(id,request);
 		}
+		[HttpPatch("{id")]
+		public TModel Patch(int id, TUpdate request)
+		{
+			return (_service as ICRUDService<TModel, TSearch, TInsert, TUpdate>).Update(id, request);
+
+		}
 	}
 }

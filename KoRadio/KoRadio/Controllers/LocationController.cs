@@ -23,11 +23,13 @@ namespace KoRadio.API.Controllers
 
 		}
 
-        [HttpGet("LocationRegistration")]
+     
+
+      
         [AllowAnonymous]
-		public Task<PagedResult<Location>> GetForRegistration([FromQuery]LocationSearchObject locationSearchObject)
-        {
-			return (_service as ILocationService).GetForRegistration(locationSearchObject);
+		public override Task<PagedResult<Location>> GetList([FromQuery] LocationSearchObject searchObject, CancellationToken cancellationToken = default)
+		{
+			return base.GetList(searchObject, cancellationToken);
 		}
 
 

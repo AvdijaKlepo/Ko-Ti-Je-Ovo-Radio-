@@ -8,6 +8,7 @@ import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 
 void main() {
   runApp(MultiProvider(
@@ -60,6 +61,19 @@ class LoginPage extends StatelessWidget {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+
+  final SignalRProvider _signalRProvider = SignalRProvider('notifications-hub');
+  @override
+  void initState() {
+
+     if (AuthProvider.isSignedIn) {
+      _signalRProvider.stopConnection();
+      AuthProvider.connectionId = null;
+      AuthProvider.isSignedIn = false;
+    }
+    _signalRProvider.startConnection();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,8 +112,13 @@ class LoginPage extends StatelessWidget {
                         try {
                           
                           UserProvider userProvider = new UserProvider();
+                          SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
+    var user = await userProvider.login(
+        AuthProvider.username, AuthProvider.password, AuthProvider.connectionId);
 
-                          var user = await userProvider.login(AuthProvider.username, AuthProvider.password);
+   signalRProvider.startConnection();
+
+                        
 
                      
 
@@ -107,15 +126,16 @@ class LoginPage extends StatelessWidget {
                           AuthProvider.user?.firstName = user.firstName;
                           AuthProvider.user?.lastName = user.lastName;
                           AuthProvider.userRoles = user.userRoles?.isNotEmpty == true ? user.userRoles!.first : null;
+                          AuthProvider.isSignedIn=true;
 
                           //AuthProvider.userRole = user.userRole;
 
-                          print('UserId: ${AuthProvider.userRoles?.role.roleName}');
+                          print('UserId: ${AuthProvider.userRoles?.role?.roleName}');
 
 
                          if (
-                                  AuthProvider.userRoles!.role.roleName=="Admin") {
-                                    print(AuthProvider.userRoles!.role.roleName);
+                                  AuthProvider.userRoles!.role?.roleName=="Admin") {
+                                    print(AuthProvider.userRoles!.role?.roleName);
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => MasterScreen(),
                                 ));

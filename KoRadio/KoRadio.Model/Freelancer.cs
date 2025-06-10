@@ -24,6 +24,14 @@ namespace KoRadio.Model
 		public TimeOnly EndTime { get; set; }
 
 		public bool IsDeleted { get; set; }
+		public bool IsApplicant { get; set; }
+
+		public int? TotalRatings { get; set; }
+
+		public double? RatingSum { get; set; }
+		[NotMapped]
+		public double? AverageRating => TotalRatings == 0 ? 0 : RatingSum / TotalRatings;
+
 
 		public virtual User FreelancerNavigation { get; set; } = null!;
 

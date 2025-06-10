@@ -21,6 +21,12 @@ public partial class Freelancer
 
     public bool IsDeleted { get; set; }
 
+    public bool IsApplicant { get; set; }
+
+    public int? TotalRatings { get; set; }
+
+    public double? RatingSum { get; set; }
+
     public virtual User FreelancerNavigation { get; set; } = null!;
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();

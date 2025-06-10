@@ -14,7 +14,8 @@ namespace KoRadio.Model.SearchObject
 
 
 		public bool? IsServiceIncluded { get; set; }
-	
+		public bool? IsApplicant { get; set; }
+
 
 
 	}

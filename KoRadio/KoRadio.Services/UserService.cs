@@ -13,9 +13,12 @@ using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.SignalRService;
 using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using User = KoRadio.Services.Database.User;
 
 
@@ -23,8 +26,10 @@ namespace KoRadio.Services
 {
 	public class UserService:BaseCRUDServiceAsync<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
 	{
-		public UserService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
+		private readonly IHubContext<SignalRHubService> _hubContext;
+		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext) : base(context, mapper)
 		{
+			_hubContext = hubContext;
 		}
 
 		public override IQueryable<User> AddFilter(UserSearchObject searchObject, IQueryable<User> query)
@@ -35,6 +40,7 @@ namespace KoRadio.Services
 
 
 			query = query.Include(x => x.Location);
+			query = query.Where(x => x.IsDeleted == false);
 
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
@@ -61,6 +67,10 @@ namespace KoRadio.Services
 			if(searchObject.IsFreelancerIncluded==false)
 			{
 				query = FilterOutFreelancers(query);
+			}
+			if(searchObject.isDeleted==true)
+			{
+				query = query.Where(x => x.IsDeleted == true);
 			}
 			
 		
@@ -153,7 +163,7 @@ namespace KoRadio.Services
 			return Convert.ToBase64String(inArray);
 		}
 
-		public Model.User Login(string username, string password)
+		public Model.User Login(string username, string password, string connectionId)
 		{
 			
 
@@ -169,6 +179,10 @@ namespace KoRadio.Services
 			if (hash != entity.PasswordHash)
 			{
 				return null;
+			}
+			if (connectionId != "")
+			{
+				_hubContext.Groups.AddToGroupAsync(connectionId, username);
 			}
 
 			return Mapper.Map<Model.User>(entity);

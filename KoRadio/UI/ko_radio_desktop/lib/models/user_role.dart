@@ -8,7 +8,7 @@ class UserRole {
 	int roleId;
   DateTime createdAt;
 	DateTime changedAt;
-	Role role;
+	Role? role;
 
   UserRole({ required this.userRoleId, required this.userId, required this.roleId, required this.createdAt, required this.changedAt, required this.role });
 

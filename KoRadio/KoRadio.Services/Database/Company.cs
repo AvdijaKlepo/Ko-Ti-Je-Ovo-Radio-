@@ -27,6 +27,8 @@ public partial class Company
 
     public bool IsDeleted { get; set; }
 
+    public bool IsApplicant { get; set; }
+
     public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
     public virtual Location Location { get; set; } = null!;

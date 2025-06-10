@@ -9,7 +9,7 @@ public partial class FreelancerService
 
     public int ServiceId { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public virtual Freelancer Freelancer { get; set; } = null!;
 

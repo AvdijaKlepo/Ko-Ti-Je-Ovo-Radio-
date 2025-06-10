@@ -44,6 +44,11 @@ dependencies:
   table_calendar: ^3.0.9
   intl:
   form_builder_validators: ^9.1.0
+  flutter_paypal_payment: ^1.0.6
+  flutter_rating_bar: ^4.0.1
+  signalr_netcore: ^0.1.7+2-nullsafety.3
+  signalr_core: ^1.1.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

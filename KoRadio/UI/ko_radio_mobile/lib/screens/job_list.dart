@@ -15,41 +15,34 @@ class JobList extends StatefulWidget {
   State<JobList> createState() => _JobListState();
 }
 
-class _JobListState extends State<JobList> {
+class _JobListState extends State<JobList> with TickerProviderStateMixin {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
   int selectedIndex = 0;
 
+  final List<JobStatus> jobStatuses = [
+    JobStatus.finished,
+    JobStatus.approved,
+    JobStatus.unapproved,
+    JobStatus.cancelled,
+  ];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      jobProvider = context.read<JobProvider>();
-      AuthProvider.userRoles?.role?.roleName == "User" ?
-      _getServices() :
-      _getFreelancerServices();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
     jobProvider = context.read<JobProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchJobsByStatus(jobStatuses[selectedIndex]));
   }
 
-  _getServices() async {
-    var filter = {'FreelancerId:': AuthProvider.freelancer?.freelancerId};
+  Future<void> _fetchJobsByStatus(JobStatus status) async {
+    final isUser = AuthProvider.userRoles?.role?.roleName == "User";
+    final filter = <String, dynamic>{
+      if (isUser) 'UserId': AuthProvider.user?.userId,
+      if (!isUser) 'FreelancerId': AuthProvider.freelancer?.freelancerId,
+      'JobStatus': status.name,
+    };
 
-    var job = await jobProvider.get(filter: filter);
-    setState(() {
-      result = job;
-    });
-  }
-   _getFreelancerServices() async {
-    var filter = {'UserId:': AuthProvider.user?.userId};
-
-    var job = await jobProvider.get(filter: filter);
+    final job = await jobProvider.get(filter: filter);
     setState(() {
       result = job;
     });
@@ -57,200 +50,89 @@ class _JobListState extends State<JobList> {
 
   @override
   Widget build(BuildContext context) {
-    result?.result.where((element) => element.payInvoice != null).toList();
-
     return DefaultTabController(
-      length: 3,
+      length: jobStatuses.length,
       initialIndex: selectedIndex,
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child:  Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TabBar(
-                      onTap: (index) => setState(() {
-                        selectedIndex = index;
-
-                     
-                      }),
-                      indicatorColor: Colors.blue,
-                      labelColor: Colors.blue,
-                      unselectedLabelColor: Colors.grey,
-                      tabs: const <Widget>[
-                        Tab(
-                          icon: Icon(Icons.check_circle),
-                          text: 'Završeni',
-                        ),
-                        Tab(
-                          icon: Icon(Icons.hourglass_top),
-                          text: 'Trenutni',
-                        ),
-                        Tab(icon: Icon(Icons.cancel), text: 'Neodobreni'),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    if (selectedIndex == 0)
-                      Text(
-                        'Broj završenih poslova: ${result?.result.where((element) => element.jobStatus==JobStatus.finished).length}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    if (selectedIndex == 1)
-                      Text(
-                        'Broj poslova u toku: ${result?.result.where((element) => element.jobStatus == JobStatus.approved).length}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    if (selectedIndex == 2)
-                      Text(
-                        'Broj neodobrenih poslova: ${result?.result.where((element) => element.jobStatus == JobStatus.unapproved).length}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          _finishedJobs(context),
-                          _jobsInProgress(context),
-                          _unapprovedJobs(context),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                )
-              
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TabBar(
+                onTap: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                  _fetchJobsByStatus(jobStatuses[index]);
+                },
+                indicatorColor: Colors.blue,
+                labelColor: Colors.blue,
+                unselectedLabelColor: Colors.grey,
+                tabs: const [
+                  Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
+                  Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
+                  Tab(icon: Icon(Icons.free_cancellation), text: 'Neodobreni'),
+                  Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
+                ],
+              ),
+              const SizedBox(height: 15),
+              Text(
+                'Broj poslova: ${result?.result.length ?? 0}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(), 
+                  children: jobStatuses.map((status) {
+                    return _buildJobList(context, result?.result ?? [], status);
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _finishedJobs(BuildContext context) {
-    final filterJob =
-        result?.result.where((element) => element.jobStatus==JobStatus.finished).toList();
-    return filterJob !=null ? ListView.builder(
-      itemCount: filterJob.length,
+  Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
+    if (jobs.isEmpty) {
+      return const Center(
+        child: Text('Nema poslova za prikaz.'),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: jobs.length,
       itemBuilder: (context, index) {
-        final job = filterJob[index];
+        final job = jobs[index];
 
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  JobDetails(job: job,))),
+            onTap: () {
+              final destination = (status == JobStatus.approved || status == JobStatus.unapproved)
+                  ? BookJob(job: job, freelancer: job.freelancer)
+                  : JobDetails(job: job);
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+            },
             leading: const Icon(Icons.access_time, color: Colors.blue),
             title: Text(
               "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: job.user != null
-                ? Text(
-                    "Korisnik: ${job.user?.firstName} ${job.user?.lastName}")
+                ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}")
                 : null,
             trailing: const Icon(Icons.work_outline),
           ),
         );
       },
-    ) : const Center( child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Historija završenih poslova je prazna.'),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                );
-  }
-
-  Widget _jobsInProgress(BuildContext context) {
-    final filterJob = result?.result
-        .where((element) =>
-            element.jobStatus == JobStatus.approved)
-        .toList();
-    return filterJob !=null ? ListView.builder(
-      itemCount: filterJob.length,
-      itemBuilder: (context, index) {
-        final job = filterJob[index];
-
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  BookJob(job: job,freelancer: job.freelancer,))),
-
-            leading: const Icon(Icons.access_time, color: Colors.blue),
-            title: Text(
-              "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: job.user != null
-                ? Text(
-                    "Korisnik: ${job.user?.firstName} ${job.user?.lastName}")
-                : null,
-            trailing: const Icon(Icons.work_outline),
-          ),
-        );
-      },
-    ) : const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Historija poslova u toku je prazna.'),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                )
-    ;
-  }
-
-  Widget _unapprovedJobs(BuildContext context) {
-    final filterJob = result?.result
-        .where((element) =>
-           element.jobStatus == JobStatus.unapproved)
-        .toList();
-    return filterJob !=null ? ListView.builder(
-      itemCount: filterJob.length,
-      itemBuilder: (context, index) {
-        final job = filterJob[index];
-
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            onTap:()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  BookJob(job: job,freelancer: job.freelancer,))),
-
-            leading: const Icon(Icons.access_time, color: Colors.blue),
-            title: Text(
-              "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: job.user != null
-                ? Text(
-                    "Korisnik: ${job.user?.firstName} ${job.user?.lastName}")
-                : null,
-            trailing: const Icon(Icons.work_outline),
-          ),
-        );
-      },
-    ): 
-    const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Historija neodobrenih poslova je prazna.'),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                )
-    ;
+    );
   }
 }
+

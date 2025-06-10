@@ -24,7 +24,11 @@ namespace KoRadio.Services
 			query = base.AddFilter(search, query);
 			query = query.Include(x=>x.JobsServices).ThenInclude(x => x.Service);
 			query = query.Include(x => x.User);
-			query = query.Include(x => x.Freelancer).ThenInclude(x=>x.FreelancerNavigation);
+			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x=>x.Location);
+			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerServices).ThenInclude(x=>x.Service);
+			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.UserRoles);
+
+
 			if (search?.FreelancerId != null)
 			{
 				query = query.Where(x => x.FreelancerId == search.FreelancerId);
@@ -38,6 +42,26 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.JobDate == search.JobDate);
 
+			}
+			if (search?.JobStatus=="unapproved")
+			{
+				query = query.Where(x => x.JobStatus == "unapproved");
+			}
+			if (search?.JobStatus == "approved")
+			{
+				query = query.Where(x => x.JobStatus == "approved");
+			}
+			if (search?.JobStatus == "finished")
+			{
+				query = query.Where(x => x.JobStatus == "finished");
+			}
+			if (search?.JobStatus == "cancelled")
+			{
+				query = query.Where(x => x.JobStatus == "cancelled");
+			}
+			if (search?.JobStatus == "inProgress")
+			{
+				query = query.Where(x => x.JobStatus == "inProgress");
 			}
 			return query;
 			

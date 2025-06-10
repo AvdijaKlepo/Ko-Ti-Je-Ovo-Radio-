@@ -362,3 +362,4 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\ob
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.API.pdb
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.API.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\ref\KoRadio.API.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Newtonsoft.Json.dll

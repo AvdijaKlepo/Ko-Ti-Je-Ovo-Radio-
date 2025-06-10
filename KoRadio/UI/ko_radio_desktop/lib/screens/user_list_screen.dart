@@ -35,7 +35,8 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   Future<void> _loadUsers({String? firstName, String? lastName}) async {
-    Map<String, dynamic> filter = {};
+    Map<String, dynamic> filter = {'isDeleted': false,'IsFreelancerIncluded':false};
+    
 
     if ((firstName ?? '').trim().isNotEmpty) {
       filter['FirstNameGTE'] = firstName!.trim();

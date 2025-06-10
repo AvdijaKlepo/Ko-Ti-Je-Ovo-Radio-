@@ -12,9 +12,9 @@ part 'job.g.dart';
 @JsonSerializable()
 class Job{
   int jobId;
-  Freelancer freelancer;
-  User user;
-  Service service;
+  Freelancer? freelancer;
+  User? user;
+  Service? service;
   String startEstimate;
   String? endEstimate;
   double? payEstimate;

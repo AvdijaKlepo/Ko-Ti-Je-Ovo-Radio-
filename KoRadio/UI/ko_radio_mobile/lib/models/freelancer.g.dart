@@ -13,14 +13,17 @@ Freelancer _$FreelancerFromJson(Map<String, dynamic> json) => Freelancer(
       freelancerServices: (json['freelancerServices'] as List<dynamic>)
           .map((e) => FreelancerService.fromJson(e as Map<String, dynamic>))
           .toList(),
-      workingDays: (json['workingDays'] as List<dynamic>)
-          .map((e) => e as String)
+      workingDays: (json['workingDays'] as List<dynamic>?)
+          ?.map((e) => e as String)
           .toList(),
       startTime: json['startTime'] as String,
       endTime: json['endTime'] as String,
-      freelancerNavigation:
-          User.fromJson(json['freelancerNavigation'] as Map<String, dynamic>),
+      freelancerNavigation: json['freelancerNavigation'] == null
+          ? null
+          : User.fromJson(json['freelancerNavigation'] as Map<String, dynamic>),
       freelancerId: (json['freelancerId'] as num).toInt(),
+      isApplicant: json['isApplicant'] as bool,
+      isDeleted: json['isDeleted'] as bool,
     );
 
 Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
@@ -34,4 +37,6 @@ Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
       'endTime': instance.endTime,
       'freelancerServices': instance.freelancerServices,
       'freelancerNavigation': instance.freelancerNavigation,
+      'isApplicant': instance.isApplicant,
+      'isDeleted': instance.isDeleted,
     };

@@ -9,8 +9,6 @@ public partial class Job
 
     public int UserId { get; set; }
 
-    public int FreelancerId { get; set; }
-
     public TimeOnly StartEstimate { get; set; }
 
     public TimeOnly? EndEstimate { get; set; }
@@ -29,7 +27,9 @@ public partial class Job
 
     public bool IsDeleted { get; set; }
 
-    public virtual Freelancer Freelancer { get; set; } = null!;
+    public int? FreelancerId { get; set; }
+
+    public virtual Freelancer? Freelancer { get; set; }
 
     public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 

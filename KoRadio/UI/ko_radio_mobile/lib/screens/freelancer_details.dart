@@ -70,10 +70,10 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                   
                       children: [
                        
-                           widget.e.freelancerNavigation.image != null
+                           widget.e.freelancerNavigation?.image != null
                               ?  Padding(
                                     padding: const EdgeInsets.all(10),
-                                    child: imageFromString(widget.e.freelancerNavigation.image!,height: 100,width: 100),
+                                    child: imageFromString(widget.e.freelancerNavigation!.image!,height: 100,width: 100),
                                   )
                                
                               : Image.network(
@@ -87,10 +87,10 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                          
                           children: [
-                            Text('${widget.e.freelancerNavigation.firstName} ${widget.e.freelancerNavigation.lastName}'),
+                            Text('${widget.e.freelancerNavigation?.firstName} ${widget.e.freelancerNavigation?.lastName}'),
                             Text('Iskustvo: ${widget.e.experianceYears} godina'),
                             Text('Ocjena: ${widget.e.rating != 0 ? widget.e.rating : 'Neocijenjen'}'),
-                            Text('Lokacija: ${widget.e.freelancerNavigation.location}'),
+                            Text('Lokacija: ${widget.e.freelancerNavigation?.location?.locationName}'),
                             Text('Radno vrijeme ${widget.e.startTime} - ${widget.e.endTime}')
                            
                          

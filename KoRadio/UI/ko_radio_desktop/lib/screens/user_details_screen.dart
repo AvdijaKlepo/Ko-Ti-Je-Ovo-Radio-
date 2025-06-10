@@ -39,7 +39,7 @@ class _UserPromoteDialogState extends State<UserPromoteDialog> {
     locationProvider = context.read<LocationProvider>();
 
     _initialValue = {
-      'userId': widget.user?.userId.toString(),
+      'freelancerId': widget.user?.userId.toString(),
       'firstName': widget.user?.firstName,
       'lastName': widget.user?.lastName,
       'email': widget.user?.email,
@@ -90,8 +90,11 @@ class _UserPromoteDialogState extends State<UserPromoteDialog> {
           .toList();
     }
 
-    formData["roles"] = [8];
-    formData["user"] = widget.user;
+    formData["roles"] = [10];
+    formData["isDeleted"] = false;
+    formData["isApplicant"] = true; 
+
+
 
     var selectedServices = formData["serviceId"];
     formData["serviceId"] = (selectedServices is List)
@@ -136,7 +139,7 @@ class _UserPromoteDialogState extends State<UserPromoteDialog> {
                     Row(children: [
                       Expanded(
                           child: FormBuilderTextField(
-                              name: "userId",
+                              name: "freelancerId",
                               decoration: InputDecoration(labelText: "User ID"))),
                       SizedBox(width: 8),
                       Expanded(

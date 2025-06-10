@@ -20,6 +20,8 @@ class ServicesListScreen extends StatefulWidget {
 class _ServicesListScreenState extends State<ServicesListScreen> {
   late ServiceProvider serviceProvider;
   late LocationProvider locationProvider;
+  late PaginatedFetcher<Service> servicePagination;
+  bool _isInitialized = false;
 
   List<Service> filteredServices = [];
   List<Location> filteredLocations = [];
@@ -36,8 +38,33 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceProvider = context.read<ServiceProvider>();
       locationProvider = context.read<LocationProvider>();
-      await _loadData();
+      servicePagination = PaginatedFetcher<Service>(
+    fetcher: ({
+      required int page,
+      required int pageSize,
+      Map<String, dynamic>? filter,
+    }) async {
+      final result = await serviceProvider.get(
+        page: page,
+        pageSize: pageSize,
+        filter: filter,
+      );
+      return PaginatedResult<Service>(
+        result: result.result,
+        count: result.count,
+      );
+    },
+    pageSize: 10,
+  );
+
+  servicePagination.refresh(); 
+    await _loadData();
+
+    setState(() {
+      _isInitialized = true;
     });
+    });
+  
   }
 
   Future<void> _loadData() async {
@@ -59,18 +86,10 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
 
   Future<void> _searchServices(String query) async {
   final filter = <String, dynamic>{};
-
   if (query.trim().isNotEmpty) {
     filter['ServiceName'] = query.trim();
   }
-
-  final result = await serviceProvider.get(filter: filter);
-
-  setState(() {
-    // Show filtered or full list depending on search query
-    filteredServices = result.result;
-    serviceSearch = query;
-  });
+  await servicePagination.refresh(newFilter: filter);
 }
 
   void _onLocationSearchChanged(String query) {
@@ -99,9 +118,10 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => ServiceFormDialog(service: service),
+
     );
     if (result == true) {
-      await _searchServices(serviceSearch); // refresh with current filter
+      await _searchServices(serviceSearch); 
     }
   }
 
@@ -111,7 +131,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       builder: (_) => LocationFormDialog(location: location),
     );
     if (result == true) {
-      await _searchLocations(locationSearch); // refresh with current filter
+      await _searchLocations(locationSearch); 
     }
   }
 
@@ -124,18 +144,21 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
 
  @override
 Widget build(BuildContext context) {
+  if (!_isInitialized) {
+    return const Center(child: CircularProgressIndicator());
+  }
   return Padding(
     padding: const EdgeInsets.all(12),
     child: SizedBox(
-       // fixed height or flexible as needed
+
       child: Row(
         children: [
-          // SERVICES COLUMN
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search + Add
+  
                 Row(
                   children: [
                     Expanded(
@@ -158,16 +181,18 @@ Widget build(BuildContext context) {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: filteredServices.isEmpty
+                  child: servicePagination.items.isEmpty
                       ? const Padding(
                           padding: EdgeInsets.all(8),
                           child: Text("No services found."),
                         )
                       : ListView.separated(
-                          itemCount: filteredServices.length,
+                          itemCount: servicePagination.items.length +1,
+                          controller: ScrollController(),
                           separatorBuilder: (_, __) => const Divider(),
                           itemBuilder: (context, index) {
-                            final service = filteredServices[index];
+                            if(index<servicePagination.items.length){
+                            final service = servicePagination.items[index];
                             return ListTile(
                               title: Text(service.serviceName ?? ""),
                               leading: service.image != null
@@ -182,7 +207,19 @@ Widget build(BuildContext context) {
                                 onPressed: () => _openServiceDialog(service: service),
                               ),
                               onTap: () => _openServiceDialog(service: service),
+
                             );
+                            }
+                           else if (servicePagination.hasNextPage) {
+              // Load more trigger
+              servicePagination.loadMore();
+              return const Padding(
+                padding: EdgeInsets.all(8),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
                           },
                         ),
                 ),

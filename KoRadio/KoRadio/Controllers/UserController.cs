@@ -23,9 +23,9 @@ namespace KoRadio.API.Controllers
 
 		[HttpPost("Login")]
 		[AllowAnonymous]
-		public Model.User Login(string username,string password)
+		public Model.User Login(string username,string password, string connectionId)
 		{
-			return (_service as IUserService).Login(username, password);
+			return (_service as IUserService).Login(username, password, connectionId);
 		}
 
 		[HttpPost("Registration")]

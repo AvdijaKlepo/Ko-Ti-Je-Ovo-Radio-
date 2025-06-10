@@ -129,8 +129,15 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
       try {
         if (widget.service == null) {
           await serviceProvider.insert(request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Usluga uspješno dodana")),
+          );
+          
         } else {
           await serviceProvider.update(widget.service!.serviceId, request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Usluga uspješno ažurirana")),
+          );
         }
 
         Navigator.of(context).pop(true); // Return success

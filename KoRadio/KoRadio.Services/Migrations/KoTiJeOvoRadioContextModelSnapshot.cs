@@ -31,30 +31,46 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompanyId"));
 
-                    b.Property<string>("Availability")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<string>("Bio")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("ExperianceYears")
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("ExperianceYears")
                         .HasColumnType("int");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int")
+                        .HasColumnName("LocationID");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal?>("Rating")
                         .HasColumnType("decimal(3, 2)");
 
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("WorkingDays")
+                        .HasColumnType("int");
+
                     b.HasKey("CompanyId")
                         .HasName("PK__Company__2D971C4CB07C8C16");
+
+                    b.HasIndex("LocationId");
 
                     b.ToTable("Company", (string)null);
                 });
@@ -68,7 +84,10 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompanyEmployeeId"));
 
-                    b.Property<int?>("UserId")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("UserID");
 
@@ -90,12 +109,8 @@ namespace KoRadio.Services.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ServiceID");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("isDeleted");
 
                     b.HasKey("CompanyId", "ServiceId")
                         .HasName("PK__CompanyS__91C6A7424FCFED49");
@@ -108,41 +123,37 @@ namespace KoRadio.Services.Migrations
             modelBuilder.Entity("KoRadio.Services.Database.Freelancer", b =>
                 {
                     b.Property<int>("FreelancerId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("FreelancerID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FreelancerId"));
-
-                    b.Property<string>("Availability")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<string>("Bio")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("ExperianceYears")
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("ExperianceYears")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("HourlyRate")
-                        .HasColumnType("decimal(10, 2)");
+                    b.Property<bool>("IsApplicant")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<decimal?>("Rating")
+                    b.Property<decimal>("Rating")
                         .HasColumnType("decimal(3, 2)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("UserID");
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("WorkingDays")
+                        .HasColumnType("int");
 
                     b.HasKey("FreelancerId")
-                        .HasName("PK__Freelanc__3D00E30C2F2F998D");
-
-                    b.HasIndex("UserId");
+                        .HasName("PK__Freelanc__3D00E30C80E0E635");
 
                     b.ToTable("Freelancer", (string)null);
                 });
@@ -157,19 +168,119 @@ namespace KoRadio.Services.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ServiceID");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("isDeleted");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAT");
 
                     b.HasKey("FreelancerId", "ServiceId")
-                        .HasName("PK__Freelanc__81515802354FEB8B");
+                        .HasName("PK__Freelanc__815158029BB39A82");
 
                     b.HasIndex("ServiceId");
 
                     b.ToTable("FreelancerService", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Job", b =>
+                {
+                    b.Property<int>("JobId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JobId"));
+
+                    b.Property<TimeOnly?>("EndEstimate")
+                        .HasColumnType("time");
+
+                    b.Property<int?>("FreelancerId")
+                        .HasColumnType("int")
+                        .HasColumnName("FreelancerID");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JobDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("JobDescription")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("JobStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("unnaproved")
+                        .HasColumnName("Job_Status");
+
+                    b.Property<decimal?>("PayEstimate")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<decimal?>("PayInvoice")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<TimeOnly>("StartEstimate")
+                        .HasColumnType("time");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("UserID");
+
+                    b.HasKey("JobId")
+                        .HasName("PK__Jobs__056690C234DE197E");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.JobsService", b =>
+                {
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("JobId", "ServiceId")
+                        .HasName("PK__JobsServ__B9372BC2B802A0FE");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("JobsService", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Location", b =>
+                {
+                    b.Property<int>("LocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("LocationID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LocationId"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("LocationId")
+                        .HasName("PK__Location__E7FEA4779B95C597");
+
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
@@ -180,6 +291,9 @@ namespace KoRadio.Services.Migrations
                         .HasColumnName("RoleID");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("RoleDescription")
                         .IsRequired()
@@ -209,15 +323,17 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceId"));
 
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ServiceName")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<byte[]>("Slika")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("SlikaThumb")
-                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("ServiceId")
                         .HasName("PK__Service__C51BB0EAAC6763C6");
@@ -234,65 +350,109 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int")
+                        .HasColumnName("LocationID");
+
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("UserId")
                         .HasName("PK__Users__1788CCACDE55EC71");
 
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex(new[] { "Email" }, "UQ_Users_Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.UserRole", b =>
                 {
-                    b.Property<int>("UserRolesId")
+                    b.Property<int>("UserRoleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("UserRolesID");
+                        .HasColumnName("UserRoleID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRolesId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRoleId"));
 
                     b.Property<DateTime?>("ChangedAt")
                         .HasColumnType("datetime");
 
-                    b.Property<int?>("RoleId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("RoleId")
                         .HasColumnType("int")
                         .HasColumnName("RoleID");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("UserID");
 
-                    b.HasKey("UserRolesId")
-                        .HasName("PK__UserRole__43D8C0CDAC829069");
+                    b.HasKey("UserRoleId")
+                        .HasName("PK__UserRole__3D978A551693E34E");
 
-                    b.HasIndex(new[] { "RoleId" }, "IX_UserRoles_RoleID");
+                    b.HasIndex("RoleId");
 
-                    b.HasIndex(new[] { "UserId" }, "IX_UserRoles_UserID");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Company", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Location", "Location")
+                        .WithMany("Companies")
+                        .HasForeignKey("LocationId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Company__Locatio__0F2D40CE");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.CompanyEmployee", b =>
@@ -300,6 +460,7 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.User", "User")
                         .WithMany("CompanyEmployees")
                         .HasForeignKey("UserId")
+                        .IsRequired()
                         .HasConstraintName("FK__CompanyEm__UserI__17036CC0");
 
                     b.Navigation("User");
@@ -328,12 +489,13 @@ namespace KoRadio.Services.Migrations
 
             modelBuilder.Entity("KoRadio.Services.Database.Freelancer", b =>
                 {
-                    b.HasOne("KoRadio.Services.Database.User", "User")
-                        .WithMany("Freelancers")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK__Freelance__UserI__123EB7A3");
+                    b.HasOne("KoRadio.Services.Database.User", "FreelancerNavigation")
+                        .WithOne("Freelancer")
+                        .HasForeignKey("KoRadio.Services.Database.Freelancer", "FreelancerId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Freelance__Freel__1B9317B3");
 
-                    b.Navigation("User");
+                    b.Navigation("FreelancerNavigation");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.FreelancerService", b =>
@@ -341,31 +503,81 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
                         .WithMany("FreelancerServices")
                         .HasForeignKey("FreelancerId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK__Freelance__Freel__1BC821DD");
+                        .HasConstraintName("FK__Freelance__Freel__1F63A897");
 
                     b.HasOne("KoRadio.Services.Database.Service", "Service")
                         .WithMany("FreelancerServices")
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK__Freelance__Servi__1CBC4616");
+                        .HasConstraintName("FK__Freelance__Servi__2057CCD0");
 
                     b.Navigation("Freelancer");
 
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("KoRadio.Services.Database.Job", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
+                        .WithMany("Jobs")
+                        .HasForeignKey("FreelancerId")
+                        .HasConstraintName("FK__Jobs__Freelancer__214BF109");
+
+                    b.HasOne("KoRadio.Services.Database.User", "User")
+                        .WithMany("Jobs")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Jobs__UserID__4F47C5E3");
+
+                    b.Navigation("Freelancer");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.JobsService", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Job", "Job")
+                        .WithMany("JobsServices")
+                        .HasForeignKey("JobId")
+                        .IsRequired()
+                        .HasConstraintName("FK__JobsServi__JobId__7849DB76");
+
+                    b.HasOne("KoRadio.Services.Database.Service", "Service")
+                        .WithMany("JobsServices")
+                        .HasForeignKey("ServiceId")
+                        .IsRequired()
+                        .HasConstraintName("FK__JobsServi__Servi__793DFFAF");
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.User", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Location", "Location")
+                        .WithMany("Users")
+                        .HasForeignKey("LocationId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Users__LocationI__0E391C95");
+
+                    b.Navigation("Location");
+                });
+
             modelBuilder.Entity("KoRadio.Services.Database.UserRole", b =>
                 {
                     b.HasOne("KoRadio.Services.Database.Role", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("RoleId");
+                        .HasForeignKey("RoleId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserRoles__RoleI__16CE6296");
 
                     b.HasOne("KoRadio.Services.Database.User", "User")
                         .WithMany("UserRoles")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserRoles__UserI__15DA3E5D");
 
                     b.Navigation("Role");
 
@@ -380,6 +592,20 @@ namespace KoRadio.Services.Migrations
             modelBuilder.Entity("KoRadio.Services.Database.Freelancer", b =>
                 {
                     b.Navigation("FreelancerServices");
+
+                    b.Navigation("Jobs");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Job", b =>
+                {
+                    b.Navigation("JobsServices");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Location", b =>
+                {
+                    b.Navigation("Companies");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
@@ -392,13 +618,17 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("CompanyServices");
 
                     b.Navigation("FreelancerServices");
+
+                    b.Navigation("JobsServices");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
                 {
                     b.Navigation("CompanyEmployees");
 
-                    b.Navigation("Freelancers");
+                    b.Navigation("Freelancer");
+
+                    b.Navigation("Jobs");
 
                     b.Navigation("UserRoles");
                 });

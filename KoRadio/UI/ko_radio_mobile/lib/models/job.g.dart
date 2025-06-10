@@ -19,10 +19,15 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       jobsServices: (json['jobsServices'] as List<dynamic>?)
           ?.map((e) => JobsService.fromJson(e as Map<String, dynamic>))
           .toList(),
-      freelancer:
-          Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>),
-      user: User.fromJson(json['user'] as Map<String, dynamic>),
-      service: Service.fromJson(json['service'] as Map<String, dynamic>),
+      freelancer: json['freelancer'] == null
+          ? null
+          : Freelancer.fromJson(json['freelancer'] as Map<String, dynamic>),
+      user: json['user'] == null
+          ? null
+          : User.fromJson(json['user'] as Map<String, dynamic>),
+      service: json['service'] == null
+          ? null
+          : Service.fromJson(json['service'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{

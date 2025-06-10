@@ -31,6 +31,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<Location> Locations { get; set; }
 
+    public virtual DbSet<Message> Messages { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
@@ -99,39 +101,45 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
         modelBuilder.Entity<Freelancer>(entity =>
         {
-            entity.HasKey(e => e.FreelancerId).HasName("PK__Freelanc__3D00E30C2F2F998D");
+            entity.HasKey(e => e.FreelancerId).HasName("PK__Freelanc__3D00E30C80E0E635");
 
             entity.ToTable("Freelancer");
 
             entity.Property(e => e.FreelancerId)
-                .ValueGeneratedOnAdd()
+                .ValueGeneratedNever()
                 .HasColumnName("FreelancerID");
             entity.Property(e => e.Bio).HasMaxLength(255);
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
+            entity.Property(e => e.RatingSum).HasDefaultValue(0.0);
+            entity.Property(e => e.TotalRatings).HasDefaultValue(0);
 
             entity.HasOne(d => d.FreelancerNavigation).WithOne(p => p.Freelancer)
                 .HasForeignKey<Freelancer>(d => d.FreelancerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Freelance__Freel__17C286CF");
+                .HasConstraintName("FK__Freelance__Freel__1B9317B3");
         });
 
         modelBuilder.Entity<FreelancerService>(entity =>
         {
-            entity.HasKey(e => new { e.FreelancerId, e.ServiceId }).HasName("PK__Freelanc__81515802354FEB8B");
+            entity.HasKey(e => new { e.FreelancerId, e.ServiceId }).HasName("PK__Freelanc__815158029BB39A82");
 
             entity.ToTable("FreelancerService");
 
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("CreatedAT");
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.FreelancerId)
-                .HasConstraintName("FK__Freelance__Freel__1BC821DD");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Freelance__Freel__1F63A897");
 
             entity.HasOne(d => d.Service).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.ServiceId)
-                .HasConstraintName("FK__Freelance__Servi__1CBC4616");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Freelance__Servi__2057CCD0");
         });
 
         modelBuilder.Entity<Job>(entity =>
@@ -152,8 +160,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.FreelancerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Jobs__Freelancer__503BEA1C");
+                .HasConstraintName("FK__Jobs__Freelancer__214BF109");
 
             entity.HasOne(d => d.User).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.UserId)
@@ -188,6 +195,20 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.LocationName).HasMaxLength(30);
         });
 
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.MessageId).HasName("PK__Messages__C87C0C9CD5627697");
+
+            entity.Property(e => e.Message1)
+                .HasMaxLength(255)
+                .HasColumnName("Message");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Messages__UserID__2CBDA3B5");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A92DD3D4B");
@@ -212,6 +233,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACDE55EC71");
+
+            entity.HasIndex(e => e.Email, "UQ_Users_Email").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Address).HasMaxLength(50);

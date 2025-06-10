@@ -18,12 +18,36 @@ abstract class BaseProvider<T> with ChangeNotifier {
     _endpoint = endpoint;
   
   }
+  
 
-  Future<SearchResult<T>> get({dynamic filter}) async {
+   Future<SearchResult<T>> get({
+    dynamic filter,
+    int? page,
+    int? pageSize,
+    String? orderBy,
+    String? sortDirection,
+  }) async {
     var url = "$baseUrl$_endpoint";
 
+    Map<String, dynamic> queryParams = {};
     if (filter != null) {
-      var queryString = getQueryString(filter);
+      queryParams.addAll(filter);
+    }
+    if (page != null) {
+      queryParams['page'] = page;
+    }
+    if (pageSize != null) {
+      queryParams['pageSize'] = pageSize;
+    }
+    if (orderBy != null) {
+      queryParams['orderBy'] = orderBy;
+    }
+    if (sortDirection != null) {
+      queryParams['sortDirection'] = sortDirection;
+    }
+
+    if (queryParams.isNotEmpty) {
+      var queryString = getQueryString(queryParams);
       url = "$url?$queryString";
     }
 
@@ -31,7 +55,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var headers = createHeaders();
 
     var response = await http.get(uri, headers: headers);
-
+    // throw new Exception("Greška");
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
 
@@ -49,7 +73,6 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
     // print("response: ${response.request} ${response.statusCode}, ${response.body}");
   }
-
   Future<T> insert(dynamic request) async {
     var url = "$baseUrl$_endpoint";
     var uri = Uri.parse(url);
@@ -96,6 +119,9 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw new Exception("Unknown error");
     }
   }
+
+
+
 
   T fromJson(data) {
     throw Exception("Method not implemented");

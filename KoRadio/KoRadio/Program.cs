@@ -2,9 +2,11 @@ using KoRadio.API;
 using KoRadio.Services;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.SignalRService;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
@@ -12,13 +14,17 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IFreelanceService, FreelanacerService>();
 builder.Services.AddTransient<IServicesService, ServicesService>();
 builder.Services.AddTransient<IJobService, JobService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<IMessageService, MessageService>();
+builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers(options =>
 {
@@ -28,6 +34,7 @@ builder.Services.AddControllers(options =>
 {
 	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -94,7 +101,7 @@ app.Use(async (context, next) =>
 		}
 	}
 });
-
+app.MapHub<SignalRHubService>("/notifications-hub");
 app.UseAuthentication();
 app.UseAuthorization();
 

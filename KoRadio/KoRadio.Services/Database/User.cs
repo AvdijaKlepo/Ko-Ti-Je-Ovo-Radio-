@@ -37,5 +37,7 @@ public partial class User
 
     public virtual Location Location { get; set; } = null!;
 
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

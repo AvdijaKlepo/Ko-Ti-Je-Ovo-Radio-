@@ -15,6 +15,7 @@ namespace KoRadio.Model.SearchObject
 		public bool? IsFreelancerIncluded { get; set; }
 
 		public string? OrderBy { get; set; }
+		public bool isDeleted { get; set; }
 
 
 	}

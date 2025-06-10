@@ -11,4 +11,6 @@ class AuthProvider {
   static Role? role;
   static UserRole? userRoles;
   static Freelancer? freelancer;
+  static String? connectionId;
+  static bool isSignedIn = false;
 }

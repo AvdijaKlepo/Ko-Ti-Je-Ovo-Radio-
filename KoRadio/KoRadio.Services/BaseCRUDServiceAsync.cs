@@ -8,9 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using KoRadio.Services.Database;
 
+using KoRadio.Model.Request;
+using Mapster;
+
 namespace KoRadio.Services
 {
-	public class BaseCRUDServiceAsync<TModel, TSearch, TDbEntity, TInsert, TUpdate> : BaseServiceAsync<TModel, TSearch, TDbEntity> where TModel : class where TSearch : BaseSearchObject where TDbEntity : class
+	public class BaseCRUDServiceAsync<TModel, TSearch, TDbEntity, TInsert, TUpdate> : BaseServiceAsync<TModel, TSearch, TDbEntity> where TModel : class where TSearch : BaseSearchObject where TDbEntity : class where TUpdate : class
 	{
 		public BaseCRUDServiceAsync(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
@@ -50,6 +53,10 @@ namespace KoRadio.Services
 
 			return Mapper.Map<TModel>(entity);
 		}
+
+	
+
+
 
 		public virtual async Task BeforeUpdateAsync(TUpdate request, TDbEntity entity, CancellationToken cancellationToken = default) { }
 		public virtual async Task AfterUpdateAsync(TUpdate request, TDbEntity entity, CancellationToken cancellationToken = default) { }
