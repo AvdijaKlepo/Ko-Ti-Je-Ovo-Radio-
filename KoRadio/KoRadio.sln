@@ -12,8 +12,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Model", "KoRadio.Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Services", "KoRadio.Services\KoRadio.Services.csproj", "{7F723CC6-467F-4AAA-92DF-BB65F04511C9}"
 	ProjectSection(ProjectDependencies) = postProject
+		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D} = {51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}
 		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF} = {F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subscriber", "Subscriber\Subscriber.csproj", "{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +36,15 @@ Global
 		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F723CC6-467F-4AAA-92DF-BB65F04511C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {612592D0-6658-4DDC-AFC6-E9C777067D23}
 	EndGlobalSection
 EndGlobal

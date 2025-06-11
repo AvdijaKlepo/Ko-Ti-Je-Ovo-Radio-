@@ -2,6 +2,7 @@ using KoRadio.API;
 using KoRadio.Services;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.RabbitMQ;
 using KoRadio.Services.SignalRService;
 using Mapster;
 using MapsterMapper;
@@ -22,6 +23,7 @@ builder.Services.AddTransient<IJobService, JobService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<IMessageService, MessageService>();
 builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
+builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
 builder.Services.AddSignalR();

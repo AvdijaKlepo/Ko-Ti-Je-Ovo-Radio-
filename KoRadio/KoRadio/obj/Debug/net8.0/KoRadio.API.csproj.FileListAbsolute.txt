@@ -363,3 +363,15 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\ob
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.API.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\ref\KoRadio.API.dll
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\EasyNetQ.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\RabbitMQ.Client.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Subscriber.deps.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Subscriber.runtimeconfig.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Subscriber.exe
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\DotNetEnv.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\MailKit.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\MimeKit.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Sprache.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Subscriber.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\Subscriber.pdb

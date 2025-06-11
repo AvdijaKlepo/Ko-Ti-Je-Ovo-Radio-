@@ -34,3 +34,8 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Se
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\obj\Debug\net8.0\KoRadio.Services.pdb
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\obj\Debug\net8.0\KoRadio.Services.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\obj\Debug\net8.0\ref\KoRadio.Services.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\bin\Debug\net8.0\Subscriber.deps.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\bin\Debug\net8.0\Subscriber.runtimeconfig.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\bin\Debug\net8.0\Subscriber.exe
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\bin\Debug\net8.0\Subscriber.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Services\bin\Debug\net8.0\Subscriber.pdb

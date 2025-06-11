@@ -3,8 +3,10 @@ using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.RabbitMQ;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Subscriber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +17,10 @@ namespace KoRadio.Services
 {
     public class JobService:BaseCRUDServiceAsync<Model.Job, JobSearchObject, Database.Job, JobInsertRequest, JobUpdateRequest>, IJobService
 	{
-		public JobService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
+		private readonly IRabbitMQService _rabbitMQService;
+		public JobService(KoTiJeOvoRadioContext context, IMapper mapper, IRabbitMQService rabbitMQService) : base(context, mapper)
 		{
+			_rabbitMQService = rabbitMQService;
 		}
 
 		public override IQueryable<Job> AddFilter(JobSearchObject search, IQueryable<Job> query)
@@ -85,10 +89,51 @@ namespace KoRadio.Services
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 
 		}
+
+		public override async Task BeforeUpdateAsync(JobUpdateRequest request, Job entity, CancellationToken cancellationToken = default)
+		{
 		
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
+
+		public override async Task AfterUpdateAsync(JobUpdateRequest request, Job entity, CancellationToken cancellationToken = default)
+		{
+			var job = await _context.Jobs
+	.Include(j => j.User)
+	.FirstOrDefaultAsync(j => j.JobId == entity.JobId);
+
+		
+
+			if (request.JobStatus == "approved" && entity.User != null)
+			{
+				await _rabbitMQService.SendEmail(new Email
+				{
+					EmailTo = entity.User.Email,
+					Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
+							  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
+					ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
+					Subject = "Rezervacija posla"
+				});
+			}
+			if (request.JobStatus == "finished" && entity.User != null)
+			{
+				await _rabbitMQService.SendEmail(new Email
+				{
+					EmailTo = entity.User.Email,
+					Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
+							  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
+					ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
+					Subject = "Rezervacija posla"
+				});
+			}
+
+			await base.AfterUpdateAsync(request, entity, cancellationToken);
+		}
+
+
 	}
-    
-    
+
+
 
 
 
