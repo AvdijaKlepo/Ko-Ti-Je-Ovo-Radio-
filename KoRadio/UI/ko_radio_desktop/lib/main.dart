@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
@@ -17,6 +18,7 @@ void main() {
       ChangeNotifierProvider(create: (_)=>FreelancerProvider()),
       ChangeNotifierProvider(create: (_)=>ServiceProvider()),
       ChangeNotifierProvider(create: (_)=>LocationProvider()),
+      ChangeNotifierProvider(create: (_)=>CompanyProvider()),
     ],
     child: const MyApp(),));
 }

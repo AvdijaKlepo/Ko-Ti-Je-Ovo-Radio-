@@ -8,6 +8,10 @@ namespace KoRadio.Model.Request
 {
     public class CompanyInsertRequest
     {
+	
+		public string CompanyName { get; set; } = null!;
+		public string Email { get; set; } = null!;
+
 		public string? Bio { get; set; }
 
 		public decimal? Rating { get; set; }
@@ -28,7 +32,9 @@ namespace KoRadio.Model.Request
 		public int? LocationId { get; set; }
 
 		public ICollection<int> ServiceId { get; set; } = new List<int>();
-		public List<int> Roles { get; set; }
+		public bool? IsApplicant { get; set; }
+		public bool? IsDeleted { get; set; }
+		public List<int> Employee { get; set; }
 
 
 	}

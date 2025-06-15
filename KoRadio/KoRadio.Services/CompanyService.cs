@@ -4,6 +4,7 @@ using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace KoRadio.Services
 
 		public override IQueryable<Company> AddFilter(CompanySearchObject search, IQueryable<Company> query)
 		{
+			query = query.Include(x => x.CompanyServices).ThenInclude(x => x.Service);
+			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.User);
 			return base.AddFilter(search, query);
 		}
 
@@ -37,9 +40,11 @@ namespace KoRadio.Services
 				entity.CompanyServices = services.Select(service => new Database.CompanyService
 				{
 					ServiceId = service.ServiceId,
-					Company = entity
+					Company = entity,
+					CreatedAt = DateTime.UtcNow
 				}).ToList();
 			}
+			
 
 			if (request.WorkingDays != null)
 			{
@@ -50,6 +55,26 @@ namespace KoRadio.Services
 
 			}
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
+		}
+
+		public override Task AfterInsertAsync(CompanyInsertRequest request, Company entity, CancellationToken cancellationToken = default)
+		{
+			if (request.Employee != null && request.Employee.Any())
+			{
+				foreach (var userId in request.Employee)
+				{
+					_context.CompanyEmployees.Add(new Database.CompanyEmployee
+					{
+						CompanyId = entity.CompanyId,
+						UserId = userId,
+						IsDeleted = false,
+						IsApplicant=false
+
+					});
+				}
+				_context.SaveChanges();
+			}
+			return base.AfterInsertAsync(request, entity, cancellationToken);
 		}
 
 

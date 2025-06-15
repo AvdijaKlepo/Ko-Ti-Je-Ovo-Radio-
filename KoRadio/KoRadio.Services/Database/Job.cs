@@ -34,4 +34,6 @@ public partial class Job
     public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 
     public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<UserRating> UserRatings { get; set; } = new List<UserRating>();
 }

@@ -104,28 +104,28 @@ namespace KoRadio.Services
 
 		
 
-			if (request.JobStatus == "approved" && entity.User != null)
-			{
-				await _rabbitMQService.SendEmail(new Email
-				{
-					EmailTo = entity.User.Email,
-					Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
-							  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
-					ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
-					Subject = "Rezervacija posla"
-				});
-			}
-			if (request.JobStatus == "finished" && entity.User != null)
-			{
-				await _rabbitMQService.SendEmail(new Email
-				{
-					EmailTo = entity.User.Email,
-					Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
-							  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
-					ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
-					Subject = "Rezervacija posla"
-				});
-			}
+			//if (request.JobStatus == "approved" && entity.User != null)
+			//{
+			//	await _rabbitMQService.SendEmail(new Email
+			//	{
+			//		EmailTo = entity.User.Email,
+			//		Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
+			//				  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
+			//		ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
+			//		Subject = "Rezervacija posla"
+			//	});
+			//}
+			//if (request.JobStatus == "finished" && entity.User != null)
+			//{
+			//	await _rabbitMQService.SendEmail(new Email
+			//	{
+			//		EmailTo = entity.User.Email,
+			//		Message = $"Poštovani, posao zakazan za {entity.JobDate} je odobren od strane radnika " +
+			//				  "Stanja posla možete pratiti kroz aplikaciju. Lijep Pozdrav.",
+			//		ReceiverName = $"{entity.User.FirstName} {entity.User.FirstName}",
+			//		Subject = "Rezervacija posla"
+			//	});
+			//}
 
 			await base.AfterUpdateAsync(request, entity, cancellationToken);
 		}

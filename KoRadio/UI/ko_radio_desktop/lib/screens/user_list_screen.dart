@@ -5,7 +5,7 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
-import 'package:ko_radio_desktop/screens/user_details_screen.dart';
+import 'package:ko_radio_desktop/screens/freelancer_update_dialog.dart';
 import 'package:ko_radio_desktop/screens/user_form_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +22,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  bool showDeleted = false;
 
   Timer? _debounce;
 
@@ -35,7 +36,8 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   Future<void> _loadUsers({String? firstName, String? lastName}) async {
-    Map<String, dynamic> filter = {'isDeleted': false,'IsFreelancerIncluded':false};
+    Map<String, dynamic> filter = {'isDeleted': showDeleted,'IsFreelancerIncluded':false,
+    };
     
 
     if ((firstName ?? '').trim().isNotEmpty) {
@@ -47,6 +49,7 @@ class _UserListScreenState extends State<UserListScreen> {
     if (filter.isNotEmpty) {
       filter['isNameIncluded'] = true;
     }
+
 
     final fetchedUsers = await provider.get(filter: filter.isEmpty ? null : filter);
 
@@ -62,6 +65,7 @@ class _UserListScreenState extends State<UserListScreen> {
       _loadUsers(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
+
       );
     });
   }
@@ -84,16 +88,7 @@ class _UserListScreenState extends State<UserListScreen> {
     }
     
   }
-   Future<void> _openUserPromoteDialog({User? user}) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (_) => UserPromoteDialog(user: user),
-    );
-    if(result==true){
-      await _loadUsers(firstName: _firstNameController.text, lastName: _lastNameController.text);
-    }
-    
-  }
+ 
 
   Widget _buildHeaderCell(String text, {double flex = 1}) {
     return Expanded(
@@ -153,14 +148,21 @@ class _UserListScreenState extends State<UserListScreen> {
                   onChanged: (_) => _onSearchChanged(),
                 ),
               ),
-              const SizedBox(width: 12),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Add Worker'),
-                onPressed: () {
-                 
-                },
-              ),
+               const SizedBox(width: 12),
+            Row(
+              children: [
+                const Text("Prikaži izbrisane"),
+                Switch(
+                  value: showDeleted,
+                  onChanged: (val) {
+                    setState(() => showDeleted = val);
+                    _loadUsers();
+                  },
+                ),
+              ],
+            ),
+              
+            
             ],
           ),
 
@@ -172,7 +174,7 @@ class _UserListScreenState extends State<UserListScreen> {
 // Header Row
 Container(
   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-  child: const Row(
+  child:  Row(
     children: [
       Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
       Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -190,9 +192,11 @@ Expanded(
     ),
   ),
 ),
-
-      Expanded(flex: 2, child: Center(child: Icon(Icons.edit, size: 18, color: Colors.black54))),
-      Expanded(flex: 2, child: Center(child: Icon(Icons.work_rounded, size: 18, color: Colors.black54))),
+      
+      showDeleted? SizedBox.shrink():
+      Expanded(flex: 2, child: Center(child: Icon(Icons.edit, size: 18, color: Colors.black54))) ,
+      showDeleted?  Expanded(flex: 2, child: Center(child: Icon(Icons.restore_outlined, size: 18, color: Colors.black54))) :
+      Expanded(flex: 2, child: Center(child: Icon(Icons.delete, size: 18, color: Colors.black54))),
     ],
   ),
 ),
@@ -242,7 +246,7 @@ Expanded(
   ),
 ),
 
-
+                        showDeleted? SizedBox.shrink():
                         Expanded(
                           flex: 2,
                           child: Center(
@@ -255,15 +259,27 @@ Expanded(
                             ),
                           ),
                         ),
+                        showDeleted?  Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: IconButton(
+                              tooltip: 'Vrati',
+                              onPressed: () {
+                                _openUserRestoreDialog(user: user);
+                              },
+                              icon: const Icon(Icons.restore_outlined),
+                            ),
+                          ),
+                        ) :
                         Expanded(
                           flex: 2,
                           child: Center(
                             child: IconButton(
-                              tooltip: 'Promoviši',
+                              tooltip: 'Izbriši',
                               onPressed: () {
-                                _openUserPromoteDialog(user: user);
+                                _openUserDeleteDialog(user: user);
                               },
-                              icon: const Icon(Icons.work_rounded),
+                              icon: const Icon(Icons.delete),
                             ),
                           ),
                         ),
@@ -280,4 +296,58 @@ Expanded(
       ),
     );
   }
+  
+  void _openUserDeleteDialog({required User user}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Izbriši?'),
+        content: Text('Jeste li sigurni da želite izbrisati ovog korisnika?'),
+        actions: [
+         
+          TextButton(
+            onPressed: () async {
+              await provider.delete(user.userId);
+              _loadUsers(firstName: _firstNameController.text, lastName: _lastNameController.text);
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
+          ),
+           TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+        ],
+      ),
+    );
+  }
+  void _openUserRestoreDialog({required User user}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Vrati?'),
+        content: Text('Jeste li sigurni da želite vratiti ovog korisnika?'),
+        actions: [
+         
+          TextButton(
+            onPressed: () async {
+              await provider.delete(user.userId);
+              _loadUsers(firstName: _firstNameController.text, lastName: _lastNameController.text);
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
+          ),
+           TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+
+
+
+

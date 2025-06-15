@@ -15,7 +15,7 @@ public partial class Company
 
     public int ExperianceYears { get; set; }
 
-    public byte[] Image { get; set; } = null!;
+    public byte[]? Image { get; set; }
 
     public int WorkingDays { get; set; }
 
@@ -28,6 +28,12 @@ public partial class Company
     public bool IsDeleted { get; set; }
 
     public bool IsApplicant { get; set; }
+
+    public string CompanyName { get; set; } = null!;
+
+    public string Email { get; set; } = null!;
+
+    public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
     public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 

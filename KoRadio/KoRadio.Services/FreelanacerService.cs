@@ -75,6 +75,14 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsApplicant == false);
 			}
+			if (searchObject.IsDeleted==true)
+			{
+				query = query.Where(x => x.IsDeleted == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsDeleted == false);
+			}
 
 
 
@@ -131,6 +139,13 @@ namespace KoRadio.Services
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
+		public override Task BeforeDeleteAsync(Database.Freelancer entity, CancellationToken cancellationToken)
+		{
+		
+			return base.BeforeDeleteAsync(entity, cancellationToken);
+		}
+	
+
 
 		public override async Task BeforeUpdateAsync(FreelancerUpdateRequest request, Database.Freelancer entity, CancellationToken cancellationToken = default)
 		{
@@ -153,6 +168,21 @@ namespace KoRadio.Services
 					CreatedAt = DateTime.UtcNow,
 				}).ToList();
 			}
+
+			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
+			{
+
+				
+
+				var workingDaysEnum = request.WorkingDays
+					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
+				entity.WorkingDays = (int)workingDaysEnum;
+			}
+			else
+			{
+				entity.WorkingDays = (int)WorkingDaysFlags.None;
+			}
+
 
 			if (request.Roles != null && request.Roles.Any())
 			{
@@ -209,6 +239,7 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + user.FirstName);
 			}
+			
 
 
 

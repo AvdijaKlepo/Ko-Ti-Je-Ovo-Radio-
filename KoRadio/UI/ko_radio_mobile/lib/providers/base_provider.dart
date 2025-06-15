@@ -9,7 +9,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? baseUrl = const String.fromEnvironment("baseUrl",
-      defaultValue: "http://10.0.2.2:5053/");
+      defaultValue: "http://localhost:5053/");
   String _endpoint = "";
 
   BaseProvider(String endpoint) {

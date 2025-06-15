@@ -73,10 +73,22 @@ namespace KoRadio.Services
 
 			if (entity is ISoftDelete softDeleteEntity)
 			{
-				softDeleteEntity.IsDeleted = true;
-				softDeleteEntity.VrijemeBrisanja = DateTime.Now;
-				_context.Update(entity);
+				if (softDeleteEntity.IsDeleted == false)
+				{
+					softDeleteEntity.IsDeleted = true;
+
+					_context.Update(entity);
+				}
+				else
+				{
+					softDeleteEntity.Undo();
+
+					_context.Update(entity);
+				}
+				
 			}
+		
+
 			else
 			{
 				_context.Remove(entity);
@@ -88,6 +100,8 @@ namespace KoRadio.Services
 		}
 		public virtual async Task BeforeDeleteAsync(TDbEntity entity, CancellationToken cancellationToken) { }
 		public virtual async Task AfterDeleteAsync(TDbEntity entity, CancellationToken cancellationToken) { }
+
+		
 
 
 	}

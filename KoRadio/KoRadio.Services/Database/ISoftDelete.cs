@@ -9,12 +9,12 @@ namespace KoRadio.Services.Database
     internal interface ISoftDelete
     {
 		public bool IsDeleted { get; set; }
-		public DateTime? VrijemeBrisanja { get; set; }
+
 
 		public void Undo()
 		{
 			IsDeleted = false;
-			VrijemeBrisanja = null;
+			
 		}
 	}
 }

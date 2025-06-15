@@ -8,7 +8,7 @@ namespace KoRadio.Services.Recommender
 {
     public interface IUserGradeRecommenderService
     {
-		Task<List<Model.Freelancer>> GetRecommendedGradedProducts(int userId, int freelancerId);
+		Task<List<Model.Freelancer>> GetRecommendedGradedProducts(int userId);
 		void TrainData();
 	}
 }

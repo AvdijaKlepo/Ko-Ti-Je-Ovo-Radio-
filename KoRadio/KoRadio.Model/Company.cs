@@ -8,6 +8,9 @@ namespace KoRadio.Model
 
     public partial class Company
     {
+		public int CompanyId { get; set; }
+		public string CompanyName { get; set; } = null!;
+		public string Email { get; set; } = null!;
 
 		public string Bio { get; set; } = null!;
 
@@ -28,8 +31,11 @@ namespace KoRadio.Model
 		public int LocationId { get; set; }
 
 		public bool IsDeleted { get; set; }
+		public bool IsApplicant { get; set; }
+
 
 		public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
+		public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
 		public virtual Location Location { get; set; } = null!;
 	}

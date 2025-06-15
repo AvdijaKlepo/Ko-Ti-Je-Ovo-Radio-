@@ -13,6 +13,7 @@ using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.Recommender;
 using KoRadio.Services.SignalRService;
 using MapsterMapper;
 using Microsoft.AspNetCore.SignalR;
@@ -27,9 +28,12 @@ namespace KoRadio.Services
 	public class UserService:BaseCRUDServiceAsync<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
 	{
 		private readonly IHubContext<SignalRHubService> _hubContext;
+		//private readonly IUserGradeRecommenderService _userGradeRecommenderService;
 		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext) : base(context, mapper)
 		{
 			_hubContext = hubContext;
+		
+
 		}
 
 		public override IQueryable<User> AddFilter(UserSearchObject searchObject, IQueryable<User> query)
@@ -40,7 +44,7 @@ namespace KoRadio.Services
 
 
 			query = query.Include(x => x.Location);
-			query = query.Where(x => x.IsDeleted == false);
+			
 
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
@@ -72,11 +76,15 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsDeleted == true);
 			}
-			
-		
-			
+			else
+			{
+				query = query.Where(x => x.IsDeleted == false);
+			}
 
-			return query;
+
+
+
+				return query;
 		}
 		private IQueryable<User> FilterOutFreelancers(IQueryable<User> query)
 		{
@@ -162,6 +170,13 @@ namespace KoRadio.Services
 			byte[] inArray = algorithm.ComputeHash(dst);
 			return Convert.ToBase64String(inArray);
 		}
+
+		//public async Task<List<Model.Freelancer>> GetRecommendedFreelancers(int userId)
+		//{
+		//	var freelancerObj = await _userGradeRecommenderService.GetRecommendedGradedProducts(userId);
+
+		//	return freelancerObj;
+		//}
 
 		public Model.User Login(string username, string password, string connectionId)
 		{

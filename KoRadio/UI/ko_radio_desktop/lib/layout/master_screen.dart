@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
+import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
@@ -18,7 +19,7 @@ class _MasterScreenState extends State<MasterScreen> {
   final List<Widget> _pages = [
     const UserListScreen(),
     const FreelancerListScreen(),
-    const UserListScreen(),
+    const CompanyList(),
     const ServicesListScreen(),
     LoginPage(),
     LoginPage(),

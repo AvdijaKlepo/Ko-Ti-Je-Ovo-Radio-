@@ -6,6 +6,7 @@ import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
+import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +21,14 @@ class JobDetails extends StatefulWidget {
 
 class _JobDetailsState extends State<JobDetails> {
   late FreelancerProvider freelancerProvider;
+  late UserRatings userRatingsProvider;
   double _rating = 0;
 
   @override
   void initState() {
     super.initState();
     freelancerProvider = context.read<FreelancerProvider>();
+    userRatingsProvider = context.read<UserRatings>();
   }
 
   @override
@@ -200,10 +203,17 @@ final workingDaysIntList = workingDaysStringList
     "isApplicant": false,
     "isDeleted": false,
   });
+  await userRatingsProvider.insert({
+    "userId": AuthProvider.user?.userId,
+    "freelancerId": widget.job.freelancer?.freelancerId,
+    "jobId": widget.job.jobId,
+    "rating": _rating,
+  });
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("Radnik odobren.!")),
     
   );
+ 
                           
                         }, child: Text("Ocijeni"))
                       

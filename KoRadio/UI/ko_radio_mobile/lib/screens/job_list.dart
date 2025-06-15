@@ -115,7 +115,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
             onTap: () {
-              final destination = (status == JobStatus.approved || status == JobStatus.unapproved)
+              final destination = (status == JobStatus.unapproved)
                   ? BookJob(job: job, freelancer: job.freelancer)
                   : JobDetails(job: job);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));

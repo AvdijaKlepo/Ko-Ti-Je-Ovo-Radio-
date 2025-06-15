@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
+import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
@@ -10,6 +11,7 @@ import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
+import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
@@ -26,6 +28,8 @@ void main() {
       ChangeNotifierProvider(create: (_) => BottomNavProvider()),
       ChangeNotifierProvider(create: (_) => LocationProvider()),
       ChangeNotifierProvider(create: (_) => MessagesProvider()),
+      ChangeNotifierProvider(create: (_) => UserRatings()),
+      ChangeNotifierProvider(create: (_) => CompanyProvider()),
       ChangeNotifierProvider(create: (_) => SignalRProvider("notifications-hub")),
     ],
     child: const MyApp(),

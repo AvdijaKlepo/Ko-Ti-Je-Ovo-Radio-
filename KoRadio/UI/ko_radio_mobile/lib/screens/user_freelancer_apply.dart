@@ -166,27 +166,27 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 ),
               ),
               spacing,
-              ExpansionTile(
-                title: const Text("Odaberi usluge"),
-                initiallyExpanded: false,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: serviceResult?.result.length != null
-                        ? FormBuilderFilterChip(
-                            name: "serviceId",
-                            decoration: const InputDecoration(border: InputBorder.none),
-                            options: serviceResult!.result
-                                .map((s) => FormBuilderChipOption(
-                                    value: s.serviceId, child: Text(s.serviceName ?? "")))
-                                .toList(),
-                            spacing: 6,
-                            runSpacing: 4,
-                          )
-                        : const Text("Nema dostupnih usluga"),
-                  ),
-                ],
-              ),
+                ExpansionTile(
+                  title: const Text("Odaberi usluge"),
+                  initiallyExpanded: false,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: serviceResult?.result.length != null
+                          ? FormBuilderFilterChip(
+                              name: "serviceId",
+                              decoration: const InputDecoration(border: InputBorder.none),
+                              options: serviceResult!.result
+                                  .map((s) => FormBuilderChipOption(
+                                      value: s.serviceId, child: Text(s.serviceName ?? "")))
+                                  .toList(),
+                              spacing: 6,
+                              runSpacing: 4,
+                            )
+                          : const Text("Nema dostupnih usluga"),
+                    ),
+                  ],
+                ),
               spacing,
              FormBuilderCheckboxGroup<String>(
                       name: 'workingDays',

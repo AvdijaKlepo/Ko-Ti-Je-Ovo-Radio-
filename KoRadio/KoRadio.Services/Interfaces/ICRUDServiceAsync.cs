@@ -15,5 +15,6 @@ namespace KoRadio.Services.Interfaces
 		Task<TModel> UpdateAsync(int id, TUpdate request, CancellationToken cancellationToken = default);
 
 		Task DeleteAsync(int id, CancellationToken cancellationToken = default);
+	
 	}
 }

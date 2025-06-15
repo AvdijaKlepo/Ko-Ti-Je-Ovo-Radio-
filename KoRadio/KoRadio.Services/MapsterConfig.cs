@@ -24,5 +24,22 @@ public class MapsterConfig
 				 src => Enum.GetValues<DayOfWeek>()
 					 .Where(day => ((WorkingDaysFlags)src.WorkingDays).HasFlag((WorkingDaysFlags)(1 << (int)day)))
 					 .ToList());
+
+
+		TypeAdapterConfig<CompanyInsertRequest, KoRadio.Services.Database.Company>
+			.NewConfig()
+			.Ignore(dest => dest.WorkingDays);
+
+		TypeAdapterConfig<CompanyUpdateRequest, KoRadio.Services.Database.Company>
+			.NewConfig()
+			.Ignore(dest => dest.WorkingDays);
+
+
+		TypeAdapterConfig<KoRadio.Services.Database.Company, KoRadio.Model.Company>
+			.NewConfig()
+			.Map(dest => dest.WorkingDays,
+				 src => Enum.GetValues<DayOfWeek>()
+					 .Where(day => ((WorkingDaysFlags)src.WorkingDays).HasFlag((WorkingDaysFlags)(1 << (int)day)))
+					 .ToList());
 	}
 }

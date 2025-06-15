@@ -16,7 +16,7 @@ namespace KoRadio.Model
 
 		public bool? IsDeleted { get; set; }
 
-		public virtual Company Company { get; set; } = null!;
+	
 
 		public virtual Service Service { get; set; } = null!;
 	}
