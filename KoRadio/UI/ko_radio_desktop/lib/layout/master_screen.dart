@@ -4,6 +4,8 @@ import 'package:ko_radio_desktop/main.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
+import 'package:ko_radio_desktop/screens/settings.dart';
+import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -20,11 +22,9 @@ class _MasterScreenState extends State<MasterScreen> {
     const UserListScreen(),
     const FreelancerListScreen(),
     const CompanyList(),
+    const StoresList(),
     const ServicesListScreen(),
-    LoginPage(),
-    LoginPage(),
-    LoginPage(),
-  
+    const Settings(),
   ];
 
   @override
@@ -73,16 +73,17 @@ class _MasterScreenState extends State<MasterScreen> {
                 selectedIcon: Icon(Icons.business),
                 label: Text('Firme'),
               ),
+                NavigationRailDestination(
+                icon: Icon(Icons.store_outlined),
+                selectedIcon: Icon(Icons.store),
+                label: Text('Trgovine'),
+              ),
               NavigationRailDestination(
                 icon: Icon(Icons.electrical_services_outlined),
                 selectedIcon: Icon(Icons.electrical_services),
                 label: Text('Servisi'),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.admin_panel_settings_outlined),
-                selectedIcon: Icon(Icons.admin_panel_settings),
-                label: Text('Administracija'),
-              ),
+           
               NavigationRailDestination(
                 icon: Icon(Icons.manage_accounts_outlined),
                 selectedIcon: Icon(Icons.manage_accounts),

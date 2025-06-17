@@ -54,7 +54,7 @@ void initState() {
     "workingDays":     widget.freelancer.workingDays?.map((d) => d.toString()).toList(),
     "startTime":       DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute),
     "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour,   _endTime.minute),
-   "serviceId": widget.freelancer.freelancerServices
+    "serviceId": widget.freelancer.freelancerServices
     .map((e) => e.serviceId)
     .whereType<int>() 
     .toList(),

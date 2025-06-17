@@ -177,6 +177,7 @@ class _CompanyListState extends State<CompanyList> {
               const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
            
               const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+              const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
               const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
               const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
               const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -214,7 +215,7 @@ class _CompanyListState extends State<CompanyList> {
                                 Expanded(flex: 3, child: Text(c.location?.locationName ?? '')),
                                 Expanded(flex: 3, child: Text(days.join(', '))),
                                 Expanded(flex: 2, child: Text(c.experianceYears.toString())),
-                                Expanded(flex: 2, child: Text(c.rating?.toStringAsFixed(1) ?? '')),
+                                Expanded(flex: 2, child: Text(c.rating.toStringAsFixed(1) ?? '')),
                                 Expanded(
                                   flex: 6,
                                   child: Wrap(
@@ -285,6 +286,7 @@ class _CompanyListState extends State<CompanyList> {
                                               {
                                                 "companyName": c.companyName,
                                                 "bio": c.bio,
+                                                "email": c.email,
                                                 "rating": c.rating,
                                                 "phoneNumber": c.phoneNumber,
                                                 "experianceYears": c.experianceYears,

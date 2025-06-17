@@ -29,6 +29,12 @@ public partial class Job
 
     public int? FreelancerId { get; set; }
 
+    public int? CompanyId { get; set; }
+
+    public virtual Company? Company { get; set; }
+
+    public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
+
     public virtual Freelancer? Freelancer { get; set; }
 
     public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();

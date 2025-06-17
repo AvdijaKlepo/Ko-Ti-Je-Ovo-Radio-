@@ -58,6 +58,20 @@
         ],
         "parameters": [
           {
+            "name": "IsApplicant",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -2479,6 +2493,12 @@
               "format": "int32"
             },
             "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "isApplicant": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

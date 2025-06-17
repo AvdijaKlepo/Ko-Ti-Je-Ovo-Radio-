@@ -24,6 +24,24 @@ namespace KoRadio.Services
 		{
 			query = query.Include(x => x.CompanyServices).ThenInclude(x => x.Service);
 			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.User);
+			query = query.Include(x => x.Location);
+
+			if(search.IsApplicant==true)
+			{
+				query = query.Where(x => x.IsApplicant == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsApplicant == false);
+			}
+			if (search.IsDeleted == true)
+			{
+				query = query.Where(x => x.IsDeleted == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsDeleted == false);
+			}
 			return base.AddFilter(search, query);
 		}
 
@@ -57,6 +75,44 @@ namespace KoRadio.Services
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
+		public override Task BeforeUpdateAsync(CompanyUpdateRequest request, Company entity, CancellationToken cancellationToken = default)
+		{
+			if (request.ServiceId != null && request.ServiceId.Any())
+			{
+
+				var existingServices = _context.CompanyServices
+					.Where(fs => fs.CompanyId == entity.CompanyId);
+
+				_context.CompanyServices.RemoveRange(existingServices);
+
+				var services = _context.Services
+					.Where(s => request.ServiceId.Contains(s.ServiceId))
+					.ToList();
+
+				entity.CompanyServices = services.Select(service => new Database.CompanyService
+				{
+					ServiceId = service.ServiceId,
+					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.UtcNow,
+				}).ToList();
+			}
+
+			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
+			{
+
+
+
+				var workingDaysEnum = request.WorkingDays
+					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
+				entity.WorkingDays = (int)workingDaysEnum;
+			}
+			else
+			{
+				entity.WorkingDays = (int)WorkingDaysFlags.None;
+			}
+			return base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
+
 		public override Task AfterInsertAsync(CompanyInsertRequest request, Company entity, CancellationToken cancellationToken = default)
 		{
 			if (request.Employee != null && request.Employee.Any())
@@ -68,7 +124,9 @@ namespace KoRadio.Services
 						CompanyId = entity.CompanyId,
 						UserId = userId,
 						IsDeleted = false,
-						IsApplicant=false
+						IsApplicant=false,
+						DateJoined = DateTime.UtcNow,
+						
 
 					});
 				}

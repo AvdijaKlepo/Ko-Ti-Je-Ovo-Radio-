@@ -19,6 +19,10 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<CompanyEmployee> CompanyEmployees { get; set; }
 
+    public virtual DbSet<CompanyJobAssignment> CompanyJobAssignments { get; set; }
+
+    public virtual DbSet<CompanyRole> CompanyRoles { get; set; }
+
     public virtual DbSet<CompanyService> CompanyServices { get; set; }
 
     public virtual DbSet<Freelancer> Freelancers { get; set; }
@@ -73,22 +77,61 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
         modelBuilder.Entity<CompanyEmployee>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.CompanyId }).HasName("PK__CompanyE__C551BD68EA95EF0E");
+            entity.HasKey(e => e.CompanyEmployeeId).HasName("PK__CompanyE__3916BD7B00AC7565");
 
             entity.ToTable("CompanyEmployee");
 
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CompanyEmployeeId).HasColumnName("CompanyEmployeeID");
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.DateJoined).HasColumnType("datetime");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Company).WithMany(p => p.CompanyEmployees)
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CompanyEm__Compa__69C6B1F5");
 
+            entity.HasOne(d => d.CompanyRole).WithMany(p => p.CompanyEmployees)
+                .HasForeignKey(d => d.CompanyRoleId)
+                .HasConstraintName("FK__CompanyEm__Compa__7BE56230");
+
             entity.HasOne(d => d.User).WithMany(p => p.CompanyEmployees)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CompanyEm__UserI__68D28DBC");
+        });
+
+        modelBuilder.Entity<CompanyJobAssignment>(entity =>
+        {
+            entity.HasKey(e => e.CompanyJobId).HasName("PK__CompanyJ__B783C37E390DA91B");
+
+            entity.ToTable("CompanyJobAssignment");
+
+            entity.Property(e => e.CompanyJobId).HasColumnName("CompanyJobID");
+            entity.Property(e => e.AssignedAt).HasColumnType("datetime");
+            entity.Property(e => e.CompanyEmployeeId).HasColumnName("CompanyEmployeeID");
+
+            entity.HasOne(d => d.CompanyEmployee).WithMany(p => p.CompanyJobAssignments)
+                .HasForeignKey(d => d.CompanyEmployeeId)
+                .HasConstraintName("FK__CompanyJo__Compa__019E3B86");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.CompanyJobAssignments)
+                .HasForeignKey(d => d.JobId)
+                .HasConstraintName("FK__CompanyJo__JobId__02925FBF");
+        });
+
+        modelBuilder.Entity<CompanyRole>(entity =>
+        {
+            entity.HasKey(e => e.CompanyRoleId).HasName("PK__CompanyR__9CF06B50EF6710FD");
+
+            entity.ToTable("CompanyRole");
+
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.RoleName).HasMaxLength(50);
+
+            entity.HasOne(d => d.Company).WithMany(p => p.CompanyRoles)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__CompanyRo__Compa__7AF13DF7");
         });
 
         modelBuilder.Entity<CompanyService>(entity =>
@@ -157,6 +200,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
         {
             entity.HasKey(e => e.JobId).HasName("PK__Jobs__056690C234DE197E");
 
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.JobDate).HasColumnType("datetime");
             entity.Property(e => e.JobDescription).HasMaxLength(255);
@@ -168,6 +212,10 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.PayEstimate).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PayInvoice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Jobs)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__Jobs__CompanyID__7EC1CEDB");
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.FreelancerId)
