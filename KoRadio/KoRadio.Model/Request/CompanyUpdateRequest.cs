@@ -33,6 +33,7 @@ namespace KoRadio.Model.Request
 
 		public ICollection<int> ServiceId { get; set; } = new List<int>();
 		public List<int> Employee { get; set; }
+		public List<int> Roles { get; set; }
 		public bool IsDeleted { get; set; }
 		public bool IsApplicant { get; set; }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
+import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/screens/company_employee_list.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
@@ -18,13 +20,74 @@ class MasterScreen extends StatefulWidget {
 class _MasterScreenState extends State<MasterScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
+  final List<NavigationRailDestination>destinationsAdmin = const <NavigationRailDestination>[
+    NavigationRailDestination(
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: Text('Korisnici'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.work_outline),
+      selectedIcon: Icon(Icons.work),
+      label: Text('Samozaposleni'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.business_outlined),
+      selectedIcon: Icon(Icons.business),
+      label: Text('Firme'),
+    ),
+      NavigationRailDestination(
+      icon: Icon(Icons.store_outlined),
+      selectedIcon: Icon(Icons.store),
+      label: Text('Trgovine'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.electrical_services_outlined),
+      selectedIcon: Icon(Icons.electrical_services),
+      label: Text('Servisi'),
+    ),
+ 
+    NavigationRailDestination(
+      icon: Icon(Icons.manage_accounts_outlined),
+      selectedIcon: Icon(Icons.manage_accounts),
+      label: Text('Uredi Profil'),
+    ),
+ 
+ 
+  ];
+
+  final List<NavigationRailDestination> destinationsCompanyAdmin = const <NavigationRailDestination>[
+    NavigationRailDestination(
+      icon: Icon(Icons.people_outline),
+      selectedIcon: Icon(Icons.people),
+      label: Text('Lista Zaposlenika'),
+    ),
+      NavigationRailDestination(
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: Text('Firme'),
+    ),
+      NavigationRailDestination(
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: Text('Trgovine'),
+    ),
+  ];
+
+  final List _pagesAdmin = [
     const UserListScreen(),
     const FreelancerListScreen(),
     const CompanyList(),
     const StoresList(),
     const ServicesListScreen(),
     const Settings(),
+  
+  ];
+    final List _pagesCompanyAdmin = [
+    const CompanyEmployeeList(),
+    const CompanyList(),
+    const StoresList(),
+  
   ];
 
   @override
@@ -34,6 +97,16 @@ class _MasterScreenState extends State<MasterScreen> {
         children: [
           NavigationRail(
             extended: true,
+            trailing: Row(children: [
+               IconButton(alignment: Alignment.topLeft,icon: Icon(Icons.logout),color: Colors.white, onPressed: () async {
+             await AuthProvider().logout();
+              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  LoginPage()), (route) => false);
+            }),
+            Text('Odjava',style: TextStyle(color: Colors.white),),
+            ]
+            
+            ,),
+             
             backgroundColor: const Color(0xFF1B4C7D),
             selectedIndex: _selectedIndex,
             onDestinationSelected: (int index) {
@@ -57,53 +130,30 @@ class _MasterScreenState extends State<MasterScreen> {
               fontWeight: FontWeight.bold,
             ),
             unselectedLabelTextStyle: const TextStyle(color: Colors.white),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: Text('Korisnici'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.work_outline),
-                selectedIcon: Icon(Icons.work),
-                label: Text('Samozaposleni'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.business_outlined),
-                selectedIcon: Icon(Icons.business),
-                label: Text('Firme'),
-              ),
-                NavigationRailDestination(
-                icon: Icon(Icons.store_outlined),
-                selectedIcon: Icon(Icons.store),
-                label: Text('Trgovine'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.electrical_services_outlined),
-                selectedIcon: Icon(Icons.electrical_services),
-                label: Text('Servisi'),
-              ),
-           
-              NavigationRailDestination(
-                icon: Icon(Icons.manage_accounts_outlined),
-                selectedIcon: Icon(Icons.manage_accounts),
-                label: Text('Uredi Profil'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.logout_outlined),
-                selectedIcon: Icon(Icons.logout),
-                label: Text('Odjava'),
-
-              ),
-            ],
+            destinations:  AuthProvider.userRoles?.role?.roleName=="Admin" ? destinationsAdmin : destinationsCompanyAdmin,
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: _pages[_selectedIndex],
+          if(AuthProvider.userRoles?.role?.roleName=="Admin")
+          
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child:
+                
+                 _pagesAdmin[_selectedIndex],
+              ),
             ),
-          ),
+            if(AuthProvider.userRoles?.role?.roleName=="Company Admin")
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child:
+                  
+                   _pagesCompanyAdmin[_selectedIndex],
+                ),
+              ),
+              
+         
         ],
       ),
     );

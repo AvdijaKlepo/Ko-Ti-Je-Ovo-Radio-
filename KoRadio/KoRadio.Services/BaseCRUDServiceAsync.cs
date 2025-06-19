@@ -42,9 +42,9 @@ namespace KoRadio.Services
 			var set = _context.Set<TDbEntity>();
 
 			var entity = await set.FindAsync(id, cancellationToken);
-
-			Mapper.Map(request, entity);
 			await BeforeUpdateAsync(request, entity);
+			Mapper.Map(request, entity);
+			
 
 
 			await _context.SaveChangesAsync(cancellationToken);
@@ -79,6 +79,7 @@ namespace KoRadio.Services
 
 					_context.Update(entity);
 				}
+			
 				else
 				{
 					softDeleteEntity.Undo();

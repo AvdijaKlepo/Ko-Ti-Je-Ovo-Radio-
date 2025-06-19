@@ -10,4 +10,15 @@ class AuthProvider {
   static UserRole? userRoles;
   static String? connectionId;
   static bool isSignedIn = false;
+
+
+    logout() {
+    username="";
+    password="";
+    user=null;
+    role=null;
+    userRoles=null;
+    connectionId=null;
+    isSignedIn=false;
+  }
 }

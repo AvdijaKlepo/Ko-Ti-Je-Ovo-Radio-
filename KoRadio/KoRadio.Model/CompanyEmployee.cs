@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace KoRadio.Model
 {
     public class CompanyEmployee
-    {
+    {	
+		public int CompanyEmployeeId { get; set; }
 		public int UserId { get; set; }
 
 		public int CompanyId { get; set; }
@@ -16,7 +17,17 @@ namespace KoRadio.Model
 
 		public bool IsApplicant { get; set; }
 
+		public int? CompanyRoleId { get; set; }
+
+		public DateTime DateJoined { get; set; }
+
 	
+
+		public virtual Company Company { get; set; } = null!;
+
+		public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
+
+		public virtual CompanyRole? CompanyRole { get; set; }
 
 		public virtual User User { get; set; } = null!;
 	}

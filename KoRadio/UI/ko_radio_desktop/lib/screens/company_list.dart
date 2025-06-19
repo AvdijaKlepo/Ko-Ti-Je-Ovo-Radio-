@@ -83,7 +83,7 @@ class _CompanyListState extends State<CompanyList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisati ovog korisnika?'),
+        content: Text('Jeste li sigurni da želite izbrisatu ovu firmu?'),
         actions: [
           TextButton(
             onPressed: () async {
@@ -107,7 +107,7 @@ class _CompanyListState extends State<CompanyList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovog korisnika?'),
+        content: Text('Jeste li sigurni da želite vratiti ovu firmu?'),
         actions: [
           TextButton(
             onPressed: () async {
@@ -172,18 +172,18 @@ class _CompanyListState extends State<CompanyList> {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-           
-              const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
-              const Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-              if (!showApplicants && !showDeleted)
+         Row(
+  children: [
+    const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
+   if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
               if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
@@ -191,8 +191,9 @@ class _CompanyListState extends State<CompanyList> {
                 const Expanded(flex: 2, child: Icon(Icons.restore, size: 18)),
               if (showApplicants)
                 const Expanded(flex: 2, child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold))),
-            ],
-          ),
+  ],
+),
+
           Expanded(
             child: companyResult == null
                 ? const Center(child: CircularProgressIndicator())
@@ -214,8 +215,9 @@ class _CompanyListState extends State<CompanyList> {
                                 Expanded(flex: 3, child: Text(c.phoneNumber ?? '')),
                                 Expanded(flex: 3, child: Text(c.location?.locationName ?? '')),
                                 Expanded(flex: 3, child: Text(days.join(', '))),
-                                Expanded(flex: 2, child: Text(c.experianceYears.toString())),
-                                Expanded(flex: 2, child: Text(c.rating.toStringAsFixed(1) ?? '')),
+                                Expanded(flex: 3, child: Text(c.experianceYears.toString())),
+                                Expanded(flex: 3, child: Text(c.rating.toStringAsFixed(1) ?? '')),
+                                Expanded(flex: 3, child: Text(c.companyEmployees.length.toString())),
                                 Expanded(
                                   flex: 6,
                                   child: Wrap(
@@ -296,7 +298,7 @@ class _CompanyListState extends State<CompanyList> {
                                                 "workingDays": workingDaysIntList,
                                                 "serviceId": c.companyServices?.map((e) => e.serviceId).toList(),
                                                 "locationId": c.location?.locationId,
-                                                
+                                                "roles":[10,1009],
                                                 "isApplicant": false,
                                                 "isDeleted": false,
                                                 "employee": c.companyEmployees?.map((e) => e.userId).toList(),

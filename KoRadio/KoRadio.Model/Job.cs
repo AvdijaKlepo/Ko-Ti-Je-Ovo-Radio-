@@ -37,5 +37,7 @@ namespace KoRadio.Model
 		public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 
 		public virtual User User { get; set; } = null!;
+		public virtual Company? Company { get; set; }
+
 	}
 }

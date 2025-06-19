@@ -1,6 +1,7 @@
 ﻿using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,9 @@ namespace KoRadio.Services
 
 		public override IQueryable<CompanyEmployee> AddFilter(CompanyEmployeeSearchObject search, IQueryable<CompanyEmployee> query)
 		{
+			
+			query = query.Include(x => x.User);
+		
 			return base.AddFilter(search, query);
 		}
 	}

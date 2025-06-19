@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
+import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
+import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
+import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
@@ -20,6 +24,10 @@ void main() {
       ChangeNotifierProvider(create: (_)=>ServiceProvider()),
       ChangeNotifierProvider(create: (_)=>LocationProvider()),
       ChangeNotifierProvider(create: (_)=>CompanyProvider()),
+      ChangeNotifierProvider(create: (_)=>CompanyEmployeeProvider()),
+      ChangeNotifierProvider(create: (_)=>CompanyRoleProvider()),
+      ChangeNotifierProvider(create: (_)=>CompanyJobAssignmentProvider()),
+
     ],
     child: const MyApp(),));
 }
@@ -27,27 +35,13 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+       
         colorScheme:
             ColorScheme.fromSeed(seedColor: Colors.white, primary: const Color.fromRGBO(27, 76, 125, 25)),
         useMaterial3: true,
@@ -82,7 +76,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Center(
@@ -132,28 +126,15 @@ class LoginPage extends StatelessWidget {
                           AuthProvider.userRoles = user.userRoles?.isNotEmpty == true ? user.userRoles!.first : null;
                           AuthProvider.isSignedIn=true;
 
-                          //AuthProvider.userRole = user.userRole;
+            
 
                           print('UserId: ${AuthProvider.userRoles?.role?.roleName}');
 
 
-                         if (
-                                  AuthProvider.userRoles!.role?.roleName=="Admin") {
-                                    print(AuthProvider.userRoles!.role?.roleName);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => MasterScreen(),
-                                ));
-                                  }
-                            
-                          //var data = await provider.get();
-                          //AuthProvider.user?.firstName =
-                            //  data.result['resultList'].firstName;
-
-                          //Navigator.of(context).push(MaterialPageRoute(
-                           //   builder: (context) => MasterScreen()));
-                          
-                        
-                         
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => MasterScreen(),
+                          ));
+            
                         } on Exception catch (e) {
                           showDialog(
                               context: context,
@@ -168,6 +149,9 @@ class LoginPage extends StatelessWidget {
                                     content: Text(e.toString()),
                                   ));
                         }
+                        
+                                  
+                                  
                       },
                       child: Text("Login"))
                 ],

@@ -1,4 +1,5 @@
-﻿using KoRadio.Model.Enums;
+﻿using KoRadio.Model;
+using KoRadio.Model.Enums;
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
@@ -20,7 +21,7 @@ namespace KoRadio.Services
 
 		}
 
-		public override IQueryable<Company> AddFilter(CompanySearchObject search, IQueryable<Company> query)
+		public override IQueryable<Database.Company> AddFilter(CompanySearchObject search, IQueryable<Database.Company> query)
 		{
 			query = query.Include(x => x.CompanyServices).ThenInclude(x => x.Service);
 			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.User);
@@ -45,8 +46,10 @@ namespace KoRadio.Services
 			return base.AddFilter(search, query);
 		}
 
-		public override async Task BeforeInsertAsync(CompanyInsertRequest request, Company entity, CancellationToken cancellationToken = default)
+		public override async Task BeforeInsertAsync(CompanyInsertRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
+			bool wasApplicant = entity.IsApplicant;
+
 			if (request.ServiceId != null && request.ServiceId.Any())
 			{
 
@@ -75,7 +78,7 @@ namespace KoRadio.Services
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
-		public override Task BeforeUpdateAsync(CompanyUpdateRequest request, Company entity, CancellationToken cancellationToken = default)
+		public override Task BeforeUpdateAsync(CompanyUpdateRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
 			if (request.ServiceId != null && request.ServiceId.Any())
 			{
@@ -110,10 +113,44 @@ namespace KoRadio.Services
 			{
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
+
+			if (entity.IsApplicant == true && request.IsApplicant == false)
+			{
+				var companyAdminIds = _context.CompanyEmployees
+					.Where(x => x.CompanyId == entity.CompanyId)
+					.Select(x => x.UserId)
+					.ToList();
+
+				if (companyAdminIds.Any() && request.Roles != null && request.Roles.Any())
+				{
+					var existingRoles = _context.UserRoles
+						.Where(ur => companyAdminIds.Contains(ur.UserId))
+						.ToList();
+
+					_context.UserRoles.RemoveRange(existingRoles);
+
+					foreach (var userId in companyAdminIds)
+					{
+						foreach (var roleId in request.Roles)
+						{
+							_context.UserRoles.Add(new Database.UserRole
+							{
+								UserId = userId,
+								RoleId = roleId,
+								ChangedAt = DateTime.UtcNow,
+								CreatedAt = DateTime.UtcNow
+							});
+						}
+					}
+				}
+
+				_context.SaveChanges();
+			}
+
 			return base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 
-		public override Task AfterInsertAsync(CompanyInsertRequest request, Company entity, CancellationToken cancellationToken = default)
+		public override Task AfterInsertAsync(CompanyInsertRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
 			if (request.Employee != null && request.Employee.Any())
 			{
@@ -136,7 +173,7 @@ namespace KoRadio.Services
 		}
 
 
-		public override async Task BeforeGetAsync(Model.Company request, Company entity)
+		public override async Task BeforeGetAsync(Model.Company request, Database.Company entity)
 		{
 			var flags = (WorkingDaysFlags)entity.WorkingDays;
 			request.WorkingDays = Enum.GetValues<DayOfWeek>()

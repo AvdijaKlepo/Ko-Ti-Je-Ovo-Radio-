@@ -8,5 +8,6 @@ namespace KoRadio.Model.SearchObject
 {
     public class CompanyEmployeeSearchObject: BaseSearchObject
 	{
+        public int CompanyId { get; set; }
     }
 }

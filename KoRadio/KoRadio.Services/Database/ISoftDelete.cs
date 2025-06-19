@@ -9,6 +9,8 @@ namespace KoRadio.Services.Database
     internal interface ISoftDelete
     {
 		public bool IsDeleted { get; set; }
+	
+
 
 
 		public void Undo()
