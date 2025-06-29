@@ -3,6 +3,7 @@ using KoRadio.Model.Enums;
 using KoRadio.Model.Request;
 using KoRadio.Services.Database;
 using Mapster;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 public class MapsterConfig
 {
@@ -41,5 +42,31 @@ public class MapsterConfig
 				 src => Enum.GetValues<DayOfWeek>()
 					 .Where(day => ((WorkingDaysFlags)src.WorkingDays).HasFlag((WorkingDaysFlags)(1 << (int)day)))
 					 .ToList());
+
+
+		TypeAdapterConfig<KoRadio.Services.Database.User, KoRadio.Model.User>
+	.NewConfig()
+	.Map(dest => dest.CompanyEmployees,
+		 src => src.CompanyEmployees.Adapt<List<KoRadio.Model.DTOs.CompanyEmployee>>());
+
+		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.CompanyEmployee>
+	.NewConfig();
+
+
+		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.DTOs.CompanyEmployee>
+.NewConfig()
+.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
+
+	
+			
+
+
+
+
+
+
+
+
+
 	}
 }

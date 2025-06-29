@@ -7,20 +7,29 @@ part of 'company_employee.dart';
 // **************************************************************************
 
 CompanyEmployee _$CompanyEmployeeFromJson(Map<String, dynamic> json) =>
-    CompanyEmployee()
-      ..userId = (json['userId'] as num?)?.toInt()
-      ..companyId = (json['companyId'] as num?)?.toInt()
-      ..isDeleted = json['isDeleted'] as bool?
-      ..isApplicant = json['isApplicant'] as bool?
-      ..user = json['user'] == null
+    CompanyEmployee(
+      (json['companyEmployeeId'] as num).toInt(),
+      (json['userId'] as num?)?.toInt(),
+      (json['companyId'] as num?)?.toInt(),
+      json['isDeleted'] as bool?,
+      json['isApplicant'] as bool?,
+      json['user'] == null
           ? null
-          : User.fromJson(json['user'] as Map<String, dynamic>);
+          : User.fromJson(json['user'] as Map<String, dynamic>),
+    )
+      ..companyName = json['companyName'] as String?
+      ..companyRole = json['companyRole'] == null
+          ? null
+          : CompanyRole.fromJson(json['companyRole'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$CompanyEmployeeToJson(CompanyEmployee instance) =>
     <String, dynamic>{
+      'companyEmployeeId': instance.companyEmployeeId,
       'userId': instance.userId,
       'companyId': instance.companyId,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
+      'companyName': instance.companyName,
+      'companyRole': instance.companyRole,
       'user': instance.user,
     };

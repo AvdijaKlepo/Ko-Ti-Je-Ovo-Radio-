@@ -89,6 +89,38 @@ class _MasterScreenState extends State<MasterScreen> {
     const StoresList(),
   
   ];
+  String get primaryRole {
+  final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
+
+  if (roles.contains("Admin")) return "Admin";
+  if (roles.contains("Company Admin")) return "Company Admin";
+
+  return "User"; 
+}
+
+List<NavigationRailDestination> get destinationsForUser {
+  switch (primaryRole) {
+    case "Admin":
+      return destinationsAdmin;
+    case "Company Admin":
+      return destinationsCompanyAdmin;
+    default:
+      return destinationsAdmin;
+  }
+}
+
+List get pagesForUser {
+  switch (primaryRole) {
+    case "Admin":
+      return _pagesAdmin;
+    case "Company Admin":
+      return _pagesCompanyAdmin;
+    default:
+      return _pagesAdmin; 
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -116,13 +148,26 @@ class _MasterScreenState extends State<MasterScreen> {
             },
             leading: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
-                "Ko Ti Je Ovo Radio?",
-                style: GoogleFonts.lobster(
-                  textStyle: const TextStyle(color: Colors.white, fontSize: 22),
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    "Ko Ti Je Ovo Radio?",
+                    style: GoogleFonts.lobster(
+                      textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                  ),
+                   if(AuthProvider.selectedCompanyId!=null)
+                    Text(
+                      "Firma:",
+                      style: GoogleFonts.lobster(
+                        textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                      ),
+                    ),
+                ],
               ),
+
             ),
+            
             unselectedIconTheme: const IconThemeData(color: Colors.white),
             selectedIconTheme: const IconThemeData(color: Colors.amberAccent),
             selectedLabelTextStyle: const TextStyle(
@@ -130,28 +175,24 @@ class _MasterScreenState extends State<MasterScreen> {
               fontWeight: FontWeight.bold,
             ),
             unselectedLabelTextStyle: const TextStyle(color: Colors.white),
-            destinations:  AuthProvider.userRoles?.role?.roleName=="Admin" ? destinationsAdmin : destinationsCompanyAdmin,
+            destinations: destinationsForUser
+          
+            
+            
+             
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          if(AuthProvider.userRoles?.role?.roleName=="Admin")
+         
           
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child:
                 
-                 _pagesAdmin[_selectedIndex],
+                pagesForUser[_selectedIndex],
               ),
             ),
-            if(AuthProvider.userRoles?.role?.roleName=="Company Admin")
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child:
-                  
-                   _pagesCompanyAdmin[_selectedIndex],
-                ),
-              ),
+           
               
          
         ],

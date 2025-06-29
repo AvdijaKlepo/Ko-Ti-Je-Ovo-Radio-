@@ -84,6 +84,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
     formData["isApplicant"] = true;
     formData["rating"] = 0; 
     formData["employee"]=[widget.user?.userId];
+    formData["roles"]=[10,1009 ];
 
     var selectedServices = formData["serviceId"];
     formData["serviceId"] = (selectedServices is List)

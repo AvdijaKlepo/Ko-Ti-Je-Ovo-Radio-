@@ -15,6 +15,7 @@ using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using KoRadio.Services.Recommender;
 using KoRadio.Services.SignalRService;
+using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
@@ -40,12 +41,11 @@ namespace KoRadio.Services
 		{
 			query = base.AddFilter(searchObject, query);
 
-			
-
-
 			query = query.Include(x => x.Location);
-			
 
+			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.Company);
+
+			
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
@@ -62,17 +62,21 @@ namespace KoRadio.Services
 				query = query.Where(x => x.Email == searchObject.Email);
 			}
 
-
 			if (searchObject.IsUserRolesIncluded == true)
 			{
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
 
-			if(searchObject.IsFreelancerIncluded==false)
+			if (searchObject.IsFreelancerIncluded == false)
 			{
 				query = FilterOutFreelancers(query);
 			}
-			if(searchObject.isDeleted==true)
+			if(searchObject.IsEmployeeIncluded==false)
+			{
+				query = FilterOutCompanyEmployees(query);
+			}
+
+			if (searchObject.isDeleted == true)
 			{
 				query = query.Where(x => x.IsDeleted == true);
 			}
@@ -81,10 +85,7 @@ namespace KoRadio.Services
 				query = query.Where(x => x.IsDeleted == false);
 			}
 
-
-
-
-				return query;
+			return query;
 		}
 		private IQueryable<User> FilterOutFreelancers(IQueryable<User> query)
 		{
@@ -96,6 +97,18 @@ namespace KoRadio.Services
 					(user, freelancer) => new { user, freelancer }
 				)
 				.Where(x => !x.freelancer.Any())
+				.Select(x => x.user);
+		}
+		private IQueryable<User> FilterOutCompanyEmployees(IQueryable<User> query)
+		{
+			return query
+				.GroupJoin(
+					_context.CompanyEmployees,
+					user => user.UserId,
+					employee => employee.UserId,
+					(user, employee) => new { user, employee }
+				)
+				.Where(x => !x.employee.Any())
 				.Select(x => x.user);
 		}
 		public override async Task AfterInsertAsync(UserInsertRequest request, User entity, CancellationToken cancellationToken = default)
@@ -182,7 +195,8 @@ namespace KoRadio.Services
 		{
 			
 
-			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).FirstOrDefault(x => x.Email == username);
+			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees).ThenInclude(x=>x.Company).FirstOrDefault(x => x.Email == username);
+			
 
 			if (entity == null)
 			{

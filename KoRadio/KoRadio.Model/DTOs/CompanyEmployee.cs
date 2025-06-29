@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KoRadio.Model
+namespace KoRadio.Model.DTOs
 {
     public class CompanyEmployee
-    {	
+	{
 		public int CompanyEmployeeId { get; set; }
 		public int UserId { get; set; }
 
@@ -20,16 +20,19 @@ namespace KoRadio.Model
 		public int? CompanyRoleId { get; set; }
 
 		public DateTime DateJoined { get; set; }
-
-	
-
 		public string CompanyName { get; set; }
 
-	//	public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
+
+
+		//	public virtual Company Company { get; set; } = null!;
+
+		//	public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
 
 		public virtual CompanyRole? CompanyRole { get; set; }
-
-		public virtual User User { get; set; } = null!;
-	}
 	
+
+
+
+
+	}
 }

@@ -10,6 +10,15 @@ class AuthProvider {
   static UserRole? userRoles;
   static String? connectionId;
   static bool isSignedIn = false;
+  static int? selectedCompanyId;
+
+  static String? getCompanyId() {
+    return selectedCompanyId?.toString();
+  }
+
+  static setCompanyId(String? companyId) {
+    selectedCompanyId = companyId == null ? null : int.parse(companyId);
+  }
 
 
     logout() {

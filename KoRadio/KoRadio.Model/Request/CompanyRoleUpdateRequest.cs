@@ -8,5 +8,8 @@ namespace KoRadio.Model.Request
 {
     public class CompanyRoleUpdateRequest
     {
-    }
+		public int? CompanyId { get; set; }
+
+		public string? RoleName { get; set; }
+	}
 }

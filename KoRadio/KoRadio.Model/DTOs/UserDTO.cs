@@ -28,6 +28,8 @@ namespace KoRadio.Model.DTOs
 
 
 
+
+
 		//	public Location  Location { get; set; }
 
 	}

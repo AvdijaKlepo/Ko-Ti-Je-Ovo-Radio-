@@ -24,7 +24,16 @@ namespace KoRadio.Services
 		{
 			
 			query = query.Include(x => x.User);
-		
+			query = query.Include(x => x.Company).ThenInclude(x=>x.CompanyRoles);
+
+			if(search.CompanyId!=null)
+			{
+				query = query.Where(x => x.CompanyId == search.CompanyId);
+			}
+
+
+
+
 			return base.AddFilter(search, query);
 		}
 	}

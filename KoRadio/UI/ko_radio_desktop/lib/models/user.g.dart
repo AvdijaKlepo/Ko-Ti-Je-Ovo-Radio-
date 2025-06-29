@@ -22,6 +22,9 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       address: json['address'] as String,
       isDeleted: json['isDeleted'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      companyEmployees: (json['companyEmployees'] as List<dynamic>?)
+          ?.map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -36,4 +39,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'address': instance.address,
       'isDeleted': instance.isDeleted,
       'createdAt': instance.createdAt.toIso8601String(),
+      'companyEmployees': instance.companyEmployees,
     };

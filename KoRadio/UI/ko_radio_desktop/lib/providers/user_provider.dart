@@ -35,7 +35,7 @@ class UserProvider extends BaseProvider<User>{
     if (response.body == "") {
       throw new Exception("Pogrešno korisničko ime ili lozinka.");
     }
-      print("API Response: ${response.body}"); // DEBUGGING OUTPUT
+      print("API Response: ${response.body}");
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);

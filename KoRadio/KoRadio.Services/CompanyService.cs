@@ -27,6 +27,11 @@ namespace KoRadio.Services
 			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.User);
 			query = query.Include(x => x.Location);
 
+			if(search.CompanyId!=null)
+			{
+				query = query.Where(x => x.CompanyId == search.CompanyId);
+			}
+
 			if(search.IsApplicant==true)
 			{
 				query = query.Where(x => x.IsApplicant == true);

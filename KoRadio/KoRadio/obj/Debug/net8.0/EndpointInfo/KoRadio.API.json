@@ -58,6 +58,14 @@
         ],
         "parameters": [
           {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "IsApplicant",
             "in": "query",
             "schema": {
@@ -2438,6 +2446,13 @@
             }
           },
           {
+            "name": "IsEmployeeIncluded",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "OrderBy",
             "in": "query",
             "schema": {
@@ -3010,14 +3025,8 @@
             "type": "string",
             "format": "date-time"
           },
-          "company": {
-            "$ref": "#/components/schemas/Company"
-          },
-          "companyJobAssignments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CompanyJobAssignment"
-            },
+          "companyName": {
+            "type": "string",
             "nullable": true
           },
           "companyRole": {
@@ -3281,6 +3290,17 @@
       },
       "CompanyRoleInsertRequest": {
         "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "roleName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
         "additionalProperties": false
       },
       "CompanyRolePagedResult": {
@@ -3303,6 +3323,17 @@
       },
       "CompanyRoleUpdateRequest": {
         "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "roleName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
         "additionalProperties": false
       },
       "CompanyService": {
@@ -3730,6 +3761,9 @@
           },
           "user": {
             "$ref": "#/components/schemas/User"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
           }
         },
         "additionalProperties": false
@@ -4167,6 +4201,13 @@
           },
           "address": {
             "type": "string",
+            "nullable": true
+          },
+          "companyEmployees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyEmployee"
+            },
             "nullable": true
           }
         },

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
+import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
@@ -54,108 +56,139 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final SignalRProvider _signalRProvider = SignalRProvider('notifications-hub');
+
   @override
   void initState() {
+    super.initState();
 
-     if (AuthProvider.isSignedIn) {
+
+    if (AuthProvider.isSignedIn) {
       _signalRProvider.stopConnection();
       AuthProvider.connectionId = null;
       AuthProvider.isSignedIn = false;
     }
+
     _signalRProvider.startConnection();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(automaticallyImplyLeading: false),
       body: Center(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
-            child: Card(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    "assets/images/logo.png",
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
+          child: Card(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset("assets/images/logo.png"),
+                TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                    prefixIcon: Icon(Icons.email),
                   ),
-                  TextField(
-                    controller: usernameController,
-                    decoration: const InputDecoration(
-                        labelText: "Email", prefixIcon: Icon(Icons.email)),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: passwordController,
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                    prefixIcon: Icon(Icons.password),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(
-                        labelText: "Password",
-                        prefixIcon: Icon(Icons.password)),
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        var provider = UserProvider();
-                        AuthProvider.username = usernameController.text;
-                        AuthProvider.password = passwordController.text;
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      AuthProvider.username = usernameController.text;
+                      AuthProvider.password = passwordController.text;
 
-                        try {
-                          
-                          UserProvider userProvider = new UserProvider();
-                          SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
-    var user = await userProvider.login(
-        AuthProvider.username, AuthProvider.password, AuthProvider.connectionId);
+                      final userProvider = UserProvider();
+                      final signalRProvider = SignalRProvider('notifications-hub');
 
-   signalRProvider.startConnection();
+                      final user = await userProvider.login(
+                        AuthProvider.username,
+                        AuthProvider.password,
+                        AuthProvider.connectionId,
+                      );
 
-                        
+                      signalRProvider.startConnection();
 
-                     
+              
 
-                          AuthProvider.user?.userId = user.userId;
-                          AuthProvider.user?.firstName = user.firstName;
-                          AuthProvider.user?.lastName = user.lastName;
-                          AuthProvider.userRoles = user.userRoles?.isNotEmpty == true ? user.userRoles!.first : null;
-                          AuthProvider.isSignedIn=true;
+                      AuthProvider.user = user;
+                      AuthProvider.userRoles = user.userRoles?.isNotEmpty == true
+                          ? user.userRoles!.first
+                          : null;
+                      AuthProvider.isSignedIn = true;
 
-            
+                      final companyEmployees = user.companyEmployees ?? [];
 
-                          print('UserId: ${AuthProvider.userRoles?.role?.roleName}');
+                      if (companyEmployees.length > 1) {
+                        await showDialog(
+                          context: context,
+                          builder: (context) => SimpleDialog(
+                            title: const Text("Odaberite firmu: "),
+                            children: companyEmployees.map((company)  {
+                              return SimpleDialogOption(
+                                onPressed: () {
+                                  AuthProvider.selectedCompanyId = company.companyId;
+                                  Navigator.pop(context);
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MasterScreen()),
+                                  );
+                                },
+                                child: Text(company.companyName ?? 'Nepoznata firma', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                        return;
+                      }
 
+                      if (companyEmployees.length == 1) {
+                        AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+                      }
 
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => MasterScreen(),
-                          ));
-            
-                        } on Exception catch (e) {
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title: Text("Error"),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: Text("Ok"))
-                                    ],
-                                    content: Text(e.toString()),
-                                  ));
-                        }
-                        
-                                  
-                                  
-                      },
-                      child: Text("Login"))
-                ],
-              ),
+                      debugPrint('Role: ${AuthProvider.userRoles?.role?.roleName}');
+                      debugPrint('CompanyId: ${AuthProvider.selectedCompanyId}');
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MasterScreen()),
+                      );
+                    } catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Greška"),
+                          content: Text(e.toString()),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text("Prijavi se"),
+                ),
+              ],
             ),
           ),
         ),
@@ -163,5 +196,6 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
+
 
 
