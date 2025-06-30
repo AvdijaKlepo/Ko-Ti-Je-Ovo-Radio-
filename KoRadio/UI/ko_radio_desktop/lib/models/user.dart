@@ -8,16 +8,16 @@ part 'user.g.dart';
 @JsonSerializable()
 class User{
   int userId;
-  String firstName;
-  String lastName;
-  String email;
+  String? firstName;
+  String? lastName;
+  String? email;
   List<UserRole>? userRoles;
   String? image;
-  String phoneNumber;
+  String? phoneNumber;
   Location? location;
-  String address;
-  bool isDeleted;
-  DateTime createdAt;
+  String? address;
+  bool? isDeleted;
+  DateTime? createdAt;
   List<CompanyEmployee>? companyEmployees;
   User({ required this.userId, required this.firstName, required this.lastName, required this.email, required this.userRoles, required this.image, required this.phoneNumber, required this.location, required this.address, required this.isDeleted, required this.createdAt, required this.companyEmployees });
 

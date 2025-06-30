@@ -320,6 +320,28 @@
             }
           },
           {
+            "name": "UserId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "IsApplicant",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -783,6 +805,14 @@
           "CompanyRole"
         ],
         "parameters": [
+          {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
           {
             "name": "Page",
             "in": "query",
@@ -2985,7 +3015,7 @@
           "companyEmployees": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CompanyEmployee"
+              "$ref": "#/components/schemas/CompanyEmployeeDto"
             },
             "nullable": true
           },
@@ -3029,18 +3059,23 @@
             "type": "string",
             "nullable": true
           },
-          "companyRole": {
-            "$ref": "#/components/schemas/CompanyRole"
+          "companyRoleName": {
+            "type": "string",
+            "nullable": true
           },
           "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false
       },
-      "CompanyEmployeeInsertRequest": {
+      "CompanyEmployeeDto": {
         "type": "object",
         "properties": {
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "userId": {
             "type": "integer",
             "format": "int32"
@@ -3049,10 +3084,10 @@
             "type": "integer",
             "format": "int32"
           },
-          "isDeleted": {
+          "isApplicant": {
             "type": "boolean"
           },
-          "isApplicant": {
+          "isDeleted": {
             "type": "boolean"
           },
           "companyRoleId": {
@@ -3063,6 +3098,31 @@
           "dateJoined": {
             "type": "string",
             "format": "date-time"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyRoleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserManualDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyEmployeeInsertRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3276,6 +3336,11 @@
       "CompanyRole": {
         "type": "object",
         "properties": {
+          "companyRoleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "companyId": {
             "type": "integer",
             "format": "int32",
@@ -4206,7 +4271,7 @@
           "companyEmployees": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CompanyEmployee"
+              "$ref": "#/components/schemas/CompanyEmployeeDto"
             },
             "nullable": true
           }
@@ -4232,33 +4297,7 @@
             "type": "string",
             "nullable": true
           },
-          "userRoles": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserRole"
-            },
-            "nullable": true
-          },
-          "image": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          },
           "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "location": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "address": {
             "type": "string",
             "nullable": true
           }
@@ -4317,6 +4356,32 @@
             "type": "boolean"
           },
           "address": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserManualDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
             "type": "string",
             "nullable": true
           }

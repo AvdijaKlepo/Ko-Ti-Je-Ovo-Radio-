@@ -8,6 +8,7 @@ namespace KoRadio.Model
 {
     public class CompanyRole
     {
+		public int? CompanyRoleId { get; set; }
 		public int? CompanyId { get; set; }
 
 		public string? RoleName { get; set; }

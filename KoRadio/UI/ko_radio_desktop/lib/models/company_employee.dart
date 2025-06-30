@@ -9,12 +9,14 @@ part 'company_employee.g.dart';
 @JsonSerializable()
 class CompanyEmployee {
   int companyEmployeeId;
-   int? userId;
+  int? userId;
   int? companyId;
   bool? isDeleted;
   bool? isApplicant;
   String? companyName;
   CompanyRole? companyRole;
+  String? companyRoleName;
+  DateTime? dateJoined;
   User? user;
 
 

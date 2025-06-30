@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,9 +28,9 @@ namespace KoRadio.Model
 
 	//	public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
 
-		public virtual CompanyRole? CompanyRole { get; set; }
+		public virtual string? CompanyRoleName { get; set; }
 
-		public virtual User User { get; set; } = null!;
+		public virtual UserDTO User { get; set; } = null!;
 	}
 	
 }

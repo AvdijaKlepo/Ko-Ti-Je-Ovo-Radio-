@@ -218,12 +218,12 @@ Expanded(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                     child: Row(
                       children: [
-                        Expanded(flex: 2, child: Text(user.firstName)),
-                        Expanded(flex: 2, child: Text(user.lastName)),
-                        Expanded(flex: 3, child: Text(user.email)),
+                        Expanded(flex: 2, child: Text(user.firstName?? ' ?? ''')),
+                        Expanded(flex: 2, child: Text(user.lastName ?? '')),
+                        Expanded(flex: 3, child: Text(user.email ?? '')),
                         Expanded(flex: 3, child: Text(user.location?.locationName ?? '')),
-                        Expanded(flex: 3, child: Text(user.address)),
-                        Expanded(flex: 3, child: Text(user.phoneNumber)),
+                        Expanded(flex: 3, child: Text(user.address ?? '')),
+                        Expanded(flex: 3, child: Text(user.phoneNumber ?? '')),
                         Expanded(flex: 3, child: Text(user.createdAt.toString().split(' ')[0])),
                        Expanded(
   flex: 3,

@@ -43,7 +43,7 @@ namespace KoRadio.Services
 
 			query = query.Include(x => x.Location);
 
-			query = query.Include(x => x.CompanyEmployees).ThenInclude(x=>x.Company);
+			query = query.Include(x => x.CompanyEmployees);
 
 			
 
@@ -195,7 +195,7 @@ namespace KoRadio.Services
 		{
 			
 
-			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees).ThenInclude(x=>x.Company).FirstOrDefault(x => x.Email == username);
+			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees).ThenInclude(x=>x.Company).Include(x=>x.Location).FirstOrDefault(x => x.Email == username);
 			
 
 			if (entity == null)
@@ -213,6 +213,7 @@ namespace KoRadio.Services
 			{
 				_hubContext.Groups.AddToGroupAsync(connectionId, username);
 			}
+			
 
 			return Mapper.Map<Model.User>(entity);
 		}

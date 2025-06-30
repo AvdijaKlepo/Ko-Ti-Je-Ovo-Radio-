@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
+import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -13,214 +15,264 @@ import 'package:provider/provider.dart';
 enum options { Radnici, Firme }
 
 class FreelancerList extends StatefulWidget {
-  FreelancerList(this.serviceId, {super.key});
-  int serviceId;
+  final int serviceId;
+
+  const FreelancerList(this.serviceId, {super.key});
 
   @override
   State<FreelancerList> createState() => _FreelancerListState();
 }
 
-options view = options.Radnici;
-
 class _FreelancerListState extends State<FreelancerList> {
   late FreelancerProvider freelancerProvider;
   late LocationProvider locationProvider;
-  SearchResult<Freelancer>? result;
+  late CompanyProvider companyProvider;
+
+  SearchResult<Freelancer>? freelancerResult;
   SearchResult<Location>? locationResult;
+  SearchResult<Company>? companyResult;
+
+  List<DropdownMenuItem<int>> locationDropdownItems = [];
+  options view = options.Radnici;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       freelancerProvider = context.read<FreelancerProvider>();
-     
-    });
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       locationProvider = context.read<LocationProvider>();
-     
+      companyProvider = context.read<CompanyProvider>();
+
+      await _loadLocations();
+      await _loadFreelancers();
+      await _loadCompanies();
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  Future<void> _loadFreelancers({int? locationId}) async {
+    var filter = {
+      'ServiceId': widget.serviceId,
+      'IsServiceIncluded': true,
+      'IsDeleted': false,
+      'IsApplicant': false,
+    };
 
-    freelancerProvider = context.read<FreelancerProvider>(); 
-    _getServices();
+    if (locationId != null) {
+      filter['LocationId'] = locationId;
+    }
 
-    locationProvider = context.read<LocationProvider>();
-
-    _loadLocations();
-  }
-
-  List<DropdownMenuItem<int>> items = [];
-
-  void _loadLocations() async {
     try {
-      var fetchedLocations = await locationProvider.get();
-      setState(() {
-        locationResult = fetchedLocations;
-      });
-
-      print("Fetched locations: ${locationResult?.result.map((l) => l.locationName)}");
-      items = locationResult?.result
-          .map((loc) => DropdownMenuItem(
-                value: loc.locationId,
-                child: Text(loc.locationName ?? ''),
-              ))
-          .toList() ??
-          [];
+      var fetched = await freelancerProvider.get(filter: filter);
+      setState(() => freelancerResult = fetched);
     } catch (e) {
-      print("Error fetching locations: $e");
-      setState(() {});
+      _showError(e.toString());
     }
   }
 
-   Future<void> onChanged(int? value) async {
-    if (value != null) {
-      var filter = {'LocationId': value};
-      var freelancer = await freelancerProvider.get(filter: filter);
+  Future<void> _loadCompanies() async {
+    try {
+      var fetched = await companyProvider.get(
+        filter: {'isApplicant': false, 'isDeleted': false},
+      );
+      setState(() => companyResult = fetched);
+    } catch (e) {
+      _showError(e.toString());
+    }
+  }
+
+  Future<void> _loadLocations() async {
+    try {
+      var fetched = await locationProvider.get();
       setState(() {
-        result = freelancer;
+        locationResult = fetched;
+        locationDropdownItems = fetched.result
+                ?.map((l) => DropdownMenuItem(
+                      value: l.locationId,
+                      child: Text(l.locationName ?? ''),
+                    ))
+                .toList() ??
+            [];
       });
+    } catch (e) {
+      _showError(e.toString());
     }
   }
 
-  _getServices() async {
-    var filter = {'ServiceId': widget.serviceId,'IsServiceIncluded':true,};
-    var freelancer = await freelancerProvider.get(filter: filter);
-    setState(() {
-      result = freelancer;
-    });
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Greška: $message')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Lista radnika'),automaticallyImplyLeading: false,
-    leading:  IconButton(onPressed: (){
-      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> MasterScreen()));
-    },icon: const Icon(Icons.arrow_back),) ,),body:  SafeArea(
-  child: Padding(
-    padding: const EdgeInsets.all(12),
-    child: Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista servisera'),
+        leading: BackButton(
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => MasterScreen()),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Filteri', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: SegmentedButton<options>(
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all(
-                            EdgeInsets.symmetric(vertical: 8)),
-                        textStyle:
-                            MaterialStateProperty.all(TextStyle(fontSize: 14)),
-                      ),
-                      segments: const <ButtonSegment<options>>[
-                        ButtonSegment(
-                          value: options.Radnici,
-                          label: Text('Radnici'),
-                          icon: Icon(Icons.construction),
-                        ),
-                        ButtonSegment(
-                          value: options.Firme,
-                          label: Text('Firme'),
-                          icon: Icon(Icons.business),
-                        ),
-                      ],
-                      selected: <options>{view},
-                      onSelectionChanged: (Set<options> newSelection) {
-                        setState(() {
-                          view = newSelection.first;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      decoration: InputDecoration(
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                      ),
-                      hint: Text('Odaberi lokaciju'),
-                      items: items,
-                      onChanged: onChanged,
-                      
-                    ),
-                  ),
-                ],
+              _buildFilterCard(),
+              const SizedBox(height: 16),
+              Expanded(
+                child: view == options.Radnici
+                    ? _buildFreelancerList()
+                    : _buildCompanyList(),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: ListView.builder(
-            itemCount: result?.result.length ?? 0,
-            itemBuilder: (context, index) {
-              var e = result!.result[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ListTile(
-                  leading: InkWell(
-                    child: e.freelancerNavigation?.image != null
-                        ? SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: imageFromString(e.freelancerNavigation!.image!),
-                          )
-                        : Image.network(
-                            "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                            width: 80,
-                            height: 80,
-                          ),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => FreelancerDetails(e))),
-                  ),
-                  title: Text('${e.freelancerNavigation?.firstName} ${e.freelancerNavigation?.lastName}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Iskustvo: ${e.experianceYears} godina'),
-                      Text(
-                          'Ocjena: ${e.rating != 0 ? e.rating : 'Neocijenjen'}'),
-                      Text('Lokacija: ${e.freelancerNavigation?.location?.locationName}'),
+      ),
+    );
+  }
+
+  Widget _buildFilterCard() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Filteri', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: SegmentedButton<options>(
+                    segments: const [
+                      ButtonSegment(
+                        value: options.Radnici,
+                        label: Expanded(child: Text('Radnici')),
+                        icon: Icon(Icons.construction),
+                      ),
+                      ButtonSegment(
+                        value: options.Firme,
+                        label: Expanded(child: Text('Firme')),
+                        icon: Icon(Icons.business),
+                      ),
                     ],
+                    selected: {view},
+                    onSelectionChanged: (Set<options> newSelection) {
+                      setState(() {
+                        view = newSelection.first;
+                      });
+                    },
                   ),
                 ),
-              );
-            },
-          ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                    hint: const Text('Odaberi lokaciju'),
+                    items: locationDropdownItems,
+                    onChanged: (value) => _loadFreelancers(locationId: value),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-      ],
-    ),
-  ),
-));
+      ),
+    );
+  }
 
+  Widget _buildFreelancerList() {
+    if (freelancerResult == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (freelancerResult!.result.isEmpty) {
+      return const Center(child: Text('Nema dostupnih radnika.'));
+    }
 
-             
+    return ListView.builder(
+      itemCount: freelancerResult!.result.length,
+      itemBuilder: (context, index) {
+        final f = freelancerResult!.result[index];
+        final freelancer = f.freelancerNavigation;
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            leading: InkWell(
+              child: freelancer?.image != null
+                  ? imageFromString(freelancer!.image!)
+                  : Image.network(
+                      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                      width: 80,
+                      height: 80,
+                    ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => FreelancerDetails(f)),
+              ),
+            ),
+            title:
+                Text('${freelancer?.firstName} ${freelancer?.lastName}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Iskustvo: ${f.experianceYears} godina'),
+                Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}'),
+                Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-    
+  Widget _buildCompanyList() {
+    if (companyResult == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (companyResult!.result.isEmpty) {
+      return const Center(child: Text('Nema dostupnih firmi.'));
+    }
+
+    return ListView.builder(
+      itemCount: companyResult!.result.length,
+      itemBuilder: (context, index) {
+        final c = companyResult!.result[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            leading: c.image != null
+                ? imageFromString(c.image!)
+                : Image.network(
+                    "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                    width: 80,
+                    height: 80,
+                  ),
+            title: Text(c.companyName ?? ''),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Iskustvo: ${c.experianceYears} godina'),
+                Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'} '),
+                Text('Lokacija: ${c.location?.locationName ?? "-"}'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

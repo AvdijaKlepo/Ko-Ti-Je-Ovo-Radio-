@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:ko_radio_desktop/models/company_employee.dart';
+import 'package:ko_radio_desktop/models/company_role.dart';
+import 'package:ko_radio_desktop/models/search_result.dart';
+import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
+import 'package:ko_radio_desktop/providers/company_role_provider.dart';
+import 'package:provider/provider.dart';
 
 class CompanyRoleAssignmentDialog extends StatefulWidget {
-  const CompanyRoleAssignmentDialog({super.key});
-
+  const CompanyRoleAssignmentDialog({super.key, required this.companyId, required this.companyEmployee});
+  final int companyId;
+  final CompanyEmployee companyEmployee;
   @override
   State<CompanyRoleAssignmentDialog> createState() => _CompanyRoleAssignmentDialogState();
 }
@@ -12,6 +19,35 @@ class CompanyRoleAssignmentDialog extends StatefulWidget {
 class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
+  late CompanyRoleProvider companyRoleProvider;
+  SearchResult<CompanyRole>? companyRoleResult;
+  late CompanyEmployeeProvider companyEmployeeProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      companyRoleProvider = context.read<CompanyRoleProvider>();
+      companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+      _getCompanyRoles();
+    });
+  }
+  Future<void> _getCompanyRoles() async {
+    try {
+      var filter = {'companyId': widget.companyId};
+      var fetchedCompanyRoles = await companyRoleProvider.get(filter: filter);
+      setState(() {
+        companyRoleResult = fetchedCompanyRoles;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return  Dialog(
@@ -29,6 +65,12 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
                 ),
               ),
             ),
+            Padding(padding: const EdgeInsets.all(24.0), child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                
+              ],
+            )),
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: SingleChildScrollView(
@@ -38,10 +80,10 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Uloga", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                     Text("Dodaj ulogu za zaposlenika ${widget.companyEmployee.user?.firstName} ${widget.companyEmployee.user?.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 20),
-                     FormBuilderTextField(name: "roleName", decoration: const InputDecoration(labelText: "Naziv uloge:")),
-                    const SizedBox(height: 20),
+                     FormBuilderDropdown(name: 'companyRoleId', decoration: const InputDecoration(labelText: "Uloga:"),
+                      items: companyRoleResult?.result.map((e) => DropdownMenuItem(value: e.companyRoleId, child: Text(e.roleName ?? ''))).toList() ?? []),
 
                  
                  const SizedBox(height: 30),
@@ -63,8 +105,35 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
         ),
       ),
     );
+    
   }
 
-  void _save() {
+   Future<void> _save() async{
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      try {
+         await companyEmployeeProvider.update(
+                                              widget.companyEmployee.companyEmployeeId,
+                                              {
+                                               "userId": widget.companyEmployee.userId,
+                                               "companyId": widget.companyEmployee.companyId,
+                                               "isDeleted": widget.companyEmployee.isDeleted,
+                                               "isApplicant": widget.companyEmployee.isApplicant,
+                                             
+                                               "companyRoleId": _formKey.currentState!.value["companyRoleId"],
+                                               "dateJoined": widget.companyEmployee.dateJoined?.toUtc().toIso8601String(),
+                                              },
+                                            );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Uloga uspješno dodana!")),
+          
+        );
+        Navigator.pop(context, true);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Greška: ${e.toString()}")),
+        );
+      }
+    }
   }
-}
+  }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 
 namespace KoRadio.Model
@@ -35,7 +36,7 @@ namespace KoRadio.Model
 
 
 		public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
-		public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
+		public virtual ICollection<CompanyEmployeeDto> CompanyEmployees { get; set; } = new List<CompanyEmployeeDto>();
 
 		public virtual Location Location { get; set; } = null!;
 	}

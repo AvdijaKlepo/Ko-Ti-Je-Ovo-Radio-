@@ -20,6 +20,11 @@ namespace KoRadio.Services
 		}
 		public override IQueryable<CompanyRole> AddFilter(CompanyRoleSearchObject search, IQueryable<CompanyRole> query)
 		{
+
+			if(search.CompanyId!=null)
+			{
+				query = query.Where(x => x.CompanyId == search.CompanyId);
+			}
 			return base.AddFilter(search, query);
 		}
 

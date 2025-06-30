@@ -7,7 +7,9 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
+import 'package:ko_radio_desktop/screens/add_employee_dialog.dart';
 import 'package:ko_radio_desktop/screens/company_role_dialog.dart';
+import 'package:ko_radio_desktop/screens/employee_role_assignment.dart';
 import 'package:provider/provider.dart';
 
 class CompanyEmployeeList extends StatefulWidget {
@@ -139,10 +141,27 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     
     );
   }
+     void _openEmployeeRoleAddDialog({required int companyId, required CompanyEmployee companyEmployee}) {
+    showDialog(
+      context: context,
+      builder: (_) =>
+          CompanyRoleAssignmentDialog(companyId: companyId,companyEmployee: companyEmployee,),
+    
+    );
+    _getEmployees();
+  }
+  void _openAddEmployeeDialog({required int companyId}) {
+    showDialog(
+      context: context,
+      builder: (_) =>
+          AddEmployeeDialog(companyId: companyId,),
+    
+    );
+  }
   
   @override
   Widget build(BuildContext context) {
-    bool employeeRoleNull = companyEmployeeResult?.result.first.companyRole == null;
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -189,16 +208,14 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                Row(
                 children: [
                   
-                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),child: const Text("Dodaj Ulogu"),)
+                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),child: const Text("Uloge"),)
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-       employeeRoleNull==true ? const Text("Postoje korisnici koji nemaju ulogu. Dodajte ih klikom na odgovarajuću kolonu."): SizedBox.shrink(),
-       employeeRoleNull== true? 
-          const SizedBox(height: 16): const SizedBox.shrink(),
-
+    
+    
          Row(
   children: [
     const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -238,10 +255,8 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                                 Expanded(flex: 2, child: Text(c.user?.lastName ?? '')),
                                 Expanded(flex: 2, child: Text(c.user?.email ?? '')),
                                 Expanded(flex: 3, child: Text(c.user?.phoneNumber ?? '')),
-                                Expanded(flex:3,child: InkWell(child:Text(c.companyName ?? 'Nema Ulogu'),onTap: ()=>
-                              _openEmployeeRoleDialog(companyId: _selectedCompanyId))),
-                             
-                      
+                                Expanded(flex:3,child: InkWell(child:Text(c.companyRoleName ?? 'Nema Ulogu'),onTap: ()=>
+                              _openEmployeeRoleAddDialog(companyId: _selectedCompanyId,companyEmployee: c))),
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
                                     flex: 2,
@@ -295,10 +310,20 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                                   ),
                               ],
                             ),
+                            
                           );
+                          
                         },
+                        
                       ),
+
+
           ),
+          
+          ElevatedButton(onPressed: (){
+            _openAddEmployeeDialog(companyId: _selectedCompanyId);
+
+          }, child: Text("Dodaj zaposlenika")),
         ],
       ),
     );

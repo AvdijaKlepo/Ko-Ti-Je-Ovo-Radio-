@@ -27,7 +27,7 @@ namespace KoRadio.Model
 		public Location Location { get; set; } = null!;
 		public string Address { get; set; } = null!;
 
-		public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
+		public virtual ICollection<CompanyEmployeeDto> CompanyEmployees { get; set; } = new List<CompanyEmployeeDto>();
 
 
 

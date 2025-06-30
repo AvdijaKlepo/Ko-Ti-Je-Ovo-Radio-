@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
@@ -158,7 +160,7 @@ List get pagesForUser {
                   ),
                    if(AuthProvider.selectedCompanyId!=null)
                     Text(
-                      "Firma:",
+                      "${AuthProvider.user!.companyEmployees!.where((element) => element.companyId==AuthProvider.selectedCompanyId).map((e) => e.companyName).first}",
                       style: GoogleFonts.lobster(
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_mobile/models/company_employee.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/role.dart';
@@ -9,16 +10,17 @@ part 'user.g.dart';
 @JsonSerializable()
 class User{
   int userId;
-  String firstName;
-  String lastName;
-  String email;
+  String? firstName;
+  String? lastName;
+  String? email;
   List<UserRole>? userRoles;
   String? image;
-  String phoneNumber;
+  String? phoneNumber;
   Location? location;
-  String address;
-  bool isDeleted;
-  DateTime createdAt;
+  String? address;
+  bool? isDeleted;
+  DateTime? createdAt;
+  List<CompanyEmployee>? companyEmployees;
 
 
 

@@ -6,34 +6,36 @@ part of 'company.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Company _$CompanyFromJson(Map<String, dynamic> json) => Company()
-  ..companyId = (json['companyId'] as num?)?.toInt()
-  ..bio = json['bio'] as String?
-  ..email = json['email'] as String?
-  ..rating = (json['rating'] as num?)?.toDouble()
-  ..phoneNumber = json['phoneNumber'] as String?
-  ..experianceYears = (json['experianceYears'] as num?)?.toInt()
-  ..image = json['image'] as String?
-  ..workingDays =
-      (json['workingDays'] as List<dynamic>?)?.map((e) => e as String).toList()
-  ..startTime = json['startTime'] as String?
-  ..endTime = json['endTime'] as String?
-  ..location = json['location'] == null
-      ? null
-      : Location.fromJson(json['location'] as Map<String, dynamic>)
-  ..isDeleted = json['isDeleted'] as bool?
-  ..isApplicant = json['isApplicant'] as bool?
-  ..companyEmployee = (json['companyEmployee'] as List<dynamic>?)
-      ?.map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
-      .toList()
-  ..companyServices = (json['companyServices'] as List<dynamic>?)
-      ?.map((e) => CompanyServices.fromJson(e as Map<String, dynamic>))
-      .toList();
+Company _$CompanyFromJson(Map<String, dynamic> json) => Company(
+      (json['companyId'] as num).toInt(),
+      json['companyName'] as String,
+      json['bio'] as String,
+      (json['rating'] as num).toDouble(),
+      json['phoneNumber'] as String,
+      (json['experianceYears'] as num).toInt(),
+      json['image'] as String?,
+      (json['workingDays'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      json['startTime'] as String,
+      json['endTime'] as String,
+      json['location'] == null
+          ? null
+          : Location.fromJson(json['location'] as Map<String, dynamic>),
+      json['isDeleted'] as bool,
+      json['isApplicant'] as bool,
+      (json['companyEmployees'] as List<dynamic>)
+          .map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      (json['companyServices'] as List<dynamic>)
+          .map((e) => CompanyServices.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      json['email'] as String,
+    );
 
 Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'companyId': instance.companyId,
-      'bio': instance.bio,
+      'companyName': instance.companyName,
       'email': instance.email,
+      'bio': instance.bio,
       'rating': instance.rating,
       'phoneNumber': instance.phoneNumber,
       'experianceYears': instance.experianceYears,
@@ -44,6 +46,6 @@ Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'location': instance.location,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
-      'companyEmployee': instance.companyEmployee,
+      'companyEmployees': instance.companyEmployees,
       'companyServices': instance.companyServices,
     };

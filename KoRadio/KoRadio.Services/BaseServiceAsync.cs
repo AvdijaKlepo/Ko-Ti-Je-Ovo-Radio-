@@ -51,7 +51,25 @@ namespace KoRadio.Services
 			}
 
 			var list = await query.ToListAsync(cancellationToken);
-			result = Mapper.Map(list, result);
+
+			for (int i = 0; i < list.Count; i++)
+			{
+				var entity = list[i];
+				var (isHandled, custom) = await TryManualProjectionAsync(entity);
+
+				if (isHandled && custom is not null)
+				{
+					result.Add(custom);
+				}
+				else
+				{
+					var mapped = Mapper.Map<TModel>(entity);
+					await BeforeGetAsync(mapped, entity);
+					result.Add(mapped);
+				}
+			}
+
+
 
 			PagedResult<TModel> pagedResult = new PagedResult<TModel>();
 
@@ -126,6 +144,11 @@ namespace KoRadio.Services
 				return null;
 			}
 		}
+		protected virtual Task<(bool IsHandled, TModel? CustomMapped)> TryManualProjectionAsync(TDbEntity entity)
+		{
+			return Task.FromResult((false, default(TModel)));
+		}
+
 		public virtual async Task BeforeGetAsync(TModel request, TDbEntity entity) { }
 	}
 }

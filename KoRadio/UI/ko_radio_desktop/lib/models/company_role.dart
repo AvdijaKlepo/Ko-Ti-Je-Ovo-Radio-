@@ -4,8 +4,9 @@ part 'company_role.g.dart';
 
 @JsonSerializable()
 class CompanyRole {
+  int? companyRoleId;
 	int? companyId;
-	String roleName;
+	String? roleName;
 
 	CompanyRole(this.companyId,this.roleName,);
 

@@ -44,21 +44,22 @@ public class MapsterConfig
 					 .ToList());
 
 
-		TypeAdapterConfig<KoRadio.Services.Database.User, KoRadio.Model.User>
-	.NewConfig()
-	.Map(dest => dest.CompanyEmployees,
-		 src => src.CompanyEmployees.Adapt<List<KoRadio.Model.DTOs.CompanyEmployee>>());
 
-		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.CompanyEmployee>
-	.NewConfig();
+		//	TypeAdapterConfig<KoRadio.Services.Database.User, KoRadio.Model.User>
+		//.NewConfig()
+		//.Map(dest => dest.CompanyEmployees,
+		//	 src => src.CompanyEmployees.Adapt<List<KoRadio.Model.DTOs.CompanyEmployeeDto>>());
+
+		//		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.CompanyEmployee>
+		//	.NewConfig();
 
 
-		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.DTOs.CompanyEmployee>
-.NewConfig()
-.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
+		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.DTOs.CompanyEmployeeDto>
+			.NewConfig()
+			.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
 
-	
-			
+
+
 
 
 

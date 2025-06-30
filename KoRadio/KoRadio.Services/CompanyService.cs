@@ -51,6 +51,8 @@ namespace KoRadio.Services
 			return base.AddFilter(search, query);
 		}
 
+	
+
 		public override async Task BeforeInsertAsync(CompanyInsertRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
 			bool wasApplicant = entity.IsApplicant;
@@ -70,15 +72,17 @@ namespace KoRadio.Services
 					CreatedAt = DateTime.UtcNow
 				}).ToList();
 			}
-			
 
-			if (request.WorkingDays != null)
+
+			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
 			{
 				var workingDaysEnum = request.WorkingDays
 					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
-
 				entity.WorkingDays = (int)workingDaysEnum;
-
+			}
+			else
+			{
+				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
@@ -107,9 +111,6 @@ namespace KoRadio.Services
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
 			{
-
-
-
 				var workingDaysEnum = request.WorkingDays
 					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
 				entity.WorkingDays = (int)workingDaysEnum;
@@ -180,9 +181,14 @@ namespace KoRadio.Services
 
 		public override async Task BeforeGetAsync(Model.Company request, Database.Company entity)
 		{
+
+
+
 			var flags = (WorkingDaysFlags)entity.WorkingDays;
-			request.WorkingDays = Enum.GetValues<DayOfWeek>()
-				.Where(day => flags.HasFlag((WorkingDaysFlags)(1 << (int)day)))
+
+			request.WorkingDays = Enum.GetValues<WorkingDaysFlags>()
+				.Where(flag => flag != WorkingDaysFlags.None && flags.HasFlag(flag))
+				.Select(flag => (DayOfWeek)(int)Math.Log2((int)flag))
 				.ToList();
 			await base.BeforeGetAsync(request, entity);
 		}

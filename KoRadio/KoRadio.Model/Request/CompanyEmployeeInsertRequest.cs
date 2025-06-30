@@ -8,17 +8,11 @@ namespace KoRadio.Model.Request
 {
     public class CompanyEmployeeInsertRequest
     {
-		public int UserId { get; set; }
 
+		public string? Email { get; set; }
 		public int CompanyId { get; set; }
 
-		public bool IsDeleted { get; set; }
-
-		public bool IsApplicant { get; set; }
-
-		public int? CompanyRoleId { get; set; }
-
-		public DateTime DateJoined { get; set; }
+	
 
 
 
