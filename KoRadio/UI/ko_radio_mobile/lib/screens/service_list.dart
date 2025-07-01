@@ -26,7 +26,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   void initState() {
     super.initState();
 
-    // 1) Prepare ScrollController that triggers loadMore()
+
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -37,7 +37,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       }
     });
 
-    // 2) After first frame, initialize provider & pagination
+ 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceProvider = context.read<ServiceProvider>();
 
@@ -57,15 +57,15 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             count: result.count,
           );
         },
-        pageSize: 6, // 6 items per “page”
+        pageSize: 6, 
       );
 
-      // 3) Listen for changes in pagination and update UI
+
       servicePagination.addListener(() {
         if (mounted) setState(() {});
       });
 
-      // 4) Initial load
+
       await servicePagination.refresh();
       setState(() {
         _isInitialized = true;
@@ -80,7 +80,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     super.dispose();
   }
 
-  // Called when user types into search bar
+
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -107,16 +107,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Show loading spinner until initial load completes
+
     if (!_isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return Column(
       children: [
-        // ──────────────────────────────────────────────────
-        // Search field directly under the shared AppBar
-        // ──────────────────────────────────────────────────
+     
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: TextField(
@@ -131,15 +129,12 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           ),
         ),
 
-        // ──────────────────────────────────────────────────
-        // Paginated Grid of services
-        // ──────────────────────────────────────────────────
         Expanded(
           child: RefreshIndicator(
             onRefresh: _refreshWithFilter,
             child: servicePagination.items.isEmpty
                 ? ListView(
-                    // needed so pull-to-refresh can still work when empty
+      
                     children: const [
                       SizedBox(height: 50),
                       Center(child: Text("No services found.")),

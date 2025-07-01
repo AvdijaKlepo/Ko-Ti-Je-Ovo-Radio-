@@ -11,6 +11,7 @@ import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart'
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
+import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
@@ -29,6 +30,7 @@ void main() {
       ChangeNotifierProvider(create: (_)=>CompanyEmployeeProvider()),
       ChangeNotifierProvider(create: (_)=>CompanyRoleProvider()),
       ChangeNotifierProvider(create: (_)=>CompanyJobAssignmentProvider()),
+      ChangeNotifierProvider(create: (_)=>JobProvider()),
 
     ],
     child: const MyApp(),));

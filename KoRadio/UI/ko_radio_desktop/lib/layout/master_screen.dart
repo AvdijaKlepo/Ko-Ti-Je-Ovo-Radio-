@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/screens/company_employee_list.dart';
+import 'package:ko_radio_desktop/screens/company_job.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
@@ -65,9 +66,9 @@ class _MasterScreenState extends State<MasterScreen> {
       label: Text('Lista Zaposlenika'),
     ),
       NavigationRailDestination(
-      icon: Icon(Icons.person_outline),
-      selectedIcon: Icon(Icons.person),
-      label: Text('Firme'),
+      icon: Icon(Icons.work_outline),
+      selectedIcon: Icon(Icons.work),
+      label: Text('Poslovi'),
     ),
       NavigationRailDestination(
       icon: Icon(Icons.person_outline),
@@ -87,7 +88,7 @@ class _MasterScreenState extends State<MasterScreen> {
   ];
     final List _pagesCompanyAdmin = [
     const CompanyEmployeeList(),
-    const CompanyList(),
+    const CompanyJob(),
     const StoresList(),
   
   ];

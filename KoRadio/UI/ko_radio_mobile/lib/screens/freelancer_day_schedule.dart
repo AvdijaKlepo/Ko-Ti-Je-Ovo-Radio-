@@ -63,7 +63,7 @@ Widget build(BuildContext context) {
     title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a'), automaticallyImplyLeading: false,
     leading:  IconButton(onPressed: (){
      
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(widget.freelancerId!)));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(freelancer: widget.freelancerId)));
       },
       icon: const Icon(Icons.arrow_back)),
 
@@ -134,7 +134,10 @@ Widget build(BuildContext context) {
                       const Text('Nema termina za ovaj dan.'),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
-                        onPressed: () => Navigator.of(context).push(
+                        onPressed: () => 
+                        
+                        
+                        Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => BookJob(
                               selectedDay: widget.selectedDay,

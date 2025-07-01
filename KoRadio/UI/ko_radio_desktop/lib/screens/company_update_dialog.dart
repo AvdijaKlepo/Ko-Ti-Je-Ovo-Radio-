@@ -229,6 +229,8 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
       request['employee'] = widget.company.companyEmployees.map((e) => e.userId).toList();
       request['rating'] = widget.company.rating;
       request['companyId'] = widget.company.companyId;
+   
+   
 
    
       request['workingDays'] = (request['workingDays'] as List).map((e) => e.toString()).toList();

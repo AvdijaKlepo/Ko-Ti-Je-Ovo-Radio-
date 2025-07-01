@@ -37,6 +37,10 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.FreelancerId == search.FreelancerId);
 			}
+			if(search?.CompanyId!=null)
+			{
+				query = query.Where(x => x.CompanyId == search.CompanyId);
+			}
 			if (search?.UserId != null)
 			{
 				query = query.Where(x => x.UserId == search.UserId);

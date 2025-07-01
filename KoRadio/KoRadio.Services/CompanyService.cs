@@ -111,6 +111,9 @@ namespace KoRadio.Services
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
 			{
+
+
+
 				var workingDaysEnum = request.WorkingDays
 					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
 				entity.WorkingDays = (int)workingDaysEnum;
@@ -120,38 +123,38 @@ namespace KoRadio.Services
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
 
-			if (entity.IsApplicant == true && request.IsApplicant == false)
-			{
-				var companyAdminIds = _context.CompanyEmployees
-					.Where(x => x.CompanyId == entity.CompanyId)
-					.Select(x => x.UserId)
-					.ToList();
+			//if (entity.IsApplicant == true && request.IsApplicant == false)
+			//{
+			//	var companyAdminIds = _context.CompanyEmployees
+			//		.Where(x => x.CompanyId == entity.CompanyId)
+			//		.Select(x => x.UserId)
+			//		.ToList();
 
-				if (companyAdminIds.Any() && request.Roles != null && request.Roles.Any())
-				{
-					var existingRoles = _context.UserRoles
-						.Where(ur => companyAdminIds.Contains(ur.UserId))
-						.ToList();
+			//	if (companyAdminIds.Any() && request.Roles != null && request.Roles.Any())
+			//	{
+			//		var existingRoles = _context.UserRoles
+			//			.Where(ur => companyAdminIds.Contains(ur.UserId))
+			//			.ToList();
 
-					_context.UserRoles.RemoveRange(existingRoles);
+			//		_context.UserRoles.RemoveRange(existingRoles);
 
-					foreach (var userId in companyAdminIds)
-					{
-						foreach (var roleId in request.Roles)
-						{
-							_context.UserRoles.Add(new Database.UserRole
-							{
-								UserId = userId,
-								RoleId = roleId,
-								ChangedAt = DateTime.UtcNow,
-								CreatedAt = DateTime.UtcNow
-							});
-						}
-					}
-				}
+			//		foreach (var userId in companyAdminIds)
+			//		{
+			//			foreach (var roleId in request.Roles)
+			//			{
+			//				_context.UserRoles.Add(new Database.UserRole
+			//				{
+			//					UserId = userId,
+			//					RoleId = roleId,
+			//					ChangedAt = DateTime.UtcNow,
+			//					CreatedAt = DateTime.UtcNow
+			//				});
+			//			}
+			//		}
+			//	}
 
-				_context.SaveChanges();
-			}
+			//	_context.SaveChanges();
+			//}
 
 			return base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}

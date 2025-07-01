@@ -9,7 +9,7 @@ part of 'job.dart';
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
       jobId: (json['jobId'] as num).toInt(),
       endEstimate: json['endEstimate'] as String?,
-      startEstimate: json['startEstimate'] as String,
+      startEstimate: json['startEstimate'] as String?,
       payEstimate: (json['payEstimate'] as num?)?.toDouble(),
       payInvoice: (json['payInvoice'] as num?)?.toDouble(),
       jobDate: DateTime.parse(json['jobDate'] as String),
@@ -28,9 +28,13 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       service: json['service'] == null
           ? null
           : Service.fromJson(json['service'] as Map<String, dynamic>),
-    )..company = json['company'] == null
-        ? null
-        : Company.fromJson(json['company'] as Map<String, dynamic>);
+    )
+      ..dateFinished = json['dateFinished'] == null
+          ? null
+          : DateTime.parse(json['dateFinished'] as String)
+      ..company = json['company'] == null
+          ? null
+          : Company.fromJson(json['company'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobId': instance.jobId,
@@ -42,6 +46,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'payEstimate': instance.payEstimate,
       'payInvoice': instance.payInvoice,
       'jobDate': instance.jobDate.toIso8601String(),
+      'dateFinished': instance.dateFinished?.toIso8601String(),
       'jobDescription': instance.jobDescription,
       'image': instance.image,
       'jobsServices': instance.jobsServices,

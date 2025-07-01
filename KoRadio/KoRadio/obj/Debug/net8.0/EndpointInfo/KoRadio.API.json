@@ -574,6 +574,14 @@
         ],
         "parameters": [
           {
+            "name": "JobId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -1346,6 +1354,14 @@
           },
           {
             "name": "FreelancerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "CompanyId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -3291,6 +3307,22 @@
       },
       "CompanyJobAssignmentInsertRequest": {
         "type": "object",
+        "properties": {
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
         "additionalProperties": false
       },
       "CompanyJobAssignmentPagedResult": {
@@ -3490,14 +3522,6 @@
             "nullable": true
           },
           "employee": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
-          },
-          "roles": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -3777,7 +3801,8 @@
           },
           "startEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "endEstimate": {
             "type": "string",
@@ -3797,6 +3822,11 @@
           "jobDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "dateFinished": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "jobDescription": {
             "type": "string",
@@ -3842,6 +3872,11 @@
             "nullable": true
           },
           "freelancerId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -3926,7 +3961,8 @@
           },
           "startEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "endEstimate": {
             "type": "string",
@@ -3946,6 +3982,11 @@
           "jobDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "dateFinished": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "jobDescription": {
             "type": "string",

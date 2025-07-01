@@ -14,6 +14,8 @@ namespace KoRadio.Model.Request
 
 		public int? FreelancerId { get; set; }
 
+		public int? CompanyId { get; set; }
+
 		public TimeOnly StartEstimate { get; set; }
 
 		public TimeOnly? EndEstimate { get; set; }

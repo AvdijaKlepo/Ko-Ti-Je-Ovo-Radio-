@@ -15,11 +15,12 @@ class Job{
   Freelancer? freelancer;
   User? user;
   Service? service;
-  String startEstimate;
+  String? startEstimate;
   String? endEstimate;
   double? payEstimate;
   double? payInvoice;
   DateTime jobDate;
+  DateTime? dateFinished;
   String jobDescription;
   String? image;
   List<JobsService>? jobsServices;

@@ -12,7 +12,7 @@ namespace KoRadio.Model.Request
 
 		public int? FreelancerId { get; set; }
 
-		public TimeOnly StartEstimate { get; set; }
+		public TimeOnly? StartEstimate { get; set; }
 
 		public TimeOnly? EndEstimate { get; set; }
 
@@ -21,6 +21,8 @@ namespace KoRadio.Model.Request
 		public decimal? PayInvoice { get; set; }
 
 		public DateTime JobDate { get; set; }
+
+		public DateTime? DateFinished { get; set; }
 
 		public string? JobDescription { get; set; }
 

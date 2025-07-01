@@ -220,7 +220,7 @@ class _FreelancerListState extends State<FreelancerList> {
                     ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(f)),
+                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f,)),
               ),
             ),
             title:
@@ -254,13 +254,20 @@ class _FreelancerListState extends State<FreelancerList> {
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            leading: c.image != null
+            leading:InkWell(
+              onTap:()=> Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => FreelancerDetails(company: c,)),
+              ),
+              child:
+            
+             c.image != null
                 ? imageFromString(c.image!)
                 : Image.network(
                     "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
                     width: 80,
                     height: 80,
-                  ),
+                  ),),
             title: Text(c.companyName ?? ''),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
