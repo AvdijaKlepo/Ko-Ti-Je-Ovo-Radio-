@@ -412,6 +412,91 @@ namespace KoRadio.Services.Migrations
                     b.ToTable("Messages");
                 });
 
+            modelBuilder.Entity("KoRadio.Services.Database.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId")
+                        .HasName("PK__Orders__C3905BCF591ED19A");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.OrderItem", b =>
+                {
+                    b.Property<int>("OrderItemsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemsId"));
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderItemsId")
+                        .HasName("PK__OrderIte__D5BB2555E439B0B6");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ProductDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StoreId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId")
+                        .HasName("PK__Products__B40CC6CDDC48DB00");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("Products");
+                });
+
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -468,6 +553,34 @@ namespace KoRadio.Services.Migrations
                         .HasName("PK__Service__C51BB0EAAC6763C6");
 
                     b.ToTable("Service", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Store", b =>
+                {
+                    b.Property<int>("StoreId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StoreId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StoreName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StoreId")
+                        .HasName("PK__Stores__3B82F10142B7B44A");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
@@ -777,6 +890,67 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("KoRadio.Services.Database.Order", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Orders_Users");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.OrderItem", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_OrderItems_Orders");
+
+                    b.HasOne("KoRadio.Services.Database.Product", "Product")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("FK_OrderItems_Products");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Service", "Service")
+                        .WithMany("Products")
+                        .HasForeignKey("ServiceId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Products_Services");
+
+                    b.HasOne("KoRadio.Services.Database.Store", "Store")
+                        .WithMany("Products")
+                        .HasForeignKey("StoreId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Products_Stores");
+
+                    b.Navigation("Service");
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Store", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.User", "User")
+                        .WithMany("Stores")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Stores_Users");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
                 {
                     b.HasOne("KoRadio.Services.Database.Location", "Location")
@@ -877,6 +1051,16 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("KoRadio.Services.Database.Order", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
                 {
                     b.Navigation("UserRoles");
@@ -889,6 +1073,13 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("FreelancerServices");
 
                     b.Navigation("JobsServices");
+
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Store", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
@@ -900,6 +1091,10 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("Jobs");
 
                     b.Navigation("Messages");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("Stores");
 
                     b.Navigation("UserRatings");
 

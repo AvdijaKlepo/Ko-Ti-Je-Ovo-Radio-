@@ -45,6 +45,8 @@ namespace KoRadio.Services
 
 			query = query.Include(x => x.CompanyEmployees);
 
+			query = query.Include(x => x.Stores);
+
 			
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
@@ -195,7 +197,11 @@ namespace KoRadio.Services
 		{
 			
 
-			var entity = _context.Users.Include(x => x.UserRoles).ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees).ThenInclude(x=>x.Company).Include(x=>x.Location).FirstOrDefault(x => x.Email == username);
+			var entity = _context.Users.Include(x => x.UserRoles)
+				.ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees)
+				.ThenInclude(x=>x.Company).Include(x=>x.Location)
+				.Include(x=>x.Stores)
+				.FirstOrDefault(x => x.Email == username);
 			
 
 			if (entity == null)

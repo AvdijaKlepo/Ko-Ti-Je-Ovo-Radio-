@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KoRadio.Services.Database;
 
-public partial class Freelancer:ISoftDelete
+public partial class Freelancer
 {
     public int FreelancerId { get; set; }
 

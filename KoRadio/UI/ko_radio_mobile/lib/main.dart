@@ -3,13 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
+import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
+import 'package:ko_radio_mobile/providers/product_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
+import 'package:ko_radio_mobile/providers/store_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
@@ -22,6 +25,7 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ServiceProvider()),
+      
       ChangeNotifierProvider(create: (_) => FreelancerProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
       ChangeNotifierProvider(create: (_) => JobProvider()),
@@ -30,9 +34,14 @@ void main() {
       ChangeNotifierProvider(create: (_) => MessagesProvider()),
       ChangeNotifierProvider(create: (_) => UserRatings()),
       ChangeNotifierProvider(create: (_) => CompanyProvider()),
+      ChangeNotifierProvider(create: (_) => StoreProvider()),
+      ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ChangeNotifierProvider(create: (_) => CartProvider()),
+ 
       ChangeNotifierProvider(create: (_) => SignalRProvider("notifications-hub")),
     ],
     child: const MyApp(),
+
   ));
 }
 
@@ -44,6 +53,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -54,6 +64,7 @@ class MyApp extends StatelessWidget {
             
         useMaterial3: true,
         fontFamily: GoogleFonts.roboto().fontFamily,
+        
       ),
       home: Center(
         child: LoginPage(),

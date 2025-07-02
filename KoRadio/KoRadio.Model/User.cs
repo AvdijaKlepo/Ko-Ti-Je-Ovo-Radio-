@@ -29,6 +29,8 @@ namespace KoRadio.Model
 
 		public virtual ICollection<CompanyEmployeeDto> CompanyEmployees { get; set; } = new List<CompanyEmployeeDto>();
 
+		public virtual ICollection<StoresDTO> Stores { get; set; } = new List<StoresDTO>();
+
 
 
 

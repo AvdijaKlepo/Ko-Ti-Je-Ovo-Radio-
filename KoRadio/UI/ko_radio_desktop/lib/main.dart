@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
 import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
+import 'package:ko_radio_desktop/models/product.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
@@ -13,7 +14,9 @@ import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
+import 'package:ko_radio_desktop/providers/product_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
+import 'package:ko_radio_desktop/providers/stores_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +33,9 @@ void main() {
       ChangeNotifierProvider(create: (_)=>CompanyEmployeeProvider()),
       ChangeNotifierProvider(create: (_)=>CompanyRoleProvider()),
       ChangeNotifierProvider(create: (_)=>CompanyJobAssignmentProvider()),
+      ChangeNotifierProvider(create: (_)=>StoreProvider()),
       ChangeNotifierProvider(create: (_)=>JobProvider()),
+      ChangeNotifierProvider(create: (_)=>ProductProvider()),
 
     ],
     child: const MyApp(),));
@@ -163,6 +168,34 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (companyEmployees.length == 1) {
                         AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+                      }
+                      
+                      final stores = user.stores ?? [];
+                      if (stores.length > 1) {
+                        await showDialog(
+                          context: context,
+                          builder: (context) => SimpleDialog(
+                            title: const Text("Odaberite trgovinu: "),
+                            children: stores.map((store)  {
+                              return SimpleDialogOption(
+                                onPressed: () {
+                                  AuthProvider.selectedStoreId = store.storeId;
+                                  Navigator.pop(context);
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MasterScreen()),
+                                  );
+                                },
+                                child: Text(store.storeName ?? 'Nepoznata trgovina', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                        return;
+                      }
+                      if (stores.length == 1) {
+                        AuthProvider.selectedStoreId = stores.first.storeId;
+                        
                       }
 
                       debugPrint('Role: ${AuthProvider.userRoles?.role?.roleName}');

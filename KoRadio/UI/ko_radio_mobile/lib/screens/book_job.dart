@@ -153,7 +153,7 @@ class _BookJobState extends State<BookJob> {
                         (job) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: Text(
-                            '  ${job.startEstimate.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
+                            '  ${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
                             style: const TextStyle(color: Colors.grey),
                           ),
                         ),

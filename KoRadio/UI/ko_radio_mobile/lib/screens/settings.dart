@@ -8,6 +8,7 @@ import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/screens/messages.dart';
 import 'package:ko_radio_mobile/screens/user_company_apply.dart';
 import 'package:ko_radio_mobile/screens/user_freelancer_apply.dart';
+import 'package:ko_radio_mobile/screens/user_store_apply.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 
 class Settings extends StatefulWidget {
@@ -87,6 +88,12 @@ Widget build(BuildContext context) {
           child: const Text('Prijava Firme'),
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => UserCompanyApply(user: AuthProvider.user)),
+          ),
+        ),
+          ElevatedButton(
+          child: const Text('Prijava Trgovine'),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => UserStoreApply(user: AuthProvider.user)),
           ),
         ),
         ElevatedButton(

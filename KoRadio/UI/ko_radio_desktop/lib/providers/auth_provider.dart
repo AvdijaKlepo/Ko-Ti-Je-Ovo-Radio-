@@ -11,6 +11,7 @@ class AuthProvider {
   static String? connectionId;
   static bool isSignedIn = false;
   static int? selectedCompanyId;
+  static int? selectedStoreId;
 
   static String? getCompanyId() {
     return selectedCompanyId?.toString();

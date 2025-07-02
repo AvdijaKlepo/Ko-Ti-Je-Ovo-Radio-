@@ -91,11 +91,11 @@ final isBeforeTimeNow = isToday &&
     (picked.hour < now.hour || (picked.hour == now.hour && picked.minute < now.minute));
 
                     final isDuringBookedJob = bookedJobs?.any((job) {
-                          final startParts = job.startEstimate.split(':');
+                          final startParts = job.startEstimate?.split(':');
                           final endParts = job.endEstimate?.split(':');
 
-                          final startHour = int.tryParse(startParts[0]) ?? 0;
-                          final startMinute = int.tryParse(startParts[1]) ?? 0;
+                          final startHour = int.tryParse(startParts![0]) ?? 0;
+                          final startMinute = int.tryParse(startParts![1]) ?? 0;
                           final endHour = int.tryParse(endParts![0]) ?? 0;
                           final endMinute = int.tryParse(endParts[1]) ?? 0;
 

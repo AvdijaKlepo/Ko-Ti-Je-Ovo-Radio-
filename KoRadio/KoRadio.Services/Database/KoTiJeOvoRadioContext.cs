@@ -37,9 +37,19 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<Message> Messages { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+
+    public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<ProductsService> ProductsServices { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
+
+    public virtual DbSet<Store> Stores { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -268,6 +278,68 @@ public partial class KoTiJeOvoRadioContext : DbContext
                 .HasConstraintName("FK__Messages__UserID__2CBDA3B5");
         });
 
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCF591ED19A");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Orders_Users");
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemsId).HasName("PK__OrderIte__D5BB2555E439B0B6");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_OrderItems_Orders");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrderItems_Products");
+
+            entity.HasOne(d => d.Store).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.StoreId)
+                .HasConstraintName("FK_OrderItems_Stores");
+        });
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CDD7BA1DD8");
+
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ProductName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Store).WithMany(p => p.Products)
+                .HasForeignKey(d => d.StoreId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Products_Stores");
+        });
+
+        modelBuilder.Entity<ProductsService>(entity =>
+        {
+            entity.HasKey(e => new { e.ProductId, e.ServiceId }).HasName("PK__Products__085D7DE34C94B474");
+
+            entity.ToTable("ProductsService");
+
+            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductsServices)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductsS__Produ__4DE98D56");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.ProductsServices)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductsS__Servi__4EDDB18F");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A92DD3D4B");
@@ -287,6 +359,23 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.ServiceName).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<Store>(entity =>
+        {
+            entity.HasKey(e => e.StoreId).HasName("PK__Stores__3B82F10142B7B44A");
+
+            entity.Property(e => e.StoreName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Location).WithMany(p => p.Stores)
+                .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Stores__Location__4460231C");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Stores)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Stores_Users");
         });
 
         modelBuilder.Entity<User>(entity =>

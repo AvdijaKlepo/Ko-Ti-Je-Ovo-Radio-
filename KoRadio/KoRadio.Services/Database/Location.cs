@@ -13,5 +13,7 @@ public partial class Location
 
     public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
 
+    public virtual ICollection<Store> Stores { get; set; } = new List<Store>();
+
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

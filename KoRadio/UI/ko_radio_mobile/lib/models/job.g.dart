@@ -9,7 +9,7 @@ part of 'job.dart';
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
       jobId: (json['jobId'] as num).toInt(),
       endEstimate: json['endEstimate'] as String?,
-      startEstimate: json['startEstimate'] as String,
+      startEstimate: json['startEstimate'] as String?,
       payEstimate: (json['payEstimate'] as num?)?.toDouble(),
       payInvoice: (json['payInvoice'] as num?)?.toDouble(),
       jobDate: DateTime.parse(json['jobDate'] as String),

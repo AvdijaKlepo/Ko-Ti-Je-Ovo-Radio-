@@ -27,6 +27,8 @@ builder.Services.AddTransient<ICompanyService, KoRadio.Services.CompanyService>(
 builder.Services.AddTransient<ICompanyEmployeeService, CompanyEmployeeService>();
 builder.Services.AddTransient<ICompanyRoleService, CompanyRoleService>();
 builder.Services.AddTransient<ICompanyJobAssignment, CompanyJobAssignmentService>();
+builder.Services.AddTransient<IStoreService, KoRadio.Services.StoreService>();
+builder.Services.AddTransient<IProductService, KoRadio.Services.ProductService>();
 builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
 builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();

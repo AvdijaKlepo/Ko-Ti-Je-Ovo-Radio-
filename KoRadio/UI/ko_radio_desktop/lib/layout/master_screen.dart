@@ -10,6 +10,7 @@ import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
 import 'package:ko_radio_desktop/screens/settings.dart';
+import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 
@@ -77,6 +78,24 @@ class _MasterScreenState extends State<MasterScreen> {
     ),
   ];
 
+  final List<NavigationRailDestination> destinationsStoreManager = const <NavigationRailDestination>[
+    NavigationRailDestination(
+      icon: Icon(Icons.paste_rounded),
+      selectedIcon: Icon(Icons.people),
+      label: Text('Lista Proizvoda'),
+    ),
+      NavigationRailDestination(
+      icon: Icon(Icons.work_outline),
+      selectedIcon: Icon(Icons.work),
+      label: Text('Izvještaji'),
+    ),
+      NavigationRailDestination(
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: Text('Ne znam'),
+    ),
+  ];
+
   final List _pagesAdmin = [
     const UserListScreen(),
     const FreelancerListScreen(),
@@ -92,11 +111,18 @@ class _MasterScreenState extends State<MasterScreen> {
     const StoresList(),
   
   ];
+  final List _pagesStoreManager = [
+    const StoreProductList(),
+    const FreelancerListScreen(),
+    const CompanyList(),
+  
+  ];
   String get primaryRole {
   final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
 
   if (roles.contains("Admin")) return "Admin";
   if (roles.contains("Company Admin")) return "Company Admin";
+  if (roles.contains("StoreAdministrator")) return "StoreAdministrator";
 
   return "User"; 
 }
@@ -107,6 +133,8 @@ List<NavigationRailDestination> get destinationsForUser {
       return destinationsAdmin;
     case "Company Admin":
       return destinationsCompanyAdmin;
+    case "StoreAdministrator":
+    return destinationsStoreManager;
     default:
       return destinationsAdmin;
   }
@@ -118,6 +146,8 @@ List get pagesForUser {
       return _pagesAdmin;
     case "Company Admin":
       return _pagesCompanyAdmin;
+    case "StoreAdministrator":
+      return _pagesStoreManager;
     default:
       return _pagesAdmin; 
   }

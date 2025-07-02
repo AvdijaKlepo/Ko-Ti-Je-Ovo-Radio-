@@ -18,7 +18,6 @@ public partial class Job
     public decimal? PayInvoice { get; set; }
 
     public DateTime JobDate { get; set; }
-    public DateTime? DateFinished { get; set; }
 
     public string JobDescription { get; set; } = null!;
 
@@ -31,6 +30,8 @@ public partial class Job
     public int? FreelancerId { get; set; }
 
     public int? CompanyId { get; set; }
+
+    public DateTime? DateFinished { get; set; }
 
     public virtual Company? Company { get; set; }
 

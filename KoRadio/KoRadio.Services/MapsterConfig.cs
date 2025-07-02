@@ -59,7 +59,7 @@ public class MapsterConfig
 			.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
 
 
-
+	
 
 
 

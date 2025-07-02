@@ -15,7 +15,7 @@ class Job{
   Freelancer? freelancer;
   User? user;
   Service? service;
-  String startEstimate;
+  String? startEstimate;
   String? endEstimate;
   double? payEstimate;
   double? payInvoice;

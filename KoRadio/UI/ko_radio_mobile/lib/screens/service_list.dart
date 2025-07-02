@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
+
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_list.dart';
 import 'package:provider/provider.dart';
@@ -157,7 +158,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                           LayoutBuilder(
                             builder: (context, constraints) {
                               final width = constraints.maxWidth;
-                              final height = width * 0.45;
+                              final height = width * 0.5;
                               return SizedBox(
                                 width: width,
                                 height: height,

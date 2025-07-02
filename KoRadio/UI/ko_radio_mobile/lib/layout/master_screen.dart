@@ -4,12 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
+import 'package:ko_radio_mobile/providers/cart_provider.dart';
+import 'package:ko_radio_mobile/screens/cart.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 
 
 import 'package:ko_radio_mobile/screens/job_list.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:ko_radio_mobile/screens/settings.dart';
+import 'package:ko_radio_mobile/screens/store_list.dart';
 
 import 'package:provider/provider.dart';
 
@@ -48,6 +51,7 @@ int selectedIndex=0;
     
     ServiceListScreen(),
     JobList(),
+    StoreList(),
     Settings()
   ];
 
@@ -64,9 +68,39 @@ int selectedIndex=0;
     return Scaffold(
      
       appBar: AppBar(
+        actions: [Consumer<CartProvider>(
+      builder: (_, cart, __) => Stack(
+        alignment: Alignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            color:Color.fromRGBO(27, 76, 125, 1),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Cart(),
+                ));
+            },
+          ),
+          if (cart.count > 0)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: CircleAvatar(
+                radius: 8,
+                backgroundColor: Colors.red,
+                child: Text(
+                  '${cart.count}',
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),],
         automaticallyImplyLeading: false,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          
           children: [
            
             
@@ -102,15 +136,21 @@ int selectedIndex=0;
       
       
       bottomNavigationBar:
+
       AuthProvider.userRoles?.role?.roleName == "User" ?
       
        BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
    currentIndex: navProvider.selectedIndex,
+
+   
                 items: const [
                   BottomNavigationBarItem(
                       icon: Icon(Icons.home), label: 'Početna'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.paste), label: 'Poslovi'),
+                       BottomNavigationBarItem(
+                      icon: Icon(Icons.store), label: 'Trgovine'),
                        BottomNavigationBarItem(
                       icon: Icon(Icons.person), label: 'Račun'),
                 ],
