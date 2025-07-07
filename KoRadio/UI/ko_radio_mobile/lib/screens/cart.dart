@@ -134,8 +134,8 @@ class _CartState extends State<Cart> {
                           MaterialPageRoute(
                             builder: (context) => PaypalCheckoutView(
                               sandboxMode: true,
-                              clientId: "Ac5-5L6zwJA5-muMw5cm9VQdZlM2VVSQF_G78JA9n_DXjU7a2hlwc97dmW5Rsw20ARnAcNm3ei2Fs-x-",
-                              secretKey: "EOWix1Pj9qyH2cGFTDG_xTiwX0z87tzJIGnKGufrfAiq0zj65d7Bcx71iy-MXHTlczGHzcwuzKhaW6HC",
+                              clientId: "wow",
+                              secretKey: "wow",
                               transactions: [
                                 {
                                   "amount": {
