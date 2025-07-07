@@ -72,19 +72,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}'),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (serviceId != null) {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => FreelancerList(serviceId),
-              ));
-            } else {
-              Navigator.of(context).pop();
-            }
-          },
-        ),
+        
+       
       ),
       body: Column(
         children: [

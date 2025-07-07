@@ -21,7 +21,7 @@ class _StoreListState extends State<StoreList> {
   late PaginatedFetcher<Store> storePagination;
   late final ScrollController _scrollController;
 
-    bool _isInitialized = false;
+  bool _isInitialized = false;
   String _searchQuery = "";
   Timer? _debounce;
   @override
@@ -84,8 +84,9 @@ class _StoreListState extends State<StoreList> {
 
   Future<void> _refreshWithFilter() async {
     final filter = <String, dynamic>{};
+    
     if (_searchQuery.isNotEmpty) {
-      filter['StoreName'] = _searchQuery;
+      filter['Name'] = _searchQuery;
     }
     await storePagination.refresh(newFilter: filter);
   }
@@ -103,93 +104,103 @@ class _StoreListState extends State<StoreList> {
 
 
 
-  @override
-  Widget build(BuildContext context) {
+ @override
+Widget build(BuildContext context) {
+  if (!_isInitialized) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
-    if (!_isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return  Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: "Pretražite trgovine...",
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: "Pretraži trgovine...",
+            prefixIcon: const Icon(Icons.search),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
-            onChanged: _onSearchChanged,
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surfaceVariant,
           ),
+          onChanged: _onSearchChanged,
         ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _refreshWithFilter,
-            child: storePagination.items.isEmpty
-                ? ListView(
-                    children: const [
-                      SizedBox(height: 50),
-                      Center(child: Text("No stores found.")),
-                    ],
-                  )
-                : Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: storePagination.items.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index < storePagination.items.length) {
-                          final store = storePagination.items[index];
-                          return store.storeName != null
-                              ? InkWell(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        LayoutBuilder(
-                                          builder: (context, constraints) {
-                                            final width = constraints.maxWidth;
-                                            final height = width * 0.5;
-                                            return SizedBox(
-                                              width: width,
-                                              height: height,
-                                              child: store.image != null ? imageFromString(
-                                                store.image!,
-                                                width: width,
-                                                height: height,
-                                                fit: BoxFit.cover,
-                                              ) : Image.asset('assets/images/logo.png'),
-                                            );
-                                          },
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          store.storeName!,
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
+      ),
+      Expanded(
+        child: RefreshIndicator(
+          onRefresh: _refreshWithFilter,
+          child: storePagination.items.isEmpty
+              ? ListView(
+                  children: const [
+                    SizedBox(height: 50),
+                    Center(child: Text("Nema pronađenih trgovina.")),
+                  ],
+                )
+              : ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: storePagination.items.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < storePagination.items.length) {
+                      final store = storePagination.items[index];
+                      return store.storeName != null
+                          ? GestureDetector(
+                              onTap: () => _openStore(store),
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AspectRatio(
+                                      aspectRatio: 16 / 9,
+                                      child: store.image != null
+                                          ? imageFromString(
+                                              store.image!,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.asset(
+                                              'assets/images/intro-1660762097.jpg',
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
-                                  ),
-                                 onTap:() => _openStore(store),
-                                )
-                              : const SizedBox.shrink();
-                        }
+                                    Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Text(
+                                        store.storeName!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    }
 
                     if (storePagination.hasNextPage) {
-            return const Padding(
-              padding: EdgeInsets.all(8),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+                      return const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-          return const SizedBox.shrink();
-        },
-      )),
-          ),
+                    return const SizedBox.shrink();
+                  },
+                ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

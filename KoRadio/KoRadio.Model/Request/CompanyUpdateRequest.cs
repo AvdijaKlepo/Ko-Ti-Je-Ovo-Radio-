@@ -14,7 +14,7 @@ namespace KoRadio.Model.Request
 
 		public string? Bio { get; set; }
 
-		public decimal? Rating { get; set; }
+		public decimal? Rating { get; set; } = 0;
 
 		public string? PhoneNumber { get; set; }
 
@@ -32,7 +32,7 @@ namespace KoRadio.Model.Request
 		public int? LocationId { get; set; }
 
 		public ICollection<int> ServiceId { get; set; } = new List<int>();
-		public List<int> Employee { get; set; }
+		public List<int>? Employee { get; set; }
 		//public List<int> Roles { get; set; }
 		public bool IsDeleted { get; set; }
 		public bool IsApplicant { get; set; }

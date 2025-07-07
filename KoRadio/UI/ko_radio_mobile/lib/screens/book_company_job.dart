@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
@@ -85,7 +86,19 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
             children: [
               Text('Rezervacije za ${widget.selectedDay.toIso8601String().split('T')[0]}'),
               const SizedBox(height: 6),
+               FormBuilderTextField(
+                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                      name: "jobTitle",
+                      decoration: const InputDecoration(
+                        labelText: 'Naslov posla',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.description),
+                      ),
+                      maxLines: 3,
+                    ),  
+                    SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
+                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       decoration: const InputDecoration(
                         labelText: 'Datum rezervacije',
                         border: OutlineInputBorder(),
@@ -107,8 +120,9 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         
                       },
                     ),
-                    SizedBox(height: 15,),
+                  
                FormBuilderTextField(
+                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       name: "jobDescription",
                       decoration: const InputDecoration(
                         labelText: 'Opis problema',
@@ -120,9 +134,11 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                       const SizedBox(height: 15),
                     FormBuilderCheckboxGroup<int>(
                       name: "serviceId",
+                      validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
                       decoration: const InputDecoration(
                         labelText: "Servis",
                         border: InputBorder.none,
+
                       ),
                       options: widget.c?.companyServices
                               ?.map(
@@ -189,7 +205,12 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                 
                 
           
-            _formKey.currentState?.saveAndValidate();
+           final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+
+  if (!isValid) {
+  
+    return;
+  }
            
                 debugPrint(_formKey.currentState?.value.toString());
                 var formData = Map<String, dynamic>.from(
@@ -205,6 +226,10 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
+                formData["isTenderFinalized"] = false;
+                formData["isFreelancer"]=false;
+                formData["isInvoiced"]=false;
+                formData["isRated"]=false;
           
 
                 debugPrint(_formKey.currentState?.value.toString());

@@ -51,6 +51,12 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<Store> Stores { get; set; }
 
+    public virtual DbSet<Tender> Tenders { get; set; }
+
+    public virtual DbSet<TenderBid> TenderBids { get; set; }
+
+    public virtual DbSet<TenderService> TenderServices { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserRating> UserRatings { get; set; }
@@ -59,7 +65,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true;");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=KoTiJeOvoRadio;TrustServerCertificate=true;Trusted_Connection=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,6 +84,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.LocationId).HasColumnName("LocationID");
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
+            entity.Property(e => e.RatingSum).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Companies)
                 .HasForeignKey(d => d.LocationId)
@@ -212,6 +219,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
+            entity.Property(e => e.IsFreelancer).HasColumnName("isFreelancer");
+            entity.Property(e => e.IsTenderFinalized).HasColumnName("isTenderFinalized");
             entity.Property(e => e.JobDate).HasColumnType("datetime");
             entity.Property(e => e.JobDescription).HasMaxLength(255);
             entity.Property(e => e.JobStatus)
@@ -219,6 +228,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
                 .IsUnicode(false)
                 .HasDefaultValue("unnaproved")
                 .HasColumnName("Job_Status");
+            entity.Property(e => e.JobTitle).HasMaxLength(255);
             entity.Property(e => e.PayEstimate).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PayInvoice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
@@ -378,6 +388,75 @@ public partial class KoTiJeOvoRadioContext : DbContext
                 .HasConstraintName("FK_Stores_Users");
         });
 
+        modelBuilder.Entity<Tender>(entity =>
+        {
+            entity.HasKey(e => e.TenderId).HasName("PK__Tender__B21B4268197B2C83");
+
+            entity.ToTable("Tender");
+
+            entity.Property(e => e.JobDate).HasColumnType("datetime");
+            entity.Property(e => e.JobDescription).HasMaxLength(255);
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Tenders)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__Tender__CompanyI__5C37ACAD");
+
+            entity.HasOne(d => d.Freelancer).WithMany(p => p.Tenders)
+                .HasForeignKey(d => d.FreelancerId)
+                .HasConstraintName("FK__Tender__Freelanc__5B438874");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Tenders)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Tender__UserId__5A4F643B");
+        });
+
+        modelBuilder.Entity<TenderBid>(entity =>
+        {
+            entity.HasKey(e => e.TenderBidId).HasName("PK__TenderBi__5C928D9693AA275C");
+
+            entity.ToTable("TenderBid");
+
+            entity.Property(e => e.BidAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.BidDescription).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DateFinished).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.TenderBids)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__TenderBid__Compa__61F08603");
+
+            entity.HasOne(d => d.Freelancer).WithMany(p => p.TenderBids)
+                .HasForeignKey(d => d.FreelancerId)
+                .HasConstraintName("FK__TenderBid__Freel__60FC61CA");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.TenderBids)
+                .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TenderBid__JobId__6A85CC04");
+        });
+
+        modelBuilder.Entity<TenderService>(entity =>
+        {
+            entity.HasKey(e => new { e.TenderId, e.ServiceId }).HasName("PK__TenderSe__0E4AF96661B872C5");
+
+            entity.ToTable("TenderService");
+
+            entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.TenderServices)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TenderSer__Servi__67A95F59");
+
+            entity.HasOne(d => d.Tender).WithMany(p => p.TenderServices)
+                .HasForeignKey(d => d.TenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TenderSer__Tende__66B53B20");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACDE55EC71");
@@ -408,9 +487,14 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasKey(e => e.UserRatingId).HasName("PK__UserRati__9E5FEAAA63E96E4C");
 
             entity.Property(e => e.UserRatingId).HasColumnName("UserRatingID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.UserRatings)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__UserRatin__Compa__6B79F03D");
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.UserRatings)
                 .HasForeignKey(d => d.FreelancerId)

@@ -13,6 +13,7 @@ class AuthProvider {
   static int? selectedCompanyId;
   static int? selectedStoreId;
 
+
   static String? getCompanyId() {
     return selectedCompanyId?.toString();
   }

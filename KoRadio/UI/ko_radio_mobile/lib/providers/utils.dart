@@ -5,10 +5,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:http/http.dart' as http;
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 
+String formatDateTime(DateTime? date) {
+  if (date == null) return "";
+  return "${date.day}.${date.month}.${date.year}";
+}
 
 
 
@@ -59,10 +64,13 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
 
   }) : super(
           builder: (FormFieldState<TimeOfDay?> field) {
+          
             return InputDecorator(
               decoration: InputDecoration(
-         
+                border: OutlineInputBorder(),
+                labelText: 'Odaberi vrijeme',
                 errorText: field.errorText,
+                
               ),
               child: ListTile(
                 title: Text(field.value?.format(field.context) ?? 'Odaberi vrijeme'),
@@ -72,7 +80,11 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                     context: field.context,
                     initialTime: jobDate?.toIso8601String().split('T')[0]!=DateTime.now().toIso8601String().split('T')[0] ? field.value ?? minTime : field.value ?? now,
                     
+                    
                   );
+                  if (picked != null) {
+    field.didChange(picked); 
+  }
 
 
                   
@@ -200,23 +212,29 @@ class PaginatedFetcher<T> extends ChangeNotifier {
   bool isLoading = false;
   bool hasNextPage = true;
 
+  Map<String, dynamic>? _activeFilter; // <- Added
+
   PaginatedFetcher({
     required this.fetcher,
     this.pageSize = 20,
     this.initialFilter,
-  });
+  }) {
+    _activeFilter = initialFilter; // <- Initialize
+  }
 
   Future<void> refresh({Map<String, dynamic>? newFilter}) async {
     _page = 1;
     hasNextPage = true;
     items.clear();
-    await _fetchPage(filter: newFilter ?? initialFilter);
+
+    _activeFilter = newFilter ?? initialFilter; // <- Track latest filter
+    await _fetchPage(filter: _activeFilter);
   }
 
   Future<void> loadMore() async {
     if (isLoading || !hasNextPage) return;
     _page++;
-    await _fetchPage(filter: initialFilter);
+    await _fetchPage(filter: _activeFilter); // <- Use tracked filter
   }
 
   Future<void> _fetchPage({Map<String, dynamic>? filter}) async {
@@ -239,3 +257,7 @@ class PaginatedFetcher<T> extends ChangeNotifier {
   }
 }
 
+
+  void _showMessage(String message, BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}

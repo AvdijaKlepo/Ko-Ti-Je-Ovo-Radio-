@@ -21,7 +21,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  late HubConnection _hubConnection;
+
   late CompanyEmployeeProvider companyEmployeeProvider;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   @override
@@ -29,6 +29,8 @@ class _SettingsState extends State<Settings> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
      companyEmployeeProvider = CompanyEmployeeProvider(); 
+  
+     
        _getEmployee();
     });
 
@@ -69,15 +71,23 @@ Widget build(BuildContext context) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ElevatedButton(
-          child: const Text('Odjava'),
-          onPressed: () async {
-            await _hubConnection.stop();
-            AuthProvider.connectionId = null;
-            AuthProvider.isSignedIn = false;
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => LoginPage()));
-          },
-        ),
+        Text('${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}', style: Theme.of(context).textTheme.titleLarge),
+       ElevatedButton(
+  child: const Text('Odjava'),
+  onPressed: () async {
+    AuthProvider.selectedRole = "";
+    AuthProvider.connectionId = null;
+    AuthProvider.isSignedIn = false;
+    AuthProvider.user = null;
+    AuthProvider.userRoles = null;
+    AuthProvider.freelancer = null;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) =>  LoginPage()),
+    );
+  },
+),
+
         ElevatedButton(
           child: const Text('Radnik prijava'),
           onPressed: () => Navigator.of(context).push(

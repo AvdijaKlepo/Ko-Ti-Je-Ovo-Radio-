@@ -33,5 +33,9 @@ public partial class Freelancer
 
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
+    public virtual ICollection<TenderBid> TenderBids { get; set; } = new List<TenderBid>();
+
+    public virtual ICollection<Tender> Tenders { get; set; } = new List<Tender>();
+
     public virtual ICollection<UserRating> UserRatings { get; set; } = new List<UserRating>();
 }

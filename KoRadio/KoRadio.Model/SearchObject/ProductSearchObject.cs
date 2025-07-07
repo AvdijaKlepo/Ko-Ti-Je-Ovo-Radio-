@@ -8,6 +8,7 @@ namespace KoRadio.Model.SearchObject
 {
     public class ProductSearchObject : BaseSearchObject
 	{
+        public string? Name { get; set; }
         public bool? IsDeleted { get; set; }
         public int? StoreId { get; set; }
         public int? ServiceId { get; set; }

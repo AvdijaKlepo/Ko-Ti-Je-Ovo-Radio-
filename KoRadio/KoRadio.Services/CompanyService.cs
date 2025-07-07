@@ -31,8 +31,16 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.CompanyId == search.CompanyId);
 			}
+			if (search.LocationId!=null)
+			{
+				query = query.Where(x => x.LocationId == search.LocationId.Value);
+			}
+			if (search.ServiceId != null)
+			{
+				query = query.Where(x => x.CompanyServices.Any(x => x.ServiceId == search.ServiceId));
+			}
 
-			if(search.IsApplicant==true)
+			if (search.IsApplicant==true)
 			{
 				query = query.Where(x => x.IsApplicant == true);
 			}
@@ -155,6 +163,16 @@ namespace KoRadio.Services
 
 			//	_context.SaveChanges();
 			//}
+			if (request.Rating.HasValue && request.Rating.Value > 0)
+			{
+				entity.RatingSum += request.Rating.Value;
+				entity.TotalRatings += 1;
+
+				entity.Rating = entity.RatingSum / entity.TotalRatings;
+			}
+
+
+
 
 			return base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}

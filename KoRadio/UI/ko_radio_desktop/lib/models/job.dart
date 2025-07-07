@@ -16,15 +16,19 @@ class Job{
   User? user;
   Service? service;
   String? startEstimate;
+  String? jobTitle;
   String? endEstimate;
   double? payEstimate;
   double? payInvoice;
+  bool? isTenderFinalized; 
+  bool? isInvoiced;
+  bool? isRated;
   DateTime jobDate;
-  DateTime? dateFinished;
   String jobDescription;
   String? image;
   List<JobsService>? jobsServices;
   JobStatus jobStatus;
+  DateTime? dateFinished;
   Company? company;
 
   

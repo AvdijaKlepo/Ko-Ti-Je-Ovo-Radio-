@@ -22,6 +22,11 @@ namespace KoRadio.Services
 		{
 			query = query.Include(x => x.User);
 			query = query.Include(x => x.Location);
+
+			if (!string.IsNullOrWhiteSpace(search?.Name))
+			{
+				query = query.Where(x => x.StoreName.StartsWith(search.Name));
+			}
 			if (search.IsApplicant==true)
 			{
 				query = query.Where(x => x.IsApplicant == true);

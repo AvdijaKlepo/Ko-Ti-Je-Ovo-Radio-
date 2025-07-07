@@ -58,7 +58,12 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
   }
 
   void _onSave() {
-    _formKey.currentState?.saveAndValidate();
+   final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+
+  if (!isValid) {
+  
+    return;
+  }
     var formData = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
 
     if (formData["startTime"] is DateTime) {
@@ -123,28 +128,30 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:")),
+                    FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
 
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis")),
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email")),
+                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     
                     FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva")),
+                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
 
                           FormBuilderTextField(
-                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj")),
+                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                 
                   
                     FormBuilderDateTimePicker(
                       name: 'startTime',
                       decoration: const InputDecoration(labelText: "Početak radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
                     ),
                 
                     FormBuilderDateTimePicker(
                       name: 'endTime',
                       decoration: const InputDecoration(labelText: "Kraj radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
                     ),
                   ]),
                 ),
@@ -166,6 +173,12 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                                   .toList(),
                               spacing: 6,
                               runSpacing: 4,
+                              validator: (value) {
+    if (value == null || value.isEmpty) {
+      return "Odaberite barem jednu uslugu";
+    }
+    return null;
+  },
                             )
                           : const Text("Nema dostupnih usluga"),
                     ),
@@ -174,6 +187,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
        
              FormBuilderCheckboxGroup<String>(
                       name: 'workingDays',
+                      validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       decoration: InputDecoration(labelText: "Radni dani"),
                       options: [
                         'Ponedjeljak',
@@ -187,6 +201,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                     ),
                     FormBuilderDropdown<int>(
                       name: 'locationId',
+                      
                       decoration: const InputDecoration(labelText: "Lokacija*"),
                       validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       items: locationResult?.result

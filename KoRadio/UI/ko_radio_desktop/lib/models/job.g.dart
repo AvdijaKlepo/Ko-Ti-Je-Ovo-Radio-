@@ -29,6 +29,10 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           ? null
           : Service.fromJson(json['service'] as Map<String, dynamic>),
     )
+      ..jobTitle = json['jobTitle'] as String?
+      ..isTenderFinalized = json['isTenderFinalized'] as bool?
+      ..isInvoiced = json['isInvoiced'] as bool?
+      ..isRated = json['isRated'] as bool?
       ..dateFinished = json['dateFinished'] == null
           ? null
           : DateTime.parse(json['dateFinished'] as String)
@@ -42,15 +46,19 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'user': instance.user,
       'service': instance.service,
       'startEstimate': instance.startEstimate,
+      'jobTitle': instance.jobTitle,
       'endEstimate': instance.endEstimate,
       'payEstimate': instance.payEstimate,
       'payInvoice': instance.payInvoice,
+      'isTenderFinalized': instance.isTenderFinalized,
+      'isInvoiced': instance.isInvoiced,
+      'isRated': instance.isRated,
       'jobDate': instance.jobDate.toIso8601String(),
-      'dateFinished': instance.dateFinished?.toIso8601String(),
       'jobDescription': instance.jobDescription,
       'image': instance.image,
       'jobsServices': instance.jobsServices,
       'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
+      'dateFinished': instance.dateFinished?.toIso8601String(),
       'company': instance.company,
     };
 

@@ -242,7 +242,8 @@ class _StoresListState extends State<StoresList> {
                                                 "description": s.description,
                                                 "isApplicant": false,
                                                 "isDeleted": false,
-                                                "roles":[10,1011]
+                                                "roles":[10,1011],
+                                                'locationId': s.location?.locationId,
                                               });
                                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Trgovina odobrena!")));
                                             

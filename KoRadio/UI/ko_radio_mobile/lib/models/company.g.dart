@@ -29,7 +29,7 @@ Company _$CompanyFromJson(Map<String, dynamic> json) => Company(
           .map((e) => CompanyServices.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['email'] as String,
-    );
+    )..locationId = (json['locationId'] as num?)?.toInt();
 
 Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'companyId': instance.companyId,
@@ -43,6 +43,7 @@ Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'workingDays': instance.workingDays,
       'startTime': instance.startTime,
       'endTime': instance.endTime,
+      'locationId': instance.locationId,
       'location': instance.location,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,

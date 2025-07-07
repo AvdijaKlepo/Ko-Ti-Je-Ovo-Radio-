@@ -4,6 +4,7 @@ import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/screens/approve_job.dart';
 import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 import 'package:provider/provider.dart';
@@ -19,12 +20,15 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
   int selectedIndex = 0;
+  final _userId = AuthProvider.user?.userId;
+  final _freelancerId = AuthProvider.user?.freelancer?.freelancerId;
 
   final List<JobStatus> jobStatuses = [
     JobStatus.finished,
     JobStatus.approved,
     JobStatus.unapproved,
     JobStatus.cancelled,
+
   ];
 
   @override
@@ -35,17 +39,27 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   }
 
   Future<void> _fetchJobsByStatus(JobStatus status) async {
-    final isUser = AuthProvider.userRoles?.role?.roleName == "User";
+    final isUser = AuthProvider.selectedRole=="User";
     final filter = <String, dynamic>{
-      if (isUser) 'UserId': AuthProvider.user?.userId,
-      if (!isUser) 'FreelancerId': AuthProvider.freelancer?.freelancerId,
-      'JobStatus': status.name,
+      if (isUser) 'UserId': _userId,
+      if (!isUser) 'FreelancerId': _freelancerId,
+      'JobStatus': status.name,"isTenderFinalized":false
     };
 
-    final job = await jobProvider.get(filter: filter);
-    setState(() {
-      result = job;
-    });
+    try {
+  final job = await jobProvider.get(filter: filter);
+  if (!mounted) return; 
+  setState(() {
+    result = job;
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u dohvaćanju poslova: ${e.toString()}')));
+}
+  }
+  @override
+  void dispose() {
+    result = null;
+    super.dispose();
   }
 
   @override
@@ -67,12 +81,12 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                   _fetchJobsByStatus(jobStatuses[index]);
                 },
                 indicatorColor: Colors.blue,
-                labelColor: Colors.blue,
+                labelColor: Color.fromRGBO(27, 76, 125, 25),
                 unselectedLabelColor: Colors.grey,
                 tabs: const [
                   Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
                   Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
-                  Tab(icon: Icon(Icons.free_cancellation), text: 'Neodobreni'),
+                  Tab(icon: Icon(Icons.free_cancellation), text: 'Zahtjevi'),
                   Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
                 ],
               ),
@@ -110,29 +124,40 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
         final job = jobs[index];
 
         return Card(
+          color: const Color.fromRGBO(27, 76, 125, 25),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            onTap: () {
-              final destination = (status == JobStatus.unapproved)
-                  ? BookJob(job: job, freelancer: job.freelancer)
-                  : JobDetails(job: job);
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
-            },
-            leading: const Icon(Icons.access_time, color: Colors.blue),
+
+          onTap: () async {
+  final destination = ((status == JobStatus.unapproved && AuthProvider.selectedRole == "Freelancer") ||
+                       (status == JobStatus.approved && AuthProvider.selectedRole == "Freelancer"))
+      ?  ApproveJob(job: job, freelancer: job.freelancer!)  
+      : JobDetails(job: job);
+
+ final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+  if(updated==true){
+    await _fetchJobsByStatus(jobStatuses[1]);
+  }
+  else{
+    await _fetchJobsByStatus(jobStatuses[3]);
+  }
+  
+},
+
+            leading: const Icon(Icons.access_time, color: Colors.white),
             title: Text(
               "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
             ),
             subtitle: job.user != null
-                ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}")
+                ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
                 : null,
-            trailing: const Icon(Icons.work_outline),
+            trailing: const Icon(Icons.work_outline,color: Colors.white),
           ),
         );
       },
     );
   }
 }
-

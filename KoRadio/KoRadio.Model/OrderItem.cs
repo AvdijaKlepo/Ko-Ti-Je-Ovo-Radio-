@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +16,11 @@ namespace KoRadio.Model
 		public int ProductId { get; set; }
 
 		public int Quantity { get; set; }
+		public int StoreId { get; set; }
 
-		public virtual Order Order { get; set; } = null!;
+		public virtual OrderDTO Order { get; set; } = null!;
 
-		public virtual Product Product { get; set; } = null!;
+		public virtual ProductDTO Product { get; set; } = null!;
+		public virtual Store Store { get; set; }
 	}
 }

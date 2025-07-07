@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/models/product.dart';
-
+import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/product_provider.dart';
-
+import 'package:ko_radio_mobile/providers/service_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/product_details.dart';
@@ -21,12 +22,17 @@ class ProductTypeList extends StatefulWidget {
 }
 
 class _ProductTypeListState extends State<ProductTypeList> {
+  int? _selectedServiceId;
+
   late ProductProvider productProvider;
+  late ServiceProvider serviceProvider;
+  SearchResult<Service>? serviceResult;
   late PaginatedFetcher<Product> productPagination;
   late final ScrollController _scrollController;
 
   bool _isInitialized = false;
   String _searchQuery = "";
+  List<DropdownMenuItem<int>> serviceDropdownItems = [];
   Timer? _debounce;
 
   @override
@@ -45,7 +51,8 @@ class _ProductTypeListState extends State<ProductTypeList> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       productProvider = context.read<ProductProvider>();
-
+      serviceProvider = context.read<ServiceProvider>();
+     await _getServices();
       productPagination = PaginatedFetcher<Product>(
         fetcher: ({
           required int page,
@@ -57,7 +64,10 @@ class _ProductTypeListState extends State<ProductTypeList> {
             pageSize: pageSize,
             filter: filter,
           );
-          return PaginatedResult<Product>(result: result.result, count: result.count);
+          return PaginatedResult<Product>(
+            result: result.result,
+            count: result.count,
+          );
         },
         pageSize: 6,
       );
@@ -66,12 +76,36 @@ class _ProductTypeListState extends State<ProductTypeList> {
         if (mounted) setState(() {});
       });
 
-      await productPagination.refresh();
+      Map<String, dynamic>? filter;
+      if (widget.store != null) {
+        filter = {'storeId': widget.store?.storeId};
+      }
+      
+
+      await productPagination.refresh(newFilter: filter);
       setState(() {
         _isInitialized = true;
       });
     });
   }
+  Future<void> _getServices() async {
+  try {
+    var fetchedServices = await serviceProvider.get();
+    setState(() {
+      serviceResult = fetchedServices;
+      serviceDropdownItems = [
+        const DropdownMenuItem(value: null, child: Text("Svi tipovi")),
+        ...fetchedServices.result
+            .map((s) => DropdownMenuItem(value: s.serviceId, child: Text(s.serviceName ?? '')))
+            .toList()
+      ];
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
+}
 
   @override
   void dispose() {
@@ -91,9 +125,14 @@ class _ProductTypeListState extends State<ProductTypeList> {
   Future<void> _refreshWithFilter() async {
     final filter = <String, dynamic>{};
     if (_searchQuery.isNotEmpty) {
-      filter['ServiceName'] = _searchQuery;
+      filter['Name'] = _searchQuery;
     }
-    filter["storeId"]=widget.store?.storeId; 
+    if (_selectedServiceId != null) {
+    filter['ServiceId'] = _selectedServiceId;
+  }
+
+
+    filter["storeId"] = widget.store?.storeId;
     await productPagination.refresh(newFilter: filter);
   }
 
@@ -104,40 +143,60 @@ class _ProductTypeListState extends State<ProductTypeList> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Tipovi proizvoda"),
-      ),
+      appBar: AppBar(title: const Text("Tipovi proizvoda")),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refreshWithFilter,
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverAppBar(
-                pinned: true,
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 70,
-                flexibleSpace: Padding(
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Pretražite tipove...",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: "Pretraži proizvode...",
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: _onSearchChanged,
                       ),
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                    ),
-                    onChanged: _onSearchChanged,
+                      const SizedBox(height: 12),
+                     if (serviceDropdownItems.isNotEmpty)
+  DropdownButtonFormField<int?>(
+    value: _selectedServiceId,
+    decoration: InputDecoration(
+      labelText: "Tip usluge",
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    ),
+    items: serviceDropdownItems,
+    onChanged: (value) {
+      setState(() => _selectedServiceId = value);
+      _refreshWithFilter();
+    },
+  ),
+
+                    ],
                   ),
                 ),
               ),
               productPagination.items.isEmpty
                   ? SliverFillRemaining(
                       hasScrollBody: false,
-                      child: Center(child: Text("Nema dostupnih tipova proizvoda.", style: TextStyle(fontSize: 16))),
+                      child: Center(
+                        child: Text(
+                          "Nema dostupnih tipova proizvoda.",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
                     )
                   : SliverPadding(
                       padding: const EdgeInsets.all(12),
@@ -152,69 +211,78 @@ class _ProductTypeListState extends State<ProductTypeList> {
                           (context, index) {
                             if (index < productPagination.items.length) {
                               final product = productPagination.items[index];
-                              return product.productName != null
-                                  ? GestureDetector(
-                                      onTap: () async{
-                                       await Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ProductDetails(product: product),
-                                        ));
-                                      },
-                                      child: Card(
-
-                                        elevation: 3,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        clipBehavior: Clip.antiAlias,
-                                        child: Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: product.image != null
-                                                  ? imageFromString(
-                                                      product.image!,
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                  : Container(color: Colors.grey.shade300),
+                              return GestureDetector(
+                                onTap: () async {
+                                  await Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProductDetails(product: product, store: widget.store),
+                                  ));
+                                },
+                                child: Card(
+                                  elevation: 3,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: product.image != null
+                                            ? imageFromString(
+                                                product.image!,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Image.asset('assets/images/productPlaceholder.jpg'),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Color.fromRGBO(27, 76, 125, 25),
+                                            borderRadius: const BorderRadius.only(
+                                              bottomLeft: Radius.circular(16),
+                                              bottomRight: Radius.circular(16),
                                             ),
-                                            Positioned(
-                                              bottom: 0,
-                                              left: 0,
-                                              right: 0,
-                                              child: Container(
-                                                padding: const EdgeInsets.all(12),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black.withOpacity(0.6),
-                                                  borderRadius: const BorderRadius.only(
-                                                    bottomLeft: Radius.circular(16),
-                                                    bottomRight: Radius.circular(16),
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  product.productName!,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
+                                          ),
+                                          child: Text(
+                                            product.productName ?? "",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
                                             ),
-                                             IconButton(
-  icon: const Icon(Icons.add_shopping_cart),
-  onPressed: () {
-    context.read<CartProvider>().add(product!);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${product?.productName} dodan u košaricu.')),
-    );
-  },
-)
-                                          ],
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                       ),
-                                    )
-                                  : const SizedBox.shrink();
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Material(
+                                          color: Colors.white,
+                                          shape: const CircleBorder(),
+                                          elevation: 2,
+                                          child: IconButton(
+                                            icon: const Icon(Icons.add_shopping_cart),
+                                            onPressed: () {
+                                              context.read<CartProvider>().add(product);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        '${product.productName} dodan u košaricu.')),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
                             }
 
                             if (productPagination.hasNextPage) {
@@ -226,7 +294,8 @@ class _ProductTypeListState extends State<ProductTypeList> {
 
                             return const SizedBox.shrink();
                           },
-                          childCount: productPagination.items.length + (productPagination.hasNextPage ? 1 : 0),
+                          childCount:
+                              productPagination.items.length + (productPagination.hasNextPage ? 1 : 0),
                         ),
                       ),
                     ),

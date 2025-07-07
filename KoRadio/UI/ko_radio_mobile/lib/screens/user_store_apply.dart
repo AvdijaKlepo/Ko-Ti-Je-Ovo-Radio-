@@ -59,8 +59,8 @@ class _UserStoreApplyState extends State<UserStoreApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:")),
-                    FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis")),
+                    FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                    FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     FormBuilderDropdown<int>(
                       name: 'locationId',
                       decoration: const InputDecoration(labelText: "Lokacija*"),
@@ -92,7 +92,12 @@ class _UserStoreApplyState extends State<UserStoreApply> {
   }
 
   void _onSave() {
-    _formKey.currentState?.saveAndValidate();
+    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+
+  if (!isValid) {
+  
+    return;
+  }
     var formData = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
     formData['userId'] = _userId;
     formData['isApplicant'] = true;

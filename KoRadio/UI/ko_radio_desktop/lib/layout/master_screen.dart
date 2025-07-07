@@ -10,6 +10,7 @@ import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
 import 'package:ko_radio_desktop/screens/settings.dart';
+import 'package:ko_radio_desktop/screens/store_orders.dart';
 import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
@@ -85,9 +86,9 @@ class _MasterScreenState extends State<MasterScreen> {
       label: Text('Lista Proizvoda'),
     ),
       NavigationRailDestination(
-      icon: Icon(Icons.work_outline),
-      selectedIcon: Icon(Icons.work),
-      label: Text('Izvještaji'),
+      icon: Icon(Icons.shopify_outlined),
+      selectedIcon: Icon(Icons.shopify),
+      label: Text('Narudžbe'),
     ),
       NavigationRailDestination(
       icon: Icon(Icons.person_outline),
@@ -113,7 +114,7 @@ class _MasterScreenState extends State<MasterScreen> {
   ];
   final List _pagesStoreManager = [
     const StoreProductList(),
-    const FreelancerListScreen(),
+    const StoreOrders(),
     const CompanyList(),
   
   ];

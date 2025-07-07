@@ -236,6 +236,12 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
 
   formData["jobDescription"] = widget.job.jobDescription;
 
+  formData["jobTitle"] = widget.job.jobTitle;
+  formData["isTenderFinalized"] = false;
+  formData["isInvoiced"] = false;
+  formData["isRated"] = false;
+  formData["isFreelancer"] = false;
+
 
   if (widget.job.jobStatus.name == JobStatus.unapproved.name) {
   if (formData["dateFinished"] is DateTime) {
@@ -365,7 +371,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         name: "dateFinished",
                         inputType: InputType.date,
                         firstDate: DateTime.now(),
-                        selectableDayPredicate: _isWorkingDay,
+              
                       ),
                       SizedBox(height: 12,),
                       FormBuilderTextField(

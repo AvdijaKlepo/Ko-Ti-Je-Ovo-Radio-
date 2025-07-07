@@ -13,6 +13,7 @@ namespace KoRadio.Model.DTOs
 		public int? UserId { get; set; }
 
 		public int? FreelancerId { get; set; }
+		public string JobTitle { get; set; }
 
 		public TimeOnly StartEstimate { get; set; }
 
@@ -35,5 +36,7 @@ namespace KoRadio.Model.DTOs
 		public virtual FreelancerDTO? Freelancer { get; set; }
 
 		public virtual UserDTO? User { get; set; }
+
+
 	}
 }

@@ -31,6 +31,8 @@ namespace KoRadio.Model
 
 		public virtual ICollection<StoresDTO> Stores { get; set; } = new List<StoresDTO>();
 
+		public virtual FreelancerDTO Freelancer { get; set; }
+
 
 
 

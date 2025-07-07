@@ -8,6 +8,7 @@ namespace KoRadio.Model.SearchObject
 {
     public class StoreSearchObject: BaseSearchObject
 	{
+        public string? Name { get; set; }
         public bool IsApplicant { get; set; }
         public bool IsDeleted { get; set; }
     }

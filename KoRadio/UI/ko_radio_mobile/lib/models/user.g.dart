@@ -27,7 +27,10 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       ..image = json['image'] as String?
       ..companyEmployees = (json['companyEmployees'] as List<dynamic>?)
           ?.map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
-          .toList();
+          .toList()
+      ..freelancer = json['freelancer'] == null
+          ? null
+          : FreelancerDto.fromJson(json['freelancer'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'userId': instance.userId,
@@ -42,4 +45,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'isDeleted': instance.isDeleted,
       'createdAt': instance.createdAt?.toIso8601String(),
       'companyEmployees': instance.companyEmployees,
+      'freelancer': instance.freelancer,
     };

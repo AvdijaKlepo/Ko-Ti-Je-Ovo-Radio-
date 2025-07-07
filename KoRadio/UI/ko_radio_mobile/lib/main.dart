@@ -9,10 +9,13 @@ import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
+import 'package:ko_radio_mobile/providers/order_provider.dart';
 import 'package:ko_radio_mobile/providers/product_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/providers/store_provider.dart';
+import 'package:ko_radio_mobile/providers/tender_bid_provider.dart';
+import 'package:ko_radio_mobile/providers/tender_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
@@ -36,6 +39,9 @@ void main() {
       ChangeNotifierProvider(create: (_) => CompanyProvider()),
       ChangeNotifierProvider(create: (_) => StoreProvider()),
       ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ChangeNotifierProvider(create: (_) => OrderProvider()),
+      ChangeNotifierProvider(create: (_) => TenderProvider()),
+      ChangeNotifierProvider(create: (_) => TenderBidProvider()),
       ChangeNotifierProvider(create: (_) => CartProvider()),
  
       ChangeNotifierProvider(create: (_) => SignalRProvider("notifications-hub")),
@@ -126,49 +132,48 @@ class LoginPage extends StatelessWidget {
                         prefixIcon: Icon(Icons.password)),
                   ),
                   ElevatedButton(
-                    onPressed: () async {
-                      var provider = UserProvider();
+                   onPressed: () async {
   AuthProvider.username = usernameController.text;
   AuthProvider.password = passwordController.text;
- 
 
   try {
     UserProvider userProvider = UserProvider();
     SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
+ 
+
     var user = await userProvider.login(
         AuthProvider.username, AuthProvider.password, AuthProvider.connectionId);
 
-   signalRProvider.startConnection();
-   signalRProvider.onNotificationReceived = (message) {
-  rootScaffoldMessengerKey.currentState?.showSnackBar(
-    SnackBar(content: Text(message)),
-  );
-};
     AuthProvider.user = user;
-    AuthProvider.user?.userId = user.userId;
-    AuthProvider.user?.firstName = user.firstName;
-    AuthProvider.user?.lastName = user.lastName;
-    AuthProvider.isSignedIn=true;
-    // If user has no roles
+    AuthProvider.isSignedIn = true;
+   signalRProvider.startConnection();
+
     if (user.userRoles == null || user.userRoles!.isEmpty) {
-      throw Exception("No roles assigned to this user.");
+      throw Exception("Korisnik nema dodijeljenih uloga.");
     }
 
-    // If user has more than one role
-    if (user.userRoles!.length > 1) {
+
+    final filteredRoles = user.userRoles!.where((ur) =>
+      ur.role?.roleName == "User" ||
+      ur.role?.roleName == "Freelancer" ||
+      ur.role?.roleName == "CompanyEmployee").toList();
+
+
+    if (filteredRoles.length > 1) {
       await showDialog(
         context: context,
         builder: (context) => SimpleDialog(
           title: const Text("Odaberite ulogu"),
-          children: user.userRoles!.map((userRole) {
+          children: filteredRoles.map((userRole) {
             return SimpleDialogOption(
               onPressed: () {
-                AuthProvider.userRoles = userRole;
-                Navigator.pop(context); 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const MasterScreen()));
+                AuthProvider.selectedRole = userRole.role?.roleName ?? "";
+                print(AuthProvider.selectedRole);
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MasterScreen()),
+                );
               },
               child: Text(userRole.role?.roleName ?? "Nepoznata uloga"),
             );
@@ -176,25 +181,32 @@ class LoginPage extends StatelessWidget {
         ),
       );
     } else {
-      // Single role: auto-assign and go to master screen
-      AuthProvider.userRoles = user.userRoles!.first;
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => const MasterScreen()));
+   
+      final selected = filteredRoles.first;
+      AuthProvider.selectedRole = selected.role?.roleName ?? "";
+      AuthProvider.userRoles = selected;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MasterScreen()),
+      );
     }
   } catch (e) {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text("Greška"),
-              content: Text(e.toString()),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("U redu"))
-              ],
-            ));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Greška"),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("U redu"))
+        ],
+      ),
+    );
   }
 },
+
 
                       child: const Text("Login")),
                   ElevatedButton(

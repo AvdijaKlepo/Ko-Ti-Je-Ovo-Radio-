@@ -70,11 +70,19 @@ class _FreelancerListState extends State<FreelancerList> {
     }
   }
 
-  Future<void> _loadCompanies() async {
+  Future<void> _loadCompanies({int? locationId}) async {
+    var filter = {
+      'ServiceId': widget.serviceId,
+      'isApplicant': false,
+      'isDeleted': false,
+    };
+
+    if (locationId != null) {
+      filter['LocationId'] = locationId;
+    }
+
     try {
-      var fetched = await companyProvider.get(
-        filter: {'isApplicant': false, 'isDeleted': false},
-      );
+      var fetched = await companyProvider.get(filter: filter);
       setState(() => companyResult = fetched);
     } catch (e) {
       _showError(e.toString());
@@ -89,7 +97,7 @@ class _FreelancerListState extends State<FreelancerList> {
         locationDropdownItems = fetched.result
                 ?.map((l) => DropdownMenuItem(
                       value: l.locationId,
-                      child: Text(l.locationName ?? ''),
+                      child: Text(l.locationName ?? '', style: const TextStyle(color: Colors.white)),
                     ))
                 .toList() ??
             [];
@@ -108,13 +116,12 @@ class _FreelancerListState extends State<FreelancerList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        
         title: const Text('Lista servisera'),
-        leading: BackButton(
-          onPressed: () => Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => MasterScreen()),
-          ),
-        ),
+    
+       
       ),
       body: SafeArea(
         child: Padding(
@@ -137,6 +144,7 @@ class _FreelancerListState extends State<FreelancerList> {
 
   Widget _buildFilterCard() {
     return Card(
+      color: const Color.fromRGBO(27, 76, 125, 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
       child: Padding(
@@ -144,22 +152,28 @@ class _FreelancerListState extends State<FreelancerList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Filteri', style: Theme.of(context).textTheme.titleMedium),
+            const Text('Filteri', style: TextStyle(color: Colors.white, fontSize: 18)),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: SegmentedButton<options>(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(const Color.fromRGBO(20, 60, 100, 1)),
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      
+                    ),
                     segments: const [
                       ButtonSegment(
                         value: options.Radnici,
-                        label: Expanded(child: Text('Radnici')),
-                        icon: Icon(Icons.construction),
+                        label: Text('Radnici'),
+                        icon: Icon(Icons.construction, color: Colors.white),
+
                       ),
                       ButtonSegment(
                         value: options.Firme,
-                        label: Expanded(child: Text('Firme')),
-                        icon: Icon(Icons.business),
+                        label: Text('Firme'),
+                        icon: Icon(Icons.business, color: Colors.white),
                       ),
                     ],
                     selected: {view},
@@ -173,17 +187,27 @@ class _FreelancerListState extends State<FreelancerList> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<int>(
+                    
+                    
+                    dropdownColor: const Color.fromRGBO(20, 60, 100, 1),
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                   
                     ),
-                    hint: const Text('Odaberi lokaciju'),
+                    iconEnabledColor: Colors.white,
+                    hint: const Text('Odaberi lokaciju', style: TextStyle(color: Colors.white70)),
                     items: locationDropdownItems,
-                    onChanged: (value) => _loadFreelancers(locationId: value),
+                    onChanged: (value) {
+                      if (value != null) {
+                        _loadFreelancers(locationId: value);
+                        _loadCompanies(locationId: value);
+                      }
+                    },
                   ),
                 ),
               ],
@@ -208,6 +232,7 @@ class _FreelancerListState extends State<FreelancerList> {
         final f = freelancerResult!.result[index];
         final freelancer = f.freelancerNavigation;
         return Card(
+          color: const Color.fromRGBO(240, 245, 255, 1),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
             leading: InkWell(
@@ -220,11 +245,11 @@ class _FreelancerListState extends State<FreelancerList> {
                     ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f,)),
+                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
               ),
             ),
-            title:
-                Text('${freelancer?.firstName} ${freelancer?.lastName}'),
+            title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
+                style: const TextStyle(color: Color.fromRGBO(27, 76, 125, 1), fontWeight: FontWeight.bold)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -252,28 +277,29 @@ class _FreelancerListState extends State<FreelancerList> {
       itemBuilder: (context, index) {
         final c = companyResult!.result[index];
         return Card(
+          color: const Color.fromRGBO(240, 245, 255, 1),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            leading:InkWell(
-              onTap:()=> Navigator.push(
+            leading: InkWell(
+              onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(company: c,)),
+                MaterialPageRoute(builder: (_) => FreelancerDetails(company: c)),
               ),
-              child:
-            
-             c.image != null
-                ? imageFromString(c.image!)
-                : Image.network(
-                    "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                    width: 80,
-                    height: 80,
-                  ),),
-            title: Text(c.companyName ?? ''),
+              child: c.image != null
+                  ? imageFromString(c.image!)
+                  : Image.network(
+                      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                      width: 80,
+                      height: 80,
+                    ),
+            ),
+            title: Text(c.companyName ?? '',
+                style: const TextStyle(color: Color.fromRGBO(27, 76, 125, 1), fontWeight: FontWeight.bold)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Iskustvo: ${c.experianceYears} godina'),
-                Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'} '),
+                Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}'),
                 Text('Lokacija: ${c.location?.locationName ?? "-"}'),
               ],
             ),

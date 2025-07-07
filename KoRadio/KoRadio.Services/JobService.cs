@@ -31,8 +31,15 @@ namespace KoRadio.Services
 			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x=>x.Location);
 			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerServices).ThenInclude(x=>x.Service);
 			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.UserRoles);
+			query = query.Include(x => x.Company).ThenInclude(x => x.Location);
+			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyServices).ThenInclude(x => x.Service);
+			
 
 
+			if(search?.JobId!=null)
+			{
+				query = query.Where(x => x.JobId == search.JobId);
+			}
 			if (search?.FreelancerId != null)
 			{
 				query = query.Where(x => x.FreelancerId == search.FreelancerId);
@@ -71,6 +78,16 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.JobStatus == "inProgress");
 			}
+			if (search?.IsTenderFinalized != null)
+			{
+				query = query.Where(x => x.IsTenderFinalized == search.IsTenderFinalized);
+			}
+
+			if (search?.IsFreelancer != null)
+			{
+				query = query.Where(x => x.IsFreelancer == search.IsFreelancer);
+			}
+
 			return query;
 			
 		}

@@ -17,6 +17,7 @@ class Company {
   List<String>? workingDays;
   String startTime;
   String endTime;
+  int? locationId;
   Location? location;
   bool isDeleted;
   bool isApplicant;

@@ -3,5 +3,5 @@ enum JobStatus{
   approved,
   finished,
   cancelled,
-  inProgress,
+  inProgress
 }

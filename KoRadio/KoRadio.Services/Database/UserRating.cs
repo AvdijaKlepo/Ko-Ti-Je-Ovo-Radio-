@@ -15,6 +15,10 @@ public partial class UserRating
 
     public int? JobId { get; set; }
 
+    public int? CompanyId { get; set; }
+
+    public virtual Company? Company { get; set; }
+
     public virtual Freelancer? Freelancer { get; set; }
 
     public virtual Job? Job { get; set; }

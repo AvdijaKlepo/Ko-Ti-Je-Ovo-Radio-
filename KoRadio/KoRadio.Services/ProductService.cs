@@ -21,6 +21,10 @@ namespace KoRadio.Services
 		{
 			
 			query = query.Include(x => x.ProductsServices).ThenInclude(x => x.Service);
+			if (!string.IsNullOrWhiteSpace(search?.Name))
+			{
+				query = query.Where(x => x.ProductName.StartsWith(search.Name));
+			}
 			if (search.IsDeleted==true)
 			{
 				query = query.Where(x => x.IsDeleted == true);

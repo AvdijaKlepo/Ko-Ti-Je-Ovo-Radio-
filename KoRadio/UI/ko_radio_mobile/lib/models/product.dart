@@ -12,6 +12,7 @@ class Product {
   double? price;
   bool? isDeleted;
   String? image;
+  int? storeId;
   Store? store;
   List<ProductsServices>? productsServices;
 

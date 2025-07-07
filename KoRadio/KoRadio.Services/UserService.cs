@@ -195,12 +195,13 @@ namespace KoRadio.Services
 
 		public Model.User Login(string username, string password, string connectionId)
 		{
-			
+
 
 			var entity = _context.Users.Include(x => x.UserRoles)
-				.ThenInclude(y => y.Role).Include(x=>x.CompanyEmployees)
-				.ThenInclude(x=>x.Company).Include(x=>x.Location)
-				.Include(x=>x.Stores)
+				.ThenInclude(y => y.Role).Include(x => x.CompanyEmployees)
+				.ThenInclude(x => x.Company).Include(x => x.Location)
+				.Include(x => x.Stores)
+				.Include(x => x.Freelancer)
 				.FirstOrDefault(x => x.Email == username);
 			
 

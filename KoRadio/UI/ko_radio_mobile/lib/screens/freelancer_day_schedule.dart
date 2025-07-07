@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 
 class FreelancerDaySchedule extends StatefulWidget {
-  FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
-  DateTime selectedDay;
-  Freelancer? freelancerId;
+  const FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
+  final DateTime selectedDay;
+  final Freelancer? freelancerId;
 
   
 
@@ -55,17 +55,17 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
       result = freelancer;
     });
   }
+  @override 
+  void dispose() {
+    super.dispose();
+  }
 
   @override
 Widget build(BuildContext context) { 
 
   return Scaffold(appBar: AppBar(
-    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a'), automaticallyImplyLeading: false,
-    leading:  IconButton(onPressed: (){
-     
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> FreelancerDetails(freelancer: widget.freelancerId)));
-      },
-      icon: const Icon(Icons.arrow_back)),
+    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a'),
+  
 
   ),body:   Padding(
         padding: const EdgeInsets.all(16.0),

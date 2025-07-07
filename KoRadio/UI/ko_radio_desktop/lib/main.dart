@@ -14,6 +14,7 @@ import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
+import 'package:ko_radio_desktop/providers/order_provider.dart';
 import 'package:ko_radio_desktop/providers/product_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
@@ -36,6 +37,7 @@ void main() {
       ChangeNotifierProvider(create: (_)=>StoreProvider()),
       ChangeNotifierProvider(create: (_)=>JobProvider()),
       ChangeNotifierProvider(create: (_)=>ProductProvider()),
+      ChangeNotifierProvider(create: (_)=>OrderProvider()),
 
     ],
     child: const MyApp(),));
@@ -195,6 +197,8 @@ class _LoginPageState extends State<LoginPage> {
                       }
                       if (stores.length == 1) {
                         AuthProvider.selectedStoreId = stores.first.storeId;
+                      
+             
                         
                       }
 

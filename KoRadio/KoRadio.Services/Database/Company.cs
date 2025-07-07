@@ -33,6 +33,10 @@ public partial class Company
 
     public string Email { get; set; } = null!;
 
+    public int TotalRatings { get; set; }
+
+    public decimal RatingSum { get; set; }
+
     public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
     public virtual ICollection<CompanyRole> CompanyRoles { get; set; } = new List<CompanyRole>();
@@ -42,4 +46,10 @@ public partial class Company
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
     public virtual Location Location { get; set; } = null!;
+
+    public virtual ICollection<TenderBid> TenderBids { get; set; } = new List<TenderBid>();
+
+    public virtual ICollection<Tender> Tenders { get; set; } = new List<Tender>();
+
+    public virtual ICollection<UserRating> UserRatings { get; set; } = new List<UserRating>();
 }

@@ -13,6 +13,8 @@ namespace KoRadio.Model
 		public int UserId { get; set; }
 
 		public int FreelancerId { get; set; }
+		public string JobTitle { get; set; } = null!;
+		public bool IsTenderFinalized { get; set; }
 
 		public TimeOnly? StartEstimate { get; set; }
 
@@ -30,10 +32,16 @@ namespace KoRadio.Model
 		public byte[]? Image { get; set; }
 
 		public string JobStatus { get; set; } = null!;
+		public bool IsFreelancer { get; set; }
 
 		public bool IsDeleted { get; set; }
+		public bool IsInvoiced { get; set; }
+
+		public bool IsRated { get; set; }
 
 		public virtual Freelancer Freelancer { get; set; } = null!;
+
+		public virtual ICollection<TenderBid> TenderBids { get; set; } = new List<TenderBid>();
 
 		public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
 

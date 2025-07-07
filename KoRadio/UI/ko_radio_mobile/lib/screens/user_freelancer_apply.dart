@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/models/user.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
@@ -59,7 +61,12 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
   }
 
   void _onSave() {
-    _formKey.currentState?.saveAndValidate();
+    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+
+  if (!isValid) {
+  
+    return;
+  }
     var formData = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
 
     if (formData["startTime"] is DateTime) {
@@ -80,6 +87,8 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
           .whereType<int>()
           .toList();
     }
+
+    formData['userId'] = AuthProvider.user?.userId ?? 0;
 
     formData["roles"] = [10];
     formData["isDeleted"] = false;
@@ -124,18 +133,13 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(
-                      name: "freelancerId",
-                      decoration: const InputDecoration(labelText: "User ID"),
-                      enabled: false,
-                      readOnly: true,
-                    ),
+                  
                     spacing,
-                    FormBuilderTextField(name: "firstName", decoration: const InputDecoration(labelText: "First Name")),
+                    FormBuilderTextField(name: "firstName", decoration: const InputDecoration(labelText: "First Name"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
                     spacing,
-                    FormBuilderTextField(name: "lastName", decoration: const InputDecoration(labelText: "Last Name")),
+                    FormBuilderTextField(name: "lastName", decoration: const InputDecoration(labelText: "Last Name"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
                     spacing,
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email")),
+                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
                   ]),
                 ),
               ),
@@ -144,10 +148,10 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Bio")),
+                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Biografija"),validator: FormBuilderValidators.required(errorText: "Obavezno polje"),maxLines: 3,),
                     spacing,
                     FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Years of Experience")),
+                        name: "experianceYears", decoration: const InputDecoration(labelText: "Years of Experience"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
                     spacing,
                   
                     spacing,
@@ -155,12 +159,14 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                       name: 'startTime',
                       decoration: const InputDecoration(labelText: "Početak radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
                     ),
                     spacing,
                     FormBuilderDateTimePicker(
                       name: 'endTime',
                       decoration: const InputDecoration(labelText: "Kraj radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
                     ),
                   ]),
                 ),
@@ -174,6 +180,8 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: serviceResult?.result.length != null
                           ? FormBuilderFilterChip(
+                            
+                            
                               name: "serviceId",
                               decoration: const InputDecoration(border: InputBorder.none),
                               options: serviceResult!.result
@@ -182,6 +190,13 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                                   .toList(),
                               spacing: 6,
                               runSpacing: 4,
+                               validator: (value) {
+    if (value == null || value.isEmpty) {
+      return "Odaberite barem jednu uslugu";
+    }
+    return null;
+  },
+                              
                             )
                           : const Text("Nema dostupnih usluga"),
                     ),
@@ -189,6 +204,7 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 ),
               spacing,
              FormBuilderCheckboxGroup<String>(
+              validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       name: 'workingDays',
                       decoration: InputDecoration(labelText: "Radni dani"),
                       options: [

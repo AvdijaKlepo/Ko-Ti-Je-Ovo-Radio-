@@ -43,6 +43,8 @@ public partial class User
 
     public virtual ICollection<Store> Stores { get; set; } = new List<Store>();
 
+    public virtual ICollection<Tender> Tenders { get; set; } = new List<Tender>();
+
     public virtual ICollection<UserRating> UserRatings { get; set; } = new List<UserRating>();
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

@@ -33,6 +33,16 @@ public partial class Job
 
     public DateTime? DateFinished { get; set; }
 
+    public string JobTitle { get; set; } = null!;
+
+    public bool IsTenderFinalized { get; set; }
+
+    public bool IsFreelancer { get; set; }
+
+    public bool IsInvoiced { get; set; }
+
+    public bool IsRated { get; set; }
+
     public virtual Company? Company { get; set; }
 
     public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
@@ -40,6 +50,8 @@ public partial class Job
     public virtual Freelancer? Freelancer { get; set; }
 
     public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();
+
+    public virtual ICollection<TenderBid> TenderBids { get; set; } = new List<TenderBid>();
 
     public virtual User User { get; set; } = null!;
 
