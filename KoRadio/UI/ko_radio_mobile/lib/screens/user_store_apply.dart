@@ -59,8 +59,30 @@ class _UserStoreApplyState extends State<UserStoreApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
-                    FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                    FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),validator: FormBuilderValidators.compose(
+                      [
+                        FormBuilderValidators.required(errorText: "Obavezno polje"),
+                        (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                      ]
+                    )),
+                    FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                    ])),
                     FormBuilderDropdown<int>(
                       name: 'locationId',
                       decoration: const InputDecoration(labelText: "Lokacija*"),

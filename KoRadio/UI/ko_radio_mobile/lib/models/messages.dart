@@ -11,6 +11,7 @@ class Messages{
  int? messageId;
  String? message1;
  int? userId;
+ bool? isOpened;
  User? user;
 
 

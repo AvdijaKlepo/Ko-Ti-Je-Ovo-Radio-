@@ -177,15 +177,17 @@ void initState() {
                           border: OutlineInputBorder(),
                         ),
                       ),
+                      const SizedBox(height: 12),
                      
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                           Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0),
                             child: serviceResult?.result != null
                                 ? FormBuilderFilterChip(
                                     name: "serviceId",
-                                    decoration: const InputDecoration(border: InputBorder.none),
+                                    decoration: const InputDecoration(border: InputBorder.none,),
                                     options: serviceResult!.result
                                         .map((s) => FormBuilderChipOption(
+                                          avatar: const Icon(Icons.business_center),
                                             value: s.serviceId, 
                                              child: Text(s.serviceName ?? "")))
                                         .toList(),

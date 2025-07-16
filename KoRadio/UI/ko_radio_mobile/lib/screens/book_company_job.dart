@@ -87,15 +87,34 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
               Text('Rezervacije za ${widget.selectedDay.toIso8601String().split('T')[0]}'),
               const SizedBox(height: 6),
                FormBuilderTextField(
-                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: "Obavezno polje"),
+                   (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                  ]),
                       name: "jobTitle",
                       decoration: const InputDecoration(
                         labelText: 'Naslov posla',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.description),
                       ),
-                      maxLines: 3,
+                   
                     ),  
+                    SizedBox(height: 15,),
+                    ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
+                    children: [
+  Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
+                    style: TextStyle(fontSize: 12),),
+                    ]
+                  
+                    )
+                    ,
                     SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
@@ -120,9 +139,20 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         
                       },
                     ),
-                  
+                  SizedBox(height: 15,),
                FormBuilderTextField(
-                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: "Obavezno polje"),
+                   (value) {
+      if (value == null || value.isEmpty) return null;
+       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                  ]),
                       name: "jobDescription",
                       decoration: const InputDecoration(
                         labelText: 'Opis problema',
@@ -247,7 +277,8 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                 formData["userId"] = _userId;
                 formData["companyId"] = widget.c?.companyId;
                 jobProvider.insert(formData);
-                Navigator.of(context).pop(true);
+                int count = 0;
+                Navigator.of(context).popUntil((_) => count++ >= 4);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Zahtjev proslijeđen firmi!")));
               }

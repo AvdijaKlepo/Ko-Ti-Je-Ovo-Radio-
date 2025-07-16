@@ -1,10 +1,13 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_mobile/models/freelancer_service.dart';
 
 part 'freelancer_dto.g.dart';
 @JsonSerializable()
 class FreelancerDto{
   int? freelancerId;
+  List<FreelancerService>? freelancerServices;
+  
 
   FreelancerDto({this.freelancerId});
 

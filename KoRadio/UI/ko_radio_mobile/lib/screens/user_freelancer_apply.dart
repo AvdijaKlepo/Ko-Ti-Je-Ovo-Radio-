@@ -117,7 +117,7 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     final spacing = const SizedBox(height: 16);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Promovi korisnika")),
+      appBar: AppBar(title: const Text("Prijava za radnika")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -135,11 +135,38 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                   child: Column(children: [
                   
                     spacing,
-                    FormBuilderTextField(name: "firstName", decoration: const InputDecoration(labelText: "First Name"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
+                    FormBuilderTextField(name: "firstName", decoration: const InputDecoration(labelText: "First Name"),validator: FormBuilderValidators.compose(
+                      [
+                        FormBuilderValidators.required(errorText: "Obavezno polje"),
+                        (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                      ]
+                    )),
                     spacing,
-                    FormBuilderTextField(name: "lastName", decoration: const InputDecoration(labelText: "Last Name"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
+                    FormBuilderTextField(name: "lastName", decoration: const InputDecoration(labelText: "Last Name"),validator: FormBuilderValidators.compose(
+                      [
+                        FormBuilderValidators.required(errorText: "Obavezno polje"),
+                        (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                      ]
+                    )),
                     spacing,
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
+                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: "Obavezno polje"),
+                      FormBuilderValidators.email(errorText: "Email nije valjan"),
+                    ])),
                   ]),
                 ),
               ),
@@ -148,10 +175,23 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Biografija"),validator: FormBuilderValidators.required(errorText: "Obavezno polje"),maxLines: 3,),
+                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Biografija"),validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: "Obavezno polje"),
+                      (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                    ]),maxLines: 3,),
                     spacing,
                     FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Years of Experience"),validator: FormBuilderValidators.required(errorText: "Obavezno polje")),
+                        name: "experianceYears", decoration: const InputDecoration(labelText: "Years of Experience"),validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(errorText: "Obavezno polje"),
+                          FormBuilderValidators.numeric(errorText: "Dozvoljeni si u samo brojevi."),
+                        ])),
                     spacing,
                   
                     spacing,

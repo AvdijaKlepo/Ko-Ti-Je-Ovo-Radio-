@@ -7,6 +7,7 @@ import 'package:ko_radio_mobile/providers/order_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/order_list.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -134,8 +135,8 @@ class _CartState extends State<Cart> {
                           MaterialPageRoute(
                             builder: (context) => PaypalCheckoutView(
                               sandboxMode: true,
-                              clientId: "wow",
-                              secretKey: "wow",
+                                clientId: DotEnv().env['clientId'],
+          secretKey: DotEnv().env['secretKey'],
                               transactions: [
                                 {
                                   "amount": {

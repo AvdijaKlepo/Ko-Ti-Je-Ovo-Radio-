@@ -208,10 +208,14 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                     };
                   jobProvider.update(tenderBid.jobId!,
                   request);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen!")));
+                  Navigator.of(context).pop(true);
                   } catch(e){
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Greška: ${e.toString()}")),
+                        
                     );
+                    Navigator.of(context).pop(false);
                   }
              
             }, icon: const Icon(Icons.check),color: Colors.white,),)

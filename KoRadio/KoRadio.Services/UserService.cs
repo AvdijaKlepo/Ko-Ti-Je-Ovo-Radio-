@@ -202,6 +202,8 @@ namespace KoRadio.Services
 				.ThenInclude(x => x.Company).Include(x => x.Location)
 				.Include(x => x.Stores)
 				.Include(x => x.Freelancer)
+				.ThenInclude(x=>x.FreelancerServices)
+				.ThenInclude(x=>x.Service)
 				.FirstOrDefault(x => x.Email == username);
 			
 

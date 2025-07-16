@@ -4,6 +4,7 @@ import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/freelancer_dto.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/role.dart';
+import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/models/user_role.dart';
 
 
@@ -23,6 +24,7 @@ class User{
   DateTime? createdAt;
   List<CompanyEmployee>? companyEmployees;
   FreelancerDto? freelancer;
+
   
 
 

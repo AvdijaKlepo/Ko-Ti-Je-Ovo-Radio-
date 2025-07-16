@@ -18,6 +18,14 @@ namespace KoRadio.Services
 
 		public override IQueryable<Message> AddFilter(MessageSearchObject search, IQueryable<Message> query)
 		{
+			if (search?.UserId!=null)
+			{
+				query = query.Where(x => x.UserId == search.UserId);
+			}
+			if (search?.IsOpened==false)
+			{
+				query = query.Where(x => x.IsOpened == false);
+			}
 			return base.AddFilter(search, query);
 		}
 	}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
@@ -52,9 +53,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_selectedDay != null) {
-      _selectedDay = _focusedDay;
-    }
+   
   }
 
   bool _isWorkingDay(DateTime day) {
@@ -71,7 +70,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}'),
+        centerTitle: true,
+        title: Text('Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
         
        
       ),
@@ -90,9 +90,9 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                     if (imageString != null && imageString.startsWith("data:image")) {
                       return imageFromString(imageString, height: 100, width: 100);
                     } else {
-                      return Image.network(
+                      return Image.asset(
                         imageString ??
-                            "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+                            "assets/images/workerplaceholder.png",
                         height: 100,
                         width: 100,
                       );
@@ -104,13 +104,13 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(isFreelancer
-                      ? '${widget.freelancer?.freelancerNavigation?.firstName ?? ''} ${widget.freelancer?.freelancerNavigation?.lastName ?? ''}'
+                      ? 'Ime: ${widget.freelancer?.freelancerNavigation?.firstName ?? ''} ${widget.freelancer?.freelancerNavigation?.lastName ?? ''}'
                       : widget.company?.companyName ?? 'Nepoznata kompanija'),
                   if (isFreelancer)
-                    Text('Iskustvo: ${widget.freelancer?.experianceYears} godina'),
+                    Text('Iskustsvo: ${widget.freelancer?.experianceYears} godine'),
                   Text('Ocjena: ${(isFreelancer ? widget.freelancer?.rating : widget.company?.rating) != 0 ? (isFreelancer ? widget.freelancer?.rating : widget.company?.rating).toString() : 'Neocijenjen'}'),
                   Text('Lokacija: ${isFreelancer ? widget.freelancer?.freelancerNavigation?.location?.locationName : widget.company?.location?.locationName ?? 'Nepoznato'}'),
-                  Text('Radno vrijeme: ${isFreelancer ? widget.freelancer?.startTime : widget.company?.startTime} - ${isFreelancer ? widget.freelancer?.endTime : widget.company?.endTime}'),
+                  Text('Radno vrijeme: ${isFreelancer ? widget.freelancer?.startTime.substring(0,5) : widget.company?.startTime.substring(0,5)} - ${isFreelancer ? widget.freelancer?.endTime.substring(0,5) : widget.company?.endTime.substring(0,5)}'),
                 ],
               ),
             ],
@@ -119,6 +119,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
           const Text('Kalendar dostupnosti'),
           Expanded(
             child: TableCalendar(
+              key: PageStorageKey('calendar'), 
+              
               firstDay: DateTime.now(),
               lastDay: DateTime(2035),
               focusedDay: _focusedDay,
@@ -126,24 +128,29 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
               calendarFormat: CalendarFormat.month,
               availableGestures: AvailableGestures.all,
               enabledDayPredicate: _isWorkingDay,
-              onDaySelected: (selectedDay, focusedDay) async {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
+             onDaySelected: (selectedDay, focusedDay) async {
+  setState(() {
 
-                if (isFreelancer) {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        FreelancerDaySchedule(selectedDay, widget.freelancer!),
-                  ));
-                } else {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        BookCompanyJob(widget.company!, selectedDay),
-                  ));
-                }
-              },
+    _focusedDay = selectedDay;
+  });
+
+  if (isFreelancer) {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => FreelancerDaySchedule(selectedDay, widget.freelancer!),
+    ));
+  } else {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => BookCompanyJob(widget.company!, selectedDay),
+    ));
+  }
+
+  // After returning, keep the same month focused
+  if (mounted) {
+    setState(() {
+      _focusedDay = _selectedDay!;
+    });
+  }
+},
               calendarStyle: CalendarStyle(
                 isTodayHighlighted: true,
                 selectedDecoration: const BoxDecoration(

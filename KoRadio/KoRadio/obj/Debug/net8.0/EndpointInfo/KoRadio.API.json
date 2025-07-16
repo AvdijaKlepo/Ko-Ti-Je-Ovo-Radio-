@@ -66,6 +66,13 @@
             }
           },
           {
+            "name": "CompanyName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "IsApplicant",
             "in": "query",
             "schema": {
@@ -1017,6 +1024,124 @@
         }
       }
     },
+    "/Freelancer/{id}": {
+      "get": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Freelancer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Freelancer"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Freelancer": {
       "post": {
         "tags": [
@@ -1183,124 +1308,6 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FreelancerPagedResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/Freelancer/{id}": {
-      "put": {
-        "tags": [
-          "Freelancer"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FreelancerUpdateRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FreelancerUpdateRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/FreelancerUpdateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Freelancer"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Freelancer"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Freelancer"
                 }
               }
             }
@@ -1898,6 +1905,13 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "IsOpened",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2915,6 +2929,14 @@
             "in": "query",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "LocationId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -4930,8 +4952,11 @@
             "format": "time",
             "nullable": true
           },
-          "serviceName": {
-            "type": "string",
+          "freelancerServices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FreelancerService"
+            },
             "nullable": true
           },
           "firstName": {
@@ -5579,6 +5604,9 @@
             "format": "int32",
             "nullable": true
           },
+          "isOpened": {
+            "type": "boolean"
+          },
           "user": {
             "$ref": "#/components/schemas/User"
           }
@@ -5596,6 +5624,9 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "isOpened": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5621,6 +5652,10 @@
       "MessageUpdateRequest": {
         "type": "object",
         "properties": {
+          "messageId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "message1": {
             "type": "string",
             "nullable": true
@@ -5629,6 +5664,9 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "isOpened": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

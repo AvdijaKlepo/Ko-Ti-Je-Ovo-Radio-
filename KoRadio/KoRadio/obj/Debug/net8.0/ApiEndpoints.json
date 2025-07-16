@@ -39,6 +39,11 @@
         "IsRequired": false
       },
       {
+        "Name": "CompanyName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "IsApplicant",
         "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
@@ -771,6 +776,32 @@
     ]
   },
   {
+    "ContainingType": "KoRadio.API.Controllers.FreelancerController",
+    "Method": "GetById",
+    "RelativePath": "Freelancer/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.Freelancer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.FreelancerUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Update",
     "RelativePath": "Freelancer/{id}",
@@ -819,32 +850,6 @@
       {
         "Type": "System.Void",
         "MediaTypes": [],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.Freelancer, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.FreelancerSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-    "Method": "GetById",
-    "RelativePath": "Freelancer/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "KoRadio.Model.Freelancer",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
         "StatusCode": 200
       }
     ]
@@ -1232,7 +1237,12 @@
     "Parameters": [
       {
         "Name": "UserId",
-        "Type": "System.Int32",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsOpened",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -1891,12 +1901,17 @@
       },
       {
         "Name": "IsApplicant",
-        "Type": "System.Boolean",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
         "Name": "IsDeleted",
-        "Type": "System.Boolean",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "LocationId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {

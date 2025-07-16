@@ -232,7 +232,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                                 product.image!,
                                                 fit: BoxFit.cover,
                                               )
-                                            : Image.asset('assets/images/productPlaceholder.jpg'),
+                                            : Image.asset('assets/images/productPlaceholder.jpg',fit: BoxFit.cover,),
                                       ),
                                       Positioned(
                                         bottom: 0,

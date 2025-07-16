@@ -13,6 +13,7 @@ import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class JobDetails extends StatefulWidget {
   final Job job;
@@ -28,7 +29,7 @@ class _JobDetailsState extends State<JobDetails> {
   late CompanyProvider companyProvider;
   late JobProvider jobProvider;
   late UserRatings userRatingsProvider;
-  SearchResult<Company>? companyResult;
+  late Company companyResult;
   double _rating = 0;
 
   @override
@@ -38,13 +39,85 @@ class _JobDetailsState extends State<JobDetails> {
     userRatingsProvider = context.read<UserRatings>();
     jobProvider = context.read<JobProvider>();
     companyProvider = context.read<CompanyProvider>();
-    _getCompany();
+    if(widget.job.company?.companyId!=null)
+    {
+      _getCompany();
+    }
+   
   }
   Future<void> _getCompany() async {
-    var result = await companyProvider.getById(widget.job.company?.companyId);
-    if (result.result.isNotEmpty) {
-      companyResult = result;
-    }
+     try {
+    var fetchedCompany = await companyProvider.getById(widget.job.company?.companyId ??  0);
+    setState(() {
+      companyResult = fetchedCompany;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
+  }
+   _openCancelDialog() {
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+      title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
+      content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+            TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+            onPressed: () async {
+                var jobUpdateRequest = {
+                "userId": widget.job.user?.userId,
+                "freelancerId": widget.job.freelancer?.freelancerId,
+                "companyId": null,
+                "jobTitle": widget.job.jobTitle,
+                "isTenderFinalized": false,
+                "isFreelancer": true,
+                "isInvoiced": false,
+                "isRated": false,
+                "startEstimate": widget.job.startEstimate,
+                "endEstimate": null,  
+                "payEstimate": null,
+                "payInvoice": null,
+                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
+                "dateFinished": null,
+                "jobDescription": widget.job.jobDescription,
+                "image": widget.job.image,
+                "jobStatus": JobStatus.cancelled.name,
+                "serviceId": widget.job.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+          };
+              try {
+            jobProvider.update(widget.job.jobId,
+            jobUpdateRequest
+            );
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
+               int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
+          } on Exception catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
+               int count = 0;
+          Navigator.of(context).popUntil((_) => count++ >= 2);
+
+          }
+            },
+            child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
+            ),
+      ],
+    );
   }
 
   @override
@@ -52,7 +125,8 @@ class _JobDetailsState extends State<JobDetails> {
     final dateFormat = DateFormat('dd.MM.yyyy');
 
     return Scaffold(
-      appBar: appBar(title: 'Detalji posla', automaticallyImplyLeading: true),
+      appBar: appBar(title: 'Detalji posla', automaticallyImplyLeading: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -65,7 +139,7 @@ class _JobDetailsState extends State<JobDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionTitle('Detalji posla'),
+                  _sectionTitle('Radne specifikacije'),
                   _buildDetailRow('Posao', widget.job.jobTitle?? 'Nije dostupan'), 
                   _buildDetailRow('Servis', widget.job.jobsServices
                           ?.map((e) => e.service?.serviceName)
@@ -73,9 +147,9 @@ class _JobDetailsState extends State<JobDetails> {
                           .join(', ') ??
                       'N/A'),
                   _buildDetailRow('Datum', dateFormat.format(widget.job.jobDate)),
-                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate ?? ''),
+                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''),
                   _buildDetailRow('Vrijeme završetka',
-                      widget.job.endEstimate ?? 'Nije dostupno'),
+                      widget.job.endEstimate.toString().substring(0,5) ?? 'Nije dostupno'),
                   _buildDetailRow('Opis posla', widget.job.jobDescription ?? 'Nema opisa'),
 
                   const Divider(height: 32),
@@ -87,9 +161,9 @@ class _JobDetailsState extends State<JobDetails> {
                         : 'Nepoznato',
                   ),
                   _buildDetailRow(
-                    'Adresa stanovanja',
+                    'Adresa',
                     widget.job.user != null
-                        ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
+                        ? '${widget.job.user?.address}'
                         : 'Nepoznato',
                   ),
 
@@ -110,7 +184,7 @@ class _JobDetailsState extends State<JobDetails> {
                   _buildDetailRow('Telefonski broj', widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato') : 
                    _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
                   const Divider(height: 32),
-                  _buildDetailRow('Procijenjena cijena',
+                  _buildDetailRow('Procijena',
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
@@ -128,7 +202,19 @@ class _JobDetailsState extends State<JobDetails> {
                   
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        if(widget.job.jobStatus==JobStatus.unapproved || (widget.job.jobStatus==JobStatus.approved && 
+                        DateTime.now().toIso8601String().split('T')[0]!=widget.job.jobDate.toIso8601String().split('T')[0]))
+                        ElevatedButton(onPressed: () {
+                      showDialog(context: context, builder: (context) => _openCancelDialog());
+                     
+
+
+             
+          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
+
+
                         if (widget.job.jobStatus == JobStatus.finished &&
                       widget.job.user?.userId == AuthProvider.user?.userId
                       && widget.job.isInvoiced==false)
@@ -138,8 +224,8 @@ class _JobDetailsState extends State<JobDetails> {
                               MaterialPageRoute(
                                 builder: (BuildContext context) => PaypalCheckoutView(
                                   sandboxMode: true,
-                                 clientId: "wow", 
-          secretKey: "wow",
+                                 clientId: DotEnv().env['clientId'],
+          secretKey: DotEnv().env['secretKey'],
           
                                   transactions: [
                                     {

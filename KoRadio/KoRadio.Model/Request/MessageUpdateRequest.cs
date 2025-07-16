@@ -8,8 +8,12 @@ namespace KoRadio.Model.Request
 {
     public class MessageUpdateRequest
     {
+		public int MessageId { get; set; }
+
 		public string? Message1 { get; set; }
 
 		public int? UserId { get; set; }
+
+		public bool IsOpened { get; set; }
 	}
 }

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/models/store.dart';
+import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/store_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/product_type_list.dart';
@@ -19,11 +21,15 @@ class StoreList extends StatefulWidget {
 class _StoreListState extends State<StoreList> {
   late StoreProvider storeProvider;
   late PaginatedFetcher<Store> storePagination;
+  late LocationProvider locationProvider;
+  SearchResult<Location>? locationResult;
   late final ScrollController _scrollController;
+  List<DropdownMenuItem<int>> locationDropdownItems = [];
 
   bool _isInitialized = false;
   String _searchQuery = "";
   Timer? _debounce;
+  int? _selectedLocationId;
   @override
   void initState() {
     super.initState();
@@ -37,6 +43,9 @@ class _StoreListState extends State<StoreList> {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+  
+      locationProvider = context.read<LocationProvider>();
+      await _getLocations();
       storeProvider = context.read<StoreProvider>();
       storePagination = PaginatedFetcher<Store>(
         fetcher: ({
@@ -65,6 +74,8 @@ class _StoreListState extends State<StoreList> {
         _isInitialized = true;
       });
     });
+
+
   }
 
   @override
@@ -81,12 +92,30 @@ class _StoreListState extends State<StoreList> {
       _refreshWithFilter();
     });
   }
-
+  Future<void> _getLocations() async {
+    try{
+        final fetched = await locationProvider.get();
+      locationResult = fetched;
+      locationDropdownItems = fetched.result
+          .map((l) => DropdownMenuItem(
+                value: l.locationId,
+                child: Text(l.locationName ?? '',
+                    style: const TextStyle(color: Colors.black)),
+              ))
+          .toList();
+    } catch(e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Greška pri dohvatu lokacija: ${e.toString()}")));
+    }
+  }
   Future<void> _refreshWithFilter() async {
     final filter = <String, dynamic>{};
     
     if (_searchQuery.isNotEmpty) {
       filter['Name'] = _searchQuery;
+    }
+    if (_selectedLocationId != null) {
+      filter['LocationId'] = _selectedLocationId;
     }
     await storePagination.refresh(newFilter: filter);
   }
@@ -128,6 +157,29 @@ Widget build(BuildContext context) {
           onChanged: _onSearchChanged,
         ),
       ),
+   Padding(
+     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+     child: DropdownButtonFormField<int>(
+        decoration: InputDecoration(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        hint: const Text(
+          'Odaberi lokaciju',
+          style: TextStyle(color: Colors.black),
+        ),
+        icon: const Icon(Icons.location_on),
+        dropdownColor: Colors.white,
+        items: locationDropdownItems,
+        onChanged: (value) {
+          setState(() {
+            _selectedLocationId = value;
+          });
+          _refreshWithFilter();
+        },
+      ),
+   ),
       Expanded(
         child: RefreshIndicator(
           onRefresh: _refreshWithFilter,
@@ -148,7 +200,9 @@ Widget build(BuildContext context) {
                       return store.storeName != null
                           ? GestureDetector(
                               onTap: () => _openStore(store),
+                              
                               child: Card(
+                                color: Colors.white,
                                 margin: const EdgeInsets.symmetric(vertical: 8),
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
@@ -159,6 +213,7 @@ Widget build(BuildContext context) {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AspectRatio(
+
                                       aspectRatio: 16 / 9,
                                       child: store.image != null
                                           ? imageFromString(
@@ -168,17 +223,20 @@ Widget build(BuildContext context) {
                                           : Image.asset(
                                               'assets/images/intro-1660762097.jpg',
                                               fit: BoxFit.cover,
+                                              
                                             ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(12.0),
-                                      child: Text(
+                                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+                                         Text(
                                         store.storeName!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(fontWeight: FontWeight.bold),
+                                        style:TextStyle(color: Colors.black),
                                       ),
+                                      Text(store.location?.locationName ?? "",style: TextStyle(color: Colors.black),),
+                                      ],)
+                                      
+                                     
                                     ),
                                   ],
                                 ),

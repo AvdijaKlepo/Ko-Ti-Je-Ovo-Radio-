@@ -129,7 +129,17 @@ class _BookTenderState extends State<BookTender> {
                 ),
 
                 
-                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                     (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                ]),
               ),
               SizedBox(height: 20,),
                FormBuilderTextField(
@@ -140,7 +150,17 @@ class _BookTenderState extends State<BookTender> {
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
-                validator: FormBuilderValidators.required(),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                     (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                ]),
               ),
               const SizedBox(height: 20,child: Text("Napomena: Datum tendera mora biti minimalno 5 dana unaprijed.", style: TextStyle(fontSize: 12, color: Color.fromRGBO(27, 76, 125, 25)),),),
               FormBuilderDateTimePicker(

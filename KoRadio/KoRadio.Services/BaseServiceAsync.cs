@@ -133,7 +133,10 @@ namespace KoRadio.Services
 		}
 		public async Task<TModel> GetByIdAsync(int id, CancellationToken cancellationToken = default)
 		{
+
 			var entity = await _context.Set<TDbEntity>().FindAsync(id, cancellationToken);
+
+			
 
 			if (entity != null)
 			{

@@ -14,6 +14,8 @@ namespace KoRadio.Model
 
 		public int? UserId { get; set; }
 
+		public bool IsOpened { get; set; }
+
 		public virtual User? User { get; set; }
 	}
 }

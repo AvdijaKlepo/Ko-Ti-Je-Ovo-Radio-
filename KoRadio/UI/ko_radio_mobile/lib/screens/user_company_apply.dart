@@ -128,16 +128,49 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(children: [
-                    FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                    FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:"),validator: FormBuilderValidators.compose(
+                      [
+                        FormBuilderValidators.required(errorText: "Obavezno polje"),
+                        (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                      ]
+                    )),
 
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                    ])),
+                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email firme"),validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      FormBuilderValidators.email(errorText: "Email nije valjan"),
+                    ])),
                     
                     FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva"),validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          FormBuilderValidators.numeric(errorText: "Dozvoljeni si u samo brojevi."),
+                        ])),
 
                           FormBuilderTextField(
-                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj"),validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          FormBuilderValidators.match(r'^\+\d{7,15}$',
+                    errorText:
+                        "Telefon mora imati od 7 do 15 cifara \ni počinjati znakom +."),
+                        ])),
                 
                   
                     FormBuilderDateTimePicker(

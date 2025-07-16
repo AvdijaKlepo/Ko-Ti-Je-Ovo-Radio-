@@ -13,7 +13,8 @@ namespace KoRadio.Model.Request
 		public string? Message1 { get; set; }
 
 		public int? UserId { get; set; }
+		public bool IsOpened { get; set; }
 
-	
+
 	}
 }

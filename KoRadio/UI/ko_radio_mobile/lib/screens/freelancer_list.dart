@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
@@ -9,10 +11,9 @@ import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_details.dart';
-import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
 
-enum options { Radnici, Firme }
+enum Options { radnici, firme }
 
 class FreelancerList extends StatefulWidget {
   final int serviceId;
@@ -27,13 +28,19 @@ class _FreelancerListState extends State<FreelancerList> {
   late FreelancerProvider freelancerProvider;
   late LocationProvider locationProvider;
   late CompanyProvider companyProvider;
+  final ScrollController _scrollController = ScrollController();
 
-  SearchResult<Freelancer>? freelancerResult;
+  PaginatedFetcher<Freelancer>? freelancerPagination;
+  PaginatedFetcher<Company>? companyPagination;
+
   SearchResult<Location>? locationResult;
-  SearchResult<Company>? companyResult;
-
   List<DropdownMenuItem<int>> locationDropdownItems = [];
-  options view = options.Radnici;
+
+  Options view = Options.radnici;
+  bool _isInitialized = false;
+  String _searchQuery = "";
+  int? _selectedLocationId;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -44,173 +51,195 @@ class _FreelancerListState extends State<FreelancerList> {
       locationProvider = context.read<LocationProvider>();
       companyProvider = context.read<CompanyProvider>();
 
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 100) {
+          if (view == Options.radnici &&
+              freelancerPagination != null &&
+              freelancerPagination!.hasNextPage &&
+              !freelancerPagination!.isLoading) {
+            freelancerPagination!.loadMore();
+          } else if (view == Options.firme &&
+              companyPagination != null &&
+              companyPagination!.hasNextPage &&
+              !companyPagination!.isLoading) {
+            companyPagination!.loadMore();
+          }
+        }
+      });
+
+      freelancerPagination = PaginatedFetcher<Freelancer>(
+        pageSize: 5,
+        initialFilter: {
+          'ServiceId': widget.serviceId,
+          'IsDeleted': false,
+          'IsApplicant': false,
+        },
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+        }) async {
+          final result = await freelancerProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+
+      companyPagination = PaginatedFetcher<Company>(
+        pageSize: 10,
+        initialFilter: {
+          'ServiceId': widget.serviceId,
+          'isDeleted': false,
+          'isApplicant': false,
+        },
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+        }) async {
+          final result = await companyProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+
+      await freelancerPagination!.refresh();
+      await companyPagination!.refresh();
       await _loadLocations();
-      await _loadFreelancers();
-      await _loadCompanies();
+
+      setState(() {
+        _isInitialized = true;
+      });
     });
   }
 
-  Future<void> _loadFreelancers({int? locationId}) async {
-    var filter = {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        _searchQuery = query.trim();
+      });
+      _refreshWithFilter();
+    });
+  }
+
+  Future<void> _refreshWithFilter() async {
+    final filter = <String, dynamic>{
       'ServiceId': widget.serviceId,
-      'IsServiceIncluded': true,
       'IsDeleted': false,
       'IsApplicant': false,
     };
 
-    if (locationId != null) {
-      filter['LocationId'] = locationId;
+    if (_searchQuery.isNotEmpty && view == Options.radnici) {
+      filter['FirstNameGTE'] = _searchQuery;
+    }
+    if (_searchQuery.isNotEmpty && view == Options.firme) {
+      filter['CompanyName'] = _searchQuery;
     }
 
-    try {
-      var fetched = await freelancerProvider.get(filter: filter);
-      setState(() => freelancerResult = fetched);
-    } catch (e) {
-      _showError(e.toString());
-    }
-  }
-
-  Future<void> _loadCompanies({int? locationId}) async {
-    var filter = {
-      'ServiceId': widget.serviceId,
-      'isApplicant': false,
-      'isDeleted': false,
-    };
-
-    if (locationId != null) {
-      filter['LocationId'] = locationId;
+    if (_selectedLocationId != null) {
+      filter['LocationId'] = _selectedLocationId;
     }
 
-    try {
-      var fetched = await companyProvider.get(filter: filter);
-      setState(() => companyResult = fetched);
-    } catch (e) {
-      _showError(e.toString());
+    if (view == Options.radnici) {
+      await freelancerPagination?.refresh(newFilter: filter);
+    } else {
+      await companyPagination?.refresh(newFilter: filter);
     }
   }
 
   Future<void> _loadLocations() async {
     try {
-      var fetched = await locationProvider.get();
-      setState(() {
-        locationResult = fetched;
-        locationDropdownItems = fetched.result
-                ?.map((l) => DropdownMenuItem(
-                      value: l.locationId,
-                      child: Text(l.locationName ?? '', style: const TextStyle(color: Colors.white)),
-                    ))
-                .toList() ??
-            [];
-      });
+      final fetched = await locationProvider.get();
+      locationResult = fetched;
+      locationDropdownItems = fetched.result
+          .map((l) => DropdownMenuItem(
+                value: l.locationId,
+                child: Text(l.locationName ?? '',
+                    style: const TextStyle(color: Colors.black)),
+              ))
+          .toList();
     } catch (e) {
       _showError(e.toString());
     }
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Greška: $message')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Greška: $message')));
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Scaffold(
+          body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        
-        title: const Text('Lista servisera'),
-    
-       
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              _buildFilterCard(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: view == options.Radnici
-                    ? _buildFreelancerList()
-                    : _buildCompanyList(),
-              ),
-            ],
+        centerTitle: true,
+        title: Text(
+          'Lista servisera',
+          style: TextStyle(
+            color: const Color.fromRGBO(27, 76, 125, 1),
+            fontFamily: GoogleFonts.robotoCondensed().fontFamily,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFilterCard() {
-    return Card(
-      color: const Color.fromRGBO(27, 76, 125, 1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Filteri', style: TextStyle(color: Colors.white, fontSize: 18)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: SegmentedButton<options>(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(const Color.fromRGBO(20, 60, 100, 1)),
-                      foregroundColor: MaterialStateProperty.all(Colors.white),
-                      
-                    ),
-                    segments: const [
-                      ButtonSegment(
-                        value: options.Radnici,
-                        label: Text('Radnici'),
-                        icon: Icon(Icons.construction, color: Colors.white),
-
-                      ),
-                      ButtonSegment(
-                        value: options.Firme,
-                        label: Text('Firme'),
-                        icon: Icon(Icons.business, color: Colors.white),
-                      ),
-                    ],
-                    selected: {view},
-                    onSelectionChanged: (Set<options> newSelection) {
-                      setState(() {
-                        view = newSelection.first;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    
-                    
-                    dropdownColor: const Color.fromRGBO(20, 60, 100, 1),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.white),
-                      ),
-                   
-                    ),
-                    iconEnabledColor: Colors.white,
-                    hint: const Text('Odaberi lokaciju', style: TextStyle(color: Colors.white70)),
-                    items: locationDropdownItems,
-                    onChanged: (value) {
-                      if (value != null) {
-                        _loadFreelancers(locationId: value);
-                        _loadCompanies(locationId: value);
-                      }
-                    },
-                  ),
-                ),
+            SegmentedButton<Options>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(
+                    value: Options.radnici,
+                    label: Text('Radnici'),
+                    icon: Icon(Icons.construction)),
+                ButtonSegment(
+                    value: Options.firme,
+                    label: Text('Firme'),
+                    icon: Icon(Icons.business)),
               ],
+              selected: {view},
+              onSelectionChanged: (Set<Options> newSelection) {
+                setState(() => view = newSelection.first);
+                _refreshWithFilter();
+              },
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              onChanged: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText:
+                    view == Options.radnici ? 'Pretraži radnike...' : 'Pretraži firme...',
+                prefixIcon: const Icon(Icons.search),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildFilterCard(),
+            Expanded(
+              child: view == Options.radnici
+                  ? _buildFreelancerList()
+                  : _buildCompanyList(),
             ),
           ],
         ),
@@ -218,93 +247,116 @@ class _FreelancerListState extends State<FreelancerList> {
     );
   }
 
-  Widget _buildFreelancerList() {
-    if (freelancerResult == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (freelancerResult!.result.isEmpty) {
-      return const Center(child: Text('Nema dostupnih radnika.'));
-    }
+  Widget _buildFilterCard() {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      hint: const Text(
+        'Odaberi lokaciju',
+        style: TextStyle(color: Colors.black),
+      ),
+      icon: const Icon(Icons.location_on),
+      dropdownColor: Colors.white,
+      items: locationDropdownItems,
+      onChanged: (value) {
+        setState(() {
+          _selectedLocationId = value;
+        });
+        _refreshWithFilter();
+      },
+    );
+  }
 
+  Widget _buildFreelancerList() {
+    final items = freelancerPagination?.items ?? [];
     return ListView.builder(
-      itemCount: freelancerResult!.result.length,
+      controller: _scrollController,
+      itemCount: items.length +
+          (freelancerPagination?.hasNextPage ?? false ? 1 : 0),
       itemBuilder: (context, index) {
-        final f = freelancerResult!.result[index];
-        final freelancer = f.freelancerNavigation;
-        return Card(
-          color: const Color.fromRGBO(240, 245, 255, 1),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            leading: InkWell(
-              child: freelancer?.image != null
+        if (index < items.length) {
+          final f = items[index];
+          final freelancer = f.freelancerNavigation;
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              tileColor: Colors.blue[10],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              leading: freelancer?.image != null
                   ? imageFromString(freelancer!.image!)
-                  : Image.network(
-                      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                      width: 80,
-                      height: 80,
-                    ),
+                  : Image.asset("assets/images/workerplaceholder.png",
+                      width: 80, height: 80),
+              title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Iskustvo: ${f.experianceYears} godina'),
+                  Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}'),
+                  Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}'),
+                ],
+              ),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
               ),
             ),
-            title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
-                style: const TextStyle(color: Color.fromRGBO(27, 76, 125, 1), fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Iskustvo: ${f.experianceYears} godina'),
-                Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}'),
-                Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}'),
-              ],
-            ),
-          ),
-        );
+          );
+        } else {
+          return const Padding(
+            padding: EdgeInsets.all(8),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
       },
     );
   }
 
   Widget _buildCompanyList() {
-    if (companyResult == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (companyResult!.result.isEmpty) {
-      return const Center(child: Text('Nema dostupnih firmi.'));
-    }
-
+    final items = companyPagination?.items ?? [];
     return ListView.builder(
-      itemCount: companyResult!.result.length,
+      controller: _scrollController,
+      itemCount:
+          items.length + (companyPagination?.hasNextPage ?? false ? 1 : 0),
       itemBuilder: (context, index) {
-        final c = companyResult!.result[index];
-        return Card(
-          color: const Color.fromRGBO(240, 245, 255, 1),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            leading: InkWell(
+        if (index < items.length) {
+          final c = items[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              tileColor: Colors.blue[10],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              leading: c.image != null
+                  ? imageFromString(c.image!)
+                  : Image.asset("assets/images/companyplaceholder.jpg",
+                      width: 80, height: 80),
+              title: Text(c.companyName ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Iskustvo: ${c.experianceYears} godina'),
+                  Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}'),
+                  Text('Lokacija: ${c.location?.locationName ?? '-'}'),
+                ],
+              ),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => FreelancerDetails(company: c)),
               ),
-              child: c.image != null
-                  ? imageFromString(c.image!)
-                  : Image.network(
-                      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
-                      width: 80,
-                      height: 80,
-                    ),
             ),
-            title: Text(c.companyName ?? '',
-                style: const TextStyle(color: Color.fromRGBO(27, 76, 125, 1), fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Iskustvo: ${c.experianceYears} godina'),
-                Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}'),
-                Text('Lokacija: ${c.location?.locationName ?? "-"}'),
-              ],
-            ),
-          ),
-        );
+          );
+        } else {
+          return const Padding(
+            padding: EdgeInsets.all(8),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
       },
     );
   }

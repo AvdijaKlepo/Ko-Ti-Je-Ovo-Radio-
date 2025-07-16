@@ -70,36 +70,25 @@ abstract class BaseProvider<T> with ChangeNotifier {
     // print("response: ${response.request} ${response.statusCode}, ${response.body}");
   }
 
-  Future<SearchResult<T>> getById(int? id, {dynamic filter}) async {
-    var url = "$baseUrl$_endpoint";
+ Future<T> getById(int? id) async {
+  if (id == null) throw Exception("ID must not be null");
 
-    if (filter != null) {
-      var queryString = getQueryString(filter);
-      url = "$url?$queryString/$id";
-    }
+  var url = "$baseUrl$_endpoint/$id"; 
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
 
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  var response = await http.get(uri, headers: headers);
 
-    var response = await http.get(uri, headers: headers);
+  if (isValidResponse(response)) {
+    var data = jsonDecode(response.body);
 
-    if (isValidResponse(response)) {
-      var data = jsonDecode(response.body);
-
-      var result = SearchResult<T>();
-
-      result.count = data['count'];
-
-      for (var item in data['resultList']) {
-        result.result.add(fromJson(item));
-      }
-
-      return result;
-    } else {
-      throw Exception("Unknown error");
-    }
-    // print("response: ${response.request} ${response.statusCode}, ${response.body}");
+    return fromJson(data); 
+  } else {
+    throw Exception("Unknown error");
   }
+}
+
+
 
   Future<T> insert(dynamic request) async {
     var url = "$baseUrl$_endpoint";

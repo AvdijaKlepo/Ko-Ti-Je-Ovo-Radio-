@@ -91,6 +91,8 @@ namespace KoRadio.Services
 				return query;
 		}
 
+
+
 		public override async Task BeforeInsertAsync(FreelancerInsertRequest request, Database.Freelancer entity, CancellationToken cancellationToken = default)
 		{
 			if (request.ServiceId != null && request.ServiceId.Any())
@@ -220,7 +222,7 @@ namespace KoRadio.Services
 				.Include(u => u.Freelancer)
 				.FirstOrDefaultAsync(u => u.UserId == entity.FreelancerId, cancellationToken);
 
-			if (request.IsApplicant == false)
+			if (entity.IsApplicant==true && request.IsApplicant == false)
 			{
 				var messageContent = "Freelancer status changed";
 
@@ -232,7 +234,8 @@ namespace KoRadio.Services
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = messageContent,
-					UserId = user.UserId
+					UserId = user.UserId,
+					IsOpened = false
 				};
 
 				await _messageService.InsertAsync(insertRequest, cancellationToken);

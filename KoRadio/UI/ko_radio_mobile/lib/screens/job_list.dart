@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
@@ -81,7 +82,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                   _fetchJobsByStatus(jobStatuses[index]);
                 },
                 indicatorColor: Colors.blue,
-                labelColor: Color.fromRGBO(27, 76, 125, 25),
+                labelColor: const Color.fromRGBO(27, 76, 125, 25),
                 unselectedLabelColor: Colors.grey,
                 tabs: const [
                   Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
@@ -137,23 +138,29 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
       : JobDetails(job: job);
 
  final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+
   if(updated==true){
     await _fetchJobsByStatus(jobStatuses[1]);
   }
-  else{
+  else if(updated==false){
     await _fetchJobsByStatus(jobStatuses[3]);
+  }
+  else{
+     setState(() {
+     
+   });
   }
   
 },
 
             leading: const Icon(Icons.access_time, color: Colors.white),
             title: Text(
-              "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
+              "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
               style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
             ),
-            subtitle: job.user != null
+            subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
                 ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                : null,
+                : Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white)),
             trailing: const Icon(Icons.work_outline,color: Colors.white),
           ),
         );

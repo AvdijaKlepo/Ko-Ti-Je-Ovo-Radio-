@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
@@ -24,7 +25,8 @@ Image imageFromString(String input, {double? width, double? height, BoxFit? fit 
 
 AppBar appBar({required String title,   Widget? actions, required bool automaticallyImplyLeading, bool centerTitle = true}) {
   return AppBar(
-    title: Text(title),
+    scrolledUnderElevation: 0,
+    title: Text(title,style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),
     centerTitle: centerTitle,
     automaticallyImplyLeading: automaticallyImplyLeading,
 
@@ -82,10 +84,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                     
                     
                   );
-                  if (picked != null) {
-    field.didChange(picked); 
-  }
-
+    
 
                   
              
@@ -212,14 +211,14 @@ class PaginatedFetcher<T> extends ChangeNotifier {
   bool isLoading = false;
   bool hasNextPage = true;
 
-  Map<String, dynamic>? _activeFilter; // <- Added
+  Map<String, dynamic>? _activeFilter; 
 
   PaginatedFetcher({
     required this.fetcher,
     this.pageSize = 20,
     this.initialFilter,
   }) {
-    _activeFilter = initialFilter; // <- Initialize
+    _activeFilter = initialFilter; 
   }
 
   Future<void> refresh({Map<String, dynamic>? newFilter}) async {
@@ -227,14 +226,14 @@ class PaginatedFetcher<T> extends ChangeNotifier {
     hasNextPage = true;
     items.clear();
 
-    _activeFilter = newFilter ?? initialFilter; // <- Track latest filter
+    _activeFilter = newFilter ?? initialFilter; 
     await _fetchPage(filter: _activeFilter);
   }
 
   Future<void> loadMore() async {
     if (isLoading || !hasNextPage) return;
     _page++;
-    await _fetchPage(filter: _activeFilter); // <- Use tracked filter
+    await _fetchPage(filter: _activeFilter); 
   }
 
   Future<void> _fetchPage({Map<String, dynamic>? filter}) async {

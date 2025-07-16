@@ -22,9 +22,12 @@ import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ServiceProvider()),
@@ -47,6 +50,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => SignalRProvider("notifications-hub")),
     ],
     child: const MyApp(),
+
 
   ));
 }
@@ -168,6 +172,7 @@ class LoginPage extends StatelessWidget {
             return SimpleDialogOption(
               onPressed: () {
                 AuthProvider.selectedRole = userRole.role?.roleName ?? "";
+                
                 print(AuthProvider.selectedRole);
                 Navigator.pop(context);
                 Navigator.pushReplacement(

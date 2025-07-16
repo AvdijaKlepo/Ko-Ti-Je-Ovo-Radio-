@@ -31,6 +31,10 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.CompanyId == search.CompanyId);
 			}
+			if (!string.IsNullOrWhiteSpace(search?.CompanyName))
+			{
+				query = query.Where(x => x.CompanyName.StartsWith(search.CompanyName));
+			}
 			if (search.LocationId!=null)
 			{
 				query = query.Where(x => x.LocationId == search.LocationId.Value);

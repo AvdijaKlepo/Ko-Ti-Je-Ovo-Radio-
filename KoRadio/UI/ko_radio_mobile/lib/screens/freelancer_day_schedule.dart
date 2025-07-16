@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -64,7 +67,9 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
 Widget build(BuildContext context) { 
 
   return Scaffold(appBar: AppBar(
-    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a'),
+    scrolledUnderElevation: 0,
+    centerTitle: true,
+    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
   
 
   ),body:   Padding(
@@ -108,6 +113,7 @@ Widget build(BuildContext context) {
                     const SizedBox(height: 10),
                     Center(
                       child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => BookJob(
@@ -119,8 +125,8 @@ Widget build(BuildContext context) {
                             ),
                           ),
                         ),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Dodaj termin'),
+                        icon: const Icon(Icons.add,color: Colors.white,),
+                        label: const Text('Dodaj termin',style:TextStyle( color: Colors.white),),
                       ),
                     ),
                   ],
@@ -131,9 +137,10 @@ Widget build(BuildContext context) {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Nema termina za ovaj dan.'),
+                       Text('Nema termina za ovaj dan.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
                         onPressed: () => 
                         
                         
@@ -146,8 +153,8 @@ Widget build(BuildContext context) {
                             ),
                           ),
                         ),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Rezerviši'),
+                        icon: const Icon(Icons.add,color: Colors.white,),
+                        label: const Text('Rezerviši',style: TextStyle(color: Colors.white),),
                       )
                     ],
                   ),

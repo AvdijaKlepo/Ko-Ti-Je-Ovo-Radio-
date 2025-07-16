@@ -111,6 +111,7 @@ Widget build(BuildContext context) {
 
             
               children:  [
+              
                 const SizedBox(height: 10),
                 AuthProvider.selectedRole== "User" ? 
                 const Center(child: Text("Nemate aktivan tender", style: TextStyle(fontSize: 18))):
@@ -195,10 +196,26 @@ Widget build(BuildContext context) {
                     margin: const EdgeInsets.symmetric(vertical: 10),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => TenderBidsScreen(tender: tender)),
-                      );
+                      onTap: () async {
+                    final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => TenderBidsScreen(tender: tender)));
+                     
+                      if (selectedRole != "Freelancer") {
+      filter = {'userId': AuthProvider.user?.userId,'IsTenderFinalized':true};
+    }
+    else{
+      filter = {'IsTenderFinalized':true,'isFreelancer':true};
+    }
+    if(updated==true){
+      await tenderFetcher.refresh(newFilter: filter);
+    }
+    else if(updated==false){
+      setState(() {
+        
+      });
+    }
+                      
+
+  
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(12),

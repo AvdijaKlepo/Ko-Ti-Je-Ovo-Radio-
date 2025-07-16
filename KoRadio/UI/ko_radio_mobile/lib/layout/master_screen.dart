@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ko_radio_mobile/models/messages.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
+import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/screens/cart.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/job_list.dart';
+import 'package:ko_radio_mobile/screens/messages.dart';
 import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:ko_radio_mobile/screens/settings.dart';
 import 'package:ko_radio_mobile/screens/store_list.dart';
@@ -20,6 +26,26 @@ class MasterScreen extends StatefulWidget {
 }
 
 class _MasterScreenState extends State<MasterScreen> {
+  late MessagesProvider messagesProvider;
+  SearchResult<Messages>? result;
+  @override
+  void initState() {
+    super.initState();
+    messagesProvider = context.read<MessagesProvider>();
+    _getNotifications();
+  }
+  Future<void> _getNotifications() async {
+    var filter = {'UserId' : AuthProvider.user?.userId,
+    'IsOpened': false};
+    try {
+      var fetched = await messagesProvider.get(filter: filter);
+      setState(() => result = fetched);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška: $e')),
+      );
+    }
+  }
   int selectedIndex = 0;
   String get selectedRole =>
       AuthProvider.selectedRole;
@@ -73,9 +99,72 @@ class _MasterScreenState extends State<MasterScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        actions: [
-            Stack(
+        
+    
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          children: [
+              Stack(
+              
+            alignment: Alignment.topLeft,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                style: IconButton.styleFrom(
+            
+                 
+                ),
+                color: const Color.fromRGBO(27, 76, 125, 1),
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const MessagesScreen()),
+                  );
+                  setState(() {
+                    _getNotifications();
+                  });
+                },
+              ),
+              if (result?.result.isNotEmpty ?? false)
+                Positioned(
+
+                  right: 8,
+                  top: 8,
+                  child: CircleAvatar(
+                    
+                    radius: 8,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      '${result?.count ?? 0}',
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ) ,
+            Padding(
+              padding: 
+            EdgeInsets.zero,
+              child: 
+                FittedBox(
+                 
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Ko Ti Je Ovo Radio?',
+                    style: GoogleFonts.lobster(
+                      textStyle: const TextStyle(
+                        color: Color.fromRGBO(27, 76, 125, 1),
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              
+              
+            ),
+               Stack(
             alignment: Alignment.topRight,
             children: [
               IconButton(
@@ -107,31 +196,7 @@ class _MasterScreenState extends State<MasterScreen> {
                   ),
                 ),
             ],
-          )
-        ],
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 40),
-              child: 
-                FittedBox(
-                 
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'Ko Ti Je Ovo Radio?',
-                    style: GoogleFonts.lobster(
-                      textStyle: const TextStyle(
-                        color: Color.fromRGBO(27, 76, 125, 1),
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              
-              
-            ),
+          ) ,
           ],
         ),
       ),

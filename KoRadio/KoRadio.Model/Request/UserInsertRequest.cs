@@ -21,7 +21,7 @@ namespace KoRadio.Model.Request
 
 		public byte[]? Image { get; set; }
 		public int LocationId { get; set; }
-		public List<int> Roles { get; set; }
+		public List<int>? Roles { get; set; }
 		public bool IsDeleted { get; set; }
 		public string Address { get; set; } = null!;
 

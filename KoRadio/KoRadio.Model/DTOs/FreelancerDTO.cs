@@ -25,7 +25,7 @@ namespace KoRadio.Model.DTOs
 		public TimeOnly? EndTime { get; set; }
 
 
-		public string? ServiceName { get; set; }
+		public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }

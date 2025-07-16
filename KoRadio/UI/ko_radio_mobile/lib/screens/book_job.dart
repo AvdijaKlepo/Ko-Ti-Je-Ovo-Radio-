@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
@@ -142,7 +143,11 @@ class _BookJobState extends State<BookJob> {
     final endTime = parseTime(endTimeString);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rezerviši posao')),
+
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+      centerTitle: true,
+      ),
+      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
@@ -180,8 +185,20 @@ class _BookJobState extends State<BookJob> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.description),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Obavezno polje'),
+                  validator: FormBuilderValidators.compose(
+                    [
+                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                       (value) {
+      if (value == null || value.isEmpty) return null;
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova';
+      }
+      return null;
+    },
+                    ]
+                      
+                ),
                 ),
                 const SizedBox(height: 15),
                 FormBuilderDateTimePicker(
@@ -237,8 +254,20 @@ class _BookJobState extends State<BookJob> {
                     prefixIcon: Icon(Icons.description),
                   ),
                   maxLines: 3,
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Obavezno polje'),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                   (value) {
+      if (value == null || value.isEmpty) return null;
+   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                  ]
+                   
+                ),
                 ),
                 const SizedBox(height: 15),
                 FormBuilderCheckboxGroup<int>(

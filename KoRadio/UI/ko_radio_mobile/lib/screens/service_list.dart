@@ -98,13 +98,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     await servicePagination.refresh(newFilter: filter);
   }
 
-  Future<void> _openService(Service service) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => FreelancerList(service.serviceId),
-      ),
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -138,30 +132,33 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       
                     children: const [
                       SizedBox(height: 50),
-                      Center(child: Text("No services found.")),
+                      Center(child: Text("Servis nije pronađen")),
                     ],
                   )
-                :  Expanded(
-      child: ListView.builder(
+                :  
+      ListView.builder(
         controller: _scrollController,
         itemCount: servicePagination.items.length + 1,
         itemBuilder: (context, index) {
           if (index < servicePagination.items.length) {
             final service = servicePagination.items[index];
-            return service.serviceName != null
-                ? InkWell(
+            return 
+                 InkWell(
+                  
                     child: Container(
                       padding: const EdgeInsets.all(10),
+                      
+                      
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           LayoutBuilder(
+
                             builder: (context, constraints) {
                               final width = constraints.maxWidth;
                               final height = width * 0.5;
-                              return SizedBox(
-                                width: width,
-                                height: height,
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
                                 child: imageFromString(
                                   service.image!,
                                   width: width,
@@ -173,20 +170,23 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            service.serviceName!,
+                            service.serviceName,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
                     ),
-                    onTap: () => Navigator.of(context).push(
+                    onTap: () async {
+                    await  Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
                             FreelancerList(service.serviceId),
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink();
+                    );
+                    }
+          
+                  );
+         
           }
 
           if (servicePagination.hasNextPage) {
@@ -200,7 +200,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         },
       )),
           ),
-        ),
+        
       ],
     );
   }

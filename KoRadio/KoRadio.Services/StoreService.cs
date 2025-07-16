@@ -45,6 +45,10 @@ namespace KoRadio.Services
 				query = query.Where(x => x.IsDeleted == false);
 
 			}
+			if (search.LocationId!=null)
+			{
+				query = query.Where(x => x.LocationId == search.LocationId);
+			}
 			return base.AddFilter(search, query);
 		}
 		public override Task BeforeUpdateAsync(StoreUpdateRequest request, Store entity, CancellationToken cancellationToken = default)
