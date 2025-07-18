@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
@@ -16,143 +17,197 @@ class CompanyJob extends StatefulWidget {
 
 class _CompanyJobState extends State<CompanyJob> {
   late JobProvider jobProvider;
-  final _companyId = AuthProvider.selectedCompanyId;
-  final Map<JobStatus, List<Job>> jobMap = {};
+  SearchResult<Job>? result;
+  int selectedIndex = 0;
+  final _userId = AuthProvider.user?.userId;
 
   final List<JobStatus> jobStatuses = [
     JobStatus.finished,
     JobStatus.approved,
     JobStatus.unapproved,
     JobStatus.cancelled,
+
   ];
 
   @override
   void initState() {
     super.initState();
     jobProvider = context.read<JobProvider>();
-    _loadAllJobs();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchJobsByStatus(jobStatuses[selectedIndex]));
   }
 
-  Future<void> _loadAllJobs() async {
-    for (final status in jobStatuses) {
-      final filter = {
-        'companyId': _companyId,
-        'JobStatus': status.name,
-      };
+  Future<void> _fetchJobsByStatus(JobStatus status) async {
+   
+    final filter = <String, dynamic>{
+      'CompanyId': AuthProvider.selectedCompanyId,
+      'JobStatus': status.name,"isTenderFinalized":false
+    };
 
-      try {
-        final result = await jobProvider.get(filter: filter);
-        setState(() {
-          jobMap[status] = result.result;
-        });
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Greška prilikom učitavanja poslova: $e")),
-        );
-      }
-    }
+    try {
+  final job = await jobProvider.get(filter: filter);
+  if (!mounted) return; 
+  setState(() {
+    result = job;
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u dohvaćanju poslova: ${e.toString()}')));
+}
+  }
+  @override
+  void dispose() {
+    result = null;
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (int i = 0; i < jobStatuses.length; i++) ...[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: _buildJobStatusColumn(jobStatuses[i]),
+    return DefaultTabController(
+      length: jobStatuses.length,
+      initialIndex: selectedIndex,
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TabBar(
+                onTap: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                  _fetchJobsByStatus(jobStatuses[index]);
+                },
+                indicatorColor: Colors.blue,
+                labelColor: const Color.fromRGBO(27, 76, 125, 25),
+                unselectedLabelColor: Colors.grey,
+                tabs: const [
+                  Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
+                  Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
+                  Tab(icon: Icon(Icons.free_cancellation), text: 'Zahtjevi'),
+                  Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
+                ],
               ),
-            ),
-            // Add a vertical divider between columns, except after the last one
-            if (i != jobStatuses.length - 1) ...[
-              const VerticalDivider(width: 1, thickness: 1, color: Colors.grey),
-              const VerticalDivider(width: 1, thickness: 1, color: Colors.black12),
-            ]
-          ],
-        ],
+              const SizedBox(height: 15),
+              Center(
+                child: Text(
+                'Broj poslova: ${result?.result.length ?? 0}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ), 
+              ),
+             
+              const SizedBox(height: 16),
+              Expanded(
+                child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(), 
+                  children: jobStatuses.map((status) {
+                    return _buildJobList(context, result?.result ?? [], status);
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildJobStatusColumn(JobStatus status) {
-    final jobs = jobMap[status] ?? [];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _statusHeader(status),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        _buildTableHeader(),
-        const Divider(),
-        Expanded(
-          child: jobs.isEmpty
-              ? const Center(child: Text('Nema poslova.', style: TextStyle(color: Colors.grey)))
-              : ListView.separated(
-                  itemCount: jobs.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (_, index) => _buildJobRow(jobs[index]),
-                ),
-        ),
-      ],
-    );
+ Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
+  if (jobs.isEmpty) {
+    return const Center(child: Text('Nema poslova za prikaz.'));
   }
 
-  String _statusHeader(JobStatus status) {
-    switch (status) {
-      case JobStatus.finished:
-        return "Završeni";
-      case JobStatus.approved:
-        return "Odobreni";
-      case JobStatus.unapproved:
-        return "Neodobreni";
-      case JobStatus.cancelled:
-        return "Otkazani";
-      default:
-        return "Poslovi";
-    }
-  }
+  return Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 600),
+      child: ListView.builder(
+        itemCount: jobs.length,
+        itemBuilder: (context, index) {
+          final job = jobs[index];
+          return _jobCard(context, job);
+        },
+      ),
+    ),
+  );
+}
 
-  Widget _buildTableHeader() {
-    return Row(
-      children:  [
-        Expanded(flex: 2, child: Text("Posao", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 3, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 3, child: IconButton(icon: Icon(Icons.arrow_right), onPressed: () {})),
-      ],
-    );
-  }
 
-  Widget _buildJobRow(Job job) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: 
-  
-        Row(
+    Widget _jobCard(BuildContext context, Job job) {
+  return Card(
+    color: const Color.fromRGBO(27, 76, 125, 1),
+    elevation: 2,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () async {
+        final updated = showDialog(context: context, builder: (_) => BookCompanyJob(job));
+        if (updated == true) {
+          await _fetchJobsByStatus(jobStatuses[1]);
+        } else if (updated == false) {
+          await _fetchJobsByStatus(jobStatuses[3]);
+        } else {
+          setState(() {});
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          
           children: [
-            Expanded(flex: 2, child: Text("Posao #${job.jobId}")),
-            Expanded(flex: 2, child: Text('${job.user?.firstName ?? ''} ${job.user?.lastName ?? ''}')),
-            Expanded(flex: 3, child: Text(job.jobDate.toLocal().toString().split(' ').first)),
-            Expanded(flex: 3, child: IconButton(icon: const Icon(Icons.arrow_right), onPressed: () {
-              showDialog(
-  context: context,
-  barrierDismissible: true, 
-  builder: (context) => BookCompanyJob(job),
-
-);
-_loadAllJobs();
-
-            })),
+            const Icon(Icons.info, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Datum: ${DateFormat('dd‑MM‑yyyy').format(job.jobDate)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Korisnik: ${job.user?.firstName} ${job.user?.lastName}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                   Text(
+                    "Telefonski broj: ${job.user?.phoneNumber}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Adresa: ${job.user?.address}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Posao: ${job.jobTitle}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                    Text(
+                    "Opis: ${job.jobDescription}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                 
+                  Text(
+                    job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.work_outline, color: Colors.white),
           ],
         ),
-      
-    );
-  }
+      ),
+    ),
+  );
+}
+
 }

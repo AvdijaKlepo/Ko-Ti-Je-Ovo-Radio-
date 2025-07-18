@@ -12,5 +12,6 @@ namespace KoRadio.Model.SearchObject
         public bool? IsApplicant { get; set; }
         public bool? IsDeleted { get; set; }
         public int? LocationId { get; set; }
+        public int? StoreId { get; set; }
     }
 }

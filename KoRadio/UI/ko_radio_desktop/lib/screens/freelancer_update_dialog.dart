@@ -187,7 +187,7 @@ void initState() {
                                     decoration: const InputDecoration(border: InputBorder.none,),
                                     options: serviceResult!.result
                                         .map((s) => FormBuilderChipOption(
-                                          avatar: const Icon(Icons.business_center),
+                                          
                                             value: s.serviceId, 
                                              child: Text(s.serviceName ?? "")))
                                         .toList(),

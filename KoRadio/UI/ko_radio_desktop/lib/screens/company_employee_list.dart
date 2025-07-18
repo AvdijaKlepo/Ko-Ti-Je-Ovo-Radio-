@@ -161,6 +161,9 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   
   @override
   Widget build(BuildContext context) {
+    final filterLoggedInUser = companyEmployeeResult?.result
+        .where((element) => element.userId != AuthProvider.user?.userId)
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -241,10 +244,10 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                 : companyEmployeeResult!.result.isEmpty
                     ? const Center(child: Text('No companies found.'))
                     : ListView.separated(
-                        itemCount: companyEmployeeResult!.result.length,
+                        itemCount: filterLoggedInUser?.length ?? 0,
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final c = companyEmployeeResult!.result[index];
+                          final c = filterLoggedInUser?[index] ?? companyEmployeeResult!.result[index];
              
 
                           return Padding(

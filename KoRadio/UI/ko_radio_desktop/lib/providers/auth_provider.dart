@@ -31,5 +31,8 @@ class AuthProvider {
     userRoles=null;
     connectionId=null;
     isSignedIn=false;
+    selectedCompanyId=null;
+    selectedStoreId=null;
+
   }
 }

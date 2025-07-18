@@ -69,15 +69,7 @@ namespace KoRadio.Services
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
 
-			if (searchObject.IsFreelancerIncluded == false)
-			{
-				query = FilterOutFreelancers(query);
-			}
-			if(searchObject.IsEmployeeIncluded==false)
-			{
-				query = FilterOutCompanyEmployees(query);
-			}
-
+			
 			if (searchObject.isDeleted == true)
 			{
 				query = query.Where(x => x.IsDeleted == true);
@@ -89,30 +81,7 @@ namespace KoRadio.Services
 
 			return query;
 		}
-		private IQueryable<User> FilterOutFreelancers(IQueryable<User> query)
-		{
-			return query
-				.GroupJoin(
-					_context.Freelancers,
-					user => user.UserId,
-					freelancer => freelancer.FreelancerNavigation.UserId,
-					(user, freelancer) => new { user, freelancer }
-				)
-				.Where(x => !x.freelancer.Any())
-				.Select(x => x.user);
-		}
-		private IQueryable<User> FilterOutCompanyEmployees(IQueryable<User> query)
-		{
-			return query
-				.GroupJoin(
-					_context.CompanyEmployees,
-					user => user.UserId,
-					employee => employee.UserId,
-					(user, employee) => new { user, employee }
-				)
-				.Where(x => !x.employee.Any())
-				.Select(x => x.user);
-		}
+	
 		public override async Task AfterInsertAsync(UserInsertRequest request, User entity, CancellationToken cancellationToken = default)
 		{
 			if (request.Roles != null && request.Roles.Any())

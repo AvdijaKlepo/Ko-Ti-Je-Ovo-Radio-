@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:ko_radio_desktop/layout/master_screen.dart';
+
 import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
-import 'package:ko_radio_desktop/models/service.dart';
+
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
-import 'package:ko_radio_desktop/providers/service_provider.dart';
+
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -168,7 +168,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                       FormBuilderTextField(
   name: "password",
   obscureText: true,
-  decoration: InputDecoration(labelText: "Nova Lozinka"),
+  decoration: const InputDecoration(labelText: "Nova Lozinka"),
   validator: FormBuilderValidators.match(
     _formKey.currentState?.fields['confirmPassword']?.value ?? '',
     errorText: 'Lozinke se ne poklapaju',
@@ -178,7 +178,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
 FormBuilderTextField(
   name: "confirmPassword",
   obscureText: true,
-  decoration: InputDecoration(labelText: "Potvrdi Lozinku"),
+  decoration: const InputDecoration(labelText: "Potvrdi Lozinku"),
 ),
 
 
@@ -237,11 +237,14 @@ FormBuilderTextField(
       try {
         if (widget.user == null) {
           await userProvider.insert(request);
+          if(!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Upsješno unesen korisnik ${widget.user?.firstName} ${widget.user?.lastName}")),
         );
         } else {
           await userProvider.update(widget.user!.userId, request);
+          if(!mounted) return;
+
            ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Upsješno uređen korisnik ${widget.user?.firstName} ${widget.user?.lastName}")),
         );

@@ -155,17 +155,13 @@ namespace KoRadio.Services
 
 		public override async Task BeforeUpdateAsync(JobUpdateRequest request, Database.Job entity, CancellationToken cancellationToken = default)
 		{
-			if (entity.JobStatus == "unapproved" && request.JobStatus == "approved")
+			if (entity.FreelancerId != null && entity.CompanyId == null && entity.JobStatus == "unapproved" && request.JobStatus == "approved")
 			{
-
 				var messageContent = $"Zahtjev za posao od radnika {entity.Freelancer.FreelancerNavigation.FirstName}" +
 					$" {entity.Freelancer.FreelancerNavigation.LastName} je odobren. Njegovo trenutno stanje možete pregledati pod sekcijom odobrenih poslova.";
 
-
-
 				await _hubContext.Clients.User(entity.UserId.ToString())
 					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
-
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -180,15 +176,20 @@ namespace KoRadio.Services
 			}
 			if (entity.JobStatus == "approved" && request.JobStatus == "finished")
 			{
-
-				var messageContent = $"Faktura poslana od radnika {entity.Freelancer.FreelancerNavigation.FirstName}" +
-					$" {entity.Freelancer.FreelancerNavigation.LastName}. Plaćanje možete izvršiti odabirom navedenog posla iz sekcije završenih poslova.";
-
-
+				string messageContent;
+				if (entity.FreelancerId != null)
+				{
+					messageContent = $"Faktura poslana od radnika {entity.Freelancer.FreelancerNavigation.FirstName}" +
+						$" {entity.Freelancer.FreelancerNavigation.LastName}. Plaćanje možete izvršiti odabirom navedenog posla iz sekcije završenih poslova.";
+				}
+				else
+				{
+					messageContent = $"Faktura poslana od firme {entity.Company.CompanyName}" +
+						". Plaćanje možete izvršiti odabirom navedenog posla iz sekcije završenih poslova.";
+				}
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
 					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
-
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -201,18 +202,14 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
 			}
-			if (request.JobStatus == "cancelled")
+			if (entity.FreelancerId != null && entity.CompanyId == null && request.JobStatus == "cancelled")
 			{
-
 				var messageContent = $"Posao ${entity.JobTitle} otkazan.";
-
-
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
 					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
 					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
-
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -232,16 +229,12 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
 			}
-			if (request.IsInvoiced==true)
+			if (entity.FreelancerId != null && entity.CompanyId == null && request.IsInvoiced == true)
 			{
-
 				var messageContent = $"Korisnik {entity.User.FirstName} {entity.User.LastName} je izvršio uplatu.";
-
-
 
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
 					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
-
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -249,10 +242,8 @@ namespace KoRadio.Services
 					UserId = entity.FreelancerId,
 					IsOpened = false
 				};
-			
 
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
-			
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
 			}

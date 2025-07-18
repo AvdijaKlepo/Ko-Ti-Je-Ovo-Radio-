@@ -224,7 +224,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
             child: result == null
                 ? const Center(child: CircularProgressIndicator())
                 : result!.result.isEmpty
-                    ? const Center(child: Text('No freelancers found.'))
+                    ? const Center(child: Text('Radnici nisu pronađeni.'))
                     : ListView.separated(
                         itemCount: result!.result.length,
                         separatorBuilder: (_, __) => const Divider(height: 1),

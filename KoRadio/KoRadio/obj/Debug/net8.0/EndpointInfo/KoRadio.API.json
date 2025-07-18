@@ -2940,6 +2940,14 @@
             }
           },
           {
+            "name": "StoreId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {

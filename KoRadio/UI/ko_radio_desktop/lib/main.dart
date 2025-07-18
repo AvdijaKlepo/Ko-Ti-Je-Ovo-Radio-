@@ -144,6 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                       AuthProvider.isSignedIn = true;
 
                       final companyEmployees = user.companyEmployees ?? [];
+                   
 
                       if (companyEmployees.length > 1) {
                         await showDialog(
@@ -204,11 +205,30 @@ class _LoginPageState extends State<LoginPage> {
 
                       debugPrint('Role: ${AuthProvider.userRoles?.role?.roleName}');
                       debugPrint('CompanyId: ${AuthProvider.selectedCompanyId}');
-
+                         
+                         
+                         if(AuthProvider.userRoles?.role?.roleName=="Admin" ||
+                      AuthProvider.userRoles?.role?.roleName=="Company Admin" ||
+                      AuthProvider.userRoles?.role?.roleName=="StoreAdministrator")
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const MasterScreen()),
                       );
+                      else{
+                         showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Greška"),
+                          content: Text('Pogrešan email ili password'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                      }
                     } catch (e) {
                       showDialog(
                         context: context,
