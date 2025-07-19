@@ -9,6 +9,8 @@ namespace KoRadio.Model.SearchObject
     public class MessageSearchObject: BaseSearchObject
 	{
         public int? UserId { get; set; }
+        public int? CompanyId { get; set; }
+        public int? StoreId { get; set; }
         public bool? IsOpened { get; set; }
     }
 }

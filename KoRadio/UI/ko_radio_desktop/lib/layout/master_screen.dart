@@ -3,12 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
+import 'package:ko_radio_desktop/models/messages.dart';
+import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/messages_provider.dart';
+import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 import 'package:ko_radio_desktop/screens/company_employee_list.dart';
 import 'package:ko_radio_desktop/screens/company_job.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/company_report.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
+import 'package:ko_radio_desktop/screens/messages_screen.dart';
 import 'package:ko_radio_desktop/screens/report.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
 import 'package:ko_radio_desktop/screens/settings.dart';
@@ -17,6 +22,7 @@ import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/store_report.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
+import 'package:provider/provider.dart';
 
 class MasterScreen extends StatefulWidget {
   const MasterScreen({super.key});
@@ -26,6 +32,47 @@ class MasterScreen extends StatefulWidget {
 }
 
 class _MasterScreenState extends State<MasterScreen> {
+  late MessagesProvider messagesProvider;
+  SearchResult<Messages>? result;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    messagesProvider = context.read<MessagesProvider>();
+     await _getNotifications();
+    });
+    final signalR = context.read<SignalRProvider>();
+signalR.onNotificationReceived = (message) {
+  rootScaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(content: Text(message)),
+  );
+  _getNotifications();
+};
+  }
+  Future<void> _getNotifications() async {
+    Map<String, dynamic> filter = {};
+    if(AuthProvider.selectedCompanyId!=null)
+    {
+       filter = {'CompanyId' : AuthProvider.selectedCompanyId,
+    'IsOpened': false};
+    }
+    if(AuthProvider.selectedStoreId!=null)
+    {
+      filter = {'StoreId' : AuthProvider.selectedStoreId,
+    'IsOpened': false};
+    }
+    
+    try {
+      var fetched = await messagesProvider.get(filter: filter);
+      setState(() => result = fetched);
+    } catch (e) {
+     print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška: $e')),
+        
+      );
+    }
+  }
   int _selectedIndex = 0;
 
   final List<NavigationRailDestination>destinationsAdmin = const <NavigationRailDestination>[
@@ -219,6 +266,44 @@ List get pagesForUser {
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),
                     ),
+               
+                     Stack(
+              
+            alignment: Alignment.topLeft,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                style: IconButton.styleFrom(
+            
+                 
+                ),
+                color:  Colors.white,
+                onPressed: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  MessagesScreen(companyId: AuthProvider.selectedCompanyId
+                  ,storeId: AuthProvider.selectedStoreId,)));
+                 
+                  setState(() {
+                    _getNotifications();
+                  });
+                },
+              ),
+              if (result?.result.isNotEmpty ?? false)
+                Positioned(
+
+                  right: 8,
+                  top: 8,
+                  child: CircleAvatar(
+                    
+                    radius: 8,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      '${result?.count ?? 0}',
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ) ,
                 ],
               ),
 

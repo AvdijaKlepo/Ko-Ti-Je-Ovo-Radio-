@@ -1,6 +1,7 @@
 import 'package:ko_radio_desktop/models/role.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
+import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 
 class AuthProvider {
   static String username="";
@@ -22,6 +23,8 @@ class AuthProvider {
     selectedCompanyId = companyId == null ? null : int.parse(companyId);
   }
 
+    SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
+
 
     logout() {
     username="";
@@ -33,6 +36,11 @@ class AuthProvider {
     isSignedIn=false;
     selectedCompanyId=null;
     selectedStoreId=null;
+    connectionId=null;
+
+    signalRProvider.stopConnection();
+    
+
 
   }
 }

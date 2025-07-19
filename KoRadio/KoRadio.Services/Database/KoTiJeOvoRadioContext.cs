@@ -278,10 +278,19 @@ public partial class KoTiJeOvoRadioContext : DbContext
         {
             entity.HasKey(e => e.MessageId).HasName("PK__Messages__C87C0C9CD5627697");
 
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.Message1)
                 .HasMaxLength(255)
                 .HasColumnName("Message");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK__Messages__Compan__7E8CC4B1");
+
+            entity.HasOne(d => d.Store).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.StoreId)
+                .HasConstraintName("FK__Messages__StoreI__7F80E8EA");
 
             entity.HasOne(d => d.User).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.UserId)

@@ -1908,6 +1908,22 @@
             }
           },
           {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "StoreId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "IsOpened",
             "in": "query",
             "schema": {
@@ -5615,6 +5631,22 @@
           "isOpened": {
             "type": "boolean"
           },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "storeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "store": {
+            "$ref": "#/components/schemas/Store"
+          },
           "user": {
             "$ref": "#/components/schemas/User"
           }
@@ -5629,6 +5661,16 @@
             "nullable": true
           },
           "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "storeId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -5669,6 +5711,16 @@
             "nullable": true
           },
           "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "storeId": {
             "type": "integer",
             "format": "int32",
             "nullable": true

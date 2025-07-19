@@ -47,6 +47,8 @@ public partial class Company
 
     public virtual Location Location { get; set; } = null!;
 
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
     public virtual ICollection<TenderBid> TenderBids { get; set; } = new List<TenderBid>();
 
     public virtual ICollection<Tender> Tenders { get; set; } = new List<Tender>();

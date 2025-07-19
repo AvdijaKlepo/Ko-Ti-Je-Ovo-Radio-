@@ -14,6 +14,7 @@ import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
+import 'package:ko_radio_desktop/providers/messages_provider.dart';
 import 'package:ko_radio_desktop/providers/order_provider.dart';
 import 'package:ko_radio_desktop/providers/product_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
@@ -23,6 +24,7 @@ import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 void main() {
   runApp(MultiProvider(
     providers: [
@@ -38,6 +40,8 @@ void main() {
       ChangeNotifierProvider(create: (_)=>JobProvider()),
       ChangeNotifierProvider(create: (_)=>ProductProvider()),
       ChangeNotifierProvider(create: (_)=>OrderProvider()),
+      ChangeNotifierProvider(create: (_)=>MessagesProvider()),
+      ChangeNotifierProvider(create: (_)=>SignalRProvider('notifications-hub')),
 
     ],
     child: const MyApp(),));
@@ -50,6 +54,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Flutter Demo',
       theme: ThemeData(
        
@@ -75,20 +80,18 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final SignalRProvider _signalRProvider = SignalRProvider('notifications-hub');
+
 
   @override
   void initState() {
     super.initState();
+     final signalRProvider = context.read<SignalRProvider>();
 
-
-    if (AuthProvider.isSignedIn) {
-      _signalRProvider.stopConnection();
-      AuthProvider.connectionId = null;
-      AuthProvider.isSignedIn = false;
-    }
-
-    _signalRProvider.startConnection();
+  if (AuthProvider.isSignedIn) {
+    signalRProvider.stopConnection();
+    AuthProvider.connectionId = null;
+    AuthProvider.isSignedIn = false;
+  }
   }
 
   @override
@@ -125,7 +128,9 @@ class _LoginPageState extends State<LoginPage> {
                       AuthProvider.password = passwordController.text;
 
                       final userProvider = UserProvider();
-                      final signalRProvider = SignalRProvider('notifications-hub');
+
+           
+                    
 
                       final user = await userProvider.login(
                         AuthProvider.username,
@@ -133,7 +138,8 @@ class _LoginPageState extends State<LoginPage> {
                         AuthProvider.connectionId,
                       );
 
-                      signalRProvider.startConnection();
+                    
+ 
 
               
 
@@ -142,6 +148,11 @@ class _LoginPageState extends State<LoginPage> {
                           ? user.userRoles!.first
                           : null;
                       AuthProvider.isSignedIn = true;
+
+                 
+
+                      
+                      
 
                       final companyEmployees = user.companyEmployees ?? [];
                    
@@ -153,8 +164,10 @@ class _LoginPageState extends State<LoginPage> {
                             title: const Text("Odaberite firmu: "),
                             children: companyEmployees.map((company)  {
                               return SimpleDialogOption(
-                                onPressed: () {
+                                onPressed: () async {
                                   AuthProvider.selectedCompanyId = company.companyId;
+                                     final signalRProvider = context.read<SignalRProvider>();
+                                      await signalRProvider.startConnection();
                                   Navigator.pop(context);
                                   Navigator.pushReplacement(
                                     context,
@@ -175,6 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                       
                       final stores = user.stores ?? [];
                       if (stores.length > 1) {
+                    
                         await showDialog(
                           context: context,
                           builder: (context) => SimpleDialog(
@@ -210,16 +224,19 @@ class _LoginPageState extends State<LoginPage> {
                          if(AuthProvider.userRoles?.role?.roleName=="Admin" ||
                       AuthProvider.userRoles?.role?.roleName=="Company Admin" ||
                       AuthProvider.userRoles?.role?.roleName=="StoreAdministrator")
+                      {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const MasterScreen()),
                       );
+                      }
                       else{
                          showDialog(
+                         
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text("Greška"),
-                          content: Text('Pogrešan email ili password'),
+                          content: const Text('Pogrešan email ili password'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),

@@ -26,6 +26,14 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsOpened == false);
 			}
+			if (search?.CompanyId!=null)
+			{
+				query = query.Where(x => x.CompanyId == search.CompanyId);
+			}
+			if (search?.StoreId != null)
+			{
+				query = query.Where(x => x.StoreId == search.StoreId);
+			}
 			return base.AddFilter(search, query);
 		}
 	}

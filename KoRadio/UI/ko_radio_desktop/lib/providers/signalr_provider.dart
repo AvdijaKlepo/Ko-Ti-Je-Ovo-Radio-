@@ -1,16 +1,27 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:ko_radio_desktop/main.dart';
+import 'package:ko_radio_desktop/models/messages.dart';
+import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/messages_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'package:signalr_netcore/itransport.dart';
 
 class SignalRProvider with ChangeNotifier {
+  SearchResult<Messages>? result;
+  
   late HubConnection _hubConnection;
   Timer? _reconnectTimer;
   Timer? _connectionIdTimeoutTimer;
   bool _isReconnecting = false;
+
+  MessagesProvider messagesProvider = MessagesProvider();
+
 
   int _messageCount = 0;
 
@@ -18,6 +29,7 @@ class SignalRProvider with ChangeNotifier {
   late String _endpoint;
 
   SignalRProvider._privateConstructor(String endpoint) {
+    
     _endpoint = endpoint;
     _baseUrl = const String.fromEnvironment("baseUrl",
         defaultValue: "http://localhost:5053/");
@@ -38,9 +50,32 @@ class SignalRProvider with ChangeNotifier {
   }*/
 
   Future<void> startConnection() async {
-    final url = '$_baseUrl$_endpoint';
+  final url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
+ debugPrint('Connecting to SignalR at $url');
+
 
     _hubConnection = HubConnectionBuilder().withUrl(url).build();
+
+     _hubConnection.on('ReceiveNotification', (arguments) async {
+  if (arguments != null && arguments.isNotEmpty) {
+    final message = arguments[0]?.toString() ?? '';
+    if (message.isNotEmpty) {
+      onNotificationReceived?.call(message);
+      await messagesProvider.get(filter: {
+        'CompanyId': AuthProvider.selectedCompanyId,
+        'IsOpened': false,
+      });
+
+
+      notifyListeners();
+      
+    
+      
+      
+    }
+  }
+
+});
 
     try {
       await _hubConnection.start();
@@ -52,10 +87,40 @@ class SignalRProvider with ChangeNotifier {
     _hubConnection.on('ReceiveConnectionId', (arguments) {
       _connectionIdTimeoutTimer?.cancel();
       AuthProvider.connectionId = arguments?[0];
+      onNotificationReceived?.call('Dobrodošli u KoTiJeOvoRadio!');
     });
 
    
+
+
+   
   }
+
+void Function(String message)? onNotificationReceived = (message) {
+  rootScaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(content: Text(message)),
+  );
+
+
+
+};
+
+  Future<void> _getNotifications() async {
+    Map<String, dynamic> filter = {};
+    if(AuthProvider.selectedCompanyId!=null)
+    {
+       filter = {'CompanyId' : AuthProvider.selectedCompanyId,
+    'IsOpened': false};
+    }
+    
+    try {
+      var fetched = await messagesProvider.get(filter: filter);
+      result = fetched;
+    } catch (e) {
+     print(e);
+    }
+  }
+
 
   void _startConnectionIdTimeout() {
     _connectionIdTimeoutTimer = Timer(Duration(seconds: 3), () {
@@ -92,7 +157,9 @@ class SignalRProvider with ChangeNotifier {
   Future<void> stopConnection() async {
     if (_hubConnection.state == HubConnectionState.Connected) {
       await _hubConnection.stop();
+      print(_hubConnection.state);
     }
+    
   }
 
   Future<void> _saveMessage(String message) async {
@@ -130,5 +197,5 @@ class SignalRProvider with ChangeNotifier {
   }
 
   int get messageCount => _messageCount;
-  void Function(String message)? onNotificationReceived;
+ // void Function(String message)? onNotificationReceived;
 }

@@ -23,6 +23,8 @@ public partial class Store
 
     public virtual Location Location { get; set; } = null!;
 
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();

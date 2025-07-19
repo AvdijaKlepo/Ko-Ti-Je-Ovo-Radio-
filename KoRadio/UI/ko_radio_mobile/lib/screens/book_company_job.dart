@@ -106,8 +106,8 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                       ),
                    
                     ),  
-                    SizedBox(height: 15,),
-                    ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
+                    const SizedBox(height: 15,),
+                    const ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
                     children: [
   Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
                     style: TextStyle(fontSize: 12),),
@@ -115,7 +115,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                   
                     )
                     ,
-                    SizedBox(height: 15,),
+                    const SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       decoration: const InputDecoration(
@@ -139,7 +139,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         
                       },
                     ),
-                  SizedBox(height: 15,),
+                  const SizedBox(height: 15,),
                FormBuilderTextField(
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: "Obavezno polje"),
@@ -231,7 +231,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 
                 
           
@@ -275,15 +275,17 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
               try{
                 formData["jobStatus"] = JobStatus.unapproved.name;
                 formData["userId"] = _userId;
-                formData["companyId"] = widget.c?.companyId;
-                jobProvider.insert(formData);
+                formData["companyId"] = widget.c.companyId;
+                await jobProvider.insert(formData);
                 int count = 0;
-                Navigator.of(context).popUntil((_) => count++ >= 4);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                if(!mounted) return;
+                 Navigator.of(context).popUntil((_) => count++ >= 3);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("Zahtjev proslijeđen firmi!")));
               }
               catch(e){
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("Greška u slanju zahtjeva. Molimo pokušajte ponovo.")));
               }
 
