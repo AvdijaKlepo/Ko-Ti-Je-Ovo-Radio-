@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'messages_provider.dart';
 import 'package:ko_radio_mobile/main.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +14,8 @@ class SignalRProvider with ChangeNotifier {
   Timer? _reconnectTimer;
   Timer? _connectionIdTimeoutTimer;
   bool _isReconnecting = false;
+
+   MessagesProvider messagesProvider = MessagesProvider();
 
   int _messageCount = 0;
 
@@ -62,11 +64,19 @@ class SignalRProvider with ChangeNotifier {
       _scheduleReconnect();
     }
 
-    _hubConnection.on('ReceiveConnectionId', (arguments) {
+    _hubConnection.on('ReceiveConnectionId', (arguments) async {
       _connectionIdTimeoutTimer?.cancel();
       AuthProvider.connectionId = arguments?[0];
       onNotificationReceived?.call('Dobrodošli u KoTiJeOvoRadio!');
+        await messagesProvider.get(filter: {
+        'UserId': AuthProvider.user?.userId,
+        'IsOpened': false,
+      });
+
+
+      notifyListeners();
     });
+
 
    
 

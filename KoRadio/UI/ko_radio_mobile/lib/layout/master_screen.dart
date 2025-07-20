@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ko_radio_mobile/main.dart';
 import 'package:ko_radio_mobile/models/messages.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
+import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/screens/cart.dart';
 import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/job_list.dart';
@@ -31,8 +33,19 @@ class _MasterScreenState extends State<MasterScreen> {
   @override
   void initState() {
     super.initState();
-    messagesProvider = context.read<MessagesProvider>();
-    _getNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      messagesProvider = context.read<MessagesProvider>();
+      await _getNotifications();
+      
+    });
+      final signalR = context.read<SignalRProvider>();
+signalR.onNotificationReceived = (message) async {
+  rootScaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(content: Text(message)),
+  );
+  await _getNotifications();
+};
+   
   }
   Future<void> _getNotifications() async {
     var filter = {'UserId' : AuthProvider.user?.userId,

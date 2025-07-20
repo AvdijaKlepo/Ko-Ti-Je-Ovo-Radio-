@@ -10,11 +10,13 @@ class MessagesScreen extends StatefulWidget {
   final int? companyId;
   final int? storeId;
 
+
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
+
 late MessagesProvider messagesProvider;
   SearchResult<Messages>? result;
   @override

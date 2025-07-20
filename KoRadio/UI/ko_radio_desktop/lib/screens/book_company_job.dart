@@ -140,6 +140,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                     initialValue: _initialValue,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                        
                        _sectionTitle('Radne specifikacije'),
@@ -152,7 +153,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                   _buildDetailRow('Datum', DateFormat('dd-MM-yyyy').format(widget.job.jobDate)),
                  
                   _buildDetailRow('Opis posla', widget.job.jobDescription),
-                    _buildDetailRow('Datum završetka', DateFormat('dd-MM-yyyy').format(widget.job.dateFinished ?? DateTime.now())),
+                    _buildDetailRow('Datum završetka', widget.job.dateFinished!=null ? DateFormat('dd-MM-yyyy').format(widget.job.dateFinished ?? DateTime.now()) : 'Nije dostupan'),
                       _buildDetailRow('Radnici', companyJobAssignmentResult?.result.map((e) => e.companyEmployee?.user?.firstName ?? 'Nepoznato').toList().join(', ') ?? 'Nema zaposlenika'),
 
                   const Divider(height: 32),
@@ -185,17 +186,16 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                      if(widget.job.isInvoiced==true)
+                      widget.job.isInvoiced==true ?
                   _buildDetailRow('Plaćen',
-                      'Da'), 
-                       if(widget.job.isRated==true)
-                  _buildDetailRow('Ocijenjen',
-                      'Da'), 
+                      'Da'): _buildDetailRow('Plaćen',
+                      'Ne'),
+                      
                      if(widget.job.jobStatus== JobStatus.cancelled) 
                        _buildDetailRow('Otkazan',
                       'Da'), 
 const Divider(height: 32),
-                  
+                      if(widget.job.jobStatus == JobStatus.unapproved)
 _sectionTitle('Potrebni podaci'),
                    if(widget.job.jobStatus == JobStatus.unapproved)
                 Column(
@@ -209,7 +209,10 @@ _sectionTitle('Potrebni podaci'),
                       ),
                       name: "dateFinished",
                       inputType: InputType.date,
-                      firstDate: DateTime.now(),
+                      firstDate: widget.job.jobDate,
+                       initialDate: widget.job.jobDate.isAfter(DateTime.now())
+      ? widget.job.jobDate
+      : DateTime.now(),
                       selectableDayPredicate: _isWorkingDay,
                      
                     ),
@@ -277,13 +280,14 @@ _sectionTitle('Potrebni podaci'),
                       ],
                     ),
                     const SizedBox(height: 30),
+                    if(widget.job.jobStatus!= JobStatus.cancelled && widget.job.jobStatus!= JobStatus.finished)
                        Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton.icon(
                               icon: const Icon(Icons.cancel, color: Colors.red),
                               label: const Text("Otkazi", style: TextStyle(color: Colors.red)),
-                              onPressed: () => _cancel(),
+                              onPressed: () =>showDialog(context: context, builder: (context) => _openCancelDialog())
                             ),
                             const SizedBox(width: 12),
                             ElevatedButton.icon(
@@ -304,50 +308,69 @@ _sectionTitle('Potrebni podaci'),
       );
     
   }
-  Future<void> _cancel() async {
-     _formKey.currentState?.saveAndValidate();
-  final formData = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
+  _openCancelDialog() {
+    return AlertDialog(
+      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+      title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
+      content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+            TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+            onPressed: () async {
+                var jobUpdateRequest = {
+                "userId": widget.job.user?.userId,
+                "freelancerId": null,
+                "companyId": widget.job.company?.companyId,
+                "jobTitle": widget.job.jobTitle,
+                "isTenderFinalized": false,
+                "isFreelancer": false,
+                "isInvoiced": false,
+                "isRated": false,
+                "startEstimate": null,
+                "endEstimate": null,  
+                "payEstimate": null,
+                "payInvoice": null,
+                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
+                "dateFinished": widget.job.dateFinished?.toUtc().toIso8601String(),
+                "jobDescription": widget.job.jobDescription,
+                "image": widget.job.image,
+                "jobStatus": JobStatus.cancelled.name,
+                "serviceId": widget.job.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+          };
+              try {
+            jobProvider.update(widget.job.jobId,
+            jobUpdateRequest
+            );
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
+               int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
+          } on Exception catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
+               int count = 0;
+          Navigator.of(context).popUntil((_) => count++ >= 2);
 
-  if (_base64Image != null) {
-    formData["image"] = _base64Image;
+          }
+            },
+            child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
+            ),
+      ],
+    );
   }
-
-  formData["jobStatus"] = JobStatus.cancelled.name;
-  formData["userId"] = widget.job.user?.userId;
-  formData["companyId"] = widget.job.company?.companyId;
-
-
-  formData["serviceId"] = widget.job.jobsServices
-      ?.map((e) => e.service?.serviceId)
-      .whereType<int>() 
-      .toList();
-
-
   
-  formData["jobDate"] = widget.job.jobDate.toUtc().toIso8601String();
-
-  formData["jobDescription"] = widget.job.jobDescription;
-
-
-
-
-
-    try {
-      await jobProvider.update(widget.job.jobId, formData);
-      if (context.mounted) {
-        if(!mounted) return;
-        Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Posao označen kao ${JobStatus.cancelled.name}.")),
-        );
-      }
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: $e")),
-      );
-    }
-  }
 
  Future<void> _submit(JobStatus status) async {
      final isValid =

@@ -11,6 +11,7 @@ class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key, this.user});
   final User? user;
 
+
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
 }
@@ -18,6 +19,7 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   late MessagesProvider messagesProvider;
   SearchResult<Messages>? result;
+  bool isChecked = false;
   @override
   void initState() {
     super.initState();
@@ -28,7 +30,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
    Future<void> _fetchData() async {
     var filter = {'UserId': AuthProvider.user?.userId ?? 0};
     try {
-  final messages = await messagesProvider.get(filter: filter);
+  final messages = await messagesProvider.get(filter: filter,orderBy: 'desc');
   if(!mounted) return;
   setState(() {
     result = messages;
@@ -44,26 +46,64 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      appBar: AppBar(title: const Text("Poruke")),
+      
+      appBar: AppBar(title: const Text("Notifikacije"),centerTitle: true,),
+      
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
+                 Row(
+                 children: [
+                   Checkbox(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    value: isChecked, 
+                    onChanged: (bool? value)async {
+                   setState(() {
+                     isChecked = true;
+                     _fetchData();
+                   
+                     
+                   });
+                   if (isChecked) {
+                    for (var message in result!.result.where((element) => element.isOpened == false)) {
+                      var request = {
+                        'messageId': message.messageId, 
+              'message1': message.message1,
+              'userId': AuthProvider.user?.userId,
+              'isOpened': true,
+            };
+                      await messagesProvider.update(message.messageId!,request);
+                    }
+                     
+                   }
+                      await _fetchData();
+                    },
+                                 ),
+                                 Container(margin:EdgeInsets.only(),
+                   child:  Text('Označi sve kao pročitano',style: TextStyle(color: Colors.black),)
+                    ,
+                               ),
+                 ],
+               ),
               Expanded(
                 child: ListView.builder(
                   itemCount: result?.result.length ?? 0,
                   itemBuilder: (context, index) {
                     var e = result!.result[index];
                     return Card(
-                      color: e.isOpened == true ? Color.fromRGBO(27, 76, 125, 25) : Colors.grey.shade100,
+                     color: e.isOpened == true ?Color.fromRGBO(27, 76, 125, 25) : Colors.amberAccent,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
                         onTap: () async { 
-                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  MessageDetails(messages: e,)));
-                          setState(() {
-                            _fetchData();
-                          });
+                         showDialog(context: context, builder: (_)=> MessageDetails(messages: e));
+                         setState(() {
+                           _fetchData();
+                         });
+                         await _fetchData();
                          },
 
                         leading: Text("${e.message1.toString().split('.')[0]}" ?? "Poruka nije dostupna",style: TextStyle(color: e.isOpened == true ? Colors.white : Colors.black),), 

@@ -1,5 +1,7 @@
 
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
@@ -13,6 +15,7 @@ import 'package:ko_radio_desktop/screens/company_job.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/company_report.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
+import 'package:ko_radio_desktop/screens/message_details.dart';
 import 'package:ko_radio_desktop/screens/messages_screen.dart';
 import 'package:ko_radio_desktop/screens/report.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
@@ -34,20 +37,26 @@ class MasterScreen extends StatefulWidget {
 class _MasterScreenState extends State<MasterScreen> {
   late MessagesProvider messagesProvider;
   SearchResult<Messages>? result;
+  SearchResult<Messages>? notificationResult; 
+  bool isChecked = false;
   @override
-  void initState() {
+  void initState()  {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     messagesProvider = context.read<MessagesProvider>();
      await _getNotifications();
+     await _getNotificationsList();
+     
     });
     final signalR = context.read<SignalRProvider>();
-signalR.onNotificationReceived = (message) {
+signalR.onNotificationReceived = (message) async {
   rootScaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(content: Text(message)),
   );
-  _getNotifications();
+  await _getNotifications();
+  await _getNotificationsList();
 };
+
   }
   Future<void> _getNotifications() async {
     Map<String, dynamic> filter = {};
@@ -66,7 +75,29 @@ signalR.onNotificationReceived = (message) {
       var fetched = await messagesProvider.get(filter: filter);
       setState(() => result = fetched);
     } catch (e) {
-     print(e);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška: $e')),
+        
+      );
+    }
+  }
+  Future<void> _getNotificationsList() async {
+    Map<String, dynamic> filter = {};
+    if(AuthProvider.selectedCompanyId!=null)
+    {
+       filter = {'CompanyId' : AuthProvider.selectedCompanyId};
+    }
+    if(AuthProvider.selectedStoreId!=null)
+    {
+      filter = {'StoreId' : AuthProvider.selectedStoreId};
+    }
+    
+    try {
+      var fetched = await messagesProvider.get(filter: filter,orderBy: 'desc');
+      setState(() => notificationResult = fetched);
+    } catch (e) {
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Greška: $e')),
         
@@ -211,10 +242,84 @@ List get pagesForUser {
 }
 
 
-
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+
+        child: Column(
+          children: [
+        
+               Row(
+                 children: [
+                   Checkbox(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    value: isChecked, 
+                    onChanged: (bool? value)async {
+                   setState(() {
+                     isChecked = true;
+                     _getNotifications();
+                     _getNotificationsList();
+                     
+                   });
+                   if (isChecked) {
+                    for (var message in result!.result.where((element) => element.isOpened == false)) {
+                      var request = {
+                        'messageId': message.messageId, 
+              'message1': message.message1,
+              'companyId': AuthProvider.selectedCompanyId,
+              'isOpened': true,
+            };
+                      await messagesProvider.update(message.messageId!,request);
+                    }
+                     
+                   }
+                      await _getNotificationsList();
+                      await _getNotifications();
+                    },
+                                 ),
+                                 Container(margin:EdgeInsets.only(),
+                   child:  Text('Označi sve kao pročitano',style: TextStyle(color: Colors.black),)
+                    ,
+                               ),
+                 ],
+               ),
+               Expanded(child:   ListView.builder(
+              itemCount: notificationResult?.result.length ?? 0,
+              itemBuilder: (context, index) {
+                var e = notificationResult!.result[index];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    shape:  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: e.isOpened == true ?Color.fromRGBO(27, 76, 125, 25) : Colors.amberAccent,
+                    onTap: () async { 
+                      showDialog(context: context, builder: (_)  =>   MessageDetails(messages: e,));
+                      setState(() {
+                        _getNotifications();
+                        _getNotificationsList();
+                      });
+                      await _getNotifications();
+                      await _getNotificationsList();
+                     
+                    },
+                    leading: Text(e.message1.toString().split('.')[0],style: TextStyle(color: e.isOpened == true ?Colors.white : Colors.black),),
+                  ),
+                );
+              },
+            ),),
+          
+         
+           
+          ],
+        ),),
       body: Row(
         children: [
        
@@ -266,44 +371,56 @@ List get pagesForUser {
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),
                     ),
-               
-                     Stack(
-              
-            alignment: Alignment.topLeft,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                style: IconButton.styleFrom(
-            
-                 
-                ),
-                color:  Colors.white,
-                onPressed: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  MessagesScreen(companyId: AuthProvider.selectedCompanyId
-                  ,storeId: AuthProvider.selectedStoreId,)));
-                 
-                  setState(() {
-                    _getNotifications();
-                  });
-                },
-              ),
-              if (result?.result.isNotEmpty ?? false)
-                Positioned(
-
-                  right: 8,
-                  top: 8,
-                  child: CircleAvatar(
+                    SizedBox(height: 20,),
+                Padding(padding: const EdgeInsets.only(right: 110),
+                child:  Row(
+                       children: [
+                         Stack(
+                                       
+                                     alignment: Alignment.topLeft,
+                                     children: [
+                                      
+                                     
+                                       IconButton(
+                                         icon: const Icon(Icons.notifications),
+                                         style: IconButton.styleFrom(
+                                     
+                                          
+                                         ),
+                                         color:  Colors.white,
+                                         onPressed: () async {
+                                         _scaffoldKey.currentState?.openDrawer();
+                                      
+                                         setState(() {
+                                           isChecked = false;
+                                         });
+                                          
+                                          
+                                       
+                                         },
+                                       ),
+                                       if (result?.result.isNotEmpty ?? false)
+                                         Positioned(
+                         
+                                           right: 8,
+                                           top: 8,
+                                           child: CircleAvatar(
+                                             
+                                             radius: 8,
+                                             backgroundColor: Colors.red,
+                                             child: Text(
+                          '${result?.count ?? 0}',
+                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                                             ),
+                                           ),
+                                         ),
+                                     ],
+                                   ),
+                                 
+                                   const Text('Notifikacije',style: TextStyle(color: Colors.white),),
+                       ],
+                     ) ,)
                     
-                    radius: 8,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      '${result?.count ?? 0}',
-                      style: const TextStyle(fontSize: 10, color: Colors.white),
-                    ),
-                  ),
-                ),
-            ],
-          ) ,
                 ],
               ),
 

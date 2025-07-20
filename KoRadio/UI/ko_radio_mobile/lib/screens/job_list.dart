@@ -160,7 +160,8 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
             ),
             subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
                 ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                : Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white)),
+                : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
+                : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}',style: const TextStyle(color: Colors.white)),
             trailing: const Icon(Icons.work_outline,color: Colors.white),
           ),
         );

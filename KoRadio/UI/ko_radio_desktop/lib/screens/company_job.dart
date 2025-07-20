@@ -142,14 +142,12 @@ class _CompanyJobState extends State<CompanyJob> {
     child: InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () async {
-        final updated = showDialog(context: context, builder: (_) => BookCompanyJob(job));
-        if (updated == true) {
-          await _fetchJobsByStatus(jobStatuses[1]);
-        } else if (updated == false) {
-          await _fetchJobsByStatus(jobStatuses[3]);
-        } else {
-          setState(() {});
-        }
+       await showDialog(context: context, builder: (_) => BookCompanyJob(job));
+      
+          await _fetchJobsByStatus(jobStatuses[selectedIndex]);
+
+         
+       
       },
       child: Padding(
         padding: const EdgeInsets.all(16),

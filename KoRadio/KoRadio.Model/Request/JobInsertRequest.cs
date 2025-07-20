@@ -23,7 +23,7 @@ namespace KoRadio.Model.Request
 
 		public bool IsRated { get; set; }
 
-		public TimeOnly StartEstimate { get; set; }
+		public TimeOnly? StartEstimate { get; set; }
 
 		public TimeOnly? EndEstimate { get; set; }
 

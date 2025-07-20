@@ -17,11 +17,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace KoRadio.Services
 {
     public class JobService:BaseCRUDServiceAsync<Model.Job, JobSearchObject, Database.Job, JobInsertRequest, JobUpdateRequest>, IJobService
-	{
+	{	
+		string signalRMessage = "Nova obavijest je stigla. Provjerite sekciju poslovi.";
 		private readonly IRabbitMQService _rabbitMQService;
 		private readonly IHubContext<SignalRHubService> _hubContext;
 		private readonly IMessageService _messageService;
@@ -135,7 +137,7 @@ namespace KoRadio.Services
 			if(entity.FreelancerId!=null && entity.CompanyId==null)
 			{
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-				.SendAsync("ReceiveNotification", notification, cancellationToken);
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 
 				var insertRequest = new MessageInsertRequest
@@ -152,7 +154,7 @@ namespace KoRadio.Services
 			if(entity.CompanyId!=null && entity.FreelancerId==null)
 			{
 				await _hubContext.Clients.User(entity.CompanyId.ToString())
-				.SendAsync("ReceiveNotification", notification, cancellationToken);
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 
 				var insertRequest = new MessageInsertRequest
@@ -175,35 +177,37 @@ namespace KoRadio.Services
 
 		public override async Task BeforeUpdateAsync(JobUpdateRequest request, Database.Job entity, CancellationToken cancellationToken = default)
 		{
+			_context.Jobs.Include(x => x.User);
+
 			string notificationJobApprovedFreelancer = $"Zahtjev za posao od radnika {entity?.Freelancer?.FreelancerNavigation.FirstName}" +
 					$" {entity.Freelancer?.FreelancerNavigation.LastName} je odobren.\nNjegovo trenutno stanje možete pregledati pod sekcijom odobrenih poslova.";
 			string notificationJobApprovedCompany = $"Zahtjev za posao od firme {entity?.Company?.CompanyName} je odobren.\nNjegovo trenutno stanje možete pregledati pod sekcijom odobrenih poslova.";
 
-			if(entity?.FreelancerId!=null && entity.CompanyId == null && request.JobStatus == "unapproved" && request.JobStatus == "approved")
+			if(entity?.FreelancerId!=null && entity.CompanyId == null && entity.JobStatus == "unapproved" && request.JobStatus == "approved")
 			{
-				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-					.SendAsync("ReceiveNotification", notificationJobApprovedFreelancer, cancellationToken);
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = notificationJobApprovedFreelancer,
-					UserId = entity.FreelancerId,
+					UserId = entity.UserId,
 					IsOpened = false
 				};
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
-				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
+				Console.WriteLine("Notification sent and saved: ");
 			}
-			if(entity?.FreelancerId == null && entity?.CompanyId != null && request.JobStatus == "unapproved" && request.JobStatus == "approved")
+			if(entity?.FreelancerId == null && entity?.CompanyId != null && entity.JobStatus == "unapproved" && request.JobStatus == "approved")
 			{
-				await _hubContext.Clients.User(entity.CompanyId.ToString())
-					.SendAsync("ReceiveNotification", notificationJobApprovedCompany, cancellationToken);
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = notificationJobApprovedCompany,
-					CompanyId = entity.CompanyId,
+					UserId = entity.UserId,
 					IsOpened = false
 				};
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
-				Console.WriteLine("Notification sent and saved: " + entity.Company?.CompanyName);
+				Console.WriteLine("Notification sent and saved: ");
 			}
 
 			

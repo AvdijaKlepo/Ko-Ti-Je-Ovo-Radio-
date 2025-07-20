@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ko_radio_mobile/models/messages.dart';
-import 'package:ko_radio_mobile/providers/messages_provider.dart';
+import 'package:ko_radio_desktop/models/messages.dart';
+import 'package:ko_radio_desktop/providers/messages_provider.dart';
 import 'package:provider/provider.dart';
 
 class MessageDetails extends StatefulWidget {
-  const MessageDetails({ super.key, required this.messages});
+  const MessageDetails({required this.messages, super.key});
   final Messages messages;
-
   @override
   State<MessageDetails> createState() => _MessageDetailsState();
 }
@@ -24,7 +23,7 @@ class _MessageDetailsState extends State<MessageDetails> {
     var request = {
       'messageId': widget.messages.messageId,
       'message1': widget.messages.message1,
-      'userId': widget.messages.userId,
+      'companyId': widget.messages.companyId,
       'isOpened': true,
     };
     
@@ -38,16 +37,13 @@ class _MessageDetailsState extends State<MessageDetails> {
   }
   @override
   Widget build(BuildContext context) {
-    return  Dialog(
+    return Dialog(
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
         width: 500,
         height: 200,
         child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(widget.messages.message1??"Poruka nije dostupna"),
-        ),
+        child: Text(widget.messages.message1??"Poruka nije dostupna"),
       ),
       ) 
     );

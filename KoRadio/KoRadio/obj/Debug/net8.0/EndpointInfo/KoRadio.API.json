@@ -5378,7 +5378,8 @@
           },
           "startEstimate": {
             "type": "string",
-            "format": "time"
+            "format": "time",
+            "nullable": true
           },
           "endEstimate": {
             "type": "string",

@@ -194,10 +194,11 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                             leading: const Icon(Icons.image),
                             title: _image != null
                                 ? Text(_image!.path.split('/').last)
-                                : const Text("Nema izabrane slike"),
+                                : const Text("Nema izabrane slike",),
                             trailing: ElevatedButton.icon(
-                              icon: const Icon(Icons.file_upload),
-                              label: const Text("Odaberi"),
+                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+                              icon: const Icon(Icons.file_upload,color: Colors.white,),
+                              label: const Text("Odaberi",style: TextStyle(color: Colors.white),),
                               onPressed: getImage,
                             ),
                           ),
@@ -231,6 +232,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
               onPressed: () async {
                 
                 
@@ -242,7 +244,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
     return;
   }
            
-                debugPrint(_formKey.currentState?.value.toString());
+            
                 var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
 
@@ -256,13 +258,10 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
-                formData["isTenderFinalized"] = false;
-                formData["isFreelancer"]=false;
-                formData["isInvoiced"]=false;
-                formData["isRated"]=false;
+              
           
 
-                debugPrint(_formKey.currentState?.value.toString());
+             
                 var selectedServices = formData["serviceId"];
                 formData["serviceId"] = (selectedServices is List)
                     ? selectedServices
@@ -271,12 +270,31 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                     : (selectedServices != null
                         ? [int.tryParse(selectedServices.toString()) ?? 0]
                         : []);
-                debugPrint(_formKey.currentState?.value.toString());
+                  var jobInsertRequest = {
+                  "userId": _userId,
+                  "freelancerId": null,
+                  "companyId": widget.c.companyId,
+                  "jobTitle": formData["jobTitle"],
+                  "isTenderFinalized": false,
+                  "isFreelancer": false,
+                  "isInvoiced": false,
+                  "isRated": false,
+                  "startEstimate": null,
+                  "endEstimate": null,
+                  "payEstimate": null,
+                  "payInvoice": null,
+                  "jobDate": formData["jobDate"],
+                  "dateFinished": null,
+                  "jobDescription": formData["jobDescription"],
+                  "image": formData["image"],
+                  "jobStatus": JobStatus.unapproved.name,
+                  "serviceId": formData["serviceId"]
+                };
+
+       
               try{
-                formData["jobStatus"] = JobStatus.unapproved.name;
-                formData["userId"] = _userId;
-                formData["companyId"] = widget.c.companyId;
-                await jobProvider.insert(formData);
+               
+                await jobProvider.insert(jobInsertRequest);
                 int count = 0;
                 if(!mounted) return;
                  Navigator.of(context).popUntil((_) => count++ >= 3);
@@ -284,6 +302,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                     content: Text("Zahtjev proslijeđen firmi!")));
               }
               catch(e){
+                print(e);
 
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("Greška u slanju zahtjeva. Molimo pokušajte ponovo.")));
@@ -291,7 +310,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
 
 
            },
-              child: const Text("Sačuvaj"))
+              child: const Text("Sačuvaj",style: TextStyle(color: Colors.white),))
         ],
       ),
     );
