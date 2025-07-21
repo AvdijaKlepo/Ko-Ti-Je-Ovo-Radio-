@@ -19,6 +19,8 @@ import 'package:ko_radio_desktop/providers/order_provider.dart';
 import 'package:ko_radio_desktop/providers/product_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
+import 'package:ko_radio_desktop/providers/tender_bid_provider.dart';
+import 'package:ko_radio_desktop/providers/tender_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +43,8 @@ void main() {
       ChangeNotifierProvider(create: (_)=>ProductProvider()),
       ChangeNotifierProvider(create: (_)=>OrderProvider()),
       ChangeNotifierProvider(create: (_)=>MessagesProvider()),
+      ChangeNotifierProvider(create: (_)=>TenderProvider()),
+      ChangeNotifierProvider(create: (_)=>TenderBidProvider()),
       ChangeNotifierProvider(create: (_)=>SignalRProvider('notifications-hub')),
 
     ],

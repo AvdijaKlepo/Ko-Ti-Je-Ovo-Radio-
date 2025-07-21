@@ -105,7 +105,7 @@ Widget build(BuildContext context) {
               
               borderRadius: BorderRadius.circular(100),
               child: user.image!=null ?   
-              imageFromString(user.image!)
+              imageFromString(user.image!,width: 100,height: 100)
               :
               
                Image.network(

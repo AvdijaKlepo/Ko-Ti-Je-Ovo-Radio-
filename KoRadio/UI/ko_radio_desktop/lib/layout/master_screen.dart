@@ -24,6 +24,7 @@ import 'package:ko_radio_desktop/screens/store_orders.dart';
 import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/store_report.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
+import 'package:ko_radio_desktop/screens/tender_screen.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -158,6 +159,11 @@ signalR.onNotificationReceived = (message) async {
       selectedIcon: Icon(Icons.work),
       label: Text('Poslovi'),
     ),
+     NavigationRailDestination(
+      icon: Icon(Icons.paste_outlined),
+      selectedIcon: Icon(Icons.paste),
+      label: Text('Tenderi'),
+    ),
       NavigationRailDestination(
       icon: Icon(Icons.report_outlined),
       selectedIcon: Icon(Icons.report),
@@ -196,6 +202,7 @@ signalR.onNotificationReceived = (message) async {
     final List _pagesCompanyAdmin = [
     const CompanyEmployeeList(),
     const CompanyJob(),
+    const TenderScreen(),
     const CompanyReport()
   
   ];

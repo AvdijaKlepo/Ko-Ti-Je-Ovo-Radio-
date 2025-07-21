@@ -54,6 +54,7 @@ signalR.onNotificationReceived = (message) async {
       var fetched = await messagesProvider.get(filter: filter);
       setState(() => result = fetched);
     } catch (e) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Greška: $e')),
       );
