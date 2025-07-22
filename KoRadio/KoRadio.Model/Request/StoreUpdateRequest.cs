@@ -19,6 +19,7 @@ namespace KoRadio.Model.Request
 		public bool IsApplicant { get; set; }
 		public bool IsDeleted { get; set; }
 		public List<int> Roles { get; set; }
+		public string? Address { get; set; }
 		public int LocationId { get; set; }
 	}
 }

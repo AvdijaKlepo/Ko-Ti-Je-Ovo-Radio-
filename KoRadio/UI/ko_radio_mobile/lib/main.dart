@@ -197,9 +197,14 @@ class LoginPage extends StatelessWidget {
       );
     }
   } catch (e) {
+    
     showDialog(
+    
+    
       context: context,
+      
       builder: (context) => AlertDialog(
+        
         title: const Text("Greška"),
         content: Text(e.toString()),
         actions: [

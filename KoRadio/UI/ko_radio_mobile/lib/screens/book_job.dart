@@ -144,7 +144,7 @@ class _BookJobState extends State<BookJob> {
 
     return Scaffold(
 
-      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily)),
       centerTitle: true,
       ),
       

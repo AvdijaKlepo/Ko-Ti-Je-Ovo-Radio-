@@ -69,7 +69,7 @@ Widget build(BuildContext context) {
   return Scaffold(appBar: AppBar(
     scrolledUnderElevation: 0,
     centerTitle: true,
-    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+    title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily),),
   
 
   ),body:   Padding(

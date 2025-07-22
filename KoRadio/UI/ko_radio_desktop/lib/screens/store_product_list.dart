@@ -59,6 +59,7 @@ class _StoreProductListState extends State<StoreProductList> {
       final result = await serviceProvider.get();
       setState(() => serviceResult = result);
     } catch (e) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }

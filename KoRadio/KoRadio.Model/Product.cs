@@ -22,7 +22,7 @@ namespace KoRadio.Model
 		public bool IsDeleted { get; set; }
 		public byte[]? Image { get; set; }
 
-		public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+		
 		public virtual ICollection<ProductsService> ProductsServices { get; set; } = new List<ProductsService>();
 
 	

@@ -66,7 +66,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
       for (var item in data['resultList']) {
         result.result.add(fromJson(item));
       }
-
+      print(uri);
       return result;
     } else {
       throw new Exception("Unknown error");
@@ -132,7 +132,23 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw new Exception("Unknown error");
     }
   }
+  Future<T> getById(int? id) async {
+  if (id == null) throw Exception("ID must not be null");
 
+  var url = "$baseUrl$_endpoint/$id"; 
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
+
+  var response = await http.get(uri, headers: headers);
+
+  if (isValidResponse(response)) {
+    var data = jsonDecode(response.body);
+
+    return fromJson(data); 
+  } else {
+    throw Exception("Unknown error");
+  }
+}
 
 
 
@@ -170,34 +186,34 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   String getQueryString(Map params,
-      {String prefix = '&', bool inRecursion = false}) {
-    String query = '';
-    params.forEach((key, value) {
-      if (inRecursion) {
-        if (key is int) {
-          key = '[$key]';
-        } else if (value is List || value is Map) {
-          key = '.$key';
-        } else {
-          key = '.$key';
-        }
-      }
-      if (value is String || value is int || value is double || value is bool) {
-        var encoded = value;
-        if (value is String) {
-          encoded = Uri.encodeComponent(value);
-        }
-        query += '$prefix$key=$encoded';
-      } else if (value is DateTime) {
-        query += '$prefix$key=${(value as DateTime).toIso8601String()}';
+    {bool inRecursion = false}) {
+  List<String> parts = [];
+
+  params.forEach((key, value) {
+    if (inRecursion) {
+      if (key is int) {
+        key = '[$key]';
       } else if (value is List || value is Map) {
-        if (value is List) value = value.asMap();
-        value.forEach((k, v) {
-          query +=
-              getQueryString({k: v}, prefix: '$prefix$key', inRecursion: true);
-        });
+        key = '.$key';
+      } else {
+        key = '.$key';
       }
-    });
-    return query;
-  }
+    }
+
+    if (value is String || value is int || value is double || value is bool) {
+      var encoded = value is String ? Uri.encodeComponent(value) : value;
+      parts.add('$key=$encoded');
+    } else if (value is DateTime) {
+      parts.add('$key=${value.toIso8601String()}');
+    } else if (value is List || value is Map) {
+      if (value is List) value = value.asMap();
+      value.forEach((k, v) {
+        parts.addAll(
+            getQueryString({k: v}, inRecursion: true).split('&'));
+      });
+    }
+  });
+
+  return parts.join('&');
+}
 }

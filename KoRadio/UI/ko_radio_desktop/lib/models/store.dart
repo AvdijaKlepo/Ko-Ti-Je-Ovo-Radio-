@@ -14,6 +14,7 @@ class Store{
   bool? isDeleted;
   bool? isApplicant;
   Location? location;
+  String? address;
 
   Store({
     required this.storeId,

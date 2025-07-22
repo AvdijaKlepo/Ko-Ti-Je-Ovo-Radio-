@@ -10,6 +10,9 @@ class Order {
   int orderId;
   int? orderNumber;
   User? user;
+  bool? isCancelled;
+  bool? isShipped;
+  DateTime? createdAt;
   List<OrderItems>? orderItems;
 
   Order(this.orderId);

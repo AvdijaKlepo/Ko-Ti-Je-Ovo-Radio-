@@ -11,5 +11,10 @@ namespace KoRadio.Model.Request
 		public int OrderNumber { get; set; }
 
 		public int UserId { get; set; }
+		public bool IsCancelled { get; set; }
+
+		public bool IsShipped { get; set; }
+
+	
 	}
 }

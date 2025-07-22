@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ko_radio_mobile/layout/master_screen.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/location.dart';
@@ -197,7 +197,7 @@ class _FreelancerListState extends State<FreelancerList> {
           'Lista servisera',
           style: TextStyle(
             color: const Color.fromRGBO(27, 76, 125, 1),
-            fontFamily: GoogleFonts.robotoCondensed().fontFamily,
+            fontFamily: GoogleFonts.lobster().fontFamily,
           ),
         ),
       ),
@@ -288,7 +288,7 @@ class _FreelancerListState extends State<FreelancerList> {
                   borderRadius: BorderRadius.circular(12)),
               leading: freelancer?.image != null
                   ? imageFromString(freelancer!.image!)
-                  : Image.asset("assets/images/workerplaceholder.png",
+                  : SvgPicture.asset("assets/images/undraw_construction-workers_z99i.svg",
                       width: 80, height: 80),
               title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -333,7 +333,7 @@ class _FreelancerListState extends State<FreelancerList> {
                   borderRadius: BorderRadius.circular(12)),
               leading: c.image != null
                   ? imageFromString(c.image!)
-                  : Image.asset("assets/images/companyplaceholder.jpg",
+                  : SvgPicture.asset("assets/images/undraw_under-construction_c2y1.svg",
                       width: 80, height: 80),
               title: Text(c.companyName ?? '',
                   style: const TextStyle(fontWeight: FontWeight.bold)),

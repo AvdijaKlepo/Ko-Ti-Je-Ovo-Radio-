@@ -1,17 +1,13 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/main.dart';
 import 'package:ko_radio_desktop/models/messages.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/messages_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
-import 'package:signalr_netcore/itransport.dart';
-
 class SignalRProvider with ChangeNotifier {
   SearchResult<Messages>? result;
   
@@ -50,7 +46,15 @@ class SignalRProvider with ChangeNotifier {
   }*/
 
   Future<void> startConnection() async {
-  final url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
+    var url;
+    if(AuthProvider.selectedCompanyId!=null)
+    {
+     url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
+    }
+     if(AuthProvider.selectedStoreId!=null)
+    {
+     url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
+    }
  debugPrint('Connecting to SignalR at $url');
 
 
@@ -61,10 +65,20 @@ class SignalRProvider with ChangeNotifier {
     final message = arguments[0]?.toString() ?? '';
     if (message.isNotEmpty) {
       onNotificationReceived?.call(message);
+       if(AuthProvider.selectedCompanyId!=null)
+       {
       await messagesProvider.get(filter: {
         'CompanyId': AuthProvider.selectedCompanyId,
         'IsOpened': false,
       });
+       }
+       if(AuthProvider.selectedStoreId!=null)
+       {
+      await messagesProvider.get(filter: {
+        'StoreId': AuthProvider.selectedStoreId,
+        'IsOpened': false,
+      });
+       }
 
 
       notifyListeners();

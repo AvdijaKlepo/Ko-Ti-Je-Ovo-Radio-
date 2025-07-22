@@ -135,8 +135,8 @@ class _CartState extends State<Cart> {
                           MaterialPageRoute(
                             builder: (context) => PaypalCheckoutView(
                               sandboxMode: true,
-                                clientId: DotEnv().env['clientId'],
-          secretKey: DotEnv().env['secretKey'],
+                                clientId: dotenv.env['clientId'],
+          secretKey: dotenv.env['secretKey'],
                               transactions: [
                                 {
                                   "amount": {
@@ -163,10 +163,16 @@ class _CartState extends State<Cart> {
                               ],
                               note: "Hvala što koristite našu aplikaciju!",
                               onSuccess: (params) async {
+                                DateTime now = DateTime.now();
                                 try {
+                                    
+                
                                   await orderProvider.insert({
                                     "userId": AuthProvider.user!.userId,
                                     "orderNumber": Random().nextInt(100000),
+                                    'isCancelled': false,
+                                    'isShipped': false,
+                                    'createdAt': now.toIso8601String().split('T')[0],
                                     "orderItems": cart.items
                                         .map((ci) => {
                                               "productId": ci.product.productId,

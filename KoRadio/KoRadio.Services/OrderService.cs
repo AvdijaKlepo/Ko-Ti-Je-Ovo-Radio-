@@ -22,7 +22,7 @@ namespace KoRadio.Services
 
 		public override IQueryable<Order> AddFilter(OrderSearchObject search, IQueryable<Order> query)
 		{
-			query = query.Include(x => x.OrderItems).ThenInclude(x=>x.Product);
+			query = query.Include(x => x.OrderItems).ThenInclude(x=>x.Product).Include(x=>x.User);
 
 			if(search.UserId!=null)
 			{
@@ -30,7 +30,22 @@ namespace KoRadio.Services
 			}
 			if (search.StoreId!=null)
 			{
-				query = query.Where(x => x.OrderItems.Any(x => x.StoreId == search.StoreId));
+				query = query
+		.Where(x => x.OrderItems.Any(oi => oi.StoreId == search.StoreId))
+		.Select(x => new Order
+		{
+			OrderId = x.OrderId,
+			OrderNumber=x.OrderNumber,
+			CreatedAt=x.CreatedAt,
+			IsCancelled=x.IsCancelled,
+			IsShipped=x.IsShipped,
+			UserId=x.UserId,
+			User = x.User,
+			
+			OrderItems = x.OrderItems.Where(oi => oi.StoreId == search.StoreId).ToList(),
+			
+		});
+
 			}
 			return base.AddFilter(search, query);
 		}

@@ -148,9 +148,7 @@ class _LoginPageState extends State<LoginPage> {
               
 
                       AuthProvider.user = user;
-                      AuthProvider.userRoles = user.userRoles?.isNotEmpty == true
-                          ? user.userRoles!.first
-                          : null;
+                    final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
                       AuthProvider.isSignedIn = true;
 
                  
@@ -188,6 +186,8 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (companyEmployees.length == 1) {
                         AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+                          final signalRProvider = context.read<SignalRProvider>();
+                                      await signalRProvider.startConnection();
                       }
                       
                       final stores = user.stores ?? [];
@@ -199,8 +199,10 @@ class _LoginPageState extends State<LoginPage> {
                             title: const Text("Odaberite trgovinu: "),
                             children: stores.map((store)  {
                               return SimpleDialogOption(
-                                onPressed: () {
+                                onPressed: () async {
                                   AuthProvider.selectedStoreId = store.storeId;
+                                    final signalRProvider = context.read<SignalRProvider>();
+                                      await signalRProvider.startConnection();
                                   Navigator.pop(context);
                                   Navigator.pushReplacement(
                                     context,
@@ -216,7 +218,8 @@ class _LoginPageState extends State<LoginPage> {
                       }
                       if (stores.length == 1) {
                         AuthProvider.selectedStoreId = stores.first.storeId;
-                      
+                        final signalRProvider = context.read<SignalRProvider>();
+                                      await signalRProvider.startConnection();
              
                         
                       }
@@ -225,15 +228,17 @@ class _LoginPageState extends State<LoginPage> {
                       debugPrint('CompanyId: ${AuthProvider.selectedCompanyId}');
                          
                          
-                         if(AuthProvider.userRoles?.role?.roleName=="Admin" ||
-                      AuthProvider.userRoles?.role?.roleName=="Company Admin" ||
-                      AuthProvider.userRoles?.role?.roleName=="StoreAdministrator")
-                      {
+                         if(roles.contains("Admin") ||
+                      roles.contains("Company Admin") ||
+                      roles.contains("StoreAdministrator")
+                         ){
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const MasterScreen()),
                       );
+                         
                       }
+                    
                       else{
                          showDialog(
                          

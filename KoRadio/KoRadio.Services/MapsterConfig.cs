@@ -58,10 +58,7 @@ public class MapsterConfig
 			.NewConfig()
 			.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
 
-		TypeAdapterConfig<KoRadio.Services.Database.OrderItem, KoRadio.Model.OrderItem>
-  .NewConfig()
-  .Ignore(dest => dest.Order);
-
+		
 
 
 

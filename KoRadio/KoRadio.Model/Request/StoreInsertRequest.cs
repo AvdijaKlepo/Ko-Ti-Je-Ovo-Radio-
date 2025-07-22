@@ -18,6 +18,7 @@ namespace KoRadio.Model.Request
 		public byte[]? Image { get; set; }
 		public bool IsApplicant { get; set; }
 		public bool IsDeleted { get; set; }
+		public string? Address { get; set; }
 		public int LocationId { get; set; }
 	}
 }

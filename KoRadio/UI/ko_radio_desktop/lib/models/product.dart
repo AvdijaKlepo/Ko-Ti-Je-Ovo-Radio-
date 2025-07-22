@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_desktop/models/order_items.dart';
 import 'package:ko_radio_desktop/models/products_services.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 part 'product.g.dart';
@@ -12,6 +13,7 @@ class Product {
   bool? isDeleted;
   String? image;
   Store? store;
+  List<OrderItems>? orderItems;
   List<ProductsServices>? productsServices;
 
   Product({

@@ -21,6 +21,8 @@ public partial class Store
 
     public byte[]? Image { get; set; }
 
+    public string? Address { get; set; }
+
     public virtual Location Location { get; set; } = null!;
 
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();

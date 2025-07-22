@@ -5747,6 +5747,16 @@
             "type": "integer",
             "format": "int32"
           },
+          "isCancelled": {
+            "type": "boolean"
+          },
+          "isShipped": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "orderItems": {
             "type": "array",
             "items": {
@@ -5755,28 +5765,7 @@
             "nullable": true
           },
           "user": {
-            "$ref": "#/components/schemas/User"
-          }
-        },
-        "additionalProperties": false
-      },
-      "OrderDTO": {
-        "type": "object",
-        "properties": {
-          "orderId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "orderNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false
@@ -5791,6 +5780,16 @@
           "userId": {
             "type": "integer",
             "format": "int32"
+          },
+          "isCancelled": {
+            "type": "boolean"
+          },
+          "isShipped": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           },
           "orderItems": {
             "type": "array",
@@ -5824,9 +5823,6 @@
           "storeId": {
             "type": "integer",
             "format": "int32"
-          },
-          "order": {
-            "$ref": "#/components/schemas/OrderDTO"
           },
           "product": {
             "$ref": "#/components/schemas/ProductDTO"
@@ -5883,6 +5879,12 @@
           "userId": {
             "type": "integer",
             "format": "int32"
+          },
+          "isCancelled": {
+            "type": "boolean"
+          },
+          "isShipped": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5916,13 +5918,6 @@
           "image": {
             "type": "string",
             "format": "byte",
-            "nullable": true
-          },
-          "orderItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OrderItem"
-            },
             "nullable": true
           },
           "productsServices": {
@@ -6203,6 +6198,10 @@
           "isDeleted": {
             "type": "boolean"
           },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
           "products": {
             "type": "array",
             "items": {
@@ -6244,6 +6243,10 @@
           },
           "isDeleted": {
             "type": "boolean"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
           },
           "locationId": {
             "type": "integer",
@@ -6302,6 +6305,10 @@
               "type": "integer",
               "format": "int32"
             },
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
             "nullable": true
           },
           "locationId": {

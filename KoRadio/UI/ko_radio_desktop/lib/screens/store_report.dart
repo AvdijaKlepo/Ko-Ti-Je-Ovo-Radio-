@@ -92,8 +92,8 @@ class _StoreReportState extends State<StoreReport> {
 }
   }
     Future<void> _generatePdf() async {
-    final summedInvoice = (orderResult?.result ?? [])
-    .fold<double>(0, (sum, e) => sum + (e.orderItems?.map((e) => e.product?.price ?? 0).reduce((a, b) => a + b) ?? 0));
+   final summedInvoice = (orderResult?.result ?? [])
+    .fold<double>(0, (sum, e) => sum + (e.orderItems?.map((e) => e.product!.price!*e.quantity!).reduce((a, b) => a + b) ?? 0));
 
    
     final pdf = pw.Document();
@@ -115,6 +115,10 @@ class _StoreReportState extends State<StoreReport> {
                 pw.Text('Broj narudžbi: ${orderResult?.count ?? 0}',
                     style:  pw.TextStyle(fontSize: 18,font: ttf)),
                       pw.Text('Broj proizvoda: ${productResult?.count ?? 0}',
+                    style:  pw.TextStyle(fontSize: 18,font: ttf)),
+                    pw.Text('Broj poslanih narudžbi: ${orderResult?.result.where((element) => element.isShipped==true).length ?? 0}',
+                    style:  pw.TextStyle(fontSize: 18,font: ttf)),
+                    pw.Text('Broj otkazanih narudžbi: ${orderResult?.result.where((element) => element.isCancelled==true).length ?? 0}',
                     style:  pw.TextStyle(fontSize: 18,font: ttf)),
                   
                      pw.Text('Ukupna zarada: ${summedInvoice ?? 0}',
@@ -147,7 +151,8 @@ class _StoreReportState extends State<StoreReport> {
   @override
   Widget build(BuildContext context) {
         final summedInvoice = (orderResult?.result ?? [])
-    .fold<double>(0, (sum, e) => sum + (e.orderItems?.map((e) => e.product?.price ?? 0).reduce((a, b) => a + b) ?? 0));
+    .fold<double>(0, (sum, e) => sum + (e.orderItems?.map((e) => e.product!.price!*e.quantity!).reduce((a, b) => a + b) ?? 0));
+    
     return  Scaffold(
  
       body: Column(
@@ -230,6 +235,73 @@ class _StoreReportState extends State<StoreReport> {
                                     ),
                     ),
                 ),
+                  Card(
+                 
+                    color: Colors.white,
+                    
+                    
+                    child: SizedBox(
+                      width: 250,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.send, size: 50),
+                            const SizedBox(height: 16),
+                            ListTile(
+                              
+                              title:const Text(
+                              'Broj poslanih narudžbi',
+                              style: TextStyle(fontSize: 16),
+                      
+                            ),
+                            subtitle: Center(
+                              child: Text(
+                                '${orderResult?.result.where((element) => element.isShipped==true) ?? 0}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            ),
+                          
+                          ]
+                        ),
+                                    ),
+                    ),
+                ),
+                    Card(
+                 
+                    color: Colors.white,
+                    
+                    
+                    child: SizedBox(
+                      width: 250,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.cancel, size: 50),
+                            const SizedBox(height: 16),
+                            ListTile(
+                              
+                              title:const Text(
+                              'Broj otkazanih narudžbi',
+                              style: TextStyle(fontSize: 16),
+                      
+                            ),
+                            subtitle: Center(
+                              child: Text(
+                                '${orderResult?.result.where((element) => element.isCancelled==true) ?? 0}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            ),
+                          
+                          ]
+                        ),
+                                    ),
+                    ),
+                ),
+                   
                    
                  Card(
                  
@@ -253,7 +325,7 @@ class _StoreReportState extends State<StoreReport> {
                             ),
                             subtitle: Center(
                               child: Text(
-                                '${summedInvoice}',
+                                '$summedInvoice',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -275,7 +347,7 @@ class _StoreReportState extends State<StoreReport> {
            const SizedBox(height: 10,),
           
 
-        //   _buildStats(),
+          _buildStats(),
                 const SizedBox(height: 10,),
             Center(
             child:  ElevatedButton(onPressed: (){
@@ -293,6 +365,143 @@ class _StoreReportState extends State<StoreReport> {
       )
     );
   }
+
+  Widget _buildStats() {
+  if (orderResult == null || orderResult!.result.isEmpty) {
+    return const Center(
+      child: Text(
+        'Trenutno nema podataka za prikazati',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+      ),
+    );
+  }
+
+ 
+  List<Order> orderList = orderResult!.result
+     
+      .toList();
+
+  List<int> ordersPerMonth = List.filled(12, 0);
+  for (var order in orderList) {
+    int monthIndex = order.createdAt!.month - 1;
+    ordersPerMonth[monthIndex]++;
+  }
+
+
+  List<String> months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+
+  List<FlSpot> spots = List.generate(
+    12,
+    (index) => FlSpot(index.toDouble(), ordersPerMonth[index].toDouble()),
+  );
+
+  double maxValue = ordersPerMonth.isNotEmpty
+      ? ordersPerMonth.reduce((a, b) => a > b ? a : b).toDouble()
+      : 1;
+  double maxY = ((maxValue ~/ 5) + 1) * 5;
+
+  return Padding(
+    padding: const EdgeInsets.all(15),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        color: const Color(0xFF1B4C7D),
+        width: double.infinity,
+        height: 600,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                'Broj narudžbi po mjesecima ',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: LineChart(
+                  LineChartData(
+                    minY: 0,
+                    maxY: maxY,
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: spots,
+                        isCurved: true,
+                        barWidth: 4,
+                        isStrokeCapRound: true,
+                        color: Colors.white,
+                        belowBarData: BarAreaData(
+                          show: true,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        dotData: const FlDotData(show: true),
+                      ),
+                    ],
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 5,
+                          getTitlesWidget: (value, meta) {
+                            if (value % 5 == 0) {
+                              return Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(color: Colors.white),
+                              );
+                            }
+                            return Container();
+                          },
+                        ),
+                        axisNameWidget: const Text(
+                          "Broj narudžbi",
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                        axisNameSize: 30,
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) {
+                            if (value >= 0 && value < months.length) {
+                              return Text(
+                                months[value.toInt()],
+                                style: const TextStyle(color: Colors.white),
+                              );
+                            }
+                            return Container();
+                          },
+                        ),
+                        axisNameWidget: const Text(
+                          "Mjesec",
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                        axisNameSize: 30,
+                      ),
+                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    ),
+                    gridData: const FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
+                    borderData: FlBorderData(show: false),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
   
 
 }

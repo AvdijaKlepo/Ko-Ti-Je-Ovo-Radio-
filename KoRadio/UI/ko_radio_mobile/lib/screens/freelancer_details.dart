@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/company.dart';
@@ -35,20 +36,29 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
   };
 
   @override
-  void initState() {
-    super.initState();
-    _focusedDay = DateTime.now();
-    _selectedDay = _focusedDay;
+void initState() {
+  super.initState();
 
-    List<String>? workingDays = widget.freelancer?.workingDays ??
-        widget.company?.workingDays;
+  List<String>? workingDays = widget.freelancer?.workingDays ??
+      widget.company?.workingDays;
 
-    _workingDayInts = workingDays
-            ?.map((day) => _dayStringToInt[day] ?? -1)
-            .where((dayInt) => dayInt != -1)
-            .toSet() ??
-        {};
+  _workingDayInts = workingDays
+          ?.map((day) => _dayStringToInt[day] ?? -1)
+          .where((dayInt) => dayInt != -1)
+          .toSet() ??
+      {};
+
+  _focusedDay = _findNextWorkingDay(DateTime.now());
+  _selectedDay = _focusedDay;
+}
+DateTime _findNextWorkingDay(DateTime start) {
+  DateTime candidate = start;
+  while (!_isWorkingDay(candidate)) {
+    candidate = candidate.add(const Duration(days: 1));
   }
+  return candidate;
+}
+
 
   @override
   void didChangeDependencies() {
@@ -71,7 +81,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+        title: Text('Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily),),
         
        
       ),
@@ -87,17 +97,20 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                         ? widget.freelancer?.freelancerNavigation?.image
                         : widget.company?.image;
 
-                    if (imageString != null && imageString.startsWith("data:image")) {
+                    if (imageString != null) {
                       return imageFromString(imageString, height: 100, width: 100);
-                    } else {
-                      return Image.asset(
-                        imageString ??
-                            "assets/images/workerplaceholder.png",
-                        height: 100,
-                        width: 100,
-                      );
                     }
+                     else if(isFreelancer) {
+                      return SvgPicture.asset("assets/images/undraw_construction-workers_z99i.svg",
+                      width: 100, height: 100);
+                    }
+                    else if(isFreelancer==false){
+                      return SvgPicture.asset("assets/images/undraw_under-construction_c2y1.svg",width: 100, height: 100);
+                    }
+
+                    return const SizedBox();
                   },
+
                 ),
               ),
               Column(
@@ -111,6 +124,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                   Text('Ocjena: ${(isFreelancer ? widget.freelancer?.rating : widget.company?.rating) != 0 ? (isFreelancer ? widget.freelancer?.rating : widget.company?.rating).toString() : 'Neocijenjen'}'),
                   Text('Lokacija: ${isFreelancer ? widget.freelancer?.freelancerNavigation?.location?.locationName : widget.company?.location?.locationName ?? 'Nepoznato'}'),
                   Text('Radno vrijeme: ${isFreelancer ? widget.freelancer?.startTime.substring(0,5) : widget.company?.startTime.substring(0,5)} - ${isFreelancer ? widget.freelancer?.endTime.substring(0,5) : widget.company?.endTime.substring(0,5)}'),
+                 
                 ],
               ),
             ],
@@ -119,8 +133,9 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
           const Text('Kalendar dostupnosti'),
           Expanded(
             child: TableCalendar(
-              key: PageStorageKey('calendar'), 
-              
+              key: const PageStorageKey('calendar'), 
+
+              shouldFillViewport: true,
               firstDay: DateTime.now(),
               lastDay: DateTime(2035),
               focusedDay: _focusedDay,
@@ -144,7 +159,6 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
     ));
   }
 
-  // After returning, keep the same month focused
   if (mounted) {
     setState(() {
       _focusedDay = _selectedDay!;
@@ -152,6 +166,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
   }
 },
               calendarStyle: CalendarStyle(
+              
                 isTodayHighlighted: true,
                 selectedDecoration: const BoxDecoration(
                   color: Color.fromRGBO(27, 76, 125, 1),

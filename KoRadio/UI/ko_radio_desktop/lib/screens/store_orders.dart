@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/order.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
@@ -20,13 +21,7 @@ class _StoreOrdersState extends State<StoreOrders> {
 
    final TextEditingController _userNameController = TextEditingController();
    Timer? _debounce;
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _userNameController.dispose();
-
-    super.dispose();
-  }
+  
     void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), _getOrders);
@@ -34,11 +29,12 @@ class _StoreOrdersState extends State<StoreOrders> {
   @override 
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-       orderProvider = context.read<OrderProvider>();
-      _getOrders();
+      awaitOrders();
+  }
 
-    });
+  Future<void> awaitOrders() async {
+    orderProvider = context.read<OrderProvider>();
+    await _getOrders();
   }
 
   Future<void> _getOrders() async {
@@ -69,7 +65,7 @@ class _StoreOrdersState extends State<StoreOrders> {
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (_) => _onSearchChanged(),
+              
                 ),
               ),
               const SizedBox(width: 8),
@@ -79,9 +75,19 @@ class _StoreOrdersState extends State<StoreOrders> {
         const Row(
   children: [
     Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
+    Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
     Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
-    Expanded(flex: 4, child: Text("Stavke narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
-  ],
+    Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
+
+      Expanded(flex: 1, child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Icon(Icons.local_shipping, size: 18),
+    )),
+    Expanded(flex: 1, child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Icon(Icons.delete, size: 18),
+    )),
+      ],
 ),
 
 
@@ -89,8 +95,10 @@ class _StoreOrdersState extends State<StoreOrders> {
             child: orderResult == null
                 ? const Center(child: CircularProgressIndicator())
                 : orderResult!.result.isEmpty
-                    ? const Center(child: Text('Nisu pronađene trgovine.'))
-                    : ListView.builder(
+                    ? const Center(child: Text('Nisu pronađene narudžbe.'))
+                    : ListView.separated(
+                      itemCount: orderResult!.result.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
                        itemBuilder: (context, index) {
   final order = orderResult!.result[index];
 
@@ -99,16 +107,61 @@ class _StoreOrdersState extends State<StoreOrders> {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(flex: 2, child: Text(order.orderNumber?.toString() ?? '-')),
-        Expanded(flex: 2, child: Text('${order.user?.firstName ?? ''} ${order.user?.lastName ?? ''}')),
-       
+        Expanded(flex: 2, child: Text(order.orderNumber.toString())),
+        Expanded(
+          flex:2,
+          child:   Text(
+              DateFormat('dd.MM.yyyy').format(order.createdAt!),
+              
+            ),
+        )
+     ,
+  
+       Expanded(flex: 2, child: Text('${order.user?.firstName ?? ''} ${order.user?.lastName ?? ''}')),
+        Expanded(flex: 2, child: Text(order.isShipped==true ? 'Poslano' : 'Nije poslano')),
+        Expanded(
+                        flex: 1,
+                        child: Checkbox(
+                          value: order.isShipped ?? false,
+                          onChanged: (val) {
+                            setState(() {
+                              order.isShipped = val;
+                            });
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: IconButton(
+                          icon: const Icon(Icons.delete),
+                          tooltip: 'Izbriši',
+                          onPressed: () {
+                            // TODO: Handle soft delete
+                          },
+                        ),
+                      ),        
       ],
     ),
   );
 }
 
                       ),
+
           ),
+            Align(
+                  alignment: Alignment.topCenter,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                    ),
+                   onPressed: () async {
+                  },
+                    child: const Text("Označi kao poslano", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
         ],
       ),
     );

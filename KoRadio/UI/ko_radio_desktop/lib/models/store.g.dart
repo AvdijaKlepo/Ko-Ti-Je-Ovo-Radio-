@@ -18,7 +18,8 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
       ..isApplicant = json['isApplicant'] as bool?
       ..location = json['location'] == null
           ? null
-          : Location.fromJson(json['location'] as Map<String, dynamic>);
+          : Location.fromJson(json['location'] as Map<String, dynamic>)
+      ..address = json['address'] as String?;
 
 Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'storeId': instance.storeId,
@@ -28,4 +29,5 @@ Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
       'location': instance.location,
+      'address': instance.address,
     };
