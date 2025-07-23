@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/tender_bids.dart';
@@ -134,7 +136,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionTitle('Detalji tendera'),
+                  _sectionTitle('Specifikacije tendera'),
           
           _buildDetailRow('Posao', tender?.jobTitle ?? 'Nije dostupan'), 
            _buildDetailRow('Potreban', tender?.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ') ?? 'Nije dostupan'), 
@@ -174,17 +176,26 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
             Text('${tenderBid.bidAmount} KM',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 6),
+            tenderBid.freelancer!=null ?
             Text('Radnik: ${tenderBid.freelancer?.freelancerNavigation?.firstName} ${tenderBid.freelancer?.freelancerNavigation?.lastName}' ,  
+                style: const TextStyle(fontSize: 15, color: Colors.white)):
+                 Text('Firma: ${tenderBid.company?.companyName}' ,  
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
+            
                 Text('Potrebno: ${tenderBid.bidDescription}' ,  
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
             const SizedBox(height: 6),
+            tenderBid.freelancer!=null ?
             Text('Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} - ${tenderBid.endEstimate?.substring(0, 5)}',
+                style: const TextStyle(fontSize: 13, color: Colors.white70)):
+                 Text('Trajanje: ${DateFormat('dd‑MM‑yyyy').format(widget.tender!.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
                 style: const TextStyle(fontSize: 13, color: Colors.white70)),
-                if(AuthProvider.user?.userId==tenderBid.job?.user?.userId)
+
+       
+                if(AuthProvider.user?.userId==tenderBid.job?.user?.userId && tenderBid.freelancer!=null)
                 Center(child:  IconButton(alignment: Alignment.bottomRight, onPressed: (){
                   try{
-                    var request ={
+                    var requestFreelancer ={
                      
                        'jobStatus': JobStatus.approved.name,
                        
@@ -206,9 +217,12 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                     'isRated': false,
                     'jobTitle': tenderBid.job?.jobTitle,
                     };
-                  jobProvider.update(tenderBid.jobId!,
-                  request);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen!")));
+                 
+                      jobProvider.update(tenderBid.jobId!,
+                    requestFreelancer);
+                    
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen radnik!")));
                   Navigator.of(context).pop(true);
                   } catch(e){
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -218,7 +232,50 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                     Navigator.of(context).pop(false);
                   }
              
-            }, icon: const Icon(Icons.check),color: Colors.white,),)
+            }, icon: const Icon(Icons.check),color: Colors.white,),),
+              if(AuthProvider.user?.userId==tenderBid.job?.user?.userId && tenderBid.company!=null)
+                Center(child:  IconButton(alignment: Alignment.bottomRight, onPressed: (){
+                  try{
+                     var requestCompany = {
+
+                       'jobStatus': JobStatus.approved.name,
+                       
+                    'endEstimate': null,
+                    'payEstimate': tenderBid.bidAmount,
+                    'freelancerId': null,
+                    'companyId': tenderBid.company?.companyId,
+                    'startEstimate': null,
+                    'userId':tenderBid.job?.user?.userId,
+                    
+                    'serviceId': tenderBid.job?.jobsServices
+                        ?.map((e) => e.service?.serviceId)
+                        .toList(),
+                    'jobDescription': tenderBid.bidDescription,
+                    'image': tenderBid.job?.image,
+                    'jobDate': tenderBid.job?.jobDate.toIso8601String(),
+                    'dateFinished': tenderBid.dateFinished?.toIso8601String(),
+                    'isTenderFinalized': false,
+                    'isInvoiced': false,
+                    'isRated': false,
+                    'jobTitle': tenderBid.job?.jobTitle,
+                    };
+                  
+                 
+                      jobProvider.update(tenderBid.jobId!,
+                    requestCompany);
+                    
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen kompanija!")));
+                  Navigator.of(context).pop(true);
+                  } catch(e){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Greška: ${e.toString()}")),
+                        
+                    );
+                    Navigator.of(context).pop(false);
+                  }
+             
+            }, icon: const Icon(Icons.check),color: Colors.black,),)
            ,
           
           ],
@@ -254,7 +311,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
 
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lista ponuda')),
+      appBar: AppBar(title:  Text('Detalji tendera',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,),
       body: RefreshIndicator(
         onRefresh: tenderBidFetcher.refresh,
         child:
@@ -282,6 +339,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                   ),
                 ),
             ] else ...[
+               Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: Color.fromRGBO(27, 76, 125, 25)),)),
               ...tenderBidFetcher.items.map(_buildBidCard),
               if (tenderBidFetcher.hasNextPage)
                 const Padding(

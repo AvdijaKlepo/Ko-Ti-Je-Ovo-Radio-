@@ -164,23 +164,38 @@ class _CartState extends State<Cart> {
                               note: "Hvala što koristite našu aplikaciju!",
                               onSuccess: (params) async {
                                 DateTime now = DateTime.now();
+                                Map<int, List<CartItem>> groupedByStore = {};
+
+for (var item in cart.items) {
+  groupedByStore.putIfAbsent(item.product.storeId ?? 0, () => []).add(item);
+}
+
+                            
                                 try {
-                                    
-                
-                                  await orderProvider.insert({
-                                    "userId": AuthProvider.user!.userId,
+                                  for (var entry in groupedByStore.entries) {
+  int storeId = entry.key;
+  List<CartItem> storeItems = entry.value;
+
+  final orderRequest = {
+     "userId": AuthProvider.user!.userId,
                                     "orderNumber": Random().nextInt(100000),
                                     'isCancelled': false,
                                     'isShipped': false,
                                     'createdAt': now.toIso8601String().split('T')[0],
-                                    "orderItems": cart.items
-                                        .map((ci) => {
-                                              "productId": ci.product.productId,
-                                              "quantity": ci.quantity,
-                                              "storeId": ci.product.storeId,
-                                            })
-                                        .toList(),
-                                  });
+    "orderItems": storeItems.map((item) => {
+      "productId": item.product.productId,
+      "quantity": item.quantity,
+      "storeId": storeId,
+    }).toList(),
+    
+  };
+
+  await orderProvider.insert(orderRequest); 
+}
+
+                                    
+                
+                                
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text("Narudžba spremljena!")),
                                   );

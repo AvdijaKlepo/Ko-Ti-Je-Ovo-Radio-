@@ -25,7 +25,9 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
   late TenderBidProvider tenderBidProvider;
   late CompanyProvider companyProvider;
   late Company company;
-  late Set<int> _workingDayInts;
+  Set<int> _workingDayInts ={};
+  bool _isLoading = true;
+
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
     'Tuesday': 2,
@@ -42,17 +44,31 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
       tenderBidProvider = context.read<TenderBidProvider>();
       companyProvider = context.read<CompanyProvider>();
       await _getCompany();
-      _workingDayInts = company.workingDays
-            ?.map((day) => _dayStringToInt[day] ?? -1)
-            .where((dayInt) => dayInt != -1)
-            .toSet() ??
-        {};
+        List<String>? workingDays = company.workingDays;
+    _workingDayInts = workingDays
+        ?.map((day) => _dayStringToInt[day] ?? -1)
+        .where((dayInt) => dayInt != -1)
+        .toSet() ?? {};
+    setState(() {
+      _isLoading = false;
+    });
     });
   }
+  DateTime _findNextWorkingDay(DateTime start) {
+  DateTime candidate = start;
+  while (!_isWorkingDay(candidate)) {
+    candidate = candidate.add(const Duration(days: 1));
+  }
+  return candidate;
+}
+
 
   Future<void> _submit() async {
   if (_formKey.currentState?.saveAndValidate() ?? false) {
     final values = _formKey.currentState!.value;
+
+ 
+
 
     if (widget.tender.jobId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,17 +76,18 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
       );
       return;
     }
+  
 
     final request = {
       "jobId": widget.tender!.jobId,
       "companyId": companyId,
-      "dateFinished": values['dateFinished'],
+      "dateFinished": (values['dateFinished'] as DateTime).toIso8601String().split('T')[0],
       "freelancerId": null,
-      "bidDescription": values['bidDescription'],
+      "bidDescription":values['bidDescription'],
       "startEstimate": null,
       "endEstimate": null,
       "bidAmount": values['bidAmount'],
-      "createdAt": DateTime.now().toIso8601String(),
+      "createdAt": DateTime.now().toIso8601String()
     };
 
    
@@ -80,7 +97,7 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Ponuda uspješno dodana")),
       );
-      if(!mounted) return;
+     
       Navigator.pop(context); 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,15 +120,20 @@ Future<void> _getCompany() async {
   catch(e){
     if(!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content:  Text("Greška tokom dohvaćanja firme")),
+     const SnackBar(content:  Text("Greška tokom dohvaćanja firme")),
     );
   }
 }
 bool _isWorkingDay(DateTime day) {
-    return _workingDayInts.contains(day.weekday);
-  }
+  if (_workingDayInts.isEmpty) return false;
+  return _workingDayInts.contains(day.weekday);
+}
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+    return const Center(child: CircularProgressIndicator());
+  }
     return Dialog(
        insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
@@ -153,9 +175,10 @@ bool _isWorkingDay(DateTime day) {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.calendar_today),
                 ),
+                currentDate: widget.tender.jobDate,
                 inputType: InputType.date,
-                firstDate: widget.tender.jobDate,
-                      
+                firstDate: _findNextWorkingDay(widget.tender.jobDate),
+                initialDate: _findNextWorkingDay(widget.tender.jobDate), 
                     
    
                       selectableDayPredicate: _isWorkingDay,

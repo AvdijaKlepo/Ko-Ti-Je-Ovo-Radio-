@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/tender_bids.dart';
@@ -174,16 +175,17 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
             Text('${tenderBid.bidAmount} KM',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 6),
-            Text('Radnik: ${tenderBid.freelancer?.freelancerNavigation?.firstName} ${tenderBid.freelancer?.freelancerNavigation?.lastName}' ,  
+            Text('Firma: ${tenderBid.company?.companyName}' ,  
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
                 Text('Potrebno: ${tenderBid.bidDescription}' ,  
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
             const SizedBox(height: 6),
-            Text('Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} - ${tenderBid.endEstimate?.substring(0, 5)}',
-                style: const TextStyle(fontSize: 13, color: Colors.white70)),
+            Text('Trajanje: ${DateFormat('dd‑MM‑yyyy').format(widget.tender.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
+                style: const TextStyle(fontSize: 13, color: Colors.white70),
+
                
            
-          
+            ),
           ],
         ),
       ),
@@ -250,6 +252,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                   ),
                 ),
             ] else ...[
+              Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: Color.fromRGBO(27, 76, 125, 25)),)),
               ...tenderBidFetcher.items.map(_buildBidCard),
               if (tenderBidFetcher.hasNextPage)
                 const Padding(

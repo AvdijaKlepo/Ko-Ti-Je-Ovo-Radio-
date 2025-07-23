@@ -31,6 +31,7 @@ class BookCompanyJob extends StatefulWidget {
 
 class _BookCompanyJobState extends State<BookCompanyJob> {
   final _formKey = GlobalKey<FormBuilderState>();
+  final _formKeyEmployee = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
 
 
@@ -59,13 +60,13 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       companyProvider = context.read<CompanyProvider>();
       jobProvider = context.read<JobProvider>();
       companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
       companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
-      _getEmployees();
-      _getAssignments();
+     await _getEmployees();
+     await _getAssignments();
     
     });
  
@@ -233,22 +234,7 @@ _sectionTitle('Potrebni podaci'),
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),
                     ),
-                     FormBuilderCheckboxGroup<int>(
-                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                     
-  name: 'companyEmployeeId',
-  decoration: const InputDecoration(labelText: "Zaduženi radnici"),
-  options: filterLoggedInUser!=null ? filterLoggedInUser
-          .map((e) => FormBuilderFieldOption(
-                value: e.companyEmployeeId,
-                child: Text('${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}'),
-              ))
-          .toList() : 
-          [],
-      
-
-     
-)
+                  
 
                   ],
                 ),
@@ -279,6 +265,69 @@ _sectionTitle('Potrebni podaci'),
                      
                       ],
                     ),
+                      if(companyJobAssignmentResult?.count==0 || widget.job.jobStatus== JobStatus.unapproved) 
+                   FormBuilder(key: _formKeyEmployee,child:   Column(
+                      children: [
+                          FormBuilderCheckboxGroup<int>(
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                     
+  name: 'companyEmployeeId',
+  decoration: const InputDecoration(labelText: "Zaduženi radnici"),
+  options: filterLoggedInUser!=null ? filterLoggedInUser
+          .map((e) => FormBuilderFieldOption(
+                value: e.companyEmployeeId,
+                child: Text('${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}'),
+              ))
+          .toList() : 
+          [],
+      
+
+     
+),
+TextButton.icon(
+                              icon: const Icon(Icons.check, color: Colors.blue),
+                              label: const Text("Dodaj radnike na posao", style: TextStyle(color: Colors.black)),
+                              onPressed: () async {
+                                  final isValid =
+                        _formKey.currentState?.saveAndValidate() ?? false;
+
+                                  if (!isValid) {
+                                    return;
+                                  }
+          
+                   
+                    var values = Map<String, dynamic>.from(
+                        _formKey.currentState?.value ?? {});
+ try {
+  final selectedEmployeeIds = values["companyEmployeeId"] as List<dynamic>?;
+
+  if (selectedEmployeeIds != null && selectedEmployeeIds.isNotEmpty) {
+    for (final employeeId in selectedEmployeeIds) {
+      await companyJobAssignmentProvider.insert({
+        "jobId": widget.job.jobId,
+        "companyEmployeeId": employeeId,
+        "assignedAt":DateTime.now().toUtc().toIso8601String(),
+      });
+    }
+  }
+
+  if (context.mounted) {
+    if(!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Zaposlenici uspješno dodani.")),
+    );
+  }
+} catch (e) {
+  if(!mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Greška tokom dodavanja radnika: $e")),
+  );
+}
+                              })
+                            
+                      ],
+                    ),),
+                  
                     const SizedBox(height: 30),
                     if(widget.job.jobStatus!= JobStatus.cancelled && widget.job.jobStatus!= JobStatus.finished)
                        Row(

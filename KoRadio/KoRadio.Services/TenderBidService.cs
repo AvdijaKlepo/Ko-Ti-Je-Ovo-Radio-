@@ -19,7 +19,7 @@ namespace KoRadio.Services
 
 		public override IQueryable<TenderBid> AddFilter(TenderBidSearchObject search, IQueryable<TenderBid> query)
 		{
-			query = query.Include(x => x.Freelancer).ThenInclude(x=>x.FreelancerNavigation);
+			query = query.Include(x => x.Freelancer).ThenInclude(x=>x.FreelancerNavigation).Include(x=>x.Company);
 			query = query.Include(x => x.Job).ThenInclude(x => x.JobsServices).ThenInclude(x=>x.Service);
 			if(search.TenderId!=null)
 			{

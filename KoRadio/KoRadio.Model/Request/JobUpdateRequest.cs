@@ -11,6 +11,7 @@ namespace KoRadio.Model.Request
 		public int? UserId { get; set; }
 
 		public int? FreelancerId { get; set; }
+		public int? CompanyId { get; set; }
 
 		public string JobTitle { get; set; }
 		public bool IsTenderFinalized { get; set; }
