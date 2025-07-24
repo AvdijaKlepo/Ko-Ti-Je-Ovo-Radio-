@@ -8,9 +8,9 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
-import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class UserUpdate extends StatefulWidget {
@@ -148,6 +148,49 @@ class _UserUpdateState extends State<UserUpdate> {
                           validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         ),
                         SizedBox(height: 10),
+                     
+                          FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Proslijedite novu sliku",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : const Text("Nema izabrane slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
+                textStyle: const TextStyle(color: Colors.white),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => getImage(field),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+                
+                fit: BoxFit.cover,
+              ),
+            ),
+        ],
+      ),
+    );
+  },
+),
                         Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
                         FormBuilderTextField(
           name: "password",
@@ -169,27 +212,7 @@ class _UserUpdateState extends State<UserUpdate> {
         
                         const SizedBox(height: 20),
         
-                        Row(
-                          children: [
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25)),
-                              icon: const Icon(Icons.upload,color: Colors.white,),
-                              label: const Text("Dodaj Sliku",style: TextStyle(color: Colors.white),),
-                              onPressed: getImage,
-                            ),
-                            const SizedBox(width: 16),
-                            if (_image != null)
-                              ClipOval(
-                                child: Image.file(
-                                  _image!,
-                                  width: 40,
-                                  height: 40,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                          ],
-                        ),
-        
+                  
                         const SizedBox(height: 30),
         
                         Align(
@@ -209,6 +232,7 @@ class _UserUpdateState extends State<UserUpdate> {
     
     );
   }
+  
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
@@ -237,12 +261,17 @@ class _UserUpdateState extends State<UserUpdate> {
     }
   }
 
-  Future<void> getImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+ void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
 }

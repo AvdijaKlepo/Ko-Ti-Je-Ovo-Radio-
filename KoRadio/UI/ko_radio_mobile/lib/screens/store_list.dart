@@ -146,13 +146,13 @@ Widget build(BuildContext context) {
         child: TextField(
           decoration: InputDecoration(
             hintText: "Pretraži trgovine...",
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search,color: Color.fromRGBO(27, 76, 125, 25),),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+          
             ),
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceVariant,
+            
+          
           ),
           onChanged: _onSearchChanged,
         ),
@@ -169,7 +169,7 @@ Widget build(BuildContext context) {
           'Odaberi lokaciju',
           style: TextStyle(color: Colors.black),
         ),
-        icon: const Icon(Icons.location_on),
+        icon: const Icon(Icons.location_on,color: Color.fromRGBO(27, 76, 125, 25),),
         dropdownColor: Colors.white,
         items: locationDropdownItems,
         onChanged: (value) {

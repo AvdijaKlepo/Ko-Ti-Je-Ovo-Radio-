@@ -33,6 +33,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   bool _isInitialized = false;
   String _searchQuery = "";
   Timer? _debounce;
+  Map<String, dynamic> filter = {};
 
   @override
   void initState() {
@@ -180,10 +181,12 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                 :  
       ListView.builder(
         controller: _scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         itemCount: servicePagination.items.length + 1,
-        itemBuilder: (context, index) {
+        itemBuilder: (context, index)  {
           if (index < servicePagination.items.length) {
             final service = servicePagination.items[index];
+        
             return 
                  InkWell(
                  hoverColor: Colors.transparent,
@@ -202,7 +205,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
  aspectRatio: 16 / 9,
                                       child: service.image != null
                                           ? imageFromString(
-                                              service.image!,
+                                              service.image,
                                               fit: BoxFit.cover,
                                             )
                                           : Image.asset(
@@ -212,6 +215,31 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                             ),
                         
                           ),
+                          Padding(padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                                Text(
+                                service.serviceName,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Radnika : ${freelancerResult?.result.where((element) => element.freelancerServices.map((e) => e.serviceId).contains(service.serviceId)).length ?? 0}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Firma : ${companyResult?.result.where((element) => element.companyServices.map((e) => e.serviceId).contains(service.serviceId)).length ?? 0}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          
+                          )
                         ],
                       ),
                     ),

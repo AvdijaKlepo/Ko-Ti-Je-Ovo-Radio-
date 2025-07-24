@@ -227,7 +227,7 @@ namespace KoRadio.Services
 				}
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
-					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -247,9 +247,9 @@ namespace KoRadio.Services
 				var messageContentCancelled = $"Posao ${entity.JobTitle} je otkazan.";
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
-					.SendAsync("ReceiveNotification", messageContentCancelled, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-					.SendAsync("ReceiveNotification", messageContentCancelled, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				
 
 				var insertRequest = new MessageInsertRequest
@@ -277,10 +277,10 @@ namespace KoRadio.Services
 				var messageContentCancelled = $"Posao ${entity.JobTitle} je otkazan.";
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
-					.SendAsync("ReceiveNotification", messageContentCancelled, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 			
 				await _hubContext.Clients.User(entity.CompanyId.ToString())
-					.SendAsync("ReceiveNotification", messageContentCancelled, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -309,7 +309,7 @@ namespace KoRadio.Services
 				var messageContent = $"Korisnik {entity.User.FirstName} {entity.User.LastName} je izvršio uplatu.";
 
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 				var insertRequest = new MessageInsertRequest
 				{
@@ -327,7 +327,7 @@ namespace KoRadio.Services
 				var messageContent = $"Korisnik {entity.User.FirstName} {entity.User.LastName} je izvršio uplatu.";
 
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 				var insertRequest = new MessageInsertRequest
 				{

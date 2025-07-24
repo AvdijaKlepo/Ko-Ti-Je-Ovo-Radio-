@@ -236,6 +236,8 @@ Widget build(BuildContext context) {
                 AuthProvider.user = null;
                 AuthProvider.userRoles = null;
                 AuthProvider.freelancer = null;
+                SignalRProvider signalRProvider = context.read<SignalRProvider>();
+                signalRProvider.stopConnection();
 
                
          

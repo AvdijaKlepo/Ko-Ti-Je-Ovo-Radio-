@@ -174,12 +174,16 @@ class _ApproveJobState extends State<ApproveJob> {
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormBuilderState>();
     return Scaffold(
+
       
-      appBar: AppBar(title:  Text('${widget.job.jobTitle}',style: Theme.of(context).textTheme.titleLarge?.copyWith(
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Detalji posla',style: Theme.of(context).textTheme.titleLarge?.copyWith(
       fontWeight: FontWeight.normal,
       letterSpacing: 1.2,
+      fontFamily: GoogleFonts.lobster().fontFamily,
+      color: Color.fromRGBO(27, 76, 125, 25),
 
-    ),),
+
+    )),
       centerTitle: true,
    
 
@@ -194,13 +198,7 @@ class _ApproveJobState extends State<ApproveJob> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                  Padding(
-      padding: const EdgeInsets.all(12),
-      child: Text(
-        'Detalji posla',
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
-      ),
-    ),
+            
                 Card(
                 color: const Color.fromRGBO(27, 76, 125, 25),
                 elevation: 4,
@@ -219,9 +217,9 @@ class _ApproveJobState extends State<ApproveJob> {
                               .join(', ') ??
                           'N/A'),
                       _buildDetailRow('Datum', DateFormat('dd.MM.yyyy').format(widget.job.jobDate)),
-                      _buildDetailRow('Vrijeme početka', widget.job.startEstimate ?? ''),
-                      _buildDetailRow('Vrijeme završetka', widget.job.endEstimate ?? ''),
-                      _buildDetailRow('Procijena cijene', widget.job.payEstimate?.toString() ?? ''),
+                      _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''),
+                      _buildDetailRow('Vrijeme završetka', widget.job.endEstimate.toString().substring(0,5) ?? ''),
+                      _buildDetailRow('Procijena cijene', '${widget.job.payEstimate?.toString()} KM'  ?? ''),
                         _buildDetailRow('Opis posla', widget.job.jobDescription),
                         widget.job.image!=null ?
                         _buildImageRow(
