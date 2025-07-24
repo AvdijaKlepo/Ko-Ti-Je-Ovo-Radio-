@@ -56,6 +56,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             children: [
                  Row(
                  children: [
+                  if(result?.result.where((element) => element.isOpened==true).isEmpty ?? true)
                    Checkbox(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -83,6 +84,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       await _fetchData();
                     },
                                  ),
+                                     if(result?.result.where((element) => element.isOpened==true).isEmpty ?? true)
                                  Container(margin:EdgeInsets.only(),
                    child:  Text('Označi sve kao pročitano',style: TextStyle(color: Colors.black),)
                     ,

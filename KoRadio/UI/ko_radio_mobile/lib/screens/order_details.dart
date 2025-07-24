@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/order.dart';
-import 'package:ko_radio_mobile/models/order_items.dart';
+
 
 class OrderDetails extends StatefulWidget {
   const OrderDetails({this.order, super.key});
@@ -18,18 +19,19 @@ class _OrderDetailsState extends State<OrderDetails> {
     final items = widget.order?.orderItems ?? [];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalji narudžbe')),
+      appBar: AppBar(title:  Text('Detalji narudžbe', style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Narudžba #${widget.order?.orderNumber ?? "-"}',
+              'Broj narudžbe: ${widget.order?.orderNumber ?? "-"}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
-
+           
+            
+ const SizedBox(height: 16),
             // Order Items List
             Expanded(
               child: items.isEmpty
@@ -49,12 +51,16 @@ class _OrderDetailsState extends State<OrderDetails> {
                           ),
                           elevation: 2,
                           child: ListTile(
-                            title: Text(product?.productName ?? "Proizvod"),
-                            subtitle: Text('Količina: ${item.quantity}'),
+                            tileColor: Color.fromRGBO(27, 76, 125, 25),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            title: Text(product?.productName ?? "Proizvod",style: TextStyle(color: Colors.white),),
+                            subtitle: Text('Količina: ${item.quantity}\nUkupno plaćeno: ${item.quantity!*price} KM',style: TextStyle(color: Colors.white),),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('${price.toStringAsFixed(2)} KM'),
+                                Text('${price.toStringAsFixed(2)} KM',style: TextStyle(color: Colors.white),),
                                
                                 
                               ],

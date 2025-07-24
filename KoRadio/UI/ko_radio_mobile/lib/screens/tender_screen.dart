@@ -1,16 +1,14 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:ko_radio_mobile/models/job.dart';
-import 'package:ko_radio_mobile/models/job_status.dart';
-import 'package:ko_radio_mobile/models/tender.dart';
-import 'package:ko_radio_mobile/models/tender_bids.dart';
+
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_tender.dart';
-import 'package:ko_radio_mobile/screens/tender_bid.dart';
+
 import 'package:ko_radio_mobile/screens/tender_bids_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -107,10 +105,15 @@ Widget build(BuildContext context) {
   
       onRefresh: tenderFetcher.refresh,
       child: tenderFetcher.items.isEmpty
-          ? ListView(
+          ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+         
+            
+
 
             
               children:  [
+
               
                 const SizedBox(height: 10),
                 AuthProvider.selectedRole== "User" ? 
@@ -120,16 +123,17 @@ Widget build(BuildContext context) {
 
                 AuthProvider.selectedRole == "User" ?
                 Column(
+                
                   children: [
-                    SizedBox(height: 15,),
+                    const SizedBox(height: 15,),
                     ElevatedButton(
                     
                       style: ElevatedButton.styleFrom(backgroundColor:const Color.fromRGBO(27, 76, 125, 25)),
                       onPressed: () {
                        AlertDialog alert = AlertDialog(
-                        backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-                      title: const Text("Kreiraj tender",style: TextStyle(color: Colors.white),),
-                      content: const Text("Stranka?",style: TextStyle(color: Colors.white),),
+                       
+                      title: const Text("Kreiraj tender"),
+                      content: const Text("Stranka?",style: TextStyle(fontSize: 16),),
                       actions: [
                         TextButton(
                           onPressed: () async {
@@ -142,7 +146,7 @@ Widget build(BuildContext context) {
                             );
                             await tenderFetcher.refresh(newFilter: filter); 
                           },
-                          child: const Text("Radnik",style: TextStyle(color: Colors.white),),
+                          child: const Text("Radnik"),
                         ),
                         TextButton(
                           onPressed: () async {
@@ -155,7 +159,7 @@ Widget build(BuildContext context) {
                             );
                             await tenderFetcher.refresh(newFilter: filter);
                           },
-                          child: const Text("Firma",style: TextStyle(color: Colors.white),),
+                          child: const Text("Firma"),
                         ),
                       ],
                     );
@@ -172,7 +176,7 @@ Widget build(BuildContext context) {
                     
                     ),
                   ],
-                ): SizedBox.shrink(),
+                ): const SizedBox.shrink(),
 
               ],
             )
@@ -190,7 +194,7 @@ Widget build(BuildContext context) {
 
                   return Card(
 
-                    color: Color.fromRGBO(27, 76, 125, 25),
+                    color: const Color.fromRGBO(27, 76, 125, 25),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                     margin: const EdgeInsets.symmetric(vertical: 10),

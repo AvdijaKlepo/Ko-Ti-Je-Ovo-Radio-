@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
-import 'package:ko_radio_mobile/models/service.dart';
+
 import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/store_provider.dart';
@@ -46,6 +46,7 @@ class _StoreListState extends State<StoreList> {
   
       locationProvider = context.read<LocationProvider>();
       await _getLocations();
+      if(!mounted) return;
       storeProvider = context.read<StoreProvider>();
       storePagination = PaginatedFetcher<Store>(
         fetcher: ({
@@ -96,14 +97,13 @@ class _StoreListState extends State<StoreList> {
     try{
         final fetched = await locationProvider.get();
       locationResult = fetched;
-      locationDropdownItems = fetched.result
-          .map((l) => DropdownMenuItem(
-                value: l.locationId,
-                child: Text(l.locationName ?? '',
-                    style: const TextStyle(color: Colors.black)),
-              ))
-          .toList();
+    locationDropdownItems = [
+        const DropdownMenuItem(value: null, child: Text("Sve lokacije")),
+        ...fetched.result
+            .map((l) => DropdownMenuItem(value: l.locationId, child: Text(l.locationName)))
+      ];
     } catch(e) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("Greška pri dohvatu lokacija: ${e.toString()}")));
     }
@@ -198,10 +198,12 @@ Widget build(BuildContext context) {
                     if (index < storePagination.items.length) {
                       final store = storePagination.items[index];
                       return store.storeName != null
-                          ? GestureDetector(
+                          ? InkWell(
+
                               onTap: () => _openStore(store),
                               
                               child: Card(
+
                                 color: Colors.white,
                                 margin: const EdgeInsets.symmetric(vertical: 8),
                                 elevation: 2,
@@ -230,10 +232,10 @@ Widget build(BuildContext context) {
                                       padding: const EdgeInsets.all(12.0),
                                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
                                          Text(
-                                        store.storeName!,
-                                        style:TextStyle(color: Colors.black),
+                                        store.storeName ?? '',
+                                        style:const TextStyle(color: Colors.black),
                                       ),
-                                      Text(store.location?.locationName ?? "",style: TextStyle(color: Colors.black),),
+                                      Text(store.location?.locationName ?? "",style:const  TextStyle(color: Colors.black),),
                                       ],)
                                       
                                      

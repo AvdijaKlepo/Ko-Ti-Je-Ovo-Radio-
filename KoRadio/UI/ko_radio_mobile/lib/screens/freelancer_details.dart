@@ -130,7 +130,7 @@ DateTime _findNextWorkingDay(DateTime start) {
             ],
           ),
           const SizedBox(height: 20),
-          const Text('Kalendar dostupnosti'),
+          const Text('Neradni dani radnika su onemogućeni',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25),fontWeight: FontWeight.bold),),
           Expanded(
             child: TableCalendar(
               key: const PageStorageKey('calendar'), 

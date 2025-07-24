@@ -4,6 +4,7 @@ import 'package:ko_radio_mobile/models/company_employee.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/company_employee_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
@@ -235,6 +236,8 @@ Widget build(BuildContext context) {
                 AuthProvider.user = null;
                 AuthProvider.userRoles = null;
                 AuthProvider.freelancer = null;
+
+               
          
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => LoginPage()),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/order.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/order_provider.dart';
@@ -94,7 +95,7 @@ class _OrderListState extends State<OrderList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Moje narudžbe')),
+      appBar: AppBar(title:  Text('Moje narudžbe',style: TextStyle(color:Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
       body: !_isInitialized
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -124,9 +125,13 @@ class _OrderListState extends State<OrderList> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ListTile(
-                                    title: Text('Narudžba #${order.orderNumber ?? "-"}'),
-                                    subtitle: Text('Broj stavki: $itemCount'),
-                                    trailing: const Icon(Icons.chevron_right),
+                                    tileColor: Color.fromRGBO(27, 76, 125, 25),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    title: Text('Narudžba #${order.orderNumber ?? "-"}',style: TextStyle(color: Colors.white),),
+                                    subtitle: Text('Broj stavki: $itemCount \nTrgovina: ${order.orderItems?.map((e) => e.store?.storeName ?? "Nije dostupno").join(', ')}\nStanje: ${order.isShipped==null ? "Poslana" : "Nije poslana"}',style: TextStyle(color: Colors.white),),
+                                    trailing: const Icon(Icons.chevron_right, color: Colors.white),
                                     onTap: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(

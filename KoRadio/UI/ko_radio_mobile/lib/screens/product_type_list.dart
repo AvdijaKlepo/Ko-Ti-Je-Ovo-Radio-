@@ -96,8 +96,8 @@ class _ProductTypeListState extends State<ProductTypeList> {
       serviceDropdownItems = [
         const DropdownMenuItem(value: null, child: Text("Svi tipovi")),
         ...fetchedServices.result
-            .map((s) => DropdownMenuItem(value: s.serviceId, child: Text(s.serviceName ?? '')))
-            .toList()
+            .map((s) => DropdownMenuItem(value: s.serviceId, child: Text(s.serviceName)))
+            
       ];
     });
   } catch (e) {

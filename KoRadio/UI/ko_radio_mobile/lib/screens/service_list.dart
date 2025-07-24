@@ -1,6 +1,13 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:ko_radio_mobile/models/company.dart';
+import 'package:ko_radio_mobile/models/freelancer.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
+import 'package:ko_radio_mobile/providers/company_provider.dart';
+import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -17,6 +24,10 @@ class ServiceListScreen extends StatefulWidget {
 class _ServiceListScreenState extends State<ServiceListScreen> {
   late ServiceProvider serviceProvider;
   late PaginatedFetcher<Service> servicePagination;
+  late FreelancerProvider freelancerProvider;
+  late CompanyProvider companyProvider;
+  SearchResult<Freelancer>? freelancerResult;
+  SearchResult<Company>? companyResult;
   late final ScrollController _scrollController;
 
   bool _isInitialized = false;
@@ -26,6 +37,12 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      freelancerProvider = context.read<FreelancerProvider>();
+      companyProvider = context.read<CompanyProvider>();
+      await _getFreelancers();
+      await _getCompanies();
+    });
 
 
     _scrollController = ScrollController();
@@ -80,6 +97,31 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     _debounce?.cancel();
     super.dispose();
   }
+  Future<void> _getFreelancers() async {
+    
+    try {
+      final fetched = await freelancerProvider.get();
+      setState(() {
+        freelancerResult = fetched;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
+  Future<void> _getCompanies() async {
+    try {
+      final fetched = await companyProvider.get();
+      setState(() {
+        companyResult = fetched;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
 
 
   void _onSearchChanged(String query) {
@@ -115,7 +157,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           child: TextField(
             decoration: InputDecoration(
               hintText: "Pretražite servise...",
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search,color: Color.fromRGBO(27, 76, 125, 25)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -144,34 +186,31 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             final service = servicePagination.items[index];
             return 
                  InkWell(
-                  
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      
-                      
+                 hoverColor: Colors.transparent,
+                    child: Card(
+                      color: Colors.white,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      clipBehavior: Clip.antiAlias,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          LayoutBuilder(
-
-                            builder: (context, constraints) {
-                              final width = constraints.maxWidth;
-                              final height = width * 0.5;
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: imageFromString(
-                                  service.image!,
-                                  width: width,
-                                  height: height,
-                                  fit: BoxFit.cover,
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            service.serviceName,
-                            style: const TextStyle(fontSize: 16),
+                          AspectRatio(
+ aspectRatio: 16 / 9,
+                                      child: service.image != null
+                                          ? imageFromString(
+                                              service.image!,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.asset(
+                                              'assets/images/intro-1660762097.jpg',
+                                              fit: BoxFit.cover,
+                                              
+                                            ),
+                        
                           ),
                         ],
                       ),

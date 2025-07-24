@@ -166,13 +166,11 @@ class _FreelancerListState extends State<FreelancerList> {
     try {
       final fetched = await locationProvider.get();
       locationResult = fetched;
-      locationDropdownItems = fetched.result
-          .map((l) => DropdownMenuItem(
-                value: l.locationId,
-                child: Text(l.locationName ?? '',
-                    style: const TextStyle(color: Colors.black)),
-              ))
-          .toList();
+      locationDropdownItems = [
+        const DropdownMenuItem(value: null, child: Text("Sve lokacije")),
+        ...fetched.result
+            .map((l) => DropdownMenuItem(value: l.locationId, child: Text(l.locationName)))
+      ];
     } catch (e) {
       _showError(e.toString());
     }
@@ -189,6 +187,7 @@ class _FreelancerListState extends State<FreelancerList> {
       return const Scaffold(
           body: Center(child: CircularProgressIndicator()));
     }
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -207,8 +206,29 @@ class _FreelancerListState extends State<FreelancerList> {
           children: [
             SegmentedButton<Options>(
               showSelectedIcon: false,
+              emptySelectionAllowed: false,
+              style: ButtonStyle(
+                backgroundColor:MaterialStateProperty.resolveWith<Color>(
+   (Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)){
+        return const Color.fromRGBO(27, 76, 125, 25);
+      }
+      return Colors.white;
+    },
+ ),
+                
+                foregroundColor: MaterialStateProperty.resolveWith<Color>(
+   (Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)){
+        return Colors.white;
+      }
+      return Colors.black;
+    },
+ ),
+              ),
               segments: const [
                 ButtonSegment(
+
                     value: Options.radnici,
                     label: Text('Radnici'),
                     icon: Icon(Icons.construction)),
@@ -217,8 +237,10 @@ class _FreelancerListState extends State<FreelancerList> {
                     label: Text('Firme'),
                     icon: Icon(Icons.business)),
               ],
+
               selected: {view},
               onSelectionChanged: (Set<Options> newSelection) {
+
                 setState(() => view = newSelection.first);
                 _refreshWithFilter();
               },
@@ -229,18 +251,44 @@ class _FreelancerListState extends State<FreelancerList> {
               decoration: InputDecoration(
                 hintText:
                     view == Options.radnici ? 'Pretraži radnike...' : 'Pretraži firme...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon:  const Icon(Icons.search,color: Color.fromRGBO(27, 76, 125, 25)),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 12),
             _buildFilterCard(),
-            Expanded(
-              child: view == Options.radnici
-                  ? _buildFreelancerList()
-                  : _buildCompanyList(),
-            ),
+           Expanded(
+  child: RefreshIndicator(
+    onRefresh: _refreshWithFilter,
+    child: Builder(
+      builder: (context) {
+        if ((freelancerPagination?.items.isEmpty ?? true) &&
+            (view == Options.radnici)) {
+          return ListView(
+            children: const [
+              SizedBox(height: 50),
+              Center(child: Text("Nema rezultata za tu lokaciju.")),
+            ],
+          );
+        } else if ((companyPagination?.items.isEmpty ?? true) &&
+            (view == Options.firme)) {
+          return ListView(
+            children: const [
+              SizedBox(height: 50),
+              Center(child: Text("Nema rezultata za tu lokaciju.")),
+            ],
+          );
+        } else {
+          return view == Options.radnici
+              ? _buildFreelancerList()
+              : _buildCompanyList();
+        }
+      },
+    ),
+  ),
+),
+
           ],
         ),
       ),
@@ -258,7 +306,7 @@ class _FreelancerListState extends State<FreelancerList> {
         'Odaberi lokaciju',
         style: TextStyle(color: Colors.black),
       ),
-      icon: const Icon(Icons.location_on),
+      icon: const Icon(Icons.location_on,color: Color.fromRGBO(27, 76, 125, 25),),
       dropdownColor: Colors.white,
       items: locationDropdownItems,
       onChanged: (value) {
@@ -277,27 +325,43 @@ class _FreelancerListState extends State<FreelancerList> {
       itemCount: items.length +
           (freelancerPagination?.hasNextPage ?? false ? 1 : 0),
       itemBuilder: (context, index) {
+         if(freelancerPagination?.items.isEmpty ?? true) return const Text('Nema prijavljenih radnika u ovom zanatu');
         if (index < items.length) {
           final f = items[index];
           final freelancer = f.freelancerNavigation;
+         
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: ListTile(
-              tileColor: Colors.blue[10],
+              tileColor: const Color.fromRGBO(27, 76, 125, 25),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
-              leading: freelancer?.image != null
-                  ? imageFromString(freelancer!.image!)
-                  : SvgPicture.asset("assets/images/undraw_construction-workers_z99i.svg",
-                      width: 80, height: 80),
+              leading: ClipRRect(
+  borderRadius: BorderRadius.circular(8),
+  child: Container(
+    width: 80,
+    height: 80,
+    color: Colors.white, 
+    child: freelancer?.image != null
+      ? imageFromString(freelancer!.image!, height: 80, width: 80, fit: BoxFit.cover)
+      : SvgPicture.asset(
+          "assets/images/undraw_construction-workers_z99i.svg",
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+        ),
+  ),
+),
+               
               title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Iskustvo: ${f.experianceYears} godina'),
-                  Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}'),
-                  Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}'),
+                  Text('Iskustvo: ${f.experianceYears} godina',style: TextStyle(color: Colors.white),),
+                  Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
+                  Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}',style: TextStyle(color: Colors.white),),
+                 
                 ],
               ),
               onTap: () => Navigator.push(
@@ -328,21 +392,33 @@ class _FreelancerListState extends State<FreelancerList> {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: ListTile(
-              tileColor: Colors.blue[10],
+              tileColor: Color.fromRGBO(27, 76, 125, 25),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
-              leading: c.image != null
-                  ? imageFromString(c.image!)
-                  : SvgPicture.asset("assets/images/undraw_under-construction_c2y1.svg",
-                      width: 80, height: 80),
+              leading: ClipRRect(
+  borderRadius: BorderRadius.circular(8),
+  child: Container(
+    width: 80,
+    height: 80,
+    color: Colors.white, // Optional: ensures good contrast regardless of image transparency
+    child: c.image != null
+      ? imageFromString(c!.image!, height: 80, width: 80, fit: BoxFit.cover)
+      : SvgPicture.asset(
+          "assets/images/undraw_under-construction_c2y1.svg",
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+        ),
+  ),
+),
               title: Text(c.companyName ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Iskustvo: ${c.experianceYears} godina'),
-                  Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}'),
-                  Text('Lokacija: ${c.location?.locationName ?? '-'}'),
+                  Text('Iskustvo: ${c.experianceYears} godina',style: TextStyle(color: Colors.white),),
+                  Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
+                  Text('Lokacija: ${c.location?.locationName ?? '-'}',style: TextStyle(color: Colors.white),),
                 ],
               ),
               onTap: () => Navigator.push(

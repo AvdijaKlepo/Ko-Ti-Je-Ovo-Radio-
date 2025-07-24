@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
             primary: const Color.fromRGBO(27, 76, 125, 25)),
             
         useMaterial3: true,
-        fontFamily: GoogleFonts.roboto().fontFamily,
+        fontFamily: GoogleFonts.robotoCondensed().fontFamily,
         
       ),
       home: Center(
@@ -143,6 +143,8 @@ class LoginPage extends StatelessWidget {
   try {
     UserProvider userProvider = UserProvider();
     SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
+
+
  
 
     var user = await userProvider.login(
@@ -157,11 +159,13 @@ class LoginPage extends StatelessWidget {
     }
 
 
+
+
     final filteredRoles = user.userRoles!.where((ur) =>
       ur.role?.roleName == "User" ||
       ur.role?.roleName == "Freelancer" ||
       ur.role?.roleName == "CompanyEmployee").toList();
-
+      BottomNavProvider().setIndex(0);
 
     if (filteredRoles.length > 1) {
       await showDialog(

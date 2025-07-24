@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/order_provider.dart';
@@ -31,12 +32,13 @@ class _CartState extends State<Cart> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Vaša košarica')),
+      appBar: AppBar(title:  Text('Vaša korpa',style: TextStyle(color:Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
       body: cart.items.isEmpty
-          ? Column(children: [Center(child: Text("Košarica je prazna")),
+          ? Column(mainAxisAlignment: MainAxisAlignment.center,children: [Center(child: Text("Korpa je prazna",style: TextStyle(fontWeight: FontWeight.bold),)),
+          SizedBox(height: 10,),
           ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25)) ,onPressed: () async{
             await Navigator.of(context).push(MaterialPageRoute(builder: (context) => const OrderList()));
-          }, child: Text('Pregled narudžbi',style: TextStyle(color: Colors.white),))],) 
+          }, child: Text('Pregled narudžbi',style: TextStyle(color: Colors.white),))],)
           : ListView.separated(
               padding: const EdgeInsets.all(12),
               itemCount: cart.items.length,

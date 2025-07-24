@@ -91,14 +91,19 @@ class _BookTenderState extends State<BookTender> {
     }
   }
 
-  Future<void> getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+  void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +159,7 @@ class _BookTenderState extends State<BookTender> {
                   FormBuilderValidators.required(),
                      (value) {
       if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.]+$');
       if (!regex.hasMatch(value)) {
         return 'Dozvoljena su samo slova i brojevi';
       }
@@ -186,18 +191,49 @@ class _BookTenderState extends State<BookTender> {
                 validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
               ),
               const SizedBox(height: 15),
-              FormBuilderField(
-                name: 'image',
-                builder: (field) => InputDecorator(
-                  decoration: const InputDecoration(labelText: "Odaberi sliku"),
-                  child: ListTile(
-                    leading: const Icon(Icons.image),
-                    title: const Text("Odaberi sliku"),
-                    trailing: const Icon(Icons.upload),
-                    onTap: getImage,
-                  ),
-                ),
+            FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : const Text("Nema izabrane slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
+                textStyle: const TextStyle(color: Colors.white),
               ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => getImage(field),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+                width: 350,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+        ],
+      ),
+    );
+  },
+),
              
              
               const SizedBox(height: 20),

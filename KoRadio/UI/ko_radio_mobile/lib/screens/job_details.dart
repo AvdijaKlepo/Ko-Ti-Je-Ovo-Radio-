@@ -152,8 +152,11 @@ class _JobDetailsState extends State<JobDetails> {
                   _buildDetailRow('Datum završetka radova', dateFormat.format(widget.job.dateFinished?? DateTime.now())),
                   if(widget.job.freelancer?.freelancerId!=null)
                   _buildDetailRow('Vrijeme završetka',
-                      widget.job.endEstimate.toString().substring(0,5) ?? 'Nije dostupno'),
-                  _buildDetailRow('Opis posla', widget.job.jobDescription ?? 'Nema opisa'),
+                  widget.job.endEstimate!=null ?
+                      widget.job.endEstimate.toString().substring(0,5) : 'Nije popunjeno'),
+                  _buildDetailRow('Opis posla', widget.job.jobDescription),
+
+                  _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
 
                   const Divider(height: 32),
                   _sectionTitle('Korisnički podaci'),
