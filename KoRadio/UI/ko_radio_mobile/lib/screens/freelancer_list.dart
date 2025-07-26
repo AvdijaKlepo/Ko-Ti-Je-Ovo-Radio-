@@ -38,6 +38,7 @@ class _FreelancerListState extends State<FreelancerList> {
 
   Options view = Options.radnici;
   bool _isInitialized = false;
+  bool _isLoading = false;
   String _searchQuery = "";
   int? _selectedLocationId;
   Timer? _debounce;
@@ -47,6 +48,9 @@ class _FreelancerListState extends State<FreelancerList> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading=true;
+      });
       freelancerProvider = context.read<FreelancerProvider>();
       locationProvider = context.read<LocationProvider>();
       companyProvider = context.read<CompanyProvider>();
@@ -116,6 +120,7 @@ class _FreelancerListState extends State<FreelancerList> {
 
       setState(() {
         _isInitialized = true;
+        _isLoading=false;
       });
     });
   }
@@ -138,6 +143,9 @@ class _FreelancerListState extends State<FreelancerList> {
   }
 
   Future<void> _refreshWithFilter() async {
+    setState(() {
+      _isLoading=true;
+    });
     final filter = <String, dynamic>{
       'ServiceId': widget.serviceId,
       'IsDeleted': false,
@@ -160,6 +168,9 @@ class _FreelancerListState extends State<FreelancerList> {
     } else {
       await companyPagination?.refresh(newFilter: filter);
     }
+    setState(() {
+      _isLoading=false;
+    });
   }
 
   Future<void> _loadLocations() async {
@@ -263,12 +274,19 @@ class _FreelancerListState extends State<FreelancerList> {
     onRefresh: _refreshWithFilter,
     child: Builder(
       builder: (context) {
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if ((freelancerPagination?.items.isEmpty ?? true) &&
             (view == Options.radnici)) {
           return ListView(
-            children: const [
+            children: const  [
+             
               SizedBox(height: 50),
-              Center(child: Text("Nema rezultata za tu lokaciju.")),
+              
+              Center(child: Text("Nema rezultata.")),
+                  
+    
             ],
           );
         } else if ((companyPagination?.items.isEmpty ?? true) &&
@@ -276,7 +294,7 @@ class _FreelancerListState extends State<FreelancerList> {
           return ListView(
             children: const [
               SizedBox(height: 50),
-              Center(child: Text("Nema rezultata za tu lokaciju.")),
+              Center(child: Text("Nema rezultata.")),
             ],
           );
         } else {
@@ -337,12 +355,15 @@ class _FreelancerListState extends State<FreelancerList> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               leading: ClipRRect(
-  borderRadius: BorderRadius.circular(8),
+  borderRadius: BorderRadius.circular(10),
   child: Container(
     width: 80,
     height: 80,
     color: Colors.white, 
-    child: freelancer?.image != null
+    child:
+    
+    
+     freelancer?.image != null
       ? imageFromString(freelancer!.image!, height: 80, width: 80, fit: BoxFit.cover)
       : SvgPicture.asset(
           "assets/images/undraw_construction-workers_z99i.svg",
@@ -359,7 +380,7 @@ class _FreelancerListState extends State<FreelancerList> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Iskustvo: ${f.experianceYears} godina',style: TextStyle(color: Colors.white),),
-                  Text('Ocjena: ${f.rating != 0 ? f.rating : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
+                  Text('Ocjena: ${f.rating != 0 ? f.rating.toDouble().toStringAsFixed(1) : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
                   Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}',style: TextStyle(color: Colors.white),),
                  
                 ],

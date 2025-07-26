@@ -7,6 +7,8 @@ class Service{
   String serviceName;
   String image;
   bool isDeleted;
+  int? freelancerCount;
+  int? companyCount;
 
 
   

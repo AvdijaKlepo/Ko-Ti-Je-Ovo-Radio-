@@ -18,9 +18,7 @@ import 'package:ko_radio_mobile/providers/tender_bid_provider.dart';
 import 'package:ko_radio_mobile/providers/tender_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
-import 'package:ko_radio_mobile/screens/freelancer_job_screen.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
-import 'package:ko_radio_mobile/screens/service_list.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -83,26 +81,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController usernameController = TextEditingController();
+
+  final TextEditingController passwordController = TextEditingController();
+
+
 
   @override
   void initState() { 
-     final SignalRProvider _signalRProvider = SignalRProvider('notifications-hub');
-     if (AuthProvider.isSignedIn) {
-      _signalRProvider.stopConnection();
-      AuthProvider.connectionId = null;
-      AuthProvider.isSignedIn = false;
-    }
-    _signalRProvider.startConnection();
-    _signalRProvider.onNotificationReceived = (message) {
-  rootScaffoldMessengerKey.currentState?.showSnackBar(
-    SnackBar(content: Text(message)),
-  );
-};
+     super.initState();
+     final signalRProvider = context.read<SignalRProvider>();
+
+  if (AuthProvider.isSignedIn) {
+    signalRProvider.stopConnection();
+    AuthProvider.connectionId = null;
+    AuthProvider.isSignedIn = false;
+  }
   }
 
   @override
@@ -137,25 +139,32 @@ class LoginPage extends StatelessWidget {
                   ),
                   ElevatedButton(
                    onPressed: () async {
+
+       try {               
   AuthProvider.username = usernameController.text;
   AuthProvider.password = passwordController.text;
 
-  try {
-    UserProvider userProvider = UserProvider();
-    SignalRProvider signalRProvider = SignalRProvider('notifications-hub');
+  final userProvider = UserProvider();
+
+  final user = await userProvider.login(
+                              AuthProvider.username,
+                              AuthProvider.password,
+                              AuthProvider.connectionId);
+
+
+
 
 
  
 
-    var user = await userProvider.login(
-        AuthProvider.username, AuthProvider.password, AuthProvider.connectionId);
+    
 
     AuthProvider.user = user;
+    final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
     AuthProvider.isSignedIn = true;
-   signalRProvider.startConnection();
 
     if (user.userRoles == null || user.userRoles!.isEmpty) {
-      throw Exception("Korisnik nema dodijeljenih uloga.");
+      throw Exception("Pogrešan email ili lozinka.");
     }
 
 
@@ -174,10 +183,12 @@ class LoginPage extends StatelessWidget {
           title: const Text("Odaberite ulogu"),
           children: filteredRoles.map((userRole) {
             return SimpleDialogOption(
-              onPressed: () {
+              onPressed: () async {
                 AuthProvider.selectedRole = userRole.role?.roleName ?? "";
+                final signalrProvider = context.read<SignalRProvider>();
+                await signalrProvider.startConnection();
                 
-                print(AuthProvider.selectedRole);
+            
                 Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
@@ -194,6 +205,8 @@ class LoginPage extends StatelessWidget {
       final selected = filteredRoles.first;
       AuthProvider.selectedRole = selected.role?.roleName ?? "";
       AuthProvider.userRoles = selected;
+       final signalrProvider = context.read<SignalRProvider>();
+                await signalrProvider.startConnection();
 
       Navigator.pushReplacement(
         context,

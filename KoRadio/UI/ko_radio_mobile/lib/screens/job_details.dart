@@ -30,20 +30,51 @@ class _JobDetailsState extends State<JobDetails> {
   late JobProvider jobProvider;
   late UserRatings userRatingsProvider;
   late Company companyResult;
+  late Job jobResult;
+  bool _isLoading = false;
+  
   double _rating = 0;
 
   @override
   void initState() {
     super.initState();
-    freelancerProvider = context.read<FreelancerProvider>();
-    userRatingsProvider = context.read<UserRatings>();
-    jobProvider = context.read<JobProvider>();
-    companyProvider = context.read<CompanyProvider>();
-    if(widget.job.company?.companyId!=null)
-    {
-      _getCompany();
-    }
+    setState(() {
+      _isLoading=true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      freelancerProvider = context.read<FreelancerProvider>();
+      userRatingsProvider = context.read<UserRatings>();
+      jobProvider = context.read<JobProvider>();
+      companyProvider = context.read<CompanyProvider>();
+      if(widget.job.company?.companyId!=null)
+      {
+       await _getCompany();
+      }
+      await _getJob();
+       setState(() {
+      _isLoading=false;
+    });
+    });
    
+  
+  }
+  Future<void> _getJob() async {
+    setState(() {
+      _isLoading=true;
+    });
+  
+    try {
+      var fetchedJob = await jobProvider.getById(widget.job.jobId);
+      setState(() {
+        jobResult = fetchedJob;
+        _isLoading=false;
+      });
+    } catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
   }
   Future<void> _getCompany() async {
      try {
@@ -52,6 +83,7 @@ class _JobDetailsState extends State<JobDetails> {
       companyResult = fetchedCompany;
     });
   } catch (e) {
+    if(!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Greška: ${e.toString()}")),
     );
@@ -59,7 +91,7 @@ class _JobDetailsState extends State<JobDetails> {
   }
    _openCancelDialog() {
     return AlertDialog(
-      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
       content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
       actions: [
@@ -123,6 +155,9 @@ class _JobDetailsState extends State<JobDetails> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy');
+    if(_isLoading==true){
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Scaffold(
       appBar: appBar(title: 'Detalji posla', automaticallyImplyLeading: true,
@@ -131,7 +166,7 @@ class _JobDetailsState extends State<JobDetails> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Card(
-            color: Color.fromRGBO(27, 76, 125, 25),
+            color: const Color.fromRGBO(27, 76, 125, 25),
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
@@ -155,6 +190,30 @@ class _JobDetailsState extends State<JobDetails> {
                   widget.job.endEstimate!=null ?
                       widget.job.endEstimate.toString().substring(0,5) : 'Nije popunjeno'),
                   _buildDetailRow('Opis posla', widget.job.jobDescription),
+                    widget.job.image!=null ?
+                        _buildImageRow(
+                                  'Slika',
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(context: context, builder: (context) => _openImageDialog());
+                                    
+                                    
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                    ),
+                                    child:  const Text(
+                                      'Otvori sliku',
+                                      style: TextStyle(
+                                          color:
+                                              Color.fromRGBO(27, 76, 125, 25)),
+                                    ),
+                                  ))
+                              : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
 
@@ -166,12 +225,15 @@ class _JobDetailsState extends State<JobDetails> {
                         ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
                         : 'Nepoznato',
                   ),
+                   _buildDetailRow('Broj Telefona', widget.job.user?.phoneNumber??'Nepoznato'),
+                   _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
                   _buildDetailRow(
                     'Adresa',
                     widget.job.user != null
                         ? '${widget.job.user?.address}'
                         : 'Nepoznato',
                   ),
+                 
 
                   const Divider(height: 32),
                   widget.job.freelancer != null ?
@@ -194,10 +256,10 @@ class _JobDetailsState extends State<JobDetails> {
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                      if(widget.job.isInvoiced==true)
+                      if(jobResult?.isInvoiced==true)
                   _buildDetailRow('Plaćen',
                       'Da'), 
-                       if(widget.job.isRated==true)
+                       if(jobResult?.isRated==true)
                   _buildDetailRow('Ocijenjen',
                       'Da'), 
                      if(widget.job.jobStatus== JobStatus.cancelled) 
@@ -223,15 +285,15 @@ class _JobDetailsState extends State<JobDetails> {
 
                         if (widget.job.jobStatus == JobStatus.finished &&
                       widget.job.user?.userId == AuthProvider.user?.userId
-                      && widget.job.isInvoiced==false)
+                      && jobResult?.isInvoiced==false)
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (BuildContext context) => PaypalCheckoutView(
                                   sandboxMode: true,
-                                 clientId: DotEnv().env['clientId'],
-          secretKey: DotEnv().env['secretKey'],
+                                 clientId: dotenv.env['clientId'],
+          secretKey: dotenv.env['secretKey'],
           
                                   transactions: [
                                     {
@@ -275,7 +337,7 @@ class _JobDetailsState extends State<JobDetails> {
                   'image': widget.job.image,
                   'jobDate': widget.job.jobDate.toIso8601String(),
                   'IsTenderFinalized':false,
-                  'payInvoice': widget.job.payInvoice,
+                  'payInvoice': jobResult?.payInvoice,
                   'isinvoiced':true,
                   'isRated':false,
                   'dateFinished': widget.job.dateFinished,
@@ -285,18 +347,28 @@ class _JobDetailsState extends State<JobDetails> {
 
                                     };
                                     try{
-                                      jobProvider.update(widget.job.jobId,
+                                     await jobProvider.update(widget.job.jobId,
                                       request
                                       );
+                                     
+                                   
 ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Plaćanje je uspješno izvršeno!")),
+                                      const SnackBar(content: Text("Plaćanje je uspješno izvršeno!")), 
+
+                                     
+                                      
                                     );
+                                  
                                     Navigator.of(context).pop();
+                                       
+                                       await _getJob();
                                     }
                                     catch(e){
+                               
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text("Greška tokom plaćanja")),
+                                        const SnackBar(content: Text("Greška tokom plaćanja")),
                                       );
+                                      
                                       Navigator.of(context).pop();
                                     }
                                     
@@ -321,9 +393,9 @@ ScaffoldMessenger.of(context).showSnackBar(
                         ),
                          
                         const SizedBox(height: 20),
-                       if (widget.job.isInvoiced == true &&
+                       if (jobResult.isInvoiced == true &&
     widget.job.user?.userId == AuthProvider.user?.userId &&
-    widget.job.isRated == false)
+    jobResult.isRated == false)
   Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -427,13 +499,15 @@ ScaffoldMessenger.of(context).showSnackBar(
               'isRated': true,
               'jobStatus': JobStatus.finished.name,
             };
-
+            if(!mounted) return;
             await jobProvider.update(widget.job.jobId, request);
 
+
             ScaffoldMessenger.of(context).showSnackBar(
-              widget.job.freelancer != null ? const SnackBar(content: Text("Radnik ocijenjen!")) : const SnackBar(content: Text("Firma ocijenjen!")),
+              widget.job.freelancer != null ? const SnackBar(content: Text("Radnik ocijenjen!")) : const SnackBar(content: Text("Firma ocijenjena!")),
              
             );
+            await _getJob();
           },
           child: const Text("Ocijeni"),
         ),
@@ -478,6 +552,46 @@ ScaffoldMessenger.of(context).showSnackBar(
           ),
         ],
       ),
+    );
+  }
+  Widget _buildImageRow(String label, Widget value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+
+      child: Row(
+
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: value,
+          ),
+        ],
+      ),
+    );
+  }
+   _openImageDialog() {
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+      title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
+      content: imageFromString(widget.job.image!),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),))
+      ],
     );
   }
 

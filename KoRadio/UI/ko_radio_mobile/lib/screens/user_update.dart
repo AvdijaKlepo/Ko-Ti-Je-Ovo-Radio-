@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
@@ -64,7 +67,9 @@ class _UserUpdateState extends State<UserUpdate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ažuriraj račun')),
+      appBar: AppBar(title:  Text('Ažuriraj račun',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
@@ -76,7 +81,15 @@ class _UserUpdateState extends State<UserUpdate> {
                       children: [
                         
                         const SizedBox(height: 20),
-        
+                      
+                         
+                          
+                         
+                       
+
+                            const SizedBox(height: 30,),
+                          
+                             
                         FormBuilderTextField(
                           name: "firstName",
                           decoration: const InputDecoration(
@@ -168,7 +181,7 @@ class _UserUpdateState extends State<UserUpdate> {
                 : const Text("Nema izabrane slike"),
             trailing: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
                 textStyle: const TextStyle(color: Colors.white),
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
@@ -178,19 +191,22 @@ class _UserUpdateState extends State<UserUpdate> {
           ),
           const SizedBox(height: 10),
           if (_image != null)
+          Center(child:
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-                
+                width: 200,
+                height:200,
                 fit: BoxFit.cover,
               ),
-            ),
+            )),
         ],
       ),
     );
   },
 ),
+SizedBox(height: 20,),
                         Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
                         FormBuilderTextField(
           name: "password",

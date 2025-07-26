@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/product.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
@@ -34,11 +35,14 @@ class _ProductTypeListState extends State<ProductTypeList> {
   String _searchQuery = "";
   List<DropdownMenuItem<int>> serviceDropdownItems = [];
   Timer? _debounce;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
+    setState(() {
+      _isLoading=true;
+    });
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -85,6 +89,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
       await productPagination.refresh(newFilter: filter);
       setState(() {
         _isInitialized = true;
+        _isLoading=false;
       });
     });
   }
@@ -123,6 +128,9 @@ class _ProductTypeListState extends State<ProductTypeList> {
   }
 
   Future<void> _refreshWithFilter() async {
+    setState(() {
+      _isLoading=true;
+    });
     final filter = <String, dynamic>{};
     if (_searchQuery.isNotEmpty) {
       filter['Name'] = _searchQuery;
@@ -134,16 +142,22 @@ class _ProductTypeListState extends State<ProductTypeList> {
 
     filter["storeId"] = widget.store?.storeId;
     await productPagination.refresh(newFilter: filter);
+    setState(() {
+      _isLoading=false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) {
-      return const Center(child: CircularProgressIndicator());
+       if (!_isInitialized) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+ 
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Tipovi proizvoda")),
+      appBar: AppBar(title:  Text("Tipovi proizvoda",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refreshWithFilter,
@@ -158,22 +172,26 @@ class _ProductTypeListState extends State<ProductTypeList> {
                       TextField(
                         decoration: InputDecoration(
                           hintText: "Pretraži proizvode...",
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: Colors.grey.shade200,
+                          prefixIcon: const Icon(Icons.search,color: Color.fromRGBO(27, 76, 125, 25),),
+                          
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                            
                           ),
                         ),
                         onChanged: _onSearchChanged,
                       ),
                       const SizedBox(height: 12),
+                      
                      if (serviceDropdownItems.isNotEmpty)
   DropdownButtonFormField<int?>(
+    iconDisabledColor: Colors.grey,
+    iconEnabledColor: const Color.fromRGBO(27, 76, 125, 25),
     value: _selectedServiceId,
     decoration: InputDecoration(
-      labelText: "Tip usluge",
+      
+   
+      labelText: "Tip proizvoda",
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     ),
@@ -188,17 +206,23 @@ class _ProductTypeListState extends State<ProductTypeList> {
                   ),
                 ),
               ),
-              productPagination.items.isEmpty
-                  ? SliverFillRemaining(
+
+
+
+              _isLoading ? const SliverFillRemaining(hasScrollBody: false, child: Center(child: CircularProgressIndicator())) :
+            productPagination.items.isEmpty
+                  ? const SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
                         child: Text(
-                          "Nema dostupnih tipova proizvoda.",
-                          style: const TextStyle(fontSize: 16),
+                          "Nema pronađenih proizvoda.",
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                     )
-                  : SliverPadding(
+                  :
+                 
+                   SliverPadding(
                       padding: const EdgeInsets.all(12),
                       sliver: SliverGrid(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -240,23 +264,42 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                         right: 0,
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Color.fromRGBO(27, 76, 125, 25),
+                                          decoration:  BoxDecoration(
+                                            backgroundBlendMode: BlendMode.screen,
+                                            color: Colors.white,
                                             borderRadius: const BorderRadius.only(
                                               bottomLeft: Radius.circular(16),
                                               bottomRight: Radius.circular(16),
                                             ),
                                           ),
-                                          child: Text(
+                                          child:
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                               Text(
                                             product.productName ?? "",
                                             style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                             
                                               fontSize: 16,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
+                                           Text(
+                                            '${product.price?.toString()} KM' ?? "",
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                             
+                                              fontSize: 16,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                              
+                                            ],
+                                          )
+                                          
                                         ),
                                       ),
                                       Positioned(

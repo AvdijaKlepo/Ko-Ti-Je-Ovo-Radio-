@@ -24,27 +24,27 @@ class ServiceListScreen extends StatefulWidget {
 class _ServiceListScreenState extends State<ServiceListScreen> {
   late ServiceProvider serviceProvider;
   late PaginatedFetcher<Service> servicePagination;
-  late FreelancerProvider freelancerProvider;
-  late CompanyProvider companyProvider;
-  SearchResult<Freelancer>? freelancerResult;
-  SearchResult<Company>? companyResult;
   late final ScrollController _scrollController;
+
 
   bool _isInitialized = false;
   String _searchQuery = "";
   Timer? _debounce;
   Map<String, dynamic> filter = {};
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      freelancerProvider = context.read<FreelancerProvider>();
-      companyProvider = context.read<CompanyProvider>();
-      await _getFreelancers();
-      await _getCompanies();
-    });
+    
 
+     
+    });
+    setState(() {
+      _isLoading=true;
+    });
 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -88,6 +88,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       await servicePagination.refresh();
       setState(() {
         _isInitialized = true;
+        _isLoading=false;
       });
     });
   }
@@ -98,31 +99,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     _debounce?.cancel();
     super.dispose();
   }
-  Future<void> _getFreelancers() async {
-    
-    try {
-      final fetched = await freelancerProvider.get();
-      setState(() {
-        freelancerResult = fetched;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
-  Future<void> _getCompanies() async {
-    try {
-      final fetched = await companyProvider.get();
-      setState(() {
-        companyResult = fetched;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
+ 
+
 
 
   void _onSearchChanged(String query) {
@@ -134,11 +112,17 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   }
 
   Future<void> _refreshWithFilter() async {
+    setState(() {
+      _isLoading=true;
+    });
     final filter = <String, dynamic>{};
     if (_searchQuery.isNotEmpty) {
       filter['ServiceName'] = _searchQuery;
     }
     await servicePagination.refresh(newFilter: filter);
+    setState(() {
+      _isLoading=false;
+    });
   }
 
   
@@ -147,6 +131,9 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   Widget build(BuildContext context) {
 
     if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if(_isLoading){
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -191,9 +178,10 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                  InkWell(
                  hoverColor: Colors.transparent,
                     child: Card(
-                      color: Colors.white,
+                     color: Colors.white,
+                     surfaceTintColor: Colors.transparent,
                       margin: const EdgeInsets.symmetric(vertical: 8),
-                      elevation: 2,
+                      elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -225,13 +213,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                               ),
                               Row(
                                 children: [
+                                  
                                   Text(
-                                    'Radnika : ${freelancerResult?.result.where((element) => element.freelancerServices.map((e) => e.serviceId).contains(service.serviceId)).length ?? 0}',
+                                    'Radnika : ${service.freelancerCount}',
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Firma : ${companyResult?.result.where((element) => element.companyServices.map((e) => e.serviceId).contains(service.serviceId)).length ?? 0}',
+                                    'Firma : ${service.companyCount}',
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                 ],

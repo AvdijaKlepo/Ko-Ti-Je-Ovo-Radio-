@@ -19,15 +19,25 @@ namespace KoRadio.Services
 		}
 		public override IQueryable<Service> AddFilter(ServiceSearchObject searchObject, IQueryable<Service> query)
 		{
+
+
 			query = base.AddFilter(searchObject, query);
+			query = query.Include(x => x.FreelancerServices).ThenInclude(x => x.Freelancer).Include(x => x.CompanyServices).ThenInclude(x => x.Company);
 			if (!string.IsNullOrWhiteSpace(searchObject?.ServiceName))
 			{
 				query = query.Where(x => x.ServiceName.StartsWith(searchObject.ServiceName));
 			}
+			
 		
-			
 
-			
+		
+
+
+
+
+
+
+
 
 			return query;
 		}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/messages.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
@@ -18,22 +19,38 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   late MessagesProvider messagesProvider;
-  SearchResult<Messages>? result;
+  late SearchResult<Messages> result =SearchResult();
   bool isChecked = false;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
+    setState(() {
+      isLoading=true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
     messagesProvider = context.read<MessagesProvider>();
-    _fetchData();
+    
+
+    await _fetchData();
+    });
+    setState(() {
+      isLoading=false;
+    });
+   
 
   }
    Future<void> _fetchData() async {
+    setState(() {
+      isLoading=true;
+    });
     var filter = {'UserId': AuthProvider.user?.userId ?? 0};
     try {
   final messages = await messagesProvider.get(filter: filter,orderBy: 'desc');
   if(!mounted) return;
   setState(() {
     result = messages;
+    isLoading=false;
   });
 } on Exception catch (e) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -45,70 +62,87 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+   
     return  Scaffold(
       
-      appBar: AppBar(title: const Text("Notifikacije"),centerTitle: true,),
+      appBar: AppBar(title:  Text("Notifikacije",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      ),
       
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
-            children: [
-                 Row(
-                 children: [
-                  if(result?.result.where((element) => element.isOpened==true).isEmpty ?? true)
-                   Checkbox(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    value: isChecked, 
-                    onChanged: (bool? value)async {
-                   setState(() {
-                     isChecked = true;
-                     _fetchData();
-                   
-                     
-                   });
-                   if (isChecked) {
-                    for (var message in result!.result.where((element) => element.isOpened == false)) {
-                      var request = {
-                        'messageId': message.messageId, 
+            children: [ 
+           if (result.result.isNotEmpty &&
+    result.result.any((element) => element.isOpened == false))
+  Row(
+    children: [
+      Checkbox(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        value: isChecked,
+        onChanged: (bool? value) async {
+          setState(() {
+            isChecked = true;
+          });
+
+          for (var message
+              in result.result.where((e) => e.isOpened == false)) {
+            var request = {
+              'messageId': message.messageId,
               'message1': message.message1,
               'userId': AuthProvider.user?.userId,
               'isOpened': true,
             };
-                      await messagesProvider.update(message.messageId!,request);
-                    }
-                     
-                   }
-                      await _fetchData();
-                    },
-                                 ),
-                                     if(result?.result.where((element) => element.isOpened==true).isEmpty ?? true)
-                                 Container(margin:EdgeInsets.only(),
-                   child:  Text('Označi sve kao pročitano',style: TextStyle(color: Colors.black),)
-                    ,
-                               ),
-                 ],
-               ),
+            await messagesProvider.update(message.messageId!, request);
+          }
+
+          await _fetchData();
+        },
+      ),
+      const Text(
+        'Označi sve kao pročitano',
+        style: TextStyle(color: Colors.black),
+      ),
+    ],
+  ),
+
               Expanded(
-                child: ListView.builder(
-                  itemCount: result?.result.length ?? 0,
+                child:
+              (result.result.isEmpty)
+              ? isLoading ? const Center(child: CircularProgressIndicator()) : const Center(
+                child: 
+         
+                
+                    Text('Nemate notifikacija',style: TextStyle(color: Colors.black,fontSize: 20),),
+            
+              ) : 
+                
+                
+                 ListView.builder(
+                  itemCount: result.result.length,
                   itemBuilder: (context, index) {
-                    var e = result!.result[index];
+                   
+
+
+                    var e = result.result[index];
+                   
                     return Card(
-                     color: e.isOpened == true ?Color.fromRGBO(27, 76, 125, 25) : Colors.amberAccent,
+                     color: e.isOpened == true ? Colors.grey : Colors.amberAccent,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
                         onTap: () async { 
-                         showDialog(context: context, builder: (_)=> MessageDetails(messages: e));
-                         setState(() {
-                           _fetchData();
-                         });
+                      
+                      await  showDialog(context: context, builder: (_)=> MessageDetails(messages: e));
+
+                       
                          await _fetchData();
+                        
                          },
 
-                        leading: Text("${e.message1.toString().split('.')[0]}" ?? "Poruka nije dostupna",style: TextStyle(color: e.isOpened == true ? Colors.white : Colors.black),), 
+                        leading: Text(e.message1.toString().split('.')[0],style: TextStyle(color: e.isOpened == true ? Colors.white : Colors.black),), 
                       ),
                     );
                   },

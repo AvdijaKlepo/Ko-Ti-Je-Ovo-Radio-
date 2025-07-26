@@ -39,6 +39,7 @@ class _MessageDetailsState extends State<MessageDetails> {
   @override
   Widget build(BuildContext context) {
     return  Dialog(
+      
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
         width: 500,

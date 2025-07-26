@@ -2695,6 +2695,13 @@
             }
           },
           {
+            "name": "ReturnCount",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -6121,6 +6128,14 @@
           },
           "isDeleted": {
             "type": "boolean"
+          },
+          "freelancerCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyCount": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ko_radio_mobile/layout/master_screen.dart';
+
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
-import 'package:ko_radio_mobile/providers/utils.dart';
+
 import 'package:ko_radio_mobile/screens/book_job.dart';
-import 'package:ko_radio_mobile/screens/freelancer_details.dart';
+
 import 'package:provider/provider.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 
@@ -28,13 +27,20 @@ class FreelancerDaySchedule extends StatefulWidget {
 class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
+  bool _isLoading = false;
  
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _isLoading=true;
+    });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       jobProvider = context.read<JobProvider>();
       _getServices();
+      setState(() {
+        _isLoading=false;
+      });
     });
   }
 
@@ -46,6 +52,9 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   }
 
   _getServices() async {
+    setState(() {
+      _isLoading=true;
+    });
     var filter={'FreelancerId':widget.freelancerId?.freelancerId,'JobDate':widget.selectedDay.toIso8601String().split('T')[0],
     'JobStatus':JobStatus.approved.name
     
@@ -56,6 +65,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   
     setState(() {
       result = freelancer;
+      _isLoading=false;
     });
   }
   @override 

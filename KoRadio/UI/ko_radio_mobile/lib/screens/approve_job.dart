@@ -172,6 +172,7 @@ class _ApproveJobState extends State<ApproveJob> {
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = DateFormat('dd.MM.yyyy');
     final _formKey = GlobalKey<FormBuilderState>();
     return Scaffold(
 
@@ -209,19 +210,23 @@ class _ApproveJobState extends State<ApproveJob> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                     
-                      _sectionTitle('Zakazan posao'),
-                        _buildDetailRow('Posao', widget.job.jobTitle?? 'Nije dostupan'), 
-                      _buildDetailRow('Servis', widget.job.jobsServices
-                              ?.map((e) => e.service?.serviceName)
-                              .where((e) => e != null)
-                              .join(', ') ??
-                          'N/A'),
-                      _buildDetailRow('Datum', DateFormat('dd.MM.yyyy').format(widget.job.jobDate)),
-                      _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''),
-                      _buildDetailRow('Vrijeme završetka', widget.job.endEstimate.toString().substring(0,5) ?? ''),
-                      _buildDetailRow('Procijena cijene', '${widget.job.payEstimate?.toString()} KM'  ?? ''),
-                        _buildDetailRow('Opis posla', widget.job.jobDescription),
-                        widget.job.image!=null ?
+                      _sectionTitle('Radne specifikacije'),
+                  _buildDetailRow('Posao', widget.job.jobTitle?? 'Nije dostupan'), 
+                  _buildDetailRow('Servis', widget.job.jobsServices
+                          ?.map((e) => e.service?.serviceName)
+                          .where((e) => e != null)
+                          .join(', ') ??
+                      'N/A'),
+
+                  _buildDetailRow('Datum', dateFormat.format(widget.job.jobDate)),
+               
+                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''),
+                 
+                  _buildDetailRow('Vrijeme završetka',
+                  widget.job.endEstimate!=null ?
+                      widget.job.endEstimate.toString().substring(0,5) : 'Nije popunjeno'),
+                  _buildDetailRow('Opis posla', widget.job.jobDescription),
+                   widget.job.image!=null ?
                         _buildImageRow(
                                   'Slika',
                                   ElevatedButton(
@@ -244,30 +249,56 @@ class _ApproveJobState extends State<ApproveJob> {
                                               Color.fromRGBO(27, 76, 125, 25)),
                                     ),
                                   ))
-                              : const SizedBox(height: 20),
-                
-                      const Divider(height: 32),
-                      _sectionTitle('Korisnički podaci'),
-                      _buildDetailRow(
-                        'Ime i prezime',
-                        widget.job.user != null
-                            ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
-                            : 'Nepoznato',
-                      ),
-                      _buildDetailRow('Email', widget.job.user?.email ?? 'Nepoznato'),
-                       _buildDetailRow('Telefonski broj', widget.job.user?.phoneNumber ?? 'Nepoznato'),
-                        _buildDetailRow(
-                        'Lokacija',
-                        widget.job.user != null
-                            ? '${widget.job.user?.location?.locationName ?? '-'}'
-                            : 'Nepoznato',
-                      ),
-                      _buildDetailRow(
-                        'Adresa stanovanja',
-                        widget.job.user != null
-                            ? '${widget.job.user?.address}'
-                            : 'Nepoznato',
-                      ),
+                              : _buildDetailRow('Slika','Nije unesena'),
+
+                  _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+
+                  const Divider(height: 32),
+                  _sectionTitle('Korisnički podaci'),
+                  _buildDetailRow(
+                    'Ime i prezime',
+                    widget.job.user != null
+                        ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
+                        : 'Nepoznato',
+                  ),
+                   _buildDetailRow('Broj Telefona', widget.job.user?.phoneNumber??'Nepoznato'),
+                   _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
+                  _buildDetailRow(
+                    'Adresa',
+                    widget.job.user != null
+                        ? '${widget.job.user?.address}'
+                        : 'Nepoznato',
+                  ),
+
+                  const Divider(height: 32),
+                  
+                  _sectionTitle('Podaci radnika'),
+                 
+                  _buildDetailRow(
+                    'Ime i prezime',
+                    widget.job.user != null
+                        ? '${widget.job.freelancer?.freelancerNavigation?.firstName ?? ''} ${widget.job.freelancer?.freelancerNavigation?.lastName ?? ''}'
+                        : 'Nepoznato',
+                  ) ,
+               
+                  _buildDetailRow('E-mail', widget.job.freelancer?.freelancerNavigation?.email ?? 'Nepoznato'),
+               
+                  _buildDetailRow('Telefonski broj', widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato') ,
+                  const Divider(height: 32),
+                  _buildDetailRow('Procijena',
+                      widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
+                  _buildDetailRow('Konačna cijena',
+                      widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
+                      if(widget.job.isInvoiced==true)
+                  _buildDetailRow('Plaćen',
+                      'Da'), 
+                       if(widget.job.isRated==true)
+                  _buildDetailRow('Ocijenjen',
+                      'Da'), 
+                     if(widget.job.jobStatus== JobStatus.cancelled) 
+                       _buildDetailRow('Otkazan',
+                      'Da'), 
+
                       
                            
                     ],
@@ -335,6 +366,7 @@ class _ApproveJobState extends State<ApproveJob> {
             jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
+            widget.job.jobStatus == JobStatus.unapproved ?  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odobren.'))) :
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Faktura poslana korisniku.')));
             Navigator.pop(context,true);
 

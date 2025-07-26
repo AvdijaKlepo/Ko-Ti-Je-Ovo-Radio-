@@ -32,13 +32,13 @@ class _CartState extends State<Cart> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title:  Text('Vaša korpa',style: TextStyle(color:Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
+      appBar: AppBar(title:  Text('Vaša korpa',style: TextStyle(color:const Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
       body: cart.items.isEmpty
-          ? Column(mainAxisAlignment: MainAxisAlignment.center,children: [Center(child: Text("Korpa je prazna",style: TextStyle(fontWeight: FontWeight.bold),)),
-          SizedBox(height: 10,),
-          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25)) ,onPressed: () async{
+          ? Column(mainAxisAlignment: MainAxisAlignment.center,children: [const Center(child: Text("Korpa je prazna",style: TextStyle(fontWeight: FontWeight.bold),)),
+          const SizedBox(height: 10,),
+          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25)) ,onPressed: () async{
             await Navigator.of(context).push(MaterialPageRoute(builder: (context) => const OrderList()));
-          }, child: Text('Pregled narudžbi',style: TextStyle(color: Colors.white),))],)
+          }, child: const Text('Pregled narudžbi',style: TextStyle(color: Colors.white),))],)
           : ListView.separated(
               padding: const EdgeInsets.all(12),
               itemCount: cart.items.length,
@@ -48,7 +48,9 @@ class _CartState extends State<Cart> {
                 final p = item.product;
 
                 return Card(
-                  elevation: 3,
+                  color: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -58,7 +60,7 @@ class _CartState extends State<Cart> {
                           borderRadius: BorderRadius.circular(12),
                           child: p.image != null
                               ? imageFromString(p.image!, height: 80, width: 80, fit: BoxFit.cover)
-                              : Image.asset('assets/images/productPlaceholder.jpg', height: 80, width: 80),
+                              : Image.asset('assets/images/productPlaceholder.jpg', height: 80, width: 80,fit: BoxFit.cover,),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -69,10 +71,12 @@ class _CartState extends State<Cart> {
                               const SizedBox(height: 4),
                               Text('${p.price?.toStringAsFixed(2)} KM',
                                   style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: Colors.green.shade700,
+                                    color: Color.fromRGBO(27, 76, 125, 25),
                                   )),
                               const SizedBox(height: 6),
+                             
                               Row(
+                              
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.remove),
@@ -95,6 +99,7 @@ class _CartState extends State<Cart> {
                           ),
                         ),
                         IconButton(
+                        
                           icon: const Icon(Icons.delete, color: Colors.redAccent),
                           onPressed: () => cart.remove(p),
                         ),
@@ -130,8 +135,9 @@ class _CartState extends State<Cart> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.shopping_bag),
-                      label: const Text('Naruči putem PayPal-a'),
+                      style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25)),
+                      icon: const Icon(Icons.shopping_bag,color:Colors.white),
+                      label: const Text('Naruči putem PayPal-a',style: TextStyle(color: Colors.white),),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(

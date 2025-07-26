@@ -16,6 +16,8 @@ namespace KoRadio.Model
 		public byte[] Image { get; set; } = null!;
 
 		public bool IsDeleted { get; set; }
+		public int FreelancerCount { get; set; }
+		public int CompanyCount { get; set; }
 
 	}
 }

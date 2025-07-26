@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KoRadio.Services.Database;
 
@@ -12,8 +13,14 @@ public partial class Service
     public byte[] Image { get; set; } = null!;
 
     public bool IsDeleted { get; set; }
+    [NotMapped]
+    public int FreelancerCount => FreelancerServices.Count;
 
-    public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
+    [NotMapped]
+    public int CompanyCount => CompanyServices.Count;
+
+
+	public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 

@@ -22,18 +22,28 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   SearchResult<Job>? _jobResult;
   final DateTime _now = DateTime.now();
   JobViewOption _selectedOption = JobViewOption.unapproved;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Ensure the context is available on the next frame
+    setState(() {
+      _isLoading=true;
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _jobProvider = context.read<JobProvider>();
       _fetchJobs();
+      setState(() {
+        _isLoading=false;
+      });
     });
   }
 
   Future<void> _fetchJobs() async {
+    setState(() {
+      _isLoading=true;
+    });
     final String jobStatus = _selectedOption == JobViewOption.unapproved
         ? JobStatus.unapproved.name
         : JobStatus.approved.name;
@@ -47,6 +57,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
       final result = await _jobProvider.get(filter: filter);
       setState(() {
         _jobResult = result;
+        _isLoading=false;
       });
     } catch (e) {
       if (mounted) {
@@ -70,25 +81,39 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: _jobResult == null || _jobResult!.count == 0
-          ? const Center(child: Text('Nema rezervisanih poslova za danas.'))
-          : Column(
+      child: 
+           Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Text(
                     'Raspored za ${DateFormat('dd.MM.yyyy').format(_now)}',
-                    style: Theme.of(context).textTheme.headline6,
+                  
                   ),
                 ),
                 Center(
                   child: SegmentedButton<JobViewOption>(
+                    
+                    style: SegmentedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      
+                      selectedBackgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                      selectedForegroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                   
+                      
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     showSelectedIcon: false,
                     segments: const <ButtonSegment<JobViewOption>>[
                       ButtonSegment(
+                        
                         value: JobViewOption.unapproved,
                         label: Text('Neodobreni'),
                         icon: Icon(Icons.check_box_outline_blank_outlined),
+                      
                       ),
                       ButtonSegment(
                         value: JobViewOption.approved,
@@ -104,15 +129,19 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                 ),
                 Center(
                   child: Text(
-                    'Ukupno: ${_jobResult!.count}',
-                    style: Theme.of(context).textTheme.subtitle1,
+                    'Ukupno: ${_jobResult?.count ?? 0}',
                   ),
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: _jobResult!.count,
+                  child:
+                  _isLoading ? const Center(child: CircularProgressIndicator()) :
+                  _jobResult == null || _jobResult!.count == 0 ? const Center(child: Text('Nema rezervisanih poslova za danas.')) : 
+                  
+                   ListView.builder(
+                    itemCount: _jobResult?.count ?? 0,
                     itemBuilder: (context, index) {
+                     
                       final job = _jobResult!.result[index];
                       return JobCard(job: job);
                     },
@@ -127,7 +156,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
 
 class JobCard extends StatelessWidget {
   final Job job;
-  const JobCard({required this.job, Key? key}) : super(key: key);
+  const JobCard({required this.job, super.key});
 
   @override
   Widget build(BuildContext context) {

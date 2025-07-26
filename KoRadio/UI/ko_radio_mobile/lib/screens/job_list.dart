@@ -21,6 +21,8 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
   int selectedIndex = 0;
+    bool _isLoading = false;
+
   final _userId = AuthProvider.user?.userId;
   final _freelancerId = AuthProvider.user?.freelancer?.freelancerId;
 
@@ -35,11 +37,27 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    jobProvider = context.read<JobProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchJobsByStatus(jobStatuses[selectedIndex]));
+    setState(() {
+      _isLoading=true;
+    });
+
+ 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+       jobProvider = context.read<JobProvider>();
+     await _fetchJobsByStatus(jobStatuses[selectedIndex]);
+     });
+
+     setState(() {
+       _isLoading=false;
+     });
+
   }
 
   Future<void> _fetchJobsByStatus(JobStatus status) async {
+    setState(() {
+      _isLoading=true;
+    });
+
     final isUser = AuthProvider.selectedRole=="User";
     final filter = <String, dynamic>{
       if (isUser) 'UserId': _userId,
@@ -52,7 +70,9 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   if (!mounted) return; 
   setState(() {
     result = job;
+    _isLoading=false;
   });
+
 } on Exception catch (e) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u dohvaćanju poslova: ${e.toString()}')));
 }
@@ -65,7 +85,9 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+  
     return DefaultTabController(
+      animationDuration:const Duration(milliseconds: 10),
       length: jobStatuses.length,
       initialIndex: selectedIndex,
       child: Scaffold(
@@ -75,11 +97,13 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TabBar(
-                onTap: (index) {
+                onTap: (index) async {
                   setState(() {
                     selectedIndex = index;
                   });
-                  _fetchJobsByStatus(jobStatuses[index]);
+        
+                  await _fetchJobsByStatus(jobStatuses[index]);
+         
                 },
                 indicatorColor: Colors.blue,
                 labelColor: const Color.fromRGBO(27, 76, 125, 25),
@@ -113,12 +137,16 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   }
 
   Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
+      if(_isLoading){
+      return const Center(child: CircularProgressIndicator());
+    }
     if (jobs.isEmpty) {
       return const Center(
         child: Text('Nema poslova za prikaz.'),
       );
     }
-
+   
+    else{
     return ListView.builder(
       itemCount: jobs.length,
       itemBuilder: (context, index) {
@@ -134,8 +162,8 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
           onTap: () async {
   final destination = ((status == JobStatus.unapproved && AuthProvider.selectedRole == "Freelancer") ||
                        (status == JobStatus.approved && AuthProvider.selectedRole == "Freelancer"))
-      ?  ApproveJob(job: job, freelancer: job.freelancer!)  
-      : JobDetails(job: job);
+      ? ApproveJob(job: job, freelancer: job.freelancer!)  
+      :  JobDetails(job: job);
 
  final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
 
@@ -167,5 +195,6 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
         );
       },
     );
+  }
   }
 }

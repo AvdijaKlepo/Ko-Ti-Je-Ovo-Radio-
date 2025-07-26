@@ -216,6 +216,7 @@ namespace KoRadio.Services
 				entity.TotalRatings += 1;
 
 				entity.Rating = (decimal)(entity.RatingSum / entity.TotalRatings);
+				request.Rating = entity.Rating;
 			}
 
 			var user = await _context.Users

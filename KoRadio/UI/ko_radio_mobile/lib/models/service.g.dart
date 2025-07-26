@@ -11,11 +11,15 @@ Service _$ServiceFromJson(Map<String, dynamic> json) => Service(
       serviceName: json['serviceName'] as String,
       image: json['image'] as String,
       isDeleted: json['isDeleted'] as bool,
-    );
+    )
+      ..freelancerCount = (json['freelancerCount'] as num?)?.toInt()
+      ..companyCount = (json['companyCount'] as num?)?.toInt();
 
 Map<String, dynamic> _$ServiceToJson(Service instance) => <String, dynamic>{
       'serviceId': instance.serviceId,
       'serviceName': instance.serviceName,
       'image': instance.image,
       'isDeleted': instance.isDeleted,
+      'freelancerCount': instance.freelancerCount,
+      'companyCount': instance.companyCount,
     };

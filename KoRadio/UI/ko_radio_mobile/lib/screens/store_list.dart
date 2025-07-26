@@ -180,6 +180,7 @@ Widget build(BuildContext context) {
         },
       ),
    ),
+   
       Expanded(
         child: RefreshIndicator(
           onRefresh: _refreshWithFilter,
@@ -205,8 +206,12 @@ Widget build(BuildContext context) {
                               child: Card(
 
                                 color: Colors.white,
+                                surfaceTintColor: Colors.transparent,
+                                elevation: 4,
+                               
+                                
                                 margin: const EdgeInsets.symmetric(vertical: 8),
-                                elevation: 2,
+                            
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),

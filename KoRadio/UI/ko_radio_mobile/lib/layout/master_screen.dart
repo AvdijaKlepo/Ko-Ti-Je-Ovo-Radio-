@@ -71,6 +71,7 @@ signalR.onNotificationReceived = (message) async {
           FreelancerJobsScreen(),
           JobList(),
           TenderScreen(),
+          StoreList(),
           Settings()
         ];
       case "User":
@@ -92,6 +93,7 @@ signalR.onNotificationReceived = (message) async {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Početna'),
           BottomNavigationBarItem(icon: Icon(Icons.paste), label: 'Poslovi'),
           BottomNavigationBarItem(icon: Icon(Icons.content_paste_go), label: 'Tenderi'),
+           BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Trgovine'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Račun'),
         ];
       case "User":

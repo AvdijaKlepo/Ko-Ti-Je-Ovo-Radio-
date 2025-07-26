@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/product.dart';
 import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
@@ -26,16 +27,18 @@ class _ProductDetailsState extends State<ProductDetails> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Detalji proizvoda")),
+      appBar: AppBar(title:  Text("Detalji proizvoda",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Color.fromRGBO(27, 76, 125, 25),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_shopping_cart),
-        label: const Text("Dodaj u košaricu"),
+        label: const Text("Dodaj u korpu"),
         onPressed: () {
           context.read<CartProvider>().add(product);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${product.productName} dodan u košaricu.')),
+            SnackBar(content: Text('${product.productName} dodan u korpu.')),
           );
         },
       ),
@@ -44,7 +47,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
+        
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: product.image != null
@@ -66,7 +69,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     
             if (product.productName != null)
               Text(
-                product.productName!,
+                'Naziv: ${product.productName}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -77,7 +80,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   
             if (product.productDescription != null)
               Text(
-                product.productDescription!,
+                'Specifikacije: ${product.productDescription}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
 
@@ -95,7 +98,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
             const SizedBox(height: 20),
 
-            // Store Info
+        
             Text(
               'Trgovina: ${widget.store?.storeName ?? "Nepoznata"}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

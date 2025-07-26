@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:ko_radio_mobile/main.dart';
 import 'package:ko_radio_mobile/models/company_employee.dart';
+import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
+import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/company_employee_provider.dart';
+import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -30,18 +34,25 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   late UserProvider userProvider;
   late CompanyEmployeeProvider companyEmployeeProvider;
+  late FreelancerProvider freelancerProvider;
   late User user = AuthProvider.user!;
+  Freelancer? freelancer;
 
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
      companyEmployeeProvider = CompanyEmployeeProvider(); 
      userProvider = context.read<UserProvider>();
+     freelancerProvider = context.read<FreelancerProvider>();
 
-      _getUserById();
-       _getEmployee();
+      await _getUserById();
+      await _getEmployee();
+      if(AuthProvider.user?.freelancer?.freelancerId!=null)
+      {
+      await _getFreelancer();
+      }
     });
 
  
@@ -61,7 +72,20 @@ class _SettingsState extends State<Settings> {
     );
   }
 }
-  void _getEmployee() async {
+Future<void> _getFreelancer() async {
+  try {
+    var fetchedFreelancer = await freelancerProvider.getById(AuthProvider.user?.userId ?? 0);
+    setState(() {
+      freelancer = fetchedFreelancer;
+    });
+  } catch (e) {
+    if(!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
+}
+  Future<void> _getEmployee() async {
     try {
       var filter = {'isApplicant:':true, 'userId:':AuthProvider.user?.userId};
       var fetchedEmployee = await companyEmployeeProvider.get(filter: filter);
@@ -148,6 +172,27 @@ Widget build(BuildContext context) {
                   '${AuthProvider.user?.email}',
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
+                if(user.freelancer?.freelancerId!=null)
+                 RatingBar.builder(
+                  itemSize: 30,
+          initialRating: freelancer?.rating ?? 0,
+        
+          direction: Axis.horizontal,
+         allowHalfRating: true,
+         
+          ignoreGestures: true,
+          itemCount: 5,
+          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          itemBuilder: (context, _) => const Icon(
+            Icons.star,
+            color: Colors.amber,
+          ),
+          onRatingUpdate: (rating) {
+            setState(() {
+            
+            });
+          },
+        ),
               ],
             )
           ],
@@ -238,6 +283,9 @@ Widget build(BuildContext context) {
                 AuthProvider.freelancer = null;
                 SignalRProvider signalRProvider = context.read<SignalRProvider>();
                 signalRProvider.stopConnection();
+
+                CartProvider cartProvider = context.read<CartProvider>();
+                cartProvider.clear();
 
                
          
