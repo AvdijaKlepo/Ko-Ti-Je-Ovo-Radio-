@@ -256,10 +256,10 @@ class _JobDetailsState extends State<JobDetails> {
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                      if(jobResult?.isInvoiced==true)
+                      if(jobResult.isInvoiced==true)
                   _buildDetailRow('Plaćen',
                       'Da'), 
-                       if(jobResult?.isRated==true)
+                       if(jobResult.isRated==true)
                   _buildDetailRow('Ocijenjen',
                       'Da'), 
                      if(widget.job.jobStatus== JobStatus.cancelled) 
@@ -283,14 +283,15 @@ class _JobDetailsState extends State<JobDetails> {
           },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
 
 
-                        if (widget.job.jobStatus == JobStatus.finished &&
+                        if (jobResult.jobStatus == JobStatus.finished &&
                       widget.job.user?.userId == AuthProvider.user?.userId
-                      && jobResult?.isInvoiced==false)
+                      && jobResult.isInvoiced==false)
                         ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (BuildContext context) => PaypalCheckoutView(
+
                                   sandboxMode: true,
                                  clientId: dotenv.env['clientId'],
           secretKey: dotenv.env['secretKey'],
@@ -362,6 +363,10 @@ ScaffoldMessenger.of(context).showSnackBar(
                                     Navigator.of(context).pop();
                                        
                                        await _getJob();
+
+                                       setState(() {
+                                         _getJob();
+                                       });
                                     }
                                     catch(e){
                                
@@ -392,7 +397,7 @@ ScaffoldMessenger.of(context).showSnackBar(
                           child: const Text("Plati PayPal-om"),
                         ),
                          
-                        const SizedBox(height: 20),
+                        Divider(height: 32),
                        if (jobResult.isInvoiced == true &&
     widget.job.user?.userId == AuthProvider.user?.userId &&
     jobResult.isRated == false)
@@ -401,10 +406,11 @@ ScaffoldMessenger.of(context).showSnackBar(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widget.job.freelancer != null ? Text("Ocijenite radnika:", style: Theme.of(context).textTheme.titleMedium) : Text("Ocijenite firmu:", style: Theme.of(context).textTheme.titleMedium),
+        widget.job.freelancer != null ? Text("Ocijenite radnika:", style: TextStyle(fontSize: 16,color: Colors.white)) : Text("Ocijenite firmu:", style: TextStyle(fontSize: 16,color: Colors.white)),
       
         const SizedBox(height: 8),
         RatingBar.builder(
+          unratedColor: Colors.white,
           initialRating: _rating,
           minRating: 1,
           direction: Axis.horizontal,

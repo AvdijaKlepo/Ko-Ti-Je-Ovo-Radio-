@@ -1,13 +1,9 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:ko_radio_mobile/models/company.dart';
-import 'package:ko_radio_mobile/models/freelancer.dart';
-import 'package:ko_radio_mobile/models/search_result.dart';
+
 import 'package:ko_radio_mobile/models/service.dart';
-import 'package:ko_radio_mobile/providers/company_provider.dart';
-import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
+
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -25,6 +21,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   late ServiceProvider serviceProvider;
   late PaginatedFetcher<Service> servicePagination;
   late final ScrollController _scrollController;
+  final TextEditingController _searchController = TextEditingController();
 
 
   bool _isInitialized = false;
@@ -36,15 +33,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   @override
   void initState() {
     super.initState();
+
     
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  
+
+
     
 
-     
-    });
-    setState(() {
-      _isLoading=true;
-    });
+ 
 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -58,6 +54,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
  
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+   
       serviceProvider = context.read<ServiceProvider>();
 
       servicePagination = PaginatedFetcher<Service>(
@@ -88,11 +85,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       await servicePagination.refresh();
       setState(() {
         _isInitialized = true;
-        _isLoading=false;
+       
+    
+
       });
     });
   }
 
+  
   @override
   void dispose() {
     _scrollController.dispose();
@@ -104,25 +104,28 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
 
   void _onSearchChanged(String query) {
+
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
+    _debounce = Timer(const Duration(milliseconds: 300), () async {
+      setState(() {
+        _isLoading=true;
+      });
       _searchQuery = query.trim();
-      _refreshWithFilter();
+      await _refreshWithFilter();
+
+      setState(() {
+        _isLoading=false;
+      });
+   
     });
   }
 
   Future<void> _refreshWithFilter() async {
-    setState(() {
-      _isLoading=true;
-    });
     final filter = <String, dynamic>{};
     if (_searchQuery.isNotEmpty) {
       filter['ServiceName'] = _searchQuery;
     }
     await servicePagination.refresh(newFilter: filter);
-    setState(() {
-      _isLoading=false;
-    });
   }
 
   
@@ -133,39 +136,33 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     if (!_isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
-    if(_isLoading){
-      return const Center(child: CircularProgressIndicator());
-    }
+
+
 
     return Column(
       children: [
      
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: "Pretražite servise...",
-              prefixIcon: const Icon(Icons.search,color: Color.fromRGBO(27, 76, 125, 25)),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onChanged: _onSearchChanged,
-          ),
-        ),
+
+
+      
+        SearchBar(controller: _searchController, onChanged: _onSearchChanged),
 
         Expanded(
           child: RefreshIndicator(
             onRefresh: _refreshWithFilter,
-            child: servicePagination.items.isEmpty
-                ? ListView(
-      
-                    children: const [
-                      SizedBox(height: 50),
-                      Center(child: Text("Servis nije pronađen")),
-                    ],
-                  )
-                :  
+            child: _isLoading
+            
+              ? const Center(child: CircularProgressIndicator())
+              : servicePagination.items.isEmpty
+              
+                  ? ListView(
+                      children: const [
+                        SizedBox(height: 50),
+                        Center(child: Text("Servis nije pronađen")),
+                      ],
+                    )
+             
+                  :
       ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -258,6 +255,36 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           ),
         
       ],
+    );
+  }
+}
+
+
+class SearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final Function(String) onChanged;
+
+  const SearchBar({
+    super.key,
+    required this.controller,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: "Pretražite servise...",
+          prefixIcon: const Icon(Icons.search, color: Color.fromRGBO(27, 76, 125, 1)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onChanged: onChanged,
+      ),
     );
   }
 }

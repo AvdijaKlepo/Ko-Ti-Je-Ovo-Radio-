@@ -25,6 +25,7 @@ class _StoreListState extends State<StoreList> {
   SearchResult<Location>? locationResult;
   late final ScrollController _scrollController;
   List<DropdownMenuItem<int>> locationDropdownItems = [];
+  bool _isLoading = false;
 
   bool _isInitialized = false;
   String _searchQuery = "";
@@ -43,6 +44,9 @@ class _StoreListState extends State<StoreList> {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading=true;
+      });
   
       locationProvider = context.read<LocationProvider>();
       await _getLocations();
@@ -73,6 +77,7 @@ class _StoreListState extends State<StoreList> {
       await storePagination.refresh();
       setState(() {
         _isInitialized = true;
+        _isLoading=false;
       });
     });
 
@@ -109,6 +114,9 @@ class _StoreListState extends State<StoreList> {
     }
   }
   Future<void> _refreshWithFilter() async {
+    setState(() {
+      _isLoading=true;
+    });
     final filter = <String, dynamic>{};
     
     if (_searchQuery.isNotEmpty) {
@@ -118,6 +126,9 @@ class _StoreListState extends State<StoreList> {
       filter['LocationId'] = _selectedLocationId;
     }
     await storePagination.refresh(newFilter: filter);
+    setState(() {
+      _isLoading=false;
+    });
   }
 
   Future<void> _openStore(Store store) async {
@@ -185,7 +196,7 @@ Widget build(BuildContext context) {
         child: RefreshIndicator(
           onRefresh: _refreshWithFilter,
           child: storePagination.items.isEmpty
-              ? ListView(
+              ? _isLoading ? const Center(child: CircularProgressIndicator()) : ListView(
                   children: const [
                     SizedBox(height: 50),
                     Center(child: Text("Nema pronađenih trgovina.")),

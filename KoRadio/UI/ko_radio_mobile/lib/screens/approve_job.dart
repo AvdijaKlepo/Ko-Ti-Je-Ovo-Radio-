@@ -220,7 +220,7 @@ class _ApproveJobState extends State<ApproveJob> {
 
                   _buildDetailRow('Datum', dateFormat.format(widget.job.jobDate)),
                
-                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''),
+                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5)),
                  
                   _buildDetailRow('Vrijeme završetka',
                   widget.job.endEstimate!=null ?
@@ -363,7 +363,7 @@ class _ApproveJobState extends State<ApproveJob> {
                         .toList(),
           };
               try {
-            jobProvider.update(widget.job.jobId,
+           await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
             widget.job.jobStatus == JobStatus.unapproved ?  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odobren.'))) :

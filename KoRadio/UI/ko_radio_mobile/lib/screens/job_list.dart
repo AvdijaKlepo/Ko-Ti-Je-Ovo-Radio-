@@ -6,7 +6,6 @@ import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
-import 'package:ko_radio_mobile/screens/book_job.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 import 'package:provider/provider.dart';
 
@@ -62,7 +61,8 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
     final filter = <String, dynamic>{
       if (isUser) 'UserId': _userId,
       if (!isUser) 'FreelancerId': _freelancerId,
-      'JobStatus': status.name,"isTenderFinalized":false
+      'JobStatus': status.name,"isTenderFinalized":false,
+      'OrderBy': 'asc'
     };
 
     try {
@@ -181,7 +181,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   
 },
 
-            leading: const Icon(Icons.access_time, color: Colors.white),
+            leading: const Icon(Icons.info_outline, color: Colors.white),
             title: Text(
               "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
               style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
@@ -190,7 +190,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                 ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
                 : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
                 : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}',style: const TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.work_outline,color: Colors.white),
+            trailing: const Icon(Icons.construction_outlined,color: Colors.white),
           ),
         );
       },

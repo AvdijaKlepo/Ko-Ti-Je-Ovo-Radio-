@@ -279,6 +279,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasKey(e => e.MessageId).HasName("PK__Messages__C87C0C9CD5627697");
 
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Message1)
                 .HasMaxLength(255)
                 .HasColumnName("Message");

@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:ko_radio_mobile/models/user.dart';
@@ -10,6 +11,7 @@ part 'messages.g.dart';
 class Messages{
  int? messageId;
  String? message1;
+ DateTime? createdAt;
  int? userId;
  bool? isOpened;
  User? user;

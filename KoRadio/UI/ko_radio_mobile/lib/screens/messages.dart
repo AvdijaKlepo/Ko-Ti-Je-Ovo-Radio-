@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/messages.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
@@ -94,6 +95,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               'messageId': message.messageId,
               'message1': message.message1,
               'userId': AuthProvider.user?.userId,
+              
               'isOpened': true,
             };
             await messagesProvider.update(message.messageId!, request);
@@ -143,6 +145,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                          },
 
                         leading: Text(e.message1.toString().split('.')[0],style: TextStyle(color: e.isOpened == true ? Colors.white : Colors.black),), 
+                        trailing: Text(DateFormat('dd-MM-yyyy').format(e.createdAt ?? DateTime.now()),style: TextStyle(color: e.isOpened == true ? Colors.white : Colors.black,fontSize: 15),),
                       ),
                     );
                   },

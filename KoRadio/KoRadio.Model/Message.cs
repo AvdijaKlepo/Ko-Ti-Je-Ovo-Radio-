@@ -11,6 +11,7 @@ namespace KoRadio.Model
 		public int MessageId { get; set; }
 
 		public string? Message1 { get; set; }
+		public DateTime CreatedAt { get; set; }
 
 		public int? UserId { get; set; }
 

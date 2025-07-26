@@ -99,6 +99,14 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsFreelancer == search.IsFreelancer);
 			}
+			if (search?.OrderBy == "asc")
+			{
+				query = query.OrderBy(x => x.JobDate).ThenBy(x=>x.JobId);
+			}
+			else if (search?.OrderBy == "desc")
+			{
+				query = query.OrderByDescending(x => x.JobDate).ThenBy(x => x.JobId);
+			}
 
 			return query;
 			
@@ -144,6 +152,7 @@ namespace KoRadio.Services
 				{
 					Message1 = notification,
 					UserId = entity.FreelancerId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
@@ -161,6 +170,7 @@ namespace KoRadio.Services
 				{
 					Message1 = notification,
 					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
@@ -191,6 +201,7 @@ namespace KoRadio.Services
 				{
 					Message1 = notificationJobApprovedFreelancer,
 					UserId = entity.UserId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
@@ -204,6 +215,7 @@ namespace KoRadio.Services
 				{
 					Message1 = notificationJobApprovedCompany,
 					UserId = entity.UserId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
@@ -233,6 +245,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContent,
 					UserId = entity.UserId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
@@ -256,12 +269,14 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContentCancelled,
 					UserId = entity.UserId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 				var insertRequestFreelancer = new MessageInsertRequest
 				{
 					Message1 = messageContentCancelled,
 					UserId = entity.FreelancerId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 			
@@ -286,6 +301,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContentCancelled,
 					UserId = entity.UserId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 				
@@ -293,6 +309,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContentCancelled,
 					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
@@ -315,6 +332,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContent,
 					UserId = entity.FreelancerId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
@@ -333,6 +351,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContent,
 					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.UtcNow,
 					IsOpened = false
 				};
 
