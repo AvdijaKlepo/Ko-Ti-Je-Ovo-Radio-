@@ -121,7 +121,7 @@ DateTime _findNextWorkingDay(DateTime start) {
                       : widget.company?.companyName ?? 'Nepoznata kompanija'),
                   if (isFreelancer)
                     Text('Iskustsvo: ${widget.freelancer?.experianceYears} godine'),
-                  Text('Ocjena: ${(isFreelancer ? widget.freelancer?.rating : widget.company?.rating) != 0 ? (isFreelancer ? widget.freelancer?.rating : widget.company?.rating).toString() : 'Neocijenjen'}'),
+                  Text('Ocjena: ${(isFreelancer ? widget.freelancer?.rating : widget.company?.rating) != 0 ? (isFreelancer ? widget.freelancer?.rating.toStringAsFixed(1) : widget.company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}'),
                   Text('Lokacija: ${isFreelancer ? widget.freelancer?.freelancerNavigation?.location?.locationName : widget.company?.location?.locationName ?? 'Nepoznato'}'),
                   Text('Radno vrijeme: ${isFreelancer ? widget.freelancer?.startTime.substring(0,5) : widget.company?.startTime.substring(0,5)} - ${isFreelancer ? widget.freelancer?.endTime.substring(0,5) : widget.company?.endTime.substring(0,5)}'),
                  

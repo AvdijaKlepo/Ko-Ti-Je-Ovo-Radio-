@@ -9,6 +9,7 @@ import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -23,11 +24,15 @@ class ApproveJob extends StatefulWidget {
 
 class _ApproveJobState extends State<ApproveJob> {
   late JobProvider jobProvider;
+  late MessagesProvider messagesProvider;
+ 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       jobProvider = context.read<JobProvider>();
+      messagesProvider = context.read<MessagesProvider>();
     });
   }
   Widget _sectionTitle(String title) {
@@ -148,17 +153,28 @@ class _ApproveJobState extends State<ApproveJob> {
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
           };
+               var messageRequest = {
+                'message1': "Posao ${widget.job.jobTitle} koji ste zakazali za ${DateFormat('dd-MM-yyyy').format(widget.job.jobDate)} je odbijen od strane radnika ${widget.job.freelancer?.freelancerNavigation?.firstName} ${widget.job.freelancer?.freelancerNavigation?.lastName}",
+                'userId': widget.job.user?.userId,
+                'createdAt': DateTime.now().toIso8601String(),
+                'isOpened': false,
+              };
+              try{
+                await messagesProvider.insert(messageRequest);
+              } on Exception catch (e) {
+                if(!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja notifikacije: ${e.toString()}')));
+              }
               try {
-            jobProvider.update(widget.job.jobId,
+            await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
+            
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
-               int count = 0;
-            Navigator.of(context).popUntil((_) => count++ >= 2);
+         Navigator.pop(context,true);
           } on Exception catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-               int count = 0;
-          Navigator.of(context).popUntil((_) => count++ >= 2);
+        Navigator.pop(context,true);
 
           }
             },
@@ -289,15 +305,26 @@ class _ApproveJobState extends State<ApproveJob> {
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                      if(widget.job.isInvoiced==true)
-                  _buildDetailRow('Plaćen',
-                      'Da'), 
-                       if(widget.job.isRated==true)
-                  _buildDetailRow('Ocijenjen',
-                      'Da'), 
-                     if(widget.job.jobStatus== JobStatus.cancelled) 
+                       if(widget.job.jobStatus== JobStatus.cancelled) 
                        _buildDetailRow('Otkazan',
                       'Da'), 
+                      if(widget.job.jobStatus== JobStatus.finished)
+                      _buildDetailRow('Završen','Da'),
+                      if(widget.job.isInvoiced==true)
+                  _buildDetailRow('Plaćen',
+                      'Da')
+                      else
+                        _buildDetailRow('Plaćen',
+                        'Ne')
+                      , 
+                       if(widget.job.isRated==true)
+                  _buildDetailRow('Ocijenjen',
+                      'Da')
+                      else
+                      _buildDetailRow('Ocijenjen',
+                        'Ne')
+                      ,
+                 
 
                       
                            
@@ -353,7 +380,7 @@ class _ApproveJobState extends State<ApproveJob> {
                 "endEstimate": widget.job.jobStatus== JobStatus.unapproved ? values["endEstimate"] : widget.job.endEstimate,  
                 "payEstimate": widget.job.jobStatus== JobStatus.unapproved ? values["payEstimate"] : widget.job.payEstimate,
                 "payInvoice": widget.job.jobStatus== JobStatus.unapproved ? null : values["payInvoice"],
-                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
+                "jobDate": widget.job.jobDate.toIso8601String(),
                 "dateFinished": null,
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
@@ -366,9 +393,13 @@ class _ApproveJobState extends State<ApproveJob> {
            await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
-            widget.job.jobStatus == JobStatus.unapproved ?  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odobren.'))) :
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Faktura poslana korisniku.')));
+           
+             
+              
+             
+            ScaffoldMessenger.of(context).showSnackBar( SnackBar(content:  widget.job.jobStatus == JobStatus.unapproved ? const Text('Posao odobren.') : const Text('Faktura poslana korisniku.')));
             Navigator.pop(context,true);
+            if(!mounted) return;
 
           } on Exception catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u slanju posla: ${e.toString()}')));
@@ -393,6 +424,41 @@ class _ApproveJobState extends State<ApproveJob> {
   }
 
   Widget _buildFreelancerJobView() {
+    bool outOfWorkHours = false;
+    String? selectedJobTime = widget.job.startEstimate;
+
+    final parts = selectedJobTime!.split(":");
+final parsedTime = DateTime(
+  DateTime.now().year,
+  DateTime.now().month,
+  DateTime.now().day,
+
+  int.parse(parts[0]),
+  int.parse(parts[1]),
+);
+DateTime normalizeTime(DateTime t) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
+}
+ final startTimeString = widget.job.freelancer?.startTime ?? "08:00";
+    final endTimeString = widget.job.freelancer?.endTime ?? "17:00";
+
+    DateTime parseTime(String timeStr) {
+      final parts = timeStr.split(':');
+      return DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      );
+    }
+
+    final startTime = parseTime(startTimeString);
+    final endTime = parseTime(endTimeString);
+
+
+   
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,6 +472,7 @@ class _ApproveJobState extends State<ApproveJob> {
     ),
        
         const SizedBox(height: 15),
+      
         Container(
           padding: const EdgeInsets.all(8.0),
           child:  Column(
@@ -416,13 +483,75 @@ class _ApproveJobState extends State<ApproveJob> {
                     FormBuilderDateTimePicker(
                       name: "endEstimate",
                       inputType: InputType.time,
+                      firstDate: DateTime.now(),
+                      currentDate: DateTime.now(),
+                      initialDate: DateTime.now(),
                       decoration: const InputDecoration(
                         labelText: 'Trajanje posla',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.schedule),
                       ),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Obavezno polje'),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                            errorText: 'Obavezno polje'),
+                        (value) {
+                          DateTime selected = normalizeTime(value!);
+                          DateTime threshold = normalizeTime(parsedTime);
+
+                         
+                          if (selected.isBefore(threshold)) {
+                            return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
+                          }
+
+                          if (selected.isBefore(startTime)) {
+                            return "Van radnog vremena";
+                          }
+                          if(outOfWorkHours==true){
+                            return "Unesite novo vrijeme";
+                          }
+
+                          return null;
+                        }
+                      ]),
+                      onChanged: (value) {
+    if (value == null) return;
+
+    final selected = normalizeTime(value);
+    final maxTime = normalizeTime(endTime);
+
+    if (selected.isAfter(maxTime)) {
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Van opsega radnog vremena'),
+          content: Text(
+            'Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+               outOfWorkHours = false;
+                
+              },
+              child: const Text("Nastavi"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                 setState(() {
+                  outOfWorkHours = true;
+                });
+               
+      
+              },
+              child: const Text("Promijeni"),
+            ),
+          ],
+        ),
+      );
+    }}
                     ),
                     const SizedBox(height: 15),
                     FormBuilderTextField(

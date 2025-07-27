@@ -105,7 +105,11 @@ namespace KoRadio.Services
 			}
 			else if (search?.OrderBy == "desc")
 			{
-				query = query.OrderByDescending(x => x.JobDate).ThenBy(x => x.JobId);
+				query = query.OrderByDescending(x => x.JobDate);
+			}
+			if (search?.IsDeleted==false)
+			{
+				query = query.Where(x => x.IsDeleted == false);
 			}
 
 			return query;
@@ -257,7 +261,7 @@ namespace KoRadio.Services
 
 			if (entity?.FreelancerId != null && entity.CompanyId == null && request.JobStatus == "cancelled")
 			{
-				var messageContentCancelled = $"Posao ${entity.JobTitle} je otkazan.";
+				var messageContentCancelled = $"Posao {entity.JobTitle} je otkazan.";
 
 				await _hubContext.Clients.User(entity.UserId.ToString())
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
@@ -265,24 +269,24 @@ namespace KoRadio.Services
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				
 
-				var insertRequest = new MessageInsertRequest
-				{
-					Message1 = messageContentCancelled,
-					UserId = entity.UserId,
-					CreatedAt = DateTime.UtcNow,
-					IsOpened = false
-				};
-				var insertRequestFreelancer = new MessageInsertRequest
-				{
-					Message1 = messageContentCancelled,
-					UserId = entity.FreelancerId,
-					CreatedAt = DateTime.UtcNow,
-					IsOpened = false
-				};
+				//var insertRequest = new MessageInsertRequest
+				//{
+				//	Message1 = messageContentCancelled,
+				//	UserId = entity.UserId,
+				//	CreatedAt = DateTime.UtcNow,
+				//	IsOpened = false
+				//};
+				//var insertRequestFreelancer = new MessageInsertRequest
+				//{
+				//	Message1 = messageContentCancelled,
+				//	UserId = entity.FreelancerId,
+				//	CreatedAt = DateTime.UtcNow,
+				//	IsOpened = false
+				//};
 			
 
-				await _messageService.InsertAsync(insertRequest, cancellationToken);
-				await _messageService.InsertAsync(insertRequestFreelancer, cancellationToken);
+				//await _messageService.InsertAsync(insertRequest, cancellationToken);
+				//await _messageService.InsertAsync(insertRequestFreelancer, cancellationToken);
 				
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
@@ -297,25 +301,25 @@ namespace KoRadio.Services
 				await _hubContext.Clients.User(entity.CompanyId.ToString())
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
-				var insertRequest = new MessageInsertRequest
-				{
-					Message1 = messageContentCancelled,
-					UserId = entity.UserId,
-					CreatedAt = DateTime.UtcNow,
-					IsOpened = false
-				};
+				//var insertRequest = new MessageInsertRequest
+				//{
+				//	Message1 = messageContentCancelled,
+				//	UserId = entity.UserId,
+				//	CreatedAt = DateTime.UtcNow,
+				//	IsOpened = false
+				//};
 				
-				var insertRequestCompany = new MessageInsertRequest
-				{
-					Message1 = messageContentCancelled,
-					CompanyId = entity.CompanyId,
-					CreatedAt = DateTime.UtcNow,
-					IsOpened = false
-				};
+				//var insertRequestCompany = new MessageInsertRequest
+				//{
+				//	Message1 = messageContentCancelled,
+				//	CompanyId = entity.CompanyId,
+				//	CreatedAt = DateTime.UtcNow,
+				//	IsOpened = false
+				//};
 
-				await _messageService.InsertAsync(insertRequest, cancellationToken);
+				//await _messageService.InsertAsync(insertRequest, cancellationToken);
 				
-				await _messageService.InsertAsync(insertRequestCompany, cancellationToken);
+				//await _messageService.InsertAsync(insertRequestCompany, cancellationToken);
 
 				Console.WriteLine("Notification sent and saved: " + entity?.Company?.CompanyName);
 			}

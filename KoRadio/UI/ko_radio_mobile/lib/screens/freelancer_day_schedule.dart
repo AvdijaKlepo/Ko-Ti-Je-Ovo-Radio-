@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -35,9 +36,9 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
     setState(() {
       _isLoading=true;
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       jobProvider = context.read<JobProvider>();
-      _getServices();
+      await _getServices();
       setState(() {
         _isLoading=false;
       });
@@ -51,7 +52,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
     jobProvider = context.read<JobProvider>();
   }
 
-  _getServices() async {
+ Future<void> _getServices() async {
     setState(() {
       _isLoading=true;
     });
@@ -80,74 +81,17 @@ Widget build(BuildContext context) {
     scrolledUnderElevation: 0,
     centerTitle: true,
     title:Text( 'Raspored ${widget.freelancerId!.freelancerNavigation?.firstName}a',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily),),
+    
   
 
-  ),body:   Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: result != null && result!.result.isNotEmpty
-            ? Scaffold(
-              body: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Ukupno termina: ${result! .result.length}",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: result?.result.length,
-                        itemBuilder: (context, index) {
-                          final job = result!.result[index];
-                          return Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              leading: const Icon(Icons.access_time, color: Colors.blue),
-                              title: Text(
-                                "Početak: ${job.startEstimate}",
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: job.endEstimate != null
-                                  ? Text("Kraj: ${job.endEstimate}")
-                                  : null,
-                              trailing: const Icon(Icons.work_outline),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => BookJob(
-                              selectedDay: widget.selectedDay,
-                              freelancer: widget.freelancerId,
-                              bookedJobs: result!.result,
-                            
-                       
-                            ),
-                          ),
-                        ),
-                        icon: const Icon(Icons.add,color: Colors.white,),
-                        label: const Text('Dodaj termin',style:TextStyle( color: Colors.white),),
-                      ),
-                    ),
-                  ],
-                ),
-            )
-            : Scaffold(
-              body: Center(
+  ),body: 
+  
+   _isLoading ? const Center(child: CircularProgressIndicator())
+   : result!.result.isEmpty==true ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                       Text('Nema termina za ovaj dan.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+                    children: [ 
+                       Text('Nema termina za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
@@ -168,9 +112,90 @@ Widget build(BuildContext context) {
                       )
                     ],
                   ),
-                ),
-            ),
-      ));
+                )
+   
+    : SingleChildScrollView(
+      child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                   
+                    children:<Widget> [
+                      Center(
+                        child:   Text(
+                        "${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}",
+                        style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2),
+                      ),
+                      ),
+                     Center(
+                      child: Text(
+                        "Broj termina: ${result?.result.length ?? 0}",
+                        style: TextStyle(fontSize: 16),
+                      ) ,
+                     )
+                     ,
+                      const SizedBox(height: 16),
+                    
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          
+      
+                          separatorBuilder: (context, index) => const Divider(height: 35),
+                          itemCount: result?.result.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final job = result!.result[index];
+                            return Card(
+      
+                              color: const Color.fromRGBO(27, 76, 125, 25),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                leading: const Icon(Icons.info_outline, color: Colors.white),
+                                title: Text(
+                                  "Početak: ${job.startEstimate.toString().substring(0,5)}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                ),
+                                subtitle: job.endEstimate != null
+                                    ? Text("Kraj: ${job.endEstimate.toString().substring(0,5)}",style: const TextStyle(color: Colors.white),)
+                                    : null,
+                                trailing: const Icon(Icons.construction_outlined,color: Colors.white),
+      
+                              ),
+      
+      
+                            );
+                          },
+                        ),
+                      
+                      const SizedBox(height: 10),
+                      Center(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => BookJob(
+                                selectedDay: widget.selectedDay,
+                                freelancer: widget.freelancerId,
+                                bookedJobs: result!.result,
+                              
+                         
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.add,color: Colors.white,),
+                          label: const Text('Rezerviši termin',style:TextStyle( color: Colors.white),),
+                        ),
+                      ),
+                    ],
+                  ),
+              ),
+    )
+           
+      );
  
 }
 }

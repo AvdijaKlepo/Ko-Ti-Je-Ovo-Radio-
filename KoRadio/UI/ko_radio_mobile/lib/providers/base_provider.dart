@@ -123,6 +123,19 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw Exception("Unknown error");
     }
   }
+   Future delete(int id) async {
+    var url = "$baseUrl$_endpoint/$id";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.delete(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      return;
+    } else {
+      throw new Exception("Unknown error");
+    }
+  }
 
   T fromJson(data) {
     throw Exception("Method not implemented");

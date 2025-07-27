@@ -143,24 +143,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                     itemBuilder: (context, index) {
                      
                       final job = _jobResult!.result[index];
-                      return JobCard(job: job);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-    );
-  }
-}
-
-class JobCard extends StatelessWidget {
-  final Job job;
-  const JobCard({required this.job, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
+                      return Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -168,8 +151,8 @@ class JobCard extends StatelessWidget {
       ),
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        onTap: () {
-          Navigator.of(context).push(
+        onTap: () async {
+          await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ApproveJob(
                 job: job,
@@ -177,10 +160,12 @@ class JobCard extends StatelessWidget {
               ),
             ),
           );
+          await _fetchJobs();
+         
         },
-        leading: const Icon(Icons.access_time, color: Colors.white),
+        leading: const Icon(Icons.info_outline, color: Colors.white),
         title: Text(
-          "Datum: ${job.jobDate.toIso8601String().split('T')[0]}",
+          "Datum: ${DateFormat('dd-MM-yyyy').format(job.jobDate)}",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -192,8 +177,18 @@ class JobCard extends StatelessWidget {
                 style: const TextStyle(color: Colors.white),
               )
             : null,
-        trailing: const Icon(Icons.work_outline, color: Colors.white),
+        trailing: const Icon(Icons.construction_outlined, color: Colors.white),
       ),
+    );;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
     );
   }
 }
+
+
+

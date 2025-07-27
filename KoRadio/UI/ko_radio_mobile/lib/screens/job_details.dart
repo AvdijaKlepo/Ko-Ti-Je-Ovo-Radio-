@@ -10,6 +10,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,7 @@ class _JobDetailsState extends State<JobDetails> {
   late UserRatings userRatingsProvider;
   late Company companyResult;
   late Job jobResult;
+  late MessagesProvider messagesProvider;
   bool _isLoading = false;
   
   double _rating = 0;
@@ -42,6 +44,7 @@ class _JobDetailsState extends State<JobDetails> {
       _isLoading=true;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      messagesProvider = context.read<MessagesProvider>();
       freelancerProvider = context.read<FreelancerProvider>();
       userRatingsProvider = context.read<UserRatings>();
       jobProvider = context.read<JobProvider>();
@@ -132,17 +135,29 @@ class _JobDetailsState extends State<JobDetails> {
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
           };
+          var messageRequest = {
+                'message1': "Posao ${widget.job.jobTitle} zakazan za  ${DateFormat('dd-MM-yyyy').format(widget.job.jobDate)} je oktazan od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
+                'userId': widget.job.freelancer?.freelancerId,
+                'createdAt': DateTime.now().toIso8601String(),
+                'isOpened': false,
+              };
+              try{
+                await messagesProvider.insert(messageRequest);
+              } on Exception catch (e) {
+                if(!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja notifikacije: ${e.toString()}')));
+              }
               try {
             jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
-               int count = 0;
-            Navigator.of(context).popUntil((_) => count++ >= 2);
+            
+            Navigator.pop(context,true);
           } on Exception catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-               int count = 0;
-          Navigator.of(context).popUntil((_) => count++ >= 2);
+               
+         Navigator.pop(context,true);
 
           }
             },
@@ -256,15 +271,26 @@ class _JobDetailsState extends State<JobDetails> {
                       widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                      if(jobResult.isInvoiced==true)
-                  _buildDetailRow('Plaćen',
-                      'Da'), 
-                       if(jobResult.isRated==true)
-                  _buildDetailRow('Ocijenjen',
-                      'Da'), 
-                     if(widget.job.jobStatus== JobStatus.cancelled) 
+                       if(widget.job.jobStatus== JobStatus.cancelled) 
                        _buildDetailRow('Otkazan',
                       'Da'), 
+                      if(widget.job.jobStatus== JobStatus.finished)
+                      _buildDetailRow('Završen','Da'),
+                      if(jobResult.isInvoiced==true)
+                  _buildDetailRow('Plaćen',
+                      'Da')
+                      else
+                        _buildDetailRow('Plaćen',
+                        'Ne')
+                      , 
+                       if(jobResult.isRated==true)
+                  _buildDetailRow('Ocijenjen',
+                      'Da')
+                      else
+                      _buildDetailRow('Ocijenjen',
+                        'Ne')
+                      ,
+                 
 
                   const SizedBox(height: 30),
                   

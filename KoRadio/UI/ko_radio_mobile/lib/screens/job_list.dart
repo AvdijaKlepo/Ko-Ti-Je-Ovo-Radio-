@@ -62,7 +62,8 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
       if (isUser) 'UserId': _userId,
       if (!isUser) 'FreelancerId': _freelancerId,
       'JobStatus': status.name,"isTenderFinalized":false,
-      'OrderBy': 'asc'
+      'OrderBy': 'desc',
+      'isDeleted':false,
     };
 
     try {
@@ -90,6 +91,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
       animationDuration:const Duration(milliseconds: 10),
       length: jobStatuses.length,
       initialIndex: selectedIndex,
+   
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -124,6 +126,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
               Expanded(
                 child: TabBarView(
                   physics: const NeverScrollableScrollPhysics(), 
+                  
                   children: jobStatuses.map((status) {
                     return _buildJobList(context, result?.result ?? [], status);
                   }).toList(),
@@ -147,52 +150,81 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
     }
    
     else{
-    return ListView.builder(
+    return ListView.separated(
+      separatorBuilder: (context, index) => const Divider(height: 35),
+      
       itemCount: jobs.length,
       itemBuilder: (context, index) {
         final job = jobs[index];
 
-        return Card(
-          color: const Color.fromRGBO(27, 76, 125, 25),
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-
-          onTap: () async {
-  final destination = ((status == JobStatus.unapproved && AuthProvider.selectedRole == "Freelancer") ||
-                       (status == JobStatus.approved && AuthProvider.selectedRole == "Freelancer"))
-      ? ApproveJob(job: job, freelancer: job.freelancer!)  
-      :  JobDetails(job: job);
-
- final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
-
-  if(updated==true){
-    await _fetchJobsByStatus(jobStatuses[1]);
-  }
-  else if(updated==false){
-    await _fetchJobsByStatus(jobStatuses[3]);
-  }
-  else{
-     setState(() {
-     
-   });
-  }
-  
-},
-
-            leading: const Icon(Icons.info_outline, color: Colors.white),
-            title: Text(
-              "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
-              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-            ),
-            subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
-                ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}',style: const TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.construction_outlined,color: Colors.white),
+    return Card(
+  color: const Color.fromRGBO(27, 76, 125, 25),
+  elevation: 2,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  margin: const EdgeInsets.symmetric(vertical: 8),
+  child: Padding(
+    padding: const EdgeInsets.all(12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.info_outline, color: Colors.white),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                job.user != null && AuthProvider.selectedRole == "Freelancer"
+                    ? "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}"
+                    : job.freelancer?.freelancerId != null
+                        ? "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}"
+                        : "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}",
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
           ),
-        );
+        ),
+        const SizedBox(width: 8),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+  
+        
+          children: [
+            job.freelancer != null
+                ? const Icon(Icons.construction_outlined, color: Colors.white)
+                : const Icon(Icons.business_outlined, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.white),
+              onPressed: () async {
+                try{
+                   await jobProvider.delete(job.jobId);
+                } on Exception catch (e) {
+                  if(!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom brisanja posla: ${e.toString()}')));
+                }
+               
+                await _fetchJobsByStatus(jobStatuses[2]);
+              },
+              tooltip: 'Obriši posao',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+);
+
+
       },
     );
   }
