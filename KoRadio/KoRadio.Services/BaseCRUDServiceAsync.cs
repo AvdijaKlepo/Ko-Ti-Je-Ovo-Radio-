@@ -76,10 +76,18 @@ namespace KoRadio.Services
 				if (softDeleteEntity.IsDeleted == false)
 				{
 					softDeleteEntity.IsDeleted = true;
+					
+			
 
 					_context.Update(entity);
 				}
+				if(softDeleteEntity.IsDeletedWorker==false)
+				{
+					softDeleteEntity.IsDeletedWorker = true;
+				}
 			
+
+
 				else
 				{
 					softDeleteEntity.Undo();

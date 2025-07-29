@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -24,7 +25,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
   late PaginatedFetcher<Job> jobPagination;
   final ScrollController _scrollController = ScrollController();
   SearchResult<Job>? _jobResult;
-  final DateTime _now = DateTime.now();
+  DateTime _now = DateTime.now();
   JobViewOption _selectedOption = JobViewOption.unapproved;
   bool _isLoading = false;
   bool _isInitialized = false;
@@ -151,11 +152,91 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(
-                    'Raspored za ${DateFormat('dd.MM.yyyy').format(_now)}',
+                  child:
+               
                   
-                  ),
+                   Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+                     children: [
+                       Text(
+                        'Raspored za ${DateFormat('dd-MM-yyyy').format(_now)}',   ),
+                        
+
+                       IconButton(
+                        iconSize: 20,
+      icon: const Icon(Icons.edit_calendar,color: Color.fromRGBO(27, 76, 125, 25),),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 0),
+
+      tooltip: 'Promijeni datum',
+  onPressed: () {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Izaberi datum', style: TextStyle(fontWeight: FontWeight.bold)),
+              FormBuilderDateTimePicker(
+                name: 'jobDate',
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 365)),
+                inputType: InputType.date,
+                initialValue: _now,
+                onChanged: (value) async {
+                  if (value != null) {
+                    setState(() {
+                      _now = value;
+                      _isLoading = true;
+                    });
+
+                    await jobPagination.refresh(newFilter: {
+                      'FreelancerId': AuthProvider.freelancer?.freelancerId,
+                      'JobDate': _now.toIso8601String().split('T')[0],
+                      'JobStatus': _selectedOption.name,
+                      'isTenderFinalized': false,
+                      'OrderBy': 'desc',
+                      'isDeleted': false,
+                    });
+
+                    setState(() {
+                      _isLoading = false;
+                    });
+
+                    Navigator.of(context).pop(); // Close sheet after applying
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Nazad'),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  },
+  
+  style: IconButton.styleFrom(
+    backgroundColor:  Colors.white,
+    shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(3)),
+    
+
+  ),
+),
+
+                     ],
+                   ),
+                  
                 ),
+                SizedBox(height: 10,), 
                 Center(
                   child: SegmentedButton<JobViewOption>(
                     
@@ -192,7 +273,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                     },
                   ),
                 ),
-             
+                SizedBox(height: 10,),
                 Center(
                   child: Text(
                     'Ukupno: ${jobPagination.items.length}',
@@ -205,7 +286,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
 
                   _isLoading ? 
                   const Center(child: CircularProgressIndicator()) :
-                   jobPagination.items.isEmpty ? const Center(child: Text('Nema rezervisanih poslova za danas.')) : 
+                   jobPagination.items.isEmpty ? const Center(child: Text('Nema rezervisanih poslova.')) : 
                   
                    ListView.separated(
                     separatorBuilder: (context, index) => const Divider(height: 35),

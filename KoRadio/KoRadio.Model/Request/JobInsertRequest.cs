@@ -33,7 +33,7 @@ namespace KoRadio.Model.Request
 
 		public DateTime JobDate { get; set; }
 		public DateTime? DateFinished { get; set; }
-
+		
 		public string? JobDescription { get; set; }
 
 		public byte[]? Image { get; set; }

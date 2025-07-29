@@ -68,13 +68,19 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
           builder: (FormFieldState<TimeOfDay?> field) {
           
             return InputDecorator(
+
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                 
+                  
+                ),
                 labelText: 'Odaberi vrijeme',
                 errorText: field.errorText,
                 
+                
               ),
               child: ListTile(
+                
                 title: Text(field.value?.format(field.context) ?? 'Odaberi vrijeme'),
                 trailing: const Icon(Icons.access_time),
                 onTap: () async {

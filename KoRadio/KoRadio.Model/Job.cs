@@ -38,6 +38,9 @@ namespace KoRadio.Model
 		public bool IsInvoiced { get; set; }
 
 		public bool IsRated { get; set; }
+		public bool IsDeletedWorker { get; set; }
+
+		public bool IsEdited { get; set; }
 
 		public virtual Freelancer Freelancer { get; set; } = null!;
 

@@ -111,6 +111,10 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsDeleted == false);
 			}
+			if (search?.IsDeletedWorker == false)
+			{
+				query = query.Where(x => x.IsDeletedWorker == false);
+			}
 
 			return query;
 			

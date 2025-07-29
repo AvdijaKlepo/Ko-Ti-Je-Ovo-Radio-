@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KoRadio.Services.Database;
 
-public partial class Job:ISoftDelete
+public partial class Job
 {
     public int JobId { get; set; }
 
@@ -42,6 +42,10 @@ public partial class Job:ISoftDelete
     public bool IsInvoiced { get; set; }
 
     public bool IsRated { get; set; }
+
+    public bool IsDeletedWorker { get; set; }
+
+    public bool IsEdited { get; set; }
 
     public virtual Company? Company { get; set; }
 

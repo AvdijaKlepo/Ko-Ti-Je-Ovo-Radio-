@@ -1443,6 +1443,13 @@
             }
           },
           {
+            "name": "IsDeletedWorker",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -5264,6 +5271,12 @@
           "isRated": {
             "type": "boolean"
           },
+          "isDeletedWorker": {
+            "type": "boolean"
+          },
+          "isEdited": {
+            "type": "boolean"
+          },
           "freelancer": {
             "$ref": "#/components/schemas/Freelancer"
           },
@@ -5548,6 +5561,15 @@
               "format": "int32"
             },
             "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "isDeletedWorker": {
+            "type": "boolean"
+          },
+          "isEdited": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

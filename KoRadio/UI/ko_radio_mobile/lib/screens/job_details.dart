@@ -116,18 +116,18 @@ class _JobDetailsState extends State<JobDetails> {
                 var jobUpdateRequest = {
                 "userId": widget.job.user?.userId,
                 "freelancerId": widget.job.freelancer?.freelancerId,
-                "companyId": null,
+                "companyId": widget.job.company?.companyId,
                 "jobTitle": widget.job.jobTitle,
                 "isTenderFinalized": false,
                 "isFreelancer": true,
                 "isInvoiced": false,
                 "isRated": false,
                 "startEstimate": widget.job.startEstimate,
-                "endEstimate": null,  
-                "payEstimate": null,
-                "payInvoice": null,
-                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
-                "dateFinished": null,
+                "endEstimate": widget.job.endEstimate,  
+                "payEstimate": widget.job.payEstimate,
+                "payInvoice": widget.job.payInvoice,
+                "jobDate": widget.job.jobDate.toIso8601String(),
+                "dateFinished": widget.job.dateFinished,
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
                 "jobStatus": JobStatus.cancelled.name,
@@ -151,9 +151,10 @@ class _JobDetailsState extends State<JobDetails> {
             jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
+            Navigator.pop(context,true);
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
             
-            Navigator.pop(context,true);
+            
           } on Exception catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
                
@@ -161,7 +162,7 @@ class _JobDetailsState extends State<JobDetails> {
 
           }
             },
-            child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
+            child: const Text("Otkaži",style: TextStyle(color: Colors.white),),
             ),
       ],
     );
@@ -203,7 +204,7 @@ class _JobDetailsState extends State<JobDetails> {
                   if(widget.job.freelancer?.freelancerId!=null)
                   _buildDetailRow('Vrijeme završetka',
                   widget.job.endEstimate!=null ?
-                      widget.job.endEstimate.toString().substring(0,5) : 'Nije popunjeno'),
+                      widget.job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
                   _buildDetailRow('Opis posla', widget.job.jobDescription),
                     widget.job.image!=null ?
                         _buildImageRow(
@@ -306,7 +307,7 @@ class _JobDetailsState extends State<JobDetails> {
 
 
              
-          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
+          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Otkaži',style: TextStyle(color: Colors.white),),),
 
 
                         if (jobResult.jobStatus == JobStatus.finished &&

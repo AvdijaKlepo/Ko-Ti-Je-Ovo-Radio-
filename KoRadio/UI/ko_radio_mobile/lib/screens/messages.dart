@@ -56,7 +56,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       });
     messagesProvider = context.read<MessagesProvider>();
      messagesPagination = PaginatedFetcher<Messages>(
-        pageSize: 12,
+        pageSize: 6,
         initialFilter: {
          'UserId': AuthProvider.user?.userId ?? 0,
          'OrderBy': 'desc',
@@ -129,8 +129,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
    
     return  Scaffold(
+
       
-      appBar: AppBar(title:  Text("Notifikacije",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text("Notifikacije",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
       centerTitle: true,
       ),
       
@@ -218,11 +219,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
               ) : 
                 
                 
-                 ListView.builder(
+                 ListView.separated(
+                  separatorBuilder: (context, index) => const Divider(height: 35),
                   controller: _scrollController,
                   itemCount: messagesPagination.items.length
                   + (messagesPagination.hasNextPage ? 1 : 0),
                   itemBuilder: (context, index) {
+
+                
 
                     if(index < messagesPagination.items.length){
                 

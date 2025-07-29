@@ -240,7 +240,7 @@ class _ApproveJobState extends State<ApproveJob> {
                  
                   _buildDetailRow('Vrijeme završetka',
                   widget.job.endEstimate!=null ?
-                      widget.job.endEstimate.toString().substring(0,5) : 'Nije popunjeno'),
+                      widget.job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
                   _buildDetailRow('Opis posla', widget.job.jobDescription),
                    widget.job.image!=null ?
                         _buildImageRow(
@@ -441,7 +441,9 @@ DateTime normalizeTime(DateTime t) {
   return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
 }
  final startTimeString = widget.job.freelancer?.startTime ?? "08:00";
-    final endTimeString = widget.job.freelancer?.endTime ?? "17:00";
+ final endTimeString = widget.job.freelancer?.endTime ?? "17:00";
+ final estimatedStartTime = widget.job.startEstimate;
+
 
     DateTime parseTime(String timeStr) {
       final parts = timeStr.split(':');
@@ -453,9 +455,14 @@ DateTime normalizeTime(DateTime t) {
         int.parse(parts[1]),
       );
     }
+     parseTimeString(String s) {
+    final parts = s.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
 
     final startTime = parseTime(startTimeString);
     final endTime = parseTime(endTimeString);
+     final parsedEstimatedStartTime = parseTimeString(estimatedStartTime??'');
 
 
    
@@ -482,6 +489,7 @@ DateTime normalizeTime(DateTime t) {
                   children: [
                     FormBuilderDateTimePicker(
                       name: "endEstimate",
+                      initialTime: parsedEstimatedStartTime,
                       inputType: InputType.time,
                       firstDate: DateTime.now(),
                       currentDate: DateTime.now(),
@@ -496,8 +504,8 @@ DateTime normalizeTime(DateTime t) {
                             errorText: 'Obavezno polje'),
                         (value) {
                           DateTime selected = normalizeTime(value!);
-                          DateTime threshold = normalizeTime(parsedTime);
-
+                        
+  DateTime threshold = normalizeTime(parsedTime);
                          
                           if (selected.isBefore(threshold)) {
                             return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
@@ -518,6 +526,18 @@ DateTime normalizeTime(DateTime t) {
 
     final selected = normalizeTime(value);
     final maxTime = normalizeTime(endTime);
+
+  DateTime threshold = normalizeTime(parsedTime);
+    if(selected.isBefore(threshold))
+    {
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vrijeme završetka mora biti poslije vremena početka posla.')),
+      );
+      setState(() {
+        
+      });
+    }
 
     if (selected.isAfter(maxTime)) {
 

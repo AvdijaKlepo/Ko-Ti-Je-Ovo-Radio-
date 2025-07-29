@@ -9,7 +9,10 @@ namespace KoRadio.Services.Database
     internal interface ISoftDelete
     {
 		public bool IsDeleted { get; set; }
-	
+
+		public bool IsDeletedWorker { get; set; }
+
+
 
 
 

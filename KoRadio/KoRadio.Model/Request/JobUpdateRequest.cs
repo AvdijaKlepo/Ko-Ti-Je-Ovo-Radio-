@@ -37,5 +37,9 @@ namespace KoRadio.Model.Request
 		public string JobStatus { get; set; } = null!;
 
 		public ICollection<int> ServiceId { get; set; } = new List<int>();
+		public bool IsDeleted { get; set; }
+		public bool IsDeletedWorker { get; set; }
+
+		public bool IsEdited { get; set; }
 	}
 }

@@ -8,6 +8,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
+import 'package:ko_radio_mobile/screens/edit_job.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 
 import 'package:provider/provider.dart';
@@ -254,9 +255,9 @@ Map<String, dynamic> filterMap(JobStatus status)  {
              
            Slidable(
             enabled: 
-            job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true) ||
+            (job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true)) ||
             
-             job.jobStatus==JobStatus.approved ? true : false,
+           (job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) ? true : false,
             
             direction: Axis.horizontal,
 
@@ -280,9 +281,21 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                   label: 'Obriši',
                 )  ,
 
-                if(job.jobStatus==JobStatus.approved)
+                if((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)) 
                  SlidableAction(
-                  onPressed: (_) => _onLongPress(context, job),
+                  onPressed: (_) async 
+                  {
+
+                   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: job)));
+                   setState(() {
+                     _isLoading=true;
+                   });
+                   await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+                   setState(() {
+                     _isLoading=false;
+                   });
+                   
+                   },
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.white,
                   icon: Icons.edit_outlined,

@@ -31,6 +31,9 @@ class Job{
   JobStatus jobStatus;
   Company? company;
   DateTime? dateFinished;
+  bool? isDeletedWorker;
+  bool? isEdited;
+
 
   
 
