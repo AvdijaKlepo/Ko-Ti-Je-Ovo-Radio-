@@ -251,14 +251,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Leading indicator or icon (optional)
+   
           Icon(
             e.isOpened! ? Icons.mark_email_read_outlined : Icons.mark_email_unread_outlined,
             color: e.isOpened! ? Colors.white70 : Colors.amber.shade800,
           ),
           const SizedBox(width: 12),
 
-          // Message content
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +283,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ),
           ),
 
-          // Delete button
+          e.isOpened! ?  
           IconButton(
             icon: const Icon(Icons.delete_outline),
             color: e.isOpened! ? Colors.white54 : Colors.redAccent,
@@ -292,7 +292,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               await messagesPagination.refresh();
             },
             tooltip: 'Obriši poruku',
-          ),
+          ):const SizedBox.shrink(),
         ],
       ),
     ),

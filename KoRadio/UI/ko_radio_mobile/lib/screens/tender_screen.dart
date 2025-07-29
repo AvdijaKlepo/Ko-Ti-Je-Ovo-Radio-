@@ -118,7 +118,7 @@ Widget build(BuildContext context) {
                 const SizedBox(height: 10),
                 AuthProvider.selectedRole== "User" ? 
                 const Center(child: Text("Nemate aktivan tender", style: TextStyle(fontSize: 18))):
-               const Center(child: Text("Nema aktivnih tendera", style: TextStyle(fontSize: 18))) ,
+               const Center(child: Text("Trenutno nema aktivnih tendera", style: TextStyle(fontSize: 18))) ,
                 const SizedBox(height: 10,),
 
                 AuthProvider.selectedRole == "User" ?

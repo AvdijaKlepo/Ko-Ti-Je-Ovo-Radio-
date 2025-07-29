@@ -243,7 +243,7 @@ class PaginatedFetcher<T> extends ChangeNotifier {
       final result = await fetcher(
         page: _page,
         pageSize: pageSize,
-        filter: filter,
+        filter: _activeFilter,
       );
       items.addAll(result.result);
       if (items.length >= result.count) {

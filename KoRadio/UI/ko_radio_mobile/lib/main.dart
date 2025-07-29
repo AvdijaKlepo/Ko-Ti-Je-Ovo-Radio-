@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
@@ -110,34 +111,50 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"),
-      ),
+     
       body: Center(
         child: Center(
           child: Container(
             constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
             child: Card(
+            
+              
+              color: Colors.white,
+              surfaceTintColor: Colors.transparent,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset(
-                    "assets/images/logo.png",
-                  ),
-                  TextField(
-                    controller: usernameController,
-                   
-                    decoration: const InputDecoration(
-                        labelText: "Username", prefixIcon: Icon(Icons.email)),
+                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: Color.fromRGBO(27, 76, 125, 25)),),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: usernameController,
+                     
+                      decoration:  InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                          labelText: "Email adresa", prefixIcon: Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(
-                        labelText: "Password",
-                        prefixIcon: Icon(Icons.password)),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      obscureText: true,
+                      obscuringCharacter: '*',
+                      controller: passwordController,
+                      decoration:  InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                          labelText: "Lozinka",
+                          prefixIcon: Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
+                    ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                    onPressed: () async {
 
        try {               
@@ -166,6 +183,19 @@ class _LoginPageState extends State<LoginPage> {
     if (user.userRoles == null || user.userRoles!.isEmpty) {
       throw Exception("Pogrešan email ili lozinka.");
     }
+    String translateRole(String? roleName) {
+  switch (roleName) {
+    case 'User':
+      return 'Korisnik';
+    case 'Freelancer':
+      return 'Radnik';
+    case 'CompanyEmployee':
+      return 'Zaposlenik firme';
+    default:
+      return 'Nepoznata uloga';
+  }
+}
+
 
 
 
@@ -175,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
       ur.role?.roleName == "Freelancer" ||
       ur.role?.roleName == "CompanyEmployee").toList();
       BottomNavProvider().setIndex(0);
-
+   
     if (filteredRoles.length > 1) {
       await showDialog(
         context: context,
@@ -184,6 +214,8 @@ class _LoginPageState extends State<LoginPage> {
           children: filteredRoles.map((userRole) {
             return SimpleDialogOption(
               onPressed: () async {
+                
+               
                 AuthProvider.selectedRole = userRole.role?.roleName ?? "";
                 final signalrProvider = context.read<SignalRProvider>();
                 await signalrProvider.startConnection();
@@ -195,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                   MaterialPageRoute(builder: (context) => const MasterScreen()),
                 );
               },
-              child: Text(userRole.role?.roleName ?? "Nepoznata uloga"),
+              child: Text(translateRole(userRole.role?.roleName)),
             );
           }).toList(),
         ),
@@ -235,13 +267,17 @@ class _LoginPageState extends State<LoginPage> {
 },
 
 
-                      child: const Text("Login")),
+                      child: const Text("Login",style: TextStyle(color: Colors.white),)),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: ((context) => const RegistrastionScreen())));
                       },
-                      child: const Text("Registracija"))
+                      child: const Text("Registracija",style: TextStyle(color: Colors.white)))
                 ],
               ),
             ),

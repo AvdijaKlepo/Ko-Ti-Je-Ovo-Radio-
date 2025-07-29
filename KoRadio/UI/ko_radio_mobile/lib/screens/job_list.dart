@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
+
 import 'package:provider/provider.dart';
 
 class JobList extends StatefulWidget {
@@ -18,13 +21,17 @@ class JobList extends StatefulWidget {
 
 class _JobListState extends State<JobList> with TickerProviderStateMixin {
   late JobProvider jobProvider;
+  late PaginatedFetcher<Job> jobsPagination;
+  final ScrollController _scrollController = ScrollController();
   SearchResult<Job>? result;
   int selectedIndex = 0;
-    bool _isLoading = false;
+  bool _isInitialized = false;
+  bool _isLoading = false;
+  final isUser = AuthProvider.selectedRole=="User";
 
   final _userId = AuthProvider.user?.userId;
   final _freelancerId = AuthProvider.user?.freelancer?.freelancerId;
-
+  late JobStatus jobStatus;
   final List<JobStatus> jobStatuses = [
     JobStatus.finished,
     JobStatus.approved,
@@ -32,25 +39,86 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
     JobStatus.cancelled,
 
   ];
+Map<String, dynamic> filterMap(JobStatus status)  {
+  return{
+
+    if(isUser) 'UserId': _userId,
+        if(!isUser) 'FreelancerId': _freelancerId,
+        
+        'JobStatus': jobStatus.name,
+        'isTenderFinalized': false,
+        'OrderBy': 'desc',
+        'isDeleted': false,
+  };
+}
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _isLoading=true;
+
+    jobStatus = jobStatuses[selectedIndex];
+    jobProvider = context.read<JobProvider>();
+
+    jobsPagination = PaginatedFetcher<Job>(
+      pageSize: 5,
+      initialFilter: {
+        if(isUser) 'UserId': _userId,
+        if(!isUser) 'FreelancerId': _freelancerId,
+        
+        'JobStatus': jobStatus.name,
+        'isTenderFinalized': false,
+        'OrderBy': 'desc',
+        'isDeleted': false,
+  
+      },
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+      }) async {
+        final result = await jobProvider.get(
+          page: page,
+          pageSize: pageSize,
+          filter: filter,
+        );
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    )..addListener(() => setState(() {
+     if(mounted) setState(() {});
+    }));
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100 &&
+          jobsPagination.hasNextPage &&
+          !jobsPagination.isLoading) {
+        jobsPagination.loadMore();
+      }
     });
 
- 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-       jobProvider = context.read<JobProvider>();
-     await _fetchJobsByStatus(jobStatuses[selectedIndex]);
-     });
+      setState(() {
+        _isLoading=true;
+      });
+      await jobsPagination.refresh();
+      setState(() {
+        _isInitialized = true;
+        _isLoading=false;
+      });
+    });
+   }
 
-     setState(() {
-       _isLoading=false;
-     });
-
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    
+    super.dispose();
   }
+     
+  
+   
+
+  
 
   Future<void> _fetchJobsByStatus(JobStatus status) async {
     setState(() {
@@ -78,14 +146,14 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u dohvaćanju poslova: ${e.toString()}')));
 }
   }
-  @override
-  void dispose() {
-    result = null;
-    super.dispose();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
+     if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+   
   
     return DefaultTabController(
       animationDuration:const Duration(milliseconds: 10),
@@ -102,9 +170,23 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                 onTap: (index) async {
                   setState(() {
                     selectedIndex = index;
+                    jobStatus = jobStatuses[index];
+
+                    
                   });
+
+                  setState(() {
+                    _isLoading=true;
+                  });
+                  
+                 
         
-                  await _fetchJobsByStatus(jobStatuses[index]);
+                  await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+
+                  setState(() {
+                    _isLoading=false;
+                  });
+                  
          
                 },
                 indicatorColor: Colors.blue,
@@ -115,11 +197,12 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                   Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
                   Tab(icon: Icon(Icons.free_cancellation), text: 'Zahtjevi'),
                   Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
-                ],
+                ],  
               ),
               const SizedBox(height: 15),
+              if(!_isLoading)
               Text(
-                'Broj poslova: ${result?.result.length ?? 0}',
+                'Broj poslova: ${jobsPagination.items.length}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
@@ -128,7 +211,16 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
                   physics: const NeverScrollableScrollPhysics(), 
                   
                   children: jobStatuses.map((status) {
-                    return _buildJobList(context, result?.result ?? [], status);
+                     if(_isLoading){
+      return const Center(child: CircularProgressIndicator());
+    }
+                     if (jobsPagination.items.isEmpty) {
+      return const Center(
+        child: Text('Nema poslova za prikaz.'),
+      );
+    }
+   
+                    return _buildJobList(context, jobsPagination.items, status);
                   }).toList(),
                 ),
               ),
@@ -140,93 +232,144 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   }
 
   Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
-      if(_isLoading){
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (jobs.isEmpty) {
-      return const Center(
-        child: Text('Nema poslova za prikaz.'),
-      );
-    }
-   
-    else{
+       if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(height: 35),
-      
-      itemCount: jobs.length,
+      controller: _scrollController,
+      itemCount: jobs.length + (jobsPagination.hasNextPage ? 1 : 0),
       itemBuilder: (context, index) {
+         
+   
+    
+        if(index < jobs.length){
         final job = jobs[index];
 
-    return Card(
-  color: const Color.fromRGBO(27, 76, 125, 25),
-  elevation: 2,
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  margin: const EdgeInsets.symmetric(vertical: 8),
-  child: Padding(
-    padding: const EdgeInsets.all(12),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Icon(Icons.info_outline, color: Colors.white),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                job.user != null && AuthProvider.selectedRole == "Freelancer"
-                    ? "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}"
-                    : job.freelancer?.freelancerId != null
-                        ? "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}"
-                        : "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}",
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-  
-        
-          children: [
-            job.freelancer != null
-                ? const Icon(Icons.construction_outlined, color: Colors.white)
-                : const Icon(Icons.business_outlined, color: Colors.white),
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.white),
-              onPressed: () async {
-                try{
-                   await jobProvider.delete(job.jobId);
-                } on Exception catch (e) {
-                  if(!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom brisanja posla: ${e.toString()}')));
-                }
-               
-                await _fetchJobsByStatus(jobStatuses[2]);
-              },
-              tooltip: 'Obriši posao',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+   return Card(
+          color: const Color.fromRGBO(27, 76, 125, 25),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child:
+             
+           Slidable(
+            enabled: 
+            job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true) ||
+            
+             job.jobStatus==JobStatus.approved ? true : false,
+            
+            direction: Axis.horizontal,
+
+            key: const ValueKey(0),
+            
+            endActionPane: ActionPane(
+
+              motion: const ScrollMotion() ,
+
+              
+              extentRatio: 0.25,
+              children: [
+
+                if(job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true))
+                SlidableAction(
+
+                  onPressed: (_) => _onLongPress(context, job),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete_outline,
+                  label: 'Obriši',
+                )  ,
+
+                if(job.jobStatus==JobStatus.approved)
+                 SlidableAction(
+                  onPressed: (_) => _onLongPress(context, job),
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit_outlined,
+                  label: 'Uredi',
+                )  ,
+              ],
             ),
-          ],
+            child: ListTile(
+            
+            
+              
+            
+            onTap: () async {
+              final destination = ((status == JobStatus.unapproved && AuthProvider.selectedRole == "Freelancer") ||
+                         (status == JobStatus.approved && AuthProvider.selectedRole == "Freelancer"))
+                  ?   ApproveJob(job: job, freelancer: job.freelancer!)  
+                  :  JobDetails(job: job);
+            
+            final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+            
+            
+                if(updated==true)
+                {
+            
+                await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+                }
+                else{
+                  setState(() {
+                    
+                  });
+                }
+              
+              
+            
+             
+             
+              
+              
+            },
+            
+              leading: const Icon(Icons.info_outline, color: Colors.white),
+              title: Text(
+                "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+              ),
+              subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
+                  ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
+                  : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
+                  : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}',style: const TextStyle(color: Colors.white)),
+              trailing: job.freelancer!= null ? const Icon(Icons.construction_outlined,color: Colors.white) : const Icon(Icons.business_outlined,color: Colors.white),
+            
+                    ),
+          ));
+
+
+      }
+        return null;},
+    );
+  
+  }
+
+  void _onLongPress(BuildContext context, Job job) {
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: const Text('Obriši posao'),
+
+      content: const Text('Jeste li sigurni da želite obrisati ovaj posao?'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Ne'),
+        ),
+        TextButton(
+          onPressed: () async {
+            try{
+               await jobProvider.delete(job.jobId);
+            } on Exception catch (e) {
+              if(!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom brisanja posla: ${e.toString()}')));
+            }
+           Navigator.pop(context);
+            await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+          },
+          child: const Text('Da'),
         ),
       ],
-    ),
-  ),
-);
-
-
-      },
-    );
-  }
+    ));
   }
 }
