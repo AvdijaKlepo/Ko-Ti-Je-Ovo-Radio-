@@ -231,6 +231,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.JobTitle).HasMaxLength(255);
             entity.Property(e => e.PayEstimate).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PayInvoice).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.RescheduleNote).HasMaxLength(255);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Company).WithMany(p => p.Jobs)

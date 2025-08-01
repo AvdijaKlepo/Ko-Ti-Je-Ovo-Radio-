@@ -40,7 +40,9 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           ? null
           : DateTime.parse(json['dateFinished'] as String)
       ..isDeletedWorker = json['isDeletedWorker'] as bool?
-      ..isEdited = json['isEdited'] as bool?;
+      ..isEdited = json['isEdited'] as bool?
+      ..isApproved = json['isApproved'] as bool?
+      ..rescheduleNote = json['rescheduleNote'] as String?;
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobId': instance.jobId,
@@ -64,6 +66,8 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'dateFinished': instance.dateFinished?.toIso8601String(),
       'isDeletedWorker': instance.isDeletedWorker,
       'isEdited': instance.isEdited,
+      'isApproved': instance.isApproved,
+      'rescheduleNote': instance.rescheduleNote,
     };
 
 const _$JobStatusEnumMap = {

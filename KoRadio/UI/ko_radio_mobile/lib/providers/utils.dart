@@ -47,6 +47,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
   final TimeOfDay now;
   final DateTime? jobDate;
   final List<Job>? bookedJobs;
+  final Function? onChange;
 
 
 
@@ -59,6 +60,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
     required this.now,
     required this.jobDate,
     required this.bookedJobs,
+    this.onChange,
 
     super.validator,
     super.initialValue,
@@ -80,6 +82,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                 
               ),
               child: ListTile(
+
                 
                 title: Text(field.value?.format(field.context) ?? 'Odaberi vrijeme'),
                 trailing: const Icon(Icons.access_time),
@@ -92,7 +95,9 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                   );
     
 
-                  
+                    if (picked != null && onChange != null) {
+          onChange(picked); 
+        }
              
 
                   if (picked != null) {

@@ -33,6 +33,8 @@ class Job{
   DateTime? dateFinished;
   bool? isDeletedWorker;
   bool? isEdited;
+  bool? isApproved;
+  String? rescheduleNote;
 
 
   

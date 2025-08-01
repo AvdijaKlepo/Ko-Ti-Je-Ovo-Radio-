@@ -144,7 +144,7 @@ class _ApproveJobState extends State<ApproveJob> {
                 "endEstimate": null,  
                 "payEstimate": null,
                 "payInvoice": null,
-                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
+                "jobDate": widget.job.jobDate.toIso8601String(),
                 "dateFinished": null,
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
@@ -268,6 +268,10 @@ class _ApproveJobState extends State<ApproveJob> {
                               : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+
+                  const Divider(height: 32,),
+                  _sectionTitle('Promjene'),
+                  _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena'),
 
                   const Divider(height: 32),
                   _sectionTitle('Korisnički podaci'),
@@ -470,6 +474,8 @@ DateTime normalizeTime(DateTime t) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+       
+     
          Padding(
       padding: const EdgeInsets.all(  12),
       child: Text(
@@ -489,6 +495,7 @@ DateTime normalizeTime(DateTime t) {
                   children: [
                     FormBuilderDateTimePicker(
                       name: "endEstimate",
+                      
                       initialTime: parsedEstimatedStartTime,
                       inputType: InputType.time,
                       firstDate: DateTime.now(),
@@ -510,6 +517,9 @@ DateTime normalizeTime(DateTime t) {
                           if (selected.isBefore(threshold)) {
                             return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
                           }
+                          if(selected==threshold){
+                            return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
+                          }
 
                           if (selected.isBefore(startTime)) {
                             return "Van radnog vremena";
@@ -528,6 +538,15 @@ DateTime normalizeTime(DateTime t) {
     final maxTime = normalizeTime(endTime);
 
   DateTime threshold = normalizeTime(parsedTime);
+
+  if(selected==threshold){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Vrijeme završetka mora biti poslije vremena početka posla.')),
+    );
+    setState(() {
+      
+    });
+  }
     if(selected.isBefore(threshold))
     {
       
@@ -599,6 +618,7 @@ DateTime normalizeTime(DateTime t) {
                      
                       FormBuilderTextField(
                         name: "payInvoice",
+                        enabled:  widget.job.isEdited==true ? false:true,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         decoration: const InputDecoration(

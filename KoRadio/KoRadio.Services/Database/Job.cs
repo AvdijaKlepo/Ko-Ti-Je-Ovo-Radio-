@@ -47,6 +47,10 @@ public partial class Job
 
     public bool IsEdited { get; set; }
 
+    public bool IsApproved { get; set; }
+
+    public string? RescheduleNote { get; set; }
+
     public virtual Company? Company { get; set; }
 
     public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();

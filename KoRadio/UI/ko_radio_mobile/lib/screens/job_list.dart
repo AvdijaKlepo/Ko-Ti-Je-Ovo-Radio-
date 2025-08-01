@@ -247,7 +247,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
         final job = jobs[index];
 
    return Card(
-          color: const Color.fromRGBO(27, 76, 125, 25),
+          color: job.isEdited==false ? const Color.fromRGBO(27, 76, 125, 25) : const Color(0xFFFFF3CD),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -304,8 +304,40 @@ Map<String, dynamic> filterMap(JobStatus status)  {
               ],
             ),
             child: ListTile(
+             
             
-            
+            onLongPress: () async {
+               if(job.isEdited==true)
+    {
+        var jobInsertRequest = {
+                  "userId": job.user?.userId,
+                  "freelancerId": job.freelancer?.freelancerId,
+                  "companyId": job.company?.companyId,
+                  "jobTitle": job.jobTitle,
+                  "isTenderFinalized": false,
+                  "isFreelancer": true,
+                  "isInvoiced": false,
+                  "isRated": false,
+                  "startEstimate": job.startEstimate,
+                  "endEstimate": job.endEstimate,
+                  "payEstimate": job.payEstimate,
+                  "payInvoice": null,
+                  "jobDate": job.jobDate.toIso8601String(),
+                  "dateFinished": null,
+                  "jobDescription": job.jobDescription,
+                  "image": job.image,
+                  "jobStatus": job.jobStatus.name,
+                  "serviceId": job.jobsServices
+                          ?.map((e) => e.service?.serviceId)
+                          .toList(),
+                  "isEdited":false,
+                };
+      
+      await jobProvider.update(job.jobId,
+      jobInsertRequest);
+    }
+    await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+            },
               
             
             onTap: () async {
@@ -336,16 +368,16 @@ Map<String, dynamic> filterMap(JobStatus status)  {
               
             },
             
-              leading: const Icon(Icons.info_outline, color: Colors.white),
+              leading:  Icon(Icons.info_outline, color: job.isEdited==false ? Colors.white : Colors.black),
               title: Text(
                 "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
-                style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                style:  TextStyle(fontWeight: FontWeight.bold,color: job.isEdited==false ? Colors.white : Colors.black),
               ),
               subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
-                  ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                  : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style: const TextStyle(color: Colors.white))
-                  : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}',style: const TextStyle(color: Colors.white)),
-              trailing: job.freelancer!= null ? const Icon(Icons.construction_outlined,color: Colors.white) : const Icon(Icons.business_outlined,color: Colors.white),
+                  ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black))
+                  : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen\n${job.isEdited==true?'Uređen':''}'}",style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black))
+                  : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen\n${job.isEdited==true?'Uređen':''}'}',style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black)),
+              trailing: job.freelancer!= null ?  Icon(Icons.construction_outlined,color: job.isEdited==false ? Colors.white : Colors.black) :  Icon(Icons.business_outlined,color: job.isEdited==false ? Colors.white : Colors.black),
             
                     ),
           ));

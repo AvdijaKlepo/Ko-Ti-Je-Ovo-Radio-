@@ -10,6 +10,7 @@ using KoRadio.Services.SignalRService;
 using MapsterMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Subscriber;
 using System;
@@ -196,6 +197,7 @@ namespace KoRadio.Services
 		public override async Task BeforeUpdateAsync(JobUpdateRequest request, Database.Job entity, CancellationToken cancellationToken = default)
 		{
 			_context.Jobs.Include(x => x.User);
+			IDbContextTransaction? transaction = null;
 
 			string notificationJobApprovedFreelancer = $"Zahtjev za posao od radnika {entity?.Freelancer?.FreelancerNavigation.FirstName}" +
 					$" {entity.Freelancer?.FreelancerNavigation.LastName} je odobren.\nNjegovo trenutno stanje možete pregledati pod sekcijom odobrenih poslova.";
@@ -273,24 +275,6 @@ namespace KoRadio.Services
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 				
 
-				//var insertRequest = new MessageInsertRequest
-				//{
-				//	Message1 = messageContentCancelled,
-				//	UserId = entity.UserId,
-				//	CreatedAt = DateTime.UtcNow,
-				//	IsOpened = false
-				//};
-				//var insertRequestFreelancer = new MessageInsertRequest
-				//{
-				//	Message1 = messageContentCancelled,
-				//	UserId = entity.FreelancerId,
-				//	CreatedAt = DateTime.UtcNow,
-				//	IsOpened = false
-				//};
-			
-
-				//await _messageService.InsertAsync(insertRequest, cancellationToken);
-				//await _messageService.InsertAsync(insertRequestFreelancer, cancellationToken);
 				
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
@@ -305,25 +289,6 @@ namespace KoRadio.Services
 				await _hubContext.Clients.User(entity.CompanyId.ToString())
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
-				//var insertRequest = new MessageInsertRequest
-				//{
-				//	Message1 = messageContentCancelled,
-				//	UserId = entity.UserId,
-				//	CreatedAt = DateTime.UtcNow,
-				//	IsOpened = false
-				//};
-				
-				//var insertRequestCompany = new MessageInsertRequest
-				//{
-				//	Message1 = messageContentCancelled,
-				//	CompanyId = entity.CompanyId,
-				//	CreatedAt = DateTime.UtcNow,
-				//	IsOpened = false
-				//};
-
-				//await _messageService.InsertAsync(insertRequest, cancellationToken);
-				
-				//await _messageService.InsertAsync(insertRequestCompany, cancellationToken);
 
 				Console.WriteLine("Notification sent and saved: " + entity?.Company?.CompanyName);
 			}
@@ -367,6 +332,8 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + entity.Company?.CompanyName);
 			}
+
+			
 
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}

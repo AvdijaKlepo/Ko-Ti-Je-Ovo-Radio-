@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
-import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
@@ -13,6 +12,7 @@ import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
+import 'package:ko_radio_mobile/screens/edit_job.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -40,6 +40,8 @@ class _JobDetailsState extends State<JobDetails> {
   @override
   void initState() {
     super.initState();
+    
+
     setState(() {
       _isLoading=true;
     });
@@ -57,7 +59,9 @@ class _JobDetailsState extends State<JobDetails> {
        setState(() {
       _isLoading=false;
     });
+    
     });
+   
    
   
   }
@@ -232,6 +236,90 @@ class _JobDetailsState extends State<JobDetails> {
                               : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+                
+
+
+                  if(widget.job.isEdited==true)
+
+                   const Divider(height: 32,),
+                  if(widget.job.isEdited==true)
+            
+
+                  _sectionTitle('Promjene'),
+                  if(widget.job.isEdited==true)
+
+                  _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena')
+                  ,
+                  SizedBox(height: 15,),
+                  if(widget.job.isEdited==true)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(onPressed: () async {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: widget.job)));
+                      }, style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                    ), child:const Text(
+                                      'Uredi dalje',
+                                      style: TextStyle(
+                                          color:
+                                              Color.fromRGBO(27, 76, 125, 25)),
+                                    ), ),
+                                    SizedBox(width: 15,),
+                                     ElevatedButton(onPressed: () async{
+                                        var jobInsertRequestApproved = {
+                  "userId": widget.job.user?.userId,
+                  "freelancerId": widget.job.freelancer?.freelancerId,
+                  "companyId": widget.job.company?.companyId,
+                  "jobTitle": widget.job.jobTitle,
+                  "isTenderFinalized": false,
+                  "isFreelancer": true,
+                  "isInvoiced": false,
+                  "isRated": false,
+                  "startEstimate": widget.job.startEstimate,
+                  "endEstimate": widget.job.endEstimate,
+                  "payEstimate":widget.job.payEstimate,
+                  "payInvoice": null,
+                  "jobDate": widget.job.jobDate.toIso8601String(),
+                  "dateFinished": null,
+                  "jobDescription": widget.job.jobDescription,
+                  "image": widget.job.image,
+                  "jobStatus": JobStatus.approved.name,
+                  "serviceId": widget.job.jobsServices
+                          ?.map((e) => e.service?.serviceId)
+                          .toList(),
+                  'isEdited':false,
+                  'rescheduleNote': null,
+                 
+                };
+                await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
+                await messagesProvider.insert({
+                    'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
+                    'userId': widget.job.freelancer?.freelancerId,
+                    'createdAt': DateTime.now().toIso8601String(),
+                    'isOpened': false,
+                  });
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao uređen i radnik obaviješten.')));
+                Navigator.pop(context,true);
+
+                                     },style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.amber,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                    ), child:const Text(
+                                      'Odobri',
+                                      style: TextStyle(
+                                          color:
+                                              Colors.black),
+                                    ), )
+                    ],
+                  ),
 
                   const Divider(height: 32),
                   _sectionTitle('Korisnički podaci'),
@@ -269,7 +357,7 @@ class _JobDetailsState extends State<JobDetails> {
                    _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
-                      widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
+                      '${widget.job.payEstimate?.toStringAsFixed(2)} KM'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
                        if(widget.job.jobStatus== JobStatus.cancelled) 
@@ -296,7 +384,7 @@ class _JobDetailsState extends State<JobDetails> {
                   const SizedBox(height: 30),
                   
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         if(widget.job.jobStatus==JobStatus.unapproved || (widget.job.jobStatus==JobStatus.approved && 
@@ -605,6 +693,33 @@ ScaffoldMessenger.of(context).showSnackBar(
           Expanded(
             flex: 3,
             child: value,
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildButtonRow(String label,Widget accept, Widget edit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+
+      child: Row(
+
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: accept,
+          ),
+           Expanded(
+            flex: 3,
+            child: edit,
           ),
         ],
       ),

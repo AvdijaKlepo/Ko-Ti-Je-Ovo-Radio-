@@ -156,7 +156,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
           });
 
           for (var message
-              in messagesPagination.items.where((e) => e.isOpened == false)) {
+              in messagesPagination.items.where((e) => e.isOpened == false).toList()) {
+
+              
             var request = {
               'messageId': message.messageId,
               'message1': message.message1,
@@ -166,12 +168,20 @@ class _MessagesScreenState extends State<MessagesScreen> {
             };
             await messagesProvider.update(message.messageId!, request);
           }
-
+            setState(() {
+                      isChecked = false;
+                      isLoading=true;
+                    });
           await messagesPagination.refresh();
+
+          setState(() {
+            isLoading=false;
+          });
+       
         },
       ),
       const Text(
-        'Označi sve kao pročitano',
+        'Označi sve vidljive kao pročitano',
         style: TextStyle(color: Colors.black),
       ),
     ],
@@ -196,8 +206,20 @@ class _MessagesScreenState extends State<MessagesScreen> {
             
             await messagesProvider.delete(message.messageId!);
           }
+          
+          setState(() {
+            isChecked = false;
+            isLoading=true;
+          });
 
+         
           await messagesPagination.refresh();
+
+
+          setState(() {
+            isLoading=false;
+          });
+          
         },
       ),
       const Text(

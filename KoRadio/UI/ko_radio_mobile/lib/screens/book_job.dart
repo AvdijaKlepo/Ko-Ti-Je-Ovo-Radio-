@@ -144,7 +144,7 @@ class _BookJobState extends State<BookJob> {
 
     return Scaffold(
 
-      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Šta ćemo, kako ćemo?',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
       centerTitle: true,
       ),
       
@@ -258,7 +258,7 @@ class _BookJobState extends State<BookJob> {
                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
                    (value) {
       if (value == null || value.isEmpty) return null;
-   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.]+$');
+   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
 
       if (!regex.hasMatch(value)) {
         return 'Dozvoljena su samo slova i brojevi';
