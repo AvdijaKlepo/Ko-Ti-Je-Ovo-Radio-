@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -48,7 +49,8 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
   final DateTime? jobDate;
   final List<Job>? bookedJobs;
   final Function? onChange;
-
+  @override
+  final ValueChanged<TimeOfDay?>? onChanged;
 
 
 
@@ -61,6 +63,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
     required this.jobDate,
     required this.bookedJobs,
     this.onChange,
+    this.onChanged,
 
     super.validator,
     super.initialValue,
@@ -69,7 +72,11 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
   }) : super(
           builder: (FormFieldState<TimeOfDay?> field) {
           
+           
+          
+          
             return InputDecorator(
+              
 
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -82,6 +89,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                 
               ),
               child: ListTile(
+                
 
                 
                 title: Text(field.value?.format(field.context) ?? 'Odaberi vrijeme'),
@@ -93,14 +101,18 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                     
                     
                   );
+                  
     
 
-                    if (picked != null && onChange != null) {
-          onChange(picked); 
-        }
+        
              
 
                   if (picked != null) {
+                     field.didChange(picked);
+                     onChanged?.call(picked);
+          
+
+
                     final isBeforeMin = picked.hour < minTime.hour ||
                         (picked.hour == minTime.hour && picked.minute < minTime.minute);
                     final isAfterMax = picked.hour > maxTime.hour ||

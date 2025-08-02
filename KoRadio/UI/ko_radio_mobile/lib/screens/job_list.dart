@@ -9,6 +9,7 @@ import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
 import 'package:ko_radio_mobile/screens/edit_job.dart';
+import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 
 import 'package:provider/provider.dart';
@@ -84,7 +85,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
         );
         return PaginatedResult(result: result.result, count: result.count);
       },
-    )..addListener(() => setState(() {
+    )..addListener(() =>setState(() {
      if(mounted) setState(() {});
     }));
 
@@ -285,8 +286,14 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                  SlidableAction(
                   onPressed: (_) async 
                   {
-
+                    if(AuthProvider.user?.freelancer?.freelancerId==null)
+                    {
                    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: job)));
+                    }
+                    else if(AuthProvider.user?.freelancer?.freelancerId!=null)
+                    {
+                   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: job)));
+                    }
                    setState(() {
                      _isLoading=true;
                    });

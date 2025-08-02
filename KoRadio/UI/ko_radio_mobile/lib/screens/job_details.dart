@@ -240,18 +240,15 @@ class _JobDetailsState extends State<JobDetails> {
 
 
                   if(widget.job.isEdited==true)
-
                    const Divider(height: 32,),
-                  if(widget.job.isEdited==true)
-            
-
+          if(widget.job.isEdited==true)
                   _sectionTitle('Promjene'),
-                  if(widget.job.isEdited==true)
-
+                 if(widget.job.isEdited==true)
                   _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena')
                   ,
                   SizedBox(height: 15,),
-                  if(widget.job.isEdited==true)
+            
+            if(widget.job.isEdited==true)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -357,7 +354,8 @@ class _JobDetailsState extends State<JobDetails> {
                    _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
-                      '${widget.job.payEstimate?.toStringAsFixed(2)} KM'),
+                      widget.job.payEstimate!=null ?
+                      '${widget.job.payEstimate?.toStringAsFixed(2)} KM' : 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
                        if(widget.job.jobStatus== JobStatus.cancelled) 

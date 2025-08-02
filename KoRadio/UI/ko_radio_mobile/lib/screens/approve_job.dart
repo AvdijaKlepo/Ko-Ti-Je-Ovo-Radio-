@@ -268,9 +268,11 @@ class _ApproveJobState extends State<ApproveJob> {
                               : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
-
+ if(widget.job.isEdited==true)
                   const Divider(height: 32,),
+                   if(widget.job.isEdited==true)
                   _sectionTitle('Promjene'),
+                   if(widget.job.isEdited==true)
                   _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena'),
 
                   const Divider(height: 32),
