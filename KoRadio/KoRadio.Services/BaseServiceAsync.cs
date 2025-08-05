@@ -140,7 +140,9 @@ namespace KoRadio.Services
 
 			if (entity != null)
 			{
+				
 				return Mapper.Map<TModel>(entity);
+				
 			}
 			else
 			{

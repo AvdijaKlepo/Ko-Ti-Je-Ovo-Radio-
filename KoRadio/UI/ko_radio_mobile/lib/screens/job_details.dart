@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
@@ -12,7 +13,9 @@ import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
+import 'package:ko_radio_mobile/screens/edit_company_job.dart';
 import 'package:ko_radio_mobile/screens/edit_job.dart';
+import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -31,9 +34,12 @@ class _JobDetailsState extends State<JobDetails> {
   late JobProvider jobProvider;
   late UserRatings userRatingsProvider;
   late Company companyResult;
-  late Job jobResult;
+  late SearchResult<Job> jobResult;
   late MessagesProvider messagesProvider;
+
   bool _isLoading = false;
+
+  
   
   double _rating = 0;
 
@@ -58,6 +64,7 @@ class _JobDetailsState extends State<JobDetails> {
       await _getJob();
        setState(() {
       _isLoading=false;
+      final job = jobResult.result.first;
     });
     
     });
@@ -71,7 +78,7 @@ class _JobDetailsState extends State<JobDetails> {
     });
   
     try {
-      var fetchedJob = await jobProvider.getById(widget.job.jobId);
+      var fetchedJob = await jobProvider.get(filter: {'JobId': widget.job.jobId});
       setState(() {
         jobResult = fetchedJob;
         _isLoading=false;
@@ -174,15 +181,15 @@ class _JobDetailsState extends State<JobDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd.MM.yyyy');
-    if(_isLoading==true){
-      return const Center(child: CircularProgressIndicator());
-    }
+    final dateFormat = DateFormat('dd-MM-yyyy');
+  
 
     return Scaffold(
       appBar: appBar(title: 'Detalji posla', automaticallyImplyLeading: true,
       ),
-      body: SafeArea(
+      body: _isLoading==true ? const Center(child: CircularProgressIndicator()) :
+      
+       SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Card(
@@ -194,23 +201,24 @@ class _JobDetailsState extends State<JobDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  
                   _sectionTitle('Radne specifikacije'),
-                  _buildDetailRow('Posao', widget.job.jobTitle?? 'Nije dostupan'), 
-                  _buildDetailRow('Servis', widget.job.jobsServices
+                  _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
+                  _buildDetailRow('Servis', jobResult.result.first.jobsServices
                           ?.map((e) => e.service?.serviceName)
                           .where((e) => e != null)
                           .join(', ') ??
                       'N/A'),
-                  _buildDetailRow('Datum', dateFormat.format(widget.job.jobDate)),
-                  widget.job.freelancer?.freelancerId!=null ?
-                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5) ?? ''):
-                  _buildDetailRow('Datum završetka radova', dateFormat.format(widget.job.dateFinished?? DateTime.now())),
-                  if(widget.job.freelancer?.freelancerId!=null)
+                  _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
+                  jobResult.result.first.freelancer?.freelancerId!=null ?
+                  _buildDetailRow('Vrijeme početka', jobResult.result.first.startEstimate.toString().substring(0,5) ?? ''):
+                  _buildDetailRow('Datum završetka radova', dateFormat.format(jobResult.result.first.dateFinished?? DateTime.now())),
+                  if(jobResult.result.first.freelancer?.freelancerId!=null)
                   _buildDetailRow('Vrijeme završetka',
-                  widget.job.endEstimate!=null ?
-                      widget.job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
-                  _buildDetailRow('Opis posla', widget.job.jobDescription),
-                    widget.job.image!=null ?
+                 jobResult.result.first.endEstimate!=null ?
+                      jobResult.result.first.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                  _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
+                    jobResult.result.first.image!=null ?
                         _buildImageRow(
                                   'Slika',
                                   ElevatedButton(
@@ -235,25 +243,32 @@ class _JobDetailsState extends State<JobDetails> {
                                   ))
                               : _buildDetailRow('Slika','Nije unesena'),
 
-                  _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+                  _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
                 
 
 
-                  if(widget.job.isEdited==true)
+                  if(jobResult.result.first.isEdited==true)
                    const Divider(height: 32,),
-          if(widget.job.isEdited==true)
+          if(jobResult.result.first.isEdited==true)
                   _sectionTitle('Promjene'),
-                 if(widget.job.isEdited==true)
-                  _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena')
+                 if(jobResult.result.first.isEdited==true)
+                  _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena')
                   ,
                   SizedBox(height: 15,),
             
-            if(widget.job.isEdited==true)
+            if(jobResult.result.first.isEdited==true)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(onPressed: () async {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: widget.job)));
+                        await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: jobResult.result.first)));
+                        setState(() {
+                          _isLoading=true;
+                        });
+                        await _getJob();
+                        setState(() {
+                          _isLoading=false;
+                        });
                       }, style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,
                                       elevation: 0,
@@ -322,11 +337,11 @@ class _JobDetailsState extends State<JobDetails> {
                   _sectionTitle('Korisnički podaci'),
                   _buildDetailRow(
                     'Ime i prezime',
-                    widget.job.user != null
+                    jobResult.result.first.user != null
                         ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
                         : 'Nepoznato',
                   ),
-                   _buildDetailRow('Broj Telefona', widget.job.user?.phoneNumber??'Nepoznato'),
+                   _buildDetailRow('Broj Telefona',widget.job.user?.phoneNumber ??'Nepoznato'), 
                    _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
                   _buildDetailRow(
                     'Adresa',
@@ -354,23 +369,23 @@ class _JobDetailsState extends State<JobDetails> {
                    _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
-                      widget.job.payEstimate!=null ?
-                      '${widget.job.payEstimate?.toStringAsFixed(2)} KM' : 'Nije unesena'),
+                     jobResult.result.first.payEstimate!=null ?
+                      '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM' : 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
-                      widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                       if(widget.job.jobStatus== JobStatus.cancelled) 
+                      jobResult.result.first.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
+                       if(jobResult.result.first.jobStatus== JobStatus.cancelled) 
                        _buildDetailRow('Otkazan',
                       'Da'), 
-                      if(widget.job.jobStatus== JobStatus.finished)
+                      if(jobResult.result.first.jobStatus== JobStatus.finished)
                       _buildDetailRow('Završen','Da'),
-                      if(jobResult.isInvoiced==true)
+                      if(jobResult.result.first.isInvoiced==true)
                   _buildDetailRow('Plaćen',
                       'Da')
                       else
                         _buildDetailRow('Plaćen',
                         'Ne')
                       , 
-                       if(jobResult.isRated==true)
+                       if(jobResult.result.first.isRated==true)
                   _buildDetailRow('Ocijenjen',
                       'Da')
                       else
@@ -382,23 +397,120 @@ class _JobDetailsState extends State<JobDetails> {
                   const SizedBox(height: 30),
                   
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if(widget.job.jobStatus==JobStatus.unapproved || (widget.job.jobStatus==JobStatus.approved && 
-                        DateTime.now().toIso8601String().split('T')[0]!=widget.job.jobDate.toIso8601String().split('T')[0]))
-                        ElevatedButton(onPressed: () {
-                      showDialog(context: context, builder: (context) => _openCancelDialog());
-                     
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if(widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                      if (widget.job.jobStatus == JobStatus.unapproved ||
+                          (widget.job.jobStatus == JobStatus.approved &&
+                              DateTime.now().toIso8601String().split('T')[0] !=
+                                  widget.job.jobDate
+                                      .toIso8601String()
+                                      .split('T')[0]))
+                        ElevatedButton(
+                          onPressed: () {
+                            if(DateTime.now().toIso8601String().split('T')[0] ==
+                                  widget.job.jobDate
+                                      .toIso8601String()
+                                      .split('T')[0])
+                                      {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context)=> AlertDialog(
+                                              title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
+                                              content: const Text('Ne možete otkazati posao na zakazani datum posla.'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+                                              ],
+                                            ));
+                                      }
+                                      else
+                                      {
+                            showDialog(
+                                context: context,
+                                builder: (context) => _openCancelDialog());
+                                      }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text(
+                            'Otkaži',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 15,),
+                        if((widget.job.jobStatus==JobStatus.approved || AuthProvider.user?.freelancer?.freelancerId!=null) 
+                        || ((widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId==null ))
+                        ElevatedButton(
+                          onPressed: () async {
+                            if(AuthProvider.user?.freelancer?.freelancerId==null && jobResult.result.first.freelancer?.freelancerId==null && jobResult.result.first.company?.companyId==null)
+                            {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => EditJob(
+                                  job: jobResult.result.first,
+                                ),
+                              ),
+                            );
+                         
+                            await _getJob();
+                          
+                          }
+                          else if(AuthProvider.user?.freelancer?.freelancerId!=null && jobResult.result.first.freelancer?.freelancerId==null && jobResult.result.first.company?.companyId==null){
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => EditJobFreelancer(
+                                  job:  jobResult.result.first,
+                                ),
+                              ),
+                            );
+                           
+                            await _getJob();
+                         
+                          }
+                          else if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.freelancer?.freelancerId==null){
+                             await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => EditCompanyJob(
+                                  job:  jobResult.result.first,
+                                ),
+                              ),
+                            );
+                           
+                            await _getJob();
+
+                          }
+                          
+                          
+                          },
+                          
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text(
+                            'Uredi',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        )]),
 
 
-             
-          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Otkaži',style: TextStyle(color: Colors.white),),),
-
-
-                        if (jobResult.jobStatus == JobStatus.finished &&
+                        if (jobResult.result.first.jobStatus == JobStatus.finished &&
                       widget.job.user?.userId == AuthProvider.user?.userId
-                      && jobResult.isInvoiced==false)
+                      && jobResult.result.first.isInvoiced==false)
                         ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).push(
@@ -451,7 +563,7 @@ class _JobDetailsState extends State<JobDetails> {
                   'image': widget.job.image,
                   'jobDate': widget.job.jobDate.toIso8601String(),
                   'IsTenderFinalized':false,
-                  'payInvoice': jobResult?.payInvoice,
+                  'payInvoice': jobResult.result.first.payInvoice,
                   'isinvoiced':true,
                   'isRated':false,
                   'dateFinished': widget.job.dateFinished,
@@ -511,9 +623,9 @@ ScaffoldMessenger.of(context).showSnackBar(
                         ),
                          
                         Divider(height: 32),
-                       if (jobResult.isInvoiced == true &&
+                       if (jobResult.result.first.isInvoiced == true &&
     widget.job.user?.userId == AuthProvider.user?.userId &&
-    jobResult.isRated == false)
+    jobResult.result.first.isRated == false)
   Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(

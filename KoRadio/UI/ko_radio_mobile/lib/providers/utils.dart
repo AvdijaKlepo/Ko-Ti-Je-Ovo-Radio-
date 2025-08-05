@@ -27,7 +27,7 @@ Image imageFromString(String input, {double? width, double? height, BoxFit? fit 
 AppBar appBar({required String title,   Widget? actions, required bool automaticallyImplyLeading, bool centerTitle = true}) {
   return AppBar(
     scrolledUnderElevation: 0,
-    title: Text(title,style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),
+    title: Text(title,style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2),),
     centerTitle: centerTitle,
     automaticallyImplyLeading: automaticallyImplyLeading,
 
@@ -102,86 +102,80 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                     
                   );
                   
-    
-
+  
+          
         
              
+ if (picked == null) return;
 
-                  if (picked != null) {
-                     field.didChange(picked);
-                     onChanged?.call(picked);
-          
+                // Time-based validation
+                final isBeforeMin = picked.hour < minTime.hour ||
+                    (picked.hour == minTime.hour &&
+                        picked.minute < minTime.minute);
+                final isAfterMax = picked.hour > maxTime.hour ||
+                    (picked.hour == maxTime.hour &&
+                        picked.minute > maxTime.minute);
 
+                final isToday = jobDate?.year == DateTime.now().year &&
+                    jobDate?.month == DateTime.now().month &&
+                    jobDate?.day == DateTime.now().day;
 
-                    final isBeforeMin = picked.hour < minTime.hour ||
-                        (picked.hour == minTime.hour && picked.minute < minTime.minute);
-                    final isAfterMax = picked.hour > maxTime.hour ||
-                        (picked.hour == maxTime.hour && picked.minute > maxTime.minute);
-                  final isToday = jobDate?.year == DateTime.now().year &&
-                jobDate?.month == DateTime.now().month &&
-                jobDate?.day == DateTime.now().day;
+                final isBeforeTimeNow = isToday &&
+                    (picked.hour < now.hour ||
+                        (picked.hour == now.hour &&
+                            picked.minute < now.minute));
 
-final isBeforeTimeNow = isToday && 
-    (picked.hour < now.hour || (picked.hour == now.hour && picked.minute < now.minute));
+                final isDuringBookedJob = bookedJobs?.any((job) {
+                      final startParts = job.startEstimate?.split(':');
+                      final endParts = job.endEstimate?.split(':');
+                      if (startParts == null || endParts == null) return false;
 
-                    final isDuringBookedJob = bookedJobs?.any((job) {
-                          final startParts = job.startEstimate?.split(':');
-                          final endParts = job.endEstimate?.split(':');
+                      final startTime = TimeOfDay(
+                          hour: int.tryParse(startParts[0]) ?? 0,
+                          minute: int.tryParse(startParts[1]) ?? 0);
+                      final endTime = TimeOfDay(
+                          hour: int.tryParse(endParts[0]) ?? 0,
+                          minute: int.tryParse(endParts[1]) ?? 0);
 
-                          final startHour = int.tryParse(startParts![0]) ?? 0;
-                          final startMinute = int.tryParse(startParts![1]) ?? 0;
-                          final endHour = int.tryParse(endParts![0]) ?? 0;
-                          final endMinute = int.tryParse(endParts[1]) ?? 0;
+                      final pickedMinutes = picked.hour * 60 + picked.minute;
+                      final startMinutes =
+                          startTime.hour * 60 + startTime.minute;
+                      final endMinutes = endTime.hour * 60 + endTime.minute;
 
-                          final startTime =
-                              TimeOfDay(hour: startHour, minute: startMinute);
-                          final endTime =
-                              TimeOfDay(hour: endHour, minute: endMinute);
+                      return pickedMinutes >= startMinutes &&
+                          pickedMinutes < endMinutes;
+                    }) ??
+                    false;
 
-                          final pickedMinutes =
-                              picked.hour * 60 + picked.minute;
-                          final startMinutes =
-                              startTime.hour * 60 + startTime.minute;
-                          final endMinutes = endTime.hour * 60 + endTime.minute;
+                if (isDuringBookedJob) {
+                  ScaffoldMessenger.of(field.context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Termin zauzet. Referencijate prema terminima iznad.')),
+                  );
+                  return;
+                }
 
-                          return pickedMinutes >= startMinutes &&
-                              pickedMinutes < endMinutes;
-                        }) ??
-                        false;
+                if (isBeforeTimeNow) {
+                  ScaffoldMessenger.of(field.context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Radnik ne posjeduje mogućnost putovanja kroz vrijeme.')),
+                  );
+                  return;
+                }
 
-                    if (isDuringBookedJob && bookedJobs?.any != null) {
-                      ScaffoldMessenger.of(field.context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Termin zauzet. Referencijate prema terminima iznad.')),
-                      );
-                      return;
+                if (isBeforeMin || isAfterMax) {
+                  ScaffoldMessenger.of(field.context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Radno vrijeme je između ${minTime.format(field.context)} i ${maxTime.format(field.context)}')),
+                  );
+                  return;
+                }
+                field.didChange(picked);
+                    if(onChanged != null)
+                    {
+                      onChanged(picked);
                     }
-              
-        
-              
-                    
-
-                    if ((!isBeforeMin && !isAfterMax) && !isBeforeTimeNow) {  
-                      field.didChange(picked);
-                    
-                    }
-                   
-                    else if(isBeforeTimeNow){
-                      ScaffoldMessenger.of(field.context).showSnackBar(
-                        const SnackBar(content: Text('Radnik ne posjeduje mogućnost putovanja kroz vrijeme.')),
-                      );
-                     }
-                 
-                    
-               
-                     else {
-                      ScaffoldMessenger.of(field.context).showSnackBar(
-                        SnackBar(content: Text('Radno vrijeme je između ${minTime.format(field.context)} i ${maxTime.format(field.context)}')),
-                      );
-                    }
-
-                  
-                  }
                 },
               ),
             );

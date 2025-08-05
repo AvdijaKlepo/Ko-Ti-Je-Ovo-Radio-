@@ -296,7 +296,8 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                                ),
                  ],
                ),
-               Expanded(child:   ListView.builder(
+               Expanded(
+                child:   ListView.builder(
               itemCount: notificationResult?.result.length ?? 0,
               itemBuilder: (context, index) {
                 var e = notificationResult!.result[index];
@@ -317,7 +318,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                       await _getNotificationsList();
                      
                     },
-                    leading: Text(e.message1.toString().split('.')[0],style: TextStyle(color: e.isOpened == true ?Colors.white : Colors.black),),
+                    leading: Text('Notifikacija',style: TextStyle(color: e.isOpened == true ?Colors.white : Colors.black),),
                   ),
                 );
               },

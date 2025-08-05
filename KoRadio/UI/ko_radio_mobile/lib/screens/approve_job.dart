@@ -8,9 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
+import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
 import 'package:provider/provider.dart';
 
 class ApproveJob extends StatefulWidget {
@@ -25,15 +27,44 @@ class ApproveJob extends StatefulWidget {
 class _ApproveJobState extends State<ApproveJob> {
   late JobProvider jobProvider;
   late MessagesProvider messagesProvider;
+  late SearchResult<Job> jobResult;
+  bool _isLoading = false;
  
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    setState(() {
+      _isLoading=true;
+    });
       jobProvider = context.read<JobProvider>();
       messagesProvider = context.read<MessagesProvider>();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    
+      await _getJob();
+      setState(() {
+        _isLoading=false;
+      });
+  
     });
+  }
+  Future<void> _getJob() async {
+    setState(() {
+      _isLoading=true;
+    });
+
+    try {
+      var fetchedJob = await jobProvider.get(filter: {'JobId': widget.job.jobId});
+      setState(() {
+        jobResult = fetchedJob;
+        _isLoading=false;
+      });
+    } on Exception catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
   }
   Widget _sectionTitle(String title) {
     return Padding(
@@ -206,7 +237,10 @@ class _ApproveJobState extends State<ApproveJob> {
 
     
       ),
-      body: SingleChildScrollView(
+      body: 
+      _isLoading==true ? const Center(child: CircularProgressIndicator()) :
+      
+       SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -227,22 +261,22 @@ class _ApproveJobState extends State<ApproveJob> {
                     children: [
                     
                       _sectionTitle('Radne specifikacije'),
-                  _buildDetailRow('Posao', widget.job.jobTitle?? 'Nije dostupan'), 
+                  _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
                   _buildDetailRow('Servis', widget.job.jobsServices
                           ?.map((e) => e.service?.serviceName)
                           .where((e) => e != null)
                           .join(', ') ??
                       'N/A'),
 
-                  _buildDetailRow('Datum', dateFormat.format(widget.job.jobDate)),
+                  _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
                
                   _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5)),
                  
                   _buildDetailRow('Vrijeme završetka',
-                  widget.job.endEstimate!=null ?
-                      widget.job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
-                  _buildDetailRow('Opis posla', widget.job.jobDescription),
-                   widget.job.image!=null ?
+                  jobResult.result.first.endEstimate!=null ?
+                      jobResult.result.first.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                  _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
+                   jobResult.result.first.image!=null ?
                         _buildImageRow(
                                   'Slika',
                                   ElevatedButton(
@@ -267,13 +301,13 @@ class _ApproveJobState extends State<ApproveJob> {
                                   ))
                               : _buildDetailRow('Slika','Nije unesena'),
 
-                  _buildDetailRow('Stanje', widget.job.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
- if(widget.job.isEdited==true)
+                  _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+ if(jobResult.result.first.isEdited==true)
                   const Divider(height: 32,),
-                   if(widget.job.isEdited==true)
+                   if(jobResult.result.first.isEdited==true)
                   _sectionTitle('Promjene'),
-                   if(widget.job.isEdited==true)
-                  _buildDetailRow('Poruka korisniku', widget.job.rescheduleNote??'Nije unesena'),
+                   if(jobResult.result.first.isEdited==true)
+                  _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena'),
 
                   const Divider(height: 32),
                   _sectionTitle('Korisnički podaci'),
@@ -308,22 +342,22 @@ class _ApproveJobState extends State<ApproveJob> {
                   _buildDetailRow('Telefonski broj', widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato') ,
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
-                      widget.job.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
+                      jobResult.result.first.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
-                      widget.job.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                       if(widget.job.jobStatus== JobStatus.cancelled) 
+                      jobResult.result.first.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
+                       if(jobResult.result.first.jobStatus== JobStatus.cancelled) 
                        _buildDetailRow('Otkazan',
                       'Da'), 
-                      if(widget.job.jobStatus== JobStatus.finished)
+                      if(jobResult.result.first.jobStatus== JobStatus.finished)
                       _buildDetailRow('Završen','Da'),
-                      if(widget.job.isInvoiced==true)
+                      if(jobResult.result.first.isInvoiced==true)
                   _buildDetailRow('Plaćen',
                       'Da')
                       else
                         _buildDetailRow('Plaćen',
                         'Ne')
                       , 
-                       if(widget.job.isRated==true)
+                       if(jobResult.result.first.isRated==true)
                   _buildDetailRow('Ocijenjen',
                       'Da')
                       else
@@ -354,6 +388,15 @@ class _ApproveJobState extends State<ApproveJob> {
              
           },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
           const SizedBox(width: 15,),
+          if(jobResult.result.first.isEdited!=true)
+          ElevatedButton(onPressed: () async{
+            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: jobResult.result.first)));
+            await _getJob();
+          }, child: Text('Uredi',style: TextStyle(color: Colors.black),),
+          style: ElevatedButton.styleFrom(backgroundColor:  Colors.amber,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+          ),
+          const SizedBox(width: 15,),
+
              ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
             onPressed: () async {
@@ -415,6 +458,7 @@ class _ApproveJobState extends State<ApproveJob> {
             },
             child: const Text('Prihvati',style: TextStyle(color: Colors.white),),
           ),
+          
         
                   ],
                 )),

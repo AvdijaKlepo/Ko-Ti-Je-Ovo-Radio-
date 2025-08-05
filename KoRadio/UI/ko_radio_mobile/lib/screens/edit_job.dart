@@ -351,60 +351,52 @@ DateTime normalizeTime(DateTime t) {
                   initialValue: jobStartTime,
                   name: 'startEstimate',
                   onChanged: (TimeOfDay? value) {
-    if (value == null) return;
+                    if (value == null) return;
 
+                    final newStart = DateTime(
+                      dummyDate.year,
+                      dummyDate.month,
+                      dummyDate.day,
+                      value.hour,
+                      value.minute,
+                    );
 
-    final newStart = DateTime(
-      dummyDate.year, dummyDate.month, dummyDate.day,
-      value.hour, value.minute,
-    );
+                    final newEnd = newStart.add(duration);
 
+                    print(startTimeString);
+            
 
-    final newEnd = newStart.add(duration);
-    print(newEnd);
-    print(endTimeDate);
+                    if (newEnd.isAfter(endTimeDate)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                'Trajanje posla van okvira radnikovog radnog vremena.')),
+                      );
+                   
+                      setState(() {
+                        _formKey.currentState?.patchValue(
+                          {'startEstimate': null,
+                      });
+                
+                      });
 
- if (newEnd.isAfter(endTimeDate)) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Vrijeme završetka posla mora biti poslije vremena početka posla.')),
-  );
-  print('Patching back to original jobStartTime: $jobStartTime');
-_formKey.currentState?.patchValue({
-  'startEstimate': jobStartTime,
-});
-setState(() {
-  print('Calling setState to reflect patch');
-});
+              
 
-    print(jobStartTime);
-
-
-  return;
-}
-    else{
-    _formKey.currentState?.patchValue({
-     
-  
-      
-      
-      
-      
-      'endEstimate': newEnd,
-      
-      
-    });
-    }
-        
-    
-  },
-
+                      return;
+                    }
+                    
+                    
+                     else {
+                      _formKey.currentState?.patchValue({
+                        'endEstimate': newEnd,
+                      });
+                    }
+                  },
                   minTime: startTime,
                   maxTime: endTime,
                   now: TimeOfDay.now(),
                   jobDate: _currentJobDate,
                   bookedJobs: _currentBookedJobs,
-
-                  
                   validator: FormBuilderValidators.required(
                       errorText: 'Obavezno polje'),
                 ),
@@ -464,6 +456,8 @@ setState(() {
     
 
     if (selected.isAfter(maxTime)) {
+
+      
  
 
      
@@ -520,7 +514,7 @@ setState(() {
                       [],
                 ),
                 const SizedBox(height: 15),
-    
+                if(widget.job.jobStatus!=JobStatus.unapproved)
                 FormBuilderTextField(
                       enabled: false,
                       name: "payEstimate",
@@ -685,7 +679,16 @@ Widget _save() {
                         ? [int.tryParse(selectedServices.toString()) ?? 0]
                         : []);
                 
-                var jobInsertRequest = {
+            
+               
+
+
+
+
+                
+
+                if(widget.job.jobStatus==JobStatus.unapproved){
+                      var jobInsertRequest = {
                   "userId": widget.job.user?.userId,
                   "freelancerId": widget.job.freelancer?.freelancerId,
                   "companyId": widget.job.company?.companyId,
@@ -707,36 +710,6 @@ Widget _save() {
                 
                 };
                 
-                 var jobInsertRequestEdited = {
-                  "userId": widget.job.user?.userId,
-                  "freelancerId": widget.job.freelancer?.freelancerId,
-                  "companyId": widget.job.company?.companyId,
-                  "jobTitle": values["jobTitle"],
-                  "isTenderFinalized": false,
-                  "isFreelancer": true,
-                  "isInvoiced": false,
-                  "isRated": false,
-                  "startEstimate": values["startEstimate"],
-                  "endEstimate":( values["endEstimate"] as DateTime).toIso8601String().split('T')[1],
-                  "payEstimate":values["payEstimate"],
-                  "payInvoice": null,
-                  "jobDate": values["jobDate"].toString(),
-                  "dateFinished": null,
-                  "jobDescription": values["jobDescription"],
-                  "image": values["image"],
-                  "jobStatus": JobStatus.approved.name,
-                  "serviceId": values["serviceId"]
-               
-            
-                 
-                };
-
-
-
-
-                
-
-                if(widget.job.jobStatus==JobStatus.unapproved){
                 try{
                 await jobProvider.update(widget.job.jobId,jobInsertRequest);
                 await messagesProvider.insert({
@@ -759,9 +732,31 @@ Widget _save() {
               }
             
               if(widget.job.jobStatus==JobStatus.approved)
-              {
+              { var jobInsertRequestEdited = {
+                  "userId": widget.job.user?.userId,
+                  "freelancerId": widget.job.freelancer?.freelancerId,
+                  "companyId": widget.job.company?.companyId,
+                  "jobTitle": values["jobTitle"],
+                  "isTenderFinalized": false,
+                  "isFreelancer": true,
+                  "isInvoiced": false,
+                  "isRated": false,
+                  "startEstimate": values["startEstimate"],
+                  "endEstimate":( values["endEstimate"] as DateTime).toIso8601String().split('T')[1],
+                  "payEstimate":values["payEstimate"],
+                  "payInvoice": null,
+                  "jobDate": values["jobDate"].toString(),
+                  "dateFinished": null,
+                  "jobDescription": values["jobDescription"],
+                  "image": values["image"],
+                  "jobStatus": JobStatus.approved.name,
+                  "serviceId": values["serviceId"]
+               
+            
+                 
+                };
                 try{
-                  print('Tu smo');
+                   
               
                 await jobProvider.update(widget.job.jobId,jobInsertRequestEdited);
                 print(jobInsertRequestEdited);

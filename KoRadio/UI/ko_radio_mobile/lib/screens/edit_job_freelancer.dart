@@ -422,38 +422,8 @@ DateTime normalizeTime(DateTime t) {
     
 
     if (selected.isAfter(maxTime)) {
-
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Van opsega radnog vremena'),
-          content: Text(
-            'Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-               outOfWorkHours = false;
-                
-              },
-              child: const Text("Nastavi"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                 setState(() {
-                  outOfWorkHours = true;
-                });
-               
-      
-              },
-              child: const Text("Promijeni"),
-            ),
-          ],
-        ),
-      );
-    }}
+    _outOfWorkHours(context, selected);
+     }}
                     ),
                 const SizedBox(height: 15),
                 if(widget.job.jobStatus==JobStatus.approved)
@@ -753,4 +723,29 @@ Widget _save() {
       ),
     );
   }
-}
+
+  void _outOfWorkHours(BuildContext context, DateTime selected) {
+ showDialog(
+  
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Van opsega radnog vremena'),
+          content: Text(
+            'Napomena: Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              
+                
+              },
+              child: const Text("Nazad"),
+            ),
+          
+          ],
+        ),
+      );
+    }
+  }

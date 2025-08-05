@@ -306,7 +306,7 @@ TextButton.icon(
       await companyJobAssignmentProvider.insert({
         "jobId": widget.job.jobId,
         "companyEmployeeId": employeeId,
-        "assignedAt":DateTime.now().toUtc().toIso8601String(),
+        "assignedAt":DateTime.now().toIso8601String(),
       });
     }
   }
@@ -391,8 +391,8 @@ TextButton.icon(
                 "endEstimate": null,  
                 "payEstimate": null,
                 "payInvoice": null,
-                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
-                "dateFinished": widget.job.dateFinished?.toUtc().toIso8601String(),
+                "jobDate": widget.job.jobDate.toIso8601String(),
+                "dateFinished": widget.job.dateFinished?.toIso8601String(),
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
                 "jobStatus": JobStatus.cancelled.name,
@@ -432,7 +432,7 @@ TextButton.icon(
                         _formKey.currentState?.value ?? {});
                  if(values["dateFinished"] is DateTime) {
                     values['dateFinished'] = 
-                      (values['dateFinished'] as DateTime).toUtc().toIso8601String();
+                      (values['dateFinished'] as DateTime).toIso8601String();
           }
                     
           
@@ -456,7 +456,7 @@ TextButton.icon(
                 "endEstimate": null,  
                 "payEstimate": widget.job.jobStatus== JobStatus.unapproved ? values["payEstimate"] : widget.job.payEstimate,
                 "payInvoice": widget.job.jobStatus== JobStatus.unapproved ? null : values["payInvoice"],
-                "jobDate": widget.job.jobDate.toUtc().toIso8601String(),
+                "jobDate": widget.job.jobDate.toIso8601String(),
                 "dateFinished": values["dateFinished"],
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
@@ -488,7 +488,7 @@ TextButton.icon(
       await companyJobAssignmentProvider.insert({
         "jobId": widget.job.jobId,
         "companyEmployeeId": employeeId,
-        "assignedAt":DateTime.now().toUtc().toIso8601String(),
+        "assignedAt":DateTime.now().toIso8601String(),
       });
     }
   }

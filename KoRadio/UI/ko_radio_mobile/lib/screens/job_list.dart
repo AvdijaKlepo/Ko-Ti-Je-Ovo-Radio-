@@ -58,6 +58,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
   void initState() {
     super.initState();
 
+
     jobStatus = jobStatuses[selectedIndex];
     jobProvider = context.read<JobProvider>();
 
@@ -173,13 +174,11 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                   setState(() {
                     selectedIndex = index;
                     jobStatus = jobStatuses[index];
-
+                    _isLoading=true;
                     
                   });
 
-                  setState(() {
-                    _isLoading=true;
-                  });
+                
                   
                  
         
@@ -236,6 +235,8 @@ Map<String, dynamic> filterMap(JobStatus status)  {
   Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
        if(!_isInitialized) return const Center(child: CircularProgressIndicator());
 
+
+
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(height: 35),
       controller: _scrollController,
@@ -258,7 +259,12 @@ Map<String, dynamic> filterMap(JobStatus status)  {
             enabled: 
             (job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true)) ||
             
-           (job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) ? true : false,
+           ((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId== null) || 
+
+            ((job.jobStatus==JobStatus.approved) && AuthProvider.user?.freelancer?.freelancerId!= null)
+           
+           
+            ? true : false,
             
             direction: Axis.horizontal,
 
@@ -282,7 +288,10 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                   label: 'Obriši',
                 )  ,
 
-                if((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)) 
+                if(((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId==null)
+                
+                || ((job.jobStatus==JobStatus.approved && AuthProvider.user?.freelancer?.freelancerId!=null))
+                ) 
                  SlidableAction(
                   onPressed: (_) async 
                   {
@@ -353,19 +362,22 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                   ?   ApproveJob(job: job, freelancer: job.freelancer!)  
                   :  JobDetails(job: job);
             
-            final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+
+           setState(() {
+             _isLoading=true;
+           });
             
             
-                if(updated==true)
-                {
+                
             
                 await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-                }
-                else{
+                
+                
                   setState(() {
-                    
+                    _isLoading=false;
                   });
-                }
+                
               
               
             
@@ -377,7 +389,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
             
               leading:  Icon(Icons.info_outline, color: job.isEdited==false ? Colors.white : Colors.black),
               title: Text(
-                "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                "Posao: ${job.jobTitle}\nDatum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
                 style:  TextStyle(fontWeight: FontWeight.bold,color: job.isEdited==false ? Colors.white : Colors.black),
               ),
               subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
