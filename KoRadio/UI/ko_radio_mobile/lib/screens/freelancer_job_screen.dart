@@ -9,6 +9,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
+import 'package:ko_radio_mobile/screens/job_details.dart';
 import 'package:provider/provider.dart';
 
 enum JobViewOption { unapproved, approved }
@@ -39,9 +40,18 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
 
         jobPagination = PaginatedFetcher<Job>(
           pageSize: 5,
-          initialFilter: {
+          initialFilter: AuthProvider.selectedRole == "Freelancer" ?
+          
+           {
             'FreelancerId': AuthProvider.freelancer?.freelancerId,
             'JobDate': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          } : {
+            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
             'OrderBy': 'desc',
@@ -126,14 +136,23 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
         _selectedOption = option;
         _isLoading=true;
       });
-      await jobPagination.refresh(newFilter: {
-        'FreelancerId': AuthProvider.freelancer?.freelancerId,
-        'JobDate': _now.toIso8601String().split('T')[0],
-        'JobStatus': _selectedOption.name,
-        'isTenderFinalized': false,
-        'OrderBy': 'desc',
-        'isDeleted': false,
-      });
+      await jobPagination.refresh(newFilter:AuthProvider.selectedRole == "Freelancer" ?
+          
+           {
+            'FreelancerId': AuthProvider.freelancer?.freelancerId,
+            'JobDate': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          } : {
+            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'DateRange': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          },);
       setState(() {
         _isLoading=false;
       });
@@ -195,14 +214,23 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                       _isLoading = true;
                     });
 
-                    await jobPagination.refresh(newFilter: {
-                      'FreelancerId': AuthProvider.freelancer?.freelancerId,
-                      'JobDate': _now.toIso8601String().split('T')[0],
-                      'JobStatus': _selectedOption.name,
-                      'isTenderFinalized': false,
-                      'OrderBy': 'desc',
-                      'isDeleted': false,
-                    });
+                    await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer" ?
+          
+           {
+            'FreelancerId': AuthProvider.freelancer?.freelancerId,
+            'JobDate': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          } : {
+            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'DateRange': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          },);
 
                     setState(() {
                       _isLoading = false;
@@ -324,6 +352,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
         ),
         child: ListTile(
           onTap: () async {
+            AuthProvider.selectedRole == "Freelancer" ?
             await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => ApproveJob(
@@ -331,15 +360,33 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                   freelancer: job.freelancer!,
                 ),
               ),
-            );
-            await jobPagination.refresh(newFilter: {
-              'FreelancerId': AuthProvider.freelancer?.freelancerId,
-              'JobDate': _now.toIso8601String().split('T')[0],
-              'JobStatus': _selectedOption.name,
-              'isTenderFinalized': false,
-              'OrderBy': 'desc',
-              'isDeleted': false,
-            });
+            ):
+             await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => JobDetails(
+                  job: job
+                 
+                ),
+              ),
+            )
+            ;
+            await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer" ?
+          
+           {
+            'FreelancerId': AuthProvider.freelancer?.freelancerId,
+            'JobDate': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          } : {
+            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'DateRange': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          },);
            
           },
           leading: const Icon(Icons.info_outline, color: Colors.white),

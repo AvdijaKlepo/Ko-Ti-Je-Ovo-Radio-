@@ -605,6 +605,29 @@
             }
           },
           {
+            "name": "IsFinished",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "CompanyEmployeeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -1017,6 +1040,238 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CompanyRole"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/EmployeeTask": {
+      "post": {
+        "tags": [
+          "EmployeeTask"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskInsertRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskInsertRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskInsertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "EmployeeTask"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IncludeTables",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTaskPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTaskPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTaskPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/EmployeeTask/{id}": {
+      "put": {
+        "tags": [
+          "EmployeeTask"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeTaskUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "EmployeeTask"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "EmployeeTask"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeTask"
                 }
               }
             }
@@ -1447,6 +1702,22 @@
             "in": "query",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "CompanyEmployeeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "DateRange",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
             }
           },
           {
@@ -4533,6 +4804,14 @@
           "dateJoined": {
             "type": "string",
             "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4629,6 +4908,10 @@
       "CompanyJobAssignment": {
         "type": "object",
         "properties": {
+          "companyJobId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "companyEmployeeId": {
             "type": "integer",
             "format": "int32",
@@ -4642,6 +4925,9 @@
           "assignedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "isFinished": {
+            "type": "boolean"
           },
           "companyEmployee": {
             "$ref": "#/components/schemas/CompanyEmployee"
@@ -4668,6 +4954,9 @@
           "assignedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "isFinished": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -4692,6 +4981,25 @@
       },
       "CompanyJobAssignmentUpdateRequest": {
         "type": "object",
+        "properties": {
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isFinished": {
+            "type": "boolean"
+          }
+        },
         "additionalProperties": false
       },
       "CompanyPagedResult": {
@@ -4896,6 +5204,127 @@
           "Saturday"
         ],
         "type": "string"
+      },
+      "EmployeeTask": {
+        "type": "object",
+        "properties": {
+          "employeeTaskId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "task": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "jobId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "companyEmployee": {
+            "$ref": "#/components/schemas/CompanyEmployee"
+          },
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeTaskInsertRequest": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "jobId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeTaskPagedResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "resultList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeTask"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeTaskUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "companyEmployeeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "jobId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
       },
       "Freelancer": {
         "type": "object",

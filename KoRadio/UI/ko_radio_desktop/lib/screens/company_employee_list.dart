@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
+import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
+import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/screens/add_employee_dialog.dart';
+import 'package:ko_radio_desktop/screens/company_employee_details.dart';
 import 'package:ko_radio_desktop/screens/company_role_dialog.dart';
 import 'package:ko_radio_desktop/screens/employee_role_assignment.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +25,15 @@ class CompanyEmployeeList extends StatefulWidget {
 class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   late CompanyProvider companyProvider;
   late CompanyEmployeeProvider companyEmployeeProvider;
+  late CompanyJobAssignmentProvider companyJobAssignmentProvider;
   SearchResult<Company>? companyResult;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
+  SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
 
   final TextEditingController _companyNameController = TextEditingController();
   bool showApplicants = false;
   bool showDeleted = false;
+  int companyEmployeeId = 0;
 
   Timer? _debounce;
   int _selectedCompanyId = AuthProvider.selectedCompanyId ?? 0;
@@ -37,6 +43,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       companyProvider = context.read<CompanyProvider>();
       companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+      companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
 
        if (AuthProvider.selectedCompanyId == null) {
 
@@ -46,6 +53,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     if (AuthProvider.selectedCompanyId != null) {
       await _getCompany();
       await _getEmployees();
+      await _getJobAssignments();
     } else {
       debugPrint("selectedCompanyId is still null, aborting fetch.");
     }
@@ -58,12 +66,31 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     _companyNameController.dispose();
     super.dispose();
   }
+  Future<void> _getJobAssignments() async {
+    final filter = {
+      'IsFinished':false,
+    };
+
+    final fetchedJobAssignments = await companyJobAssignmentProvider.get(filter: filter);
+    if(!mounted) return;
+    setState(() {
+      companyJobAssignmentResult = fetchedJobAssignments;
+    });
+  }
+
+  int getJobsPerEmployee(int companyEmployeeId) {
+    if (companyJobAssignmentResult == null) return 0;
+    return companyJobAssignmentResult!.result
+        .where((element) => element.companyEmployeeId == companyEmployeeId)
+        .length;
+  }
   Future<void> _getEmployees() async {
     final filter = {
       'CompanyId':AuthProvider.selectedCompanyId,
     };
 
     final fetchedEmployees = await companyEmployeeProvider.get(filter: filter);
+    if(!mounted) return;
     setState(() {
       companyEmployeeResult = fetchedEmployees;
     });
@@ -226,6 +253,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     const Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Uloga", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Broj Angažmana", style: TextStyle(fontWeight: FontWeight.bold))),
 
    if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
@@ -260,6 +288,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                                 Expanded(flex: 3, child: Text(c.user?.phoneNumber ?? '')),
                                 Expanded(flex:3,child: InkWell(child:Text(c.companyRoleName ?? 'Nema Ulogu'),onTap: ()=>
                               _openEmployeeRoleAddDialog(companyId: _selectedCompanyId,companyEmployee: c))),
+                              Expanded(flex: 3,child: Text('${getJobsPerEmployee(c.companyEmployeeId)}')),
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
                                     flex: 2,
@@ -267,10 +296,11 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                                       icon: const Icon(Icons.edit),
                                       tooltip: 'Uredi',
                                       onPressed: () async {
-                                       
+                                       showDialog(context: context, builder: (_) => CompanyEmployeeDetails(companyEmployee: c,));
                                       },
                                     ),
                                   ),
+                                  
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
                                     flex: 2,

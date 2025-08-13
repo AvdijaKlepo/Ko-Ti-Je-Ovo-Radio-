@@ -25,6 +25,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<CompanyService> CompanyServices { get; set; }
 
+    public virtual DbSet<EmployeeTask> EmployeeTasks { get; set; }
+
     public virtual DbSet<Freelancer> Freelancers { get; set; }
 
     public virtual DbSet<FreelancerService> FreelancerServices { get; set; }
@@ -168,6 +170,30 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.HasOne(d => d.Service).WithMany(p => p.CompanyServices)
                 .HasForeignKey(d => d.ServiceId)
                 .HasConstraintName("FK__CompanySe__Servi__208CD6FA");
+        });
+
+        modelBuilder.Entity<EmployeeTask>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeTaskId).HasName("PK__Employee__47942B9E0BC0A370");
+
+            entity.ToTable("EmployeeTask");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Task).HasMaxLength(255);
+
+            entity.HasOne(d => d.CompanyEmployee).WithMany(p => p.EmployeeTasks)
+                .HasForeignKey(d => d.CompanyEmployeeId)
+                .HasConstraintName("FK__EmployeeT__Compa__1387E197");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.EmployeeTasks)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeT__Compa__269AB60B");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.EmployeeTasks)
+                .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeT__JobId__25A691D2");
         });
 
         modelBuilder.Entity<Freelancer>(entity =>

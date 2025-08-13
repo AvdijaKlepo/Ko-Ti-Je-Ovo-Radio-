@@ -71,7 +71,7 @@ void initState() {
  
 
     await tenderFetcher.refresh(newFilter: filter);
-
+    if(!mounted) return;
     setState(() {
       _isInitialized = true;
     });

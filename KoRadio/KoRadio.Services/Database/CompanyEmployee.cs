@@ -25,5 +25,7 @@ public partial class CompanyEmployee
 
     public virtual CompanyRole? CompanyRole { get; set; }
 
+    public virtual ICollection<EmployeeTask> EmployeeTasks { get; set; } = new List<EmployeeTask>();
+
     public virtual User User { get; set; } = null!;
 }

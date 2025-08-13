@@ -8,5 +8,12 @@ namespace KoRadio.Model.Request
 {
     public class CompanyJobAssignmentUpdateRequest
     {
-    }
+		public int? CompanyEmployeeId { get; set; }
+
+		public int? JobId { get; set; }
+
+		public DateTime AssignedAt { get; set; }
+		public bool IsFinished { get; set; }
+
+	}
 }

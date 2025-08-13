@@ -36,7 +36,7 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.User.UserId == search.UserId);
 			}
-			if (search.IsApplicant==true)
+			if (search.IsApplicant == true)
 			{
 				query = query.Where(x => x.IsApplicant == true);
 			}
@@ -48,7 +48,29 @@ namespace KoRadio.Services
 
 
 
-				return base.AddFilter(search, query);
+
+			return base.AddFilter(search, query);
+		}
+		public override Task AfterUpdateAsync(CompanyEmployeeUpdateRequest request, Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
+		{
+			if (request.IsApplicant==false && entity.IsApplicant==true)
+			{
+				if (request.Roles != null && request.Roles.Any())
+				{
+					foreach (var roleId in request.Roles)
+					{
+						_context.UserRoles.Add(new Database.UserRole
+						{
+							UserId = entity.UserId,
+							RoleId = roleId,
+							ChangedAt = DateTime.UtcNow,
+							CreatedAt = DateTime.UtcNow
+						});
+					}
+					_context.SaveChanges();
+				} 
+			}
+			return base.AfterUpdateAsync(request, entity, cancellationToken);
 		}
 		public override async Task BeforeInsertAsync(CompanyEmployeeInsertRequest request, KoRadio.Services.Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
 		{
@@ -95,6 +117,8 @@ namespace KoRadio.Services
 			return Task.FromResult((true, custom));
 			
 		}
+
+	
 
 	}
 }

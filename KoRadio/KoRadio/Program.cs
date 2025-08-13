@@ -32,6 +32,7 @@ builder.Services.AddTransient<IProductService, KoRadio.Services.ProductService>(
 builder.Services.AddTransient<IOrderService, KoRadio.Services.OrderService>();
 builder.Services.AddTransient<ITenderService, KoRadio.Services.TenderService>();
 builder.Services.AddTransient<ITenderBidService, KoRadio.Services.TenderBidService>();
+builder.Services.AddTransient<IEmployeeTaskService, KoRadio.Services.EmployeeTaskService>();
 builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
 builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();

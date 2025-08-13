@@ -43,6 +43,8 @@ public partial class Company
 
     public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
+    public virtual ICollection<EmployeeTask> EmployeeTasks { get; set; } = new List<EmployeeTask>();
+
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
     public virtual Location Location { get; set; } = null!;

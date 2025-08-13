@@ -5,7 +5,9 @@ import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
+import 'package:ko_radio_mobile/providers/company_job_assignemnt_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
+import 'package:ko_radio_mobile/providers/employee_task_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
@@ -44,6 +46,8 @@ void main() async {
       ChangeNotifierProvider(create: (_) => OrderProvider()),
       ChangeNotifierProvider(create: (_) => TenderProvider()),
       ChangeNotifierProvider(create: (_) => TenderBidProvider()),
+      ChangeNotifierProvider(create: (_) => EmployeeTaskProvider()),
+      ChangeNotifierProvider(create: (_) => CompanyJobAssignmentProvider()),
       ChangeNotifierProvider(create: (_) => CartProvider()),
  
       ChangeNotifierProvider(create: (_) => SignalRProvider("notifications-hub")),
@@ -207,32 +211,67 @@ class _LoginPageState extends State<LoginPage> {
       BottomNavProvider().setIndex(0);
    
     if (filteredRoles.length > 1) {
-      await showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: const Text("Odaberite ulogu"),
-          children: filteredRoles.map((userRole) {
-            return SimpleDialogOption(
-              onPressed: () async {
-                
-               
-                AuthProvider.selectedRole = userRole.role?.roleName ?? "";
-                final signalrProvider = context.read<SignalRProvider>();
-                await signalrProvider.startConnection();
-                
-            
-                Navigator.pop(context);
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return SimpleDialog(
+        title: const Text("Odaberite ulogu"),
+        children: filteredRoles.map((userRole) {
+          return SimpleDialogOption(
+            onPressed: () async {
+              // Set selected role
+              AuthProvider.selectedRole = userRole.role?.roleName ?? "";
+
+              // Start SignalR connection
+              final signalrProvider = context.read<SignalRProvider>();
+              await signalrProvider.startConnection();
+              print(AuthProvider.selectedRole);
+
+          
+              Navigator.pop(context);
+
+              
+              final companyEmployees = user.companyEmployees ?? [];
+              if (AuthProvider.selectedRole == "CompanyEmployee" &&
+                  companyEmployees.length > 1) {
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return SimpleDialog(
+                      title: const Text("Odaberite firmu:"),
+                      children: companyEmployees.map((company) {
+                        return SimpleDialogOption(
+                          onPressed: () {
+                            AuthProvider.selectedCompanyId = company.companyId;
+                            Navigator.pop(context); 
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MasterScreen()),
+                            );
+                          },
+                          child: Text(company.companyName ?? 'Nepoznata firma'),
+                        );
+                      }).toList(),
+                    );
+                  },
+                );
+              } else {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const MasterScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const MasterScreen()),
                 );
-              },
-              child: Text(translateRole(userRole.role?.roleName)),
-            );
-          }).toList(),
-        ),
+              }
+            },
+            child: Text(translateRole(userRole.role?.roleName)),
+          );
+        }).toList(),
       );
-    } else {
+    },
+  );
+}
+ else {
    
       final selected = filteredRoles.first;
       AuthProvider.selectedRole = selected.role?.roleName ?? "";

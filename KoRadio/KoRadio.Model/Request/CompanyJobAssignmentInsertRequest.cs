@@ -13,7 +13,8 @@ namespace KoRadio.Model.Request
 		public int? JobId { get; set; }
 
 		public DateTime AssignedAt { get; set; }
+		public bool IsFinished { get; set; }
 
-		
+
 	}
 }

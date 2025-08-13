@@ -3,10 +3,12 @@ import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/company.dart';
+import 'package:ko_radio_mobile/models/company_job_assignment.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/company_job_assignemnt_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
@@ -16,6 +18,7 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/edit_company_job.dart';
 import 'package:ko_radio_mobile/screens/edit_job.dart';
 import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
+import 'package:ko_radio_mobile/screens/employee_task_list.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -36,6 +39,8 @@ class _JobDetailsState extends State<JobDetails> {
   late Company companyResult;
   late SearchResult<Job> jobResult;
   late MessagesProvider messagesProvider;
+  late CompanyJobAssignmentProvider companyJobAssignmentProvider;
+  SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
 
   bool _isLoading = false;
 
@@ -57,9 +62,11 @@ class _JobDetailsState extends State<JobDetails> {
       userRatingsProvider = context.read<UserRatings>();
       jobProvider = context.read<JobProvider>();
       companyProvider = context.read<CompanyProvider>();
+      companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
       if(widget.job.company?.companyId!=null)
       {
        await _getCompany();
+       await _getAssignments();
       }
       await _getJob();
        setState(() {
@@ -71,6 +78,20 @@ class _JobDetailsState extends State<JobDetails> {
    
    
   
+  }
+  Future<void> _getAssignments() async {
+    try {
+      var filter = {'JobId': widget.job.jobId};
+      var fetchedCompanyJobAssignments = await companyJobAssignmentProvider.get(filter: filter);
+      setState(() {
+        companyJobAssignmentResult = fetchedCompanyJobAssignments;
+      });
+    } catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
   }
   Future<void> _getJob() async {
     setState(() {
@@ -245,7 +266,14 @@ class _JobDetailsState extends State<JobDetails> {
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
                 
-
+  const Divider(height: 32,),
+  _sectionTitle('Preuzeli dužnost'),
+  _buildDetailRow('Radnici', '${companyJobAssignmentResult?.result.map((e) => '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}').join(', ')}'),
+  SizedBox(height: 15,),
+  if(companyJobAssignmentResult?.result.isNotEmpty==true && AuthProvider.selectedRole == "CompanyEmployee")
+  Align(alignment: Alignment.bottomLeft,child: ElevatedButton(onPressed: () async{
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EmployeeTaskList()));
+  }, child: Text('Pregled zadataka.'))),
 
                   if(jobResult.result.first.isEdited==true)
                    const Divider(height: 32,),
@@ -261,7 +289,14 @@ class _JobDetailsState extends State<JobDetails> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(onPressed: () async {
-                        await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: jobResult.result.first)));
+                        switch(jobResult.result.first.freelancer?.freelancerId!=null){
+                          case true:
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: jobResult.result.first)));
+                          case false:
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditCompanyJob(job: jobResult.result.first)));
+                        }
+
+                  
                         setState(() {
                           _isLoading=true;
                         });
@@ -283,21 +318,66 @@ class _JobDetailsState extends State<JobDetails> {
                                     ), ),
                                     SizedBox(width: 15,),
                                      ElevatedButton(onPressed: () async{
-                                        var jobInsertRequestApproved = {
+                                     
+
+
+                switch(widget.job.freelancer?.freelancerId!=null){
+                  case true:
+                  try{  var jobInsertRequestApproved = {
+                    "userId": widget.job.user?.userId,
+                    "freelancerId": widget.job.freelancer?.freelancerId,
+                    "companyId": widget.job.company?.companyId,
+                    "jobTitle": widget.job.jobTitle,
+                    "isTenderFinalized": false,
+                    "isFreelancer": true,
+                    "isInvoiced": false,
+                    "isRated": false,
+                    "startEstimate": widget.job.startEstimate,
+                    "endEstimate": widget.job.endEstimate,
+                    "payEstimate":widget.job.payEstimate,
+                    "payInvoice": null,
+                    "jobDate": widget.job.jobDate.toIso8601String(),
+                    "dateFinished": null,
+                    "jobDescription": widget.job.jobDescription,
+                    "image": widget.job.image,
+                    "jobStatus": JobStatus.approved.name,
+                    "serviceId": widget.job.jobsServices
+                            ?.map((e) => e.service?.serviceId)
+                            .toList(),
+                    'isEdited':false,
+                    'rescheduleNote': null,
+                   
+                  };
+                    
+                    await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
+                  await messagesProvider.insert({
+                      'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
+                      'userId': widget.job.freelancer?.freelancerId,
+                      'createdAt': DateTime.now().toIso8601String(),
+                      'isOpened': false,
+                    });
+                  
+                  } on Exception catch (e) {
+                    if(!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
+                  }
+                  case false:
+                  try{
+                    var jobInsertCompanyRequestApproved = {
                   "userId": widget.job.user?.userId,
-                  "freelancerId": widget.job.freelancer?.freelancerId,
+                  "freelancerId": null,
                   "companyId": widget.job.company?.companyId,
                   "jobTitle": widget.job.jobTitle,
                   "isTenderFinalized": false,
-                  "isFreelancer": true,
+                  "isFreelancer": false,
                   "isInvoiced": false,
                   "isRated": false,
-                  "startEstimate": widget.job.startEstimate,
-                  "endEstimate": widget.job.endEstimate,
+                  "startEstimate": null,
+                  "endEstimate":null,
                   "payEstimate":widget.job.payEstimate,
                   "payInvoice": null,
                   "jobDate": widget.job.jobDate.toIso8601String(),
-                  "dateFinished": null,
+                  "dateFinished": widget.job.dateFinished?.toIso8601String(),
                   "jobDescription": widget.job.jobDescription,
                   "image": widget.job.image,
                   "jobStatus": JobStatus.approved.name,
@@ -308,13 +388,23 @@ class _JobDetailsState extends State<JobDetails> {
                   'rescheduleNote': null,
                  
                 };
-                await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
-                await messagesProvider.insert({
-                    'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
-                    'userId': widget.job.freelancer?.freelancerId,
-                    'createdAt': DateTime.now().toIso8601String(),
-                    'isOpened': false,
-                  });
+                  await jobProvider.update(widget.job.jobId,jobInsertCompanyRequestApproved);
+                  await messagesProvider.insert({
+                      'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
+                      'companyId': widget.job.company?.companyId,
+                      'createdAt': DateTime.now().toIso8601String(),
+                      'isOpened': false,
+                    });
+
+                  } on Exception catch (e) {
+                    if(!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
+                  }
+                }
+
+
+                                       
+               
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao uređen i radnik obaviješten.')));
                 Navigator.pop(context,true);
 

@@ -85,9 +85,18 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
   }
   @override
   Widget build(BuildContext context) {
-    var jobDateString = widget.job.jobDate;
-    var jobEnd = widget.job.dateFinished;
-    var jobDifference = jobEnd!.day - jobDateString.day;
+   var jobDate = widget.job.jobDate;
+var jobEnd = widget.job.dateFinished;
+
+jobDate = DateTime(jobDate.year, jobDate.month, jobDate.day);
+
+int? jobDifference;
+if (jobEnd != null) {
+  jobEnd = DateTime(jobEnd.year, jobEnd.month, jobEnd.day);
+  jobDifference = jobEnd.difference(jobDate).inDays;
+} else {
+  jobDifference = null; 
+}
    return Scaffold(
       appBar: AppBar(title: const Text('Rezerviši posao')),
       body: SingleChildScrollView(
@@ -142,15 +151,31 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
                       format: DateFormat('dd-MM-yyyy'),
                       inputType: InputType.date,
                       firstDate: DateTime.now(),
-                      selectableDayPredicate: _isWorkingDay,
+                      selectableDayPredicate: (day) {
+  var jobDateOnly = DateTime(
+    widget.job.jobDate.year,
+    widget.job.jobDate.month,
+    widget.job.jobDate.day
+  ); 
+  
+
+
+
+  return !day.isBefore(jobDateOnly) && _isWorkingDay(day);
+},
                       onChanged: (value) async {
-                        setState(() {
+                       setState(() {
                           _currentJobDate = value;
-                          print(jobDateString);
+                          print(jobDate);
                           print(jobEnd);
                           print(jobDifference);
-                          print(value!.day + jobDifference);
-                          var newDateFinished = DateTime(value!.year, value!.month, value!.day + jobDifference);
+                          
+                         if (jobDifference != null) {
+  var newDateFinished = DateTime(
+    value!.year,
+    value.month,
+    value.day + jobDifference!,
+  );
 
                              if(!_isWorkingDay(newDateFinished))
                           {
@@ -170,7 +195,7 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
                      
                        
                          
-                        });
+                      }});
 
                        
 
@@ -195,7 +220,7 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
                        initialDate: widget.job.jobDate.isAfter(DateTime.now())
       ? widget.job.jobDate
       : DateTime.now(),
-                      selectableDayPredicate: _isWorkingDay,
+                      selectableDayPredicate: _isWorkingDay ,
                      
                     ),
                   const SizedBox(height: 15,),

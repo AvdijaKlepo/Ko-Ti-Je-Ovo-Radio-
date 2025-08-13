@@ -55,6 +55,8 @@ public partial class Job
 
     public virtual ICollection<CompanyJobAssignment> CompanyJobAssignments { get; set; } = new List<CompanyJobAssignment>();
 
+    public virtual ICollection<EmployeeTask> EmployeeTasks { get; set; } = new List<EmployeeTask>();
+
     public virtual Freelancer? Freelancer { get; set; }
 
     public virtual ICollection<JobsService> JobsServices { get; set; } = new List<JobsService>();

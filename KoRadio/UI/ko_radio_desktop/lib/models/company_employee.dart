@@ -14,7 +14,7 @@ class CompanyEmployee {
   bool? isDeleted;
   bool? isApplicant;
   String? companyName;
-  CompanyRole? companyRole;
+  int? companyRoleId;
   String? companyRoleName;
   DateTime? dateJoined;
   User? user;

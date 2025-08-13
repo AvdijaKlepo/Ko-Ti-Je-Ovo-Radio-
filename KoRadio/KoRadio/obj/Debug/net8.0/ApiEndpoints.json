@@ -391,6 +391,21 @@
         "IsRequired": false
       },
       {
+        "Name": "IsFinished",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyEmployeeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
         "Name": "Page",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
@@ -654,6 +669,157 @@
     "ReturnTypes": [
       {
         "Type": "KoRadio.Model.CompanyRole",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.EmployeeTaskSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Insert",
+    "RelativePath": "EmployeeTask",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.EmployeeTaskInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.EmployeeTask",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.EmployeeTaskSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetList",
+    "RelativePath": "EmployeeTask",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OrderBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SortDirection",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTables",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.PagedResult\u00601[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.EmployeeTaskSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "EmployeeTask/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "KoRadio.Model.Request.EmployeeTaskUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.EmployeeTask",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseCRUDControllerAsync\u00604[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.EmployeeTaskSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskInsertRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.Request.EmployeeTaskUpdateRequest, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "EmployeeTask/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KoRadio.API.Controllers.BaseControllerAsync\u00602[[KoRadio.Model.EmployeeTask, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[KoRadio.Model.SearchObject.EmployeeTaskSearchObject, KoRadio.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "EmployeeTask/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KoRadio.Model.EmployeeTask",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -941,6 +1107,16 @@
       {
         "Name": "IsDeletedWorker",
         "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyEmployeeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DateRange",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {

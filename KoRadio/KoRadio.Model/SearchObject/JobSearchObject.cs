@@ -19,6 +19,8 @@ namespace KoRadio.Model.SearchObject
         public bool? IsDesc { get; set; }
         public bool? IsDeleted { get; set; }
         public bool? IsDeletedWorker { get; set; }
+        public int? CompanyEmployeeId { get; set; }
+        public DateTime? DateRange { get; set; }
 
 
     }

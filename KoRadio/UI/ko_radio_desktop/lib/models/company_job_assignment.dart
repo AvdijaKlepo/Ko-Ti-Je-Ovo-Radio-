@@ -6,6 +6,7 @@ part 'company_job_assignment.g.dart';
 
 @JsonSerializable()
 class CompanyJobAssignment {
+  int? companyJobId;
 	int? companyEmployeeId;
 	int? jobId;
 	DateTime assignedAt;

@@ -46,10 +46,11 @@ namespace KoRadio.Services
 			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.UserRoles);
 			query = query.Include(x => x.Company).ThenInclude(x => x.Location);
 			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyServices).ThenInclude(x => x.Service);
-			
+			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyEmployees);
 
 
-			if(search?.JobId!=null)
+
+			if (search?.JobId!=null)
 			{
 				query = query.Where(x => x.JobId == search.JobId);
 			}
@@ -116,6 +117,22 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsDeletedWorker == false);
 			}
+			if(search?.CompanyEmployeeId!=null)
+			{
+				query = query.Where(x => x.Company.CompanyEmployees.Any(ce => ce.CompanyEmployeeId == search.CompanyEmployeeId));
+
+
+			}
+			if (search?.DateRange != null)
+			{
+				var chosenDate = search.DateRange.Value.Date;
+
+				query = query.Where(j =>
+					j.JobDate <= chosenDate &&
+					(j.DateFinished ?? j.JobDate) >= chosenDate
+				);
+			}
+
 
 			return query;
 			

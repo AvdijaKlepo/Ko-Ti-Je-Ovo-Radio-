@@ -33,6 +33,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       ..isTenderFinalized = json['isTenderFinalized'] as bool?
       ..isInvoiced = json['isInvoiced'] as bool?
       ..isRated = json['isRated'] as bool?
+      ..isEdited = json['isEdited'] as bool?
       ..dateFinished = json['dateFinished'] == null
           ? null
           : DateTime.parse(json['dateFinished'] as String)
@@ -53,6 +54,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'isTenderFinalized': instance.isTenderFinalized,
       'isInvoiced': instance.isInvoiced,
       'isRated': instance.isRated,
+      'isEdited': instance.isEdited,
       'jobDate': instance.jobDate.toIso8601String(),
       'jobDescription': instance.jobDescription,
       'image': instance.image,

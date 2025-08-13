@@ -13,6 +13,8 @@ public partial class CompanyJobAssignment
 
     public DateTime AssignedAt { get; set; }
 
+    public bool IsFinished { get; set; }
+
     public virtual CompanyEmployee? CompanyEmployee { get; set; }
 
     public virtual Job? Job { get; set; }

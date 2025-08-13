@@ -19,5 +19,6 @@ namespace KoRadio.Model.Request
 		public int? CompanyRoleId { get; set; }
 
 		public DateTime DateJoined { get; set; }
+		public List<int>? Roles { get; set; }
 	}
 }

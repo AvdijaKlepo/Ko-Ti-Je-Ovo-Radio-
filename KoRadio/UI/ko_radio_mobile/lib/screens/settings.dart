@@ -87,7 +87,7 @@ Future<void> _getFreelancer() async {
 }
   Future<void> _getEmployee() async {
     try {
-      var filter = {'isApplicant:':true, 'userId:':AuthProvider.user?.userId};
+      var filter = {'IsApplicant':true, 'UserId':AuthProvider.user?.userId};
       var fetchedEmployee = await companyEmployeeProvider.get(filter: filter);
       setState(() {
          companyEmployeeResult = fetchedEmployee;
@@ -425,7 +425,7 @@ Widget build(BuildContext context) {
       
         if (companyEmployeeResult == null)
           const Center(child: CircularProgressIndicator())
-        else if (companyEmployeeResult!.result.isEmpty || companyEmployeeResult!.result.first.isApplicant == false)
+        else if (companyEmployeeResult!.result.isEmpty)
           const SizedBox.shrink()
         else
           Container(
@@ -460,6 +460,7 @@ Widget build(BuildContext context) {
                                       "companyId": _companyId,
                                       "isDeleted": false,
                                       "isApplicant": false,
+                                      "roles": [10,1010],
                                       
                                       "companyRoleId": null,
                                       "dateJoined": DateTime.now().toUtc().toIso8601String(),

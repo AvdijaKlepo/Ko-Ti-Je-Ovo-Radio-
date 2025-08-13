@@ -349,12 +349,6 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\ob
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets\msbuild.KoRadio.API.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets\msbuild.KoRadio.API.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets\msbuild.build.KoRadio.API.props
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.KoRadio.API.props
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.KoRadio.API.props
-C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio..D85337A6.Up2Date
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\KoRadio.API.dll
@@ -393,3 +387,8 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bi
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\runtimes\osx-x64\native\libMatrixFactorizationNative.dylib
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\runtimes\win-x64\native\MatrixFactorizationNative.dll
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\bin\Debug\net8.0\runtimes\win-x86\native\MatrixFactorizationNative.dll
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\staticwebassets.build.json.cache

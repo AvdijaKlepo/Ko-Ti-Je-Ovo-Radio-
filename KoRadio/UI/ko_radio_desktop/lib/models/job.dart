@@ -23,6 +23,7 @@ class Job{
   bool? isTenderFinalized; 
   bool? isInvoiced;
   bool? isRated;
+  bool? isEdited;
   DateTime jobDate;
   String jobDescription;
   String? image;

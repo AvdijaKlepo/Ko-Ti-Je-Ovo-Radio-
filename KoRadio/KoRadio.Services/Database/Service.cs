@@ -19,7 +19,6 @@ public partial class Service
 	[NotMapped]
 	public int CompanyCount => CompanyServices.Count;
 
-
 	public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();

@@ -74,7 +74,12 @@ signalR.onNotificationReceived = (message) async {
           StoreList(),
           Settings()
         ];
-      case "User":
+      case "CompanyEmployee":
+        return const [
+           FreelancerJobsScreen(),
+          JobList(),
+          Settings(),
+        ];
       default:
         return const [
           ServiceListScreen(),
@@ -83,6 +88,7 @@ signalR.onNotificationReceived = (message) async {
           StoreList(),
           Settings()
         ];
+      
     }
   }
 
@@ -96,7 +102,13 @@ signalR.onNotificationReceived = (message) async {
            BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Trgovine'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Račun'),
         ];
-      case "User":
+      case "CompanyEmployee":
+        return const [
+           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Početna'),
+          BottomNavigationBarItem(icon: Icon(Icons.paste), label: 'Poslovi'),
+           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Račun'),
+
+        ];
       default:
         return const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Početna'),
