@@ -47,23 +47,29 @@ class PaginatedFetcher<T> extends ChangeNotifier {
   bool isLoading = false;
   bool hasNextPage = true;
 
+  Map<String, dynamic>? _activeFilter; 
+
   PaginatedFetcher({
     required this.fetcher,
     this.pageSize = 20,
     this.initialFilter,
-  });
+  }) {
+    _activeFilter = initialFilter; 
+  }
 
   Future<void> refresh({Map<String, dynamic>? newFilter}) async {
     _page = 1;
     hasNextPage = true;
     items.clear();
-    await _fetchPage(filter: newFilter ?? initialFilter);
+
+    _activeFilter = newFilter ?? initialFilter; 
+    await _fetchPage(filter: _activeFilter);
   }
 
   Future<void> loadMore() async {
     if (isLoading || !hasNextPage) return;
     _page++;
-    await _fetchPage(filter: initialFilter);
+    await _fetchPage(filter: _activeFilter); 
   }
 
   Future<void> _fetchPage({Map<String, dynamic>? filter}) async {
@@ -73,7 +79,7 @@ class PaginatedFetcher<T> extends ChangeNotifier {
       final result = await fetcher(
         page: _page,
         pageSize: pageSize,
-        filter: filter,
+        filter: _activeFilter,
       );
       items.addAll(result.result);
       if (items.length >= result.count) {

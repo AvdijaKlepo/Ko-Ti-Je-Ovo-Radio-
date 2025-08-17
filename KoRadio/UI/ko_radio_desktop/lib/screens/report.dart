@@ -69,143 +69,144 @@ class _ReportState extends State<Report> {
 
   }
   Future<void> _loadJobs() async {
-    try {
-  final fetchedJobs =
-      await jobProvider.get();
-  
-  setState(() {
-    jobResult = fetchedJobs;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
-}
+  try {
+    final fetchedJobs = await jobProvider.get();
+    if (!mounted) return;
+    setState(() {
+      jobResult = fetchedJobs;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
-  Future<void> _loadCompanies() async {
-    try {
-  final fetchedCompanies =
-      await companyProvider.get();
-  
-  setState(() {
-    companyResult = fetchedCompanies;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
 }
+
+Future<void> _loadCompanies() async {
+  try {
+    final fetchedCompanies = await companyProvider.get();
+    if (!mounted) return;
+    setState(() {
+      companyResult = fetchedCompanies;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
+}
+
 Future<void> _loadStores() async {
-    try {
-  final fetchedStores =
-      await storeProvider.get();
-  
-  setState(() {
-    storeResult = fetchedStores;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
-}
+  try {
+    final fetchedStores = await storeProvider.get();
+    if (!mounted) return;
+    setState(() {
+      storeResult = fetchedStores;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
+}
 
 Future<void> _loadCompanyEmployees() async {
-    try {
-  final fetchedCompanyEmployees =
-      await companyEmployeeProvider.get();
-  
-  setState(() {
-    companyEmployeeResult = fetchedCompanyEmployees;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
-}
+  try {
+    final fetchedCompanyEmployees = await companyEmployeeProvider.get();
+    if (!mounted) return;
+    setState(() {
+      companyEmployeeResult = fetchedCompanyEmployees;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
-   Future<void> _loadFreelancers() async {
-    try {
-  final fetchedFreelancers =
-      await freelancerProvider.get();
-  
-  setState(() {
-    freelancerResult = fetchedFreelancers;
-  });
-    
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
 }
-   }
+
+Future<void> _loadFreelancers() async {
+  try {
+    final fetchedFreelancers = await freelancerProvider.get();
+    if (!mounted) return;
+    setState(() {
+      freelancerResult = fetchedFreelancers;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
+}
+
 Future<void> _loadUsers() async {
-    try {
-  final fetchedUsers =
-      await userProvider.get();
-  
-  setState(() {
-    userResult = fetchedUsers;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška: ${e.toString()}")),
-  );
+  try {
+    final fetchedUsers = await userProvider.get();
+    if (!mounted) return;
+    setState(() {
+      userResult = fetchedUsers;
+    });
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
 }
-  }
   Future<void> _generatePdf() async {
-    final pdf = pw.Document();
+  final pdf = pw.Document();
 
-    var otkazane = (jobResult?.result ?? [])
-        .where((e) => e.jobStatus == JobStatus.cancelled)
-        .length;
-    var ukupno = (jobResult?.result ?? []).length;
-    var stopaOtkazivanja = ukupno > 0 ? (otkazane / ukupno) * 100 : 0;
-    try {
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              children: [
-                pw.Text(
-                    'Broj korisnika aplikacije: ${userResult?.count ?? 0}',
-                    style: const pw.TextStyle(fontSize: 18)),
-                pw.Text(
-                    'Broj radnika: ${freelancerResult?.count ?? 0}',
-                    style: const pw.TextStyle(fontSize: 18)),
-                     pw.Text(
-                    'Broj firma: ${companyResult?.count ?? 0}',
-                    style: const pw.TextStyle(fontSize: 18)),
-                pw.Text(
-                    'Stopa otkazivanja poslova: ${formatNumber(stopaOtkazivanja)}%',
-                    style: const pw.TextStyle(fontSize: 18)),
-                pw.Text('Ukupan broj poslova: ${jobResult?.count ?? 0}',
-                    style: const pw.TextStyle(fontSize: 18)),
-                pw.SizedBox(height: 20),
-               
-              ],
-            );
-          },
-        ),
-      );
+  var otkazane = (jobResult?.result ?? [])
+      .where((e) => e.jobStatus == JobStatus.cancelled)
+      .length;
+  var ukupno = (jobResult?.result ?? []).length;
+  var stopaOtkazivanja = ukupno > 0 ? (otkazane / ukupno) * 100 : 0;
+  try {
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Text('Broj korisnika aplikacije: ${userResult?.count ?? 0}',
+                  style: const pw.TextStyle(fontSize: 18)),
+              pw.Text('Broj radnika: ${freelancerResult?.count ?? 0}',
+                  style: const pw.TextStyle(fontSize: 18)),
+              pw.Text('Broj firma: ${companyResult?.count ?? 0}',
+                  style: const pw.TextStyle(fontSize: 18)),
+              pw.Text(
+                  'Stopa otkazivanja poslova: ${formatNumber(stopaOtkazivanja)}%',
+                  style: const pw.TextStyle(fontSize: 18)),
+              pw.Text('Ukupan broj poslova: ${jobResult?.count ?? 0}',
+                  style: const pw.TextStyle(fontSize: 18)),
+              pw.SizedBox(height: 20),
+            ],
+          );
+        },
+      ),
+    );
 
-      final dir = await getApplicationDocumentsDirectory();
-      final vrijeme = DateTime.now();
-      String path =
-          '${dir.path}/Izvjestaj-Dana-${formatDate(vrijeme.toString())}.pdf';
-      File file = File(path);
-      file.writeAsBytes(await pdf.save());
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Izvještaj uspješno sačuvan')),
-      );
-    } on Exception catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
+    final dir = await getApplicationDocumentsDirectory();
+    final vrijeme = DateTime.now();
+    String path =
+        '${dir.path}/Izvjestaj-Dana-${formatDate(vrijeme.toString())}.pdf';
+    File file = File(path);
+    file.writeAsBytes(await pdf.save());
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Izvještaj uspješno sačuvan')),
+    );
+  } on Exception catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return  Scaffold(

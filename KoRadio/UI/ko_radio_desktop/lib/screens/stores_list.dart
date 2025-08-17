@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/company_update_dialog.dart';
 import 'package:ko_radio_desktop/screens/store_update_dialog.dart';
 import 'package:provider/provider.dart';
@@ -17,11 +18,15 @@ class StoresList extends StatefulWidget {
 
 class _StoresListState extends State<StoresList> {
   late StoreProvider storesProvider;
+  late PaginatedFetcher<Store> storesPagination;
+  late ScrollController _scrollController;
   SearchResult<Store>? storeResult;
 
   final TextEditingController _storeNameController = TextEditingController();
   bool showApplicants=false;
   bool showDeleted=false;
+  bool _isInitialized = false;
+  bool isLoading = false;
   Timer? _debounce;
 
   @override
@@ -32,14 +37,78 @@ class _StoresListState extends State<StoresList> {
   }
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), _getStores);
+    _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
+  }
+  Future<void> _refreshWithFilter() async {
+    setState(() => isLoading = true);
+    final filter =<String, dynamic> {
+      'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+    };
+    if(_storeNameController.text.trim().isNotEmpty)
+    {
+      filter['Name'] = _storeNameController.text.trim();
+    }
+    await storesPagination.refresh(newFilter: filter);
+    setState(() => isLoading = false);
   }
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-       storesProvider = context.read<StoreProvider>();
-      _getStores();
+    setState(() {
+      isLoading=true;
+    });
+    storesPagination = PaginatedFetcher<Store>(
+      pageSize: 20,
+      initialFilter: {},
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+        
+      }) async {
+        final result = await storesProvider.get(filter: filter);
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    );
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          storesPagination.hasNextPage &&
+          !storesPagination.isLoading) {
+        storesPagination.loadMore();
+      }
+    });
+     storesProvider = context.read<StoreProvider>();
+     storesPagination = PaginatedFetcher<Store>(
+        pageSize: 20,
+        initialFilter: {},
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await storesProvider.get(filter: filter);
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp)  async{
+      setState(() {
+        isLoading = true;
+      });
+      await storesPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+        'IsApplicant': showApplicants,
+      });
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
+      
+  
 
     });
   }
@@ -65,17 +134,21 @@ class _StoresListState extends State<StoresList> {
         title: const Text('Izbriši?'),
         content: Text('Jeste li sigurni da želite izbrisatu ovu trgovinu?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await storesProvider.delete(store.storeId);
-              _getStores();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+         
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+           TextButton(
+            onPressed: () async {
+              await storesProvider.delete(store.storeId);
+              await storesPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+            });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -89,17 +162,21 @@ class _StoresListState extends State<StoresList> {
         title: const Text('Vrati?'),
         content: Text('Jeste li sigurni da želite vratiti ovu trgovinu?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await storesProvider.delete(store.storeId);
-              _getStores();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+         
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+           TextButton(
+            onPressed: () async {
+              await storesProvider.delete(store.storeId);
+              await storesPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+            });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -109,6 +186,8 @@ class _StoresListState extends State<StoresList> {
   
   @override
   Widget build(BuildContext context) {
+    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+    
      return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -134,7 +213,7 @@ class _StoresListState extends State<StoresList> {
                     value: showApplicants,
                     onChanged: (val) {
                       setState(() => showApplicants = val);
-                      _getStores();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -146,7 +225,7 @@ class _StoresListState extends State<StoresList> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _getStores();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -159,6 +238,16 @@ class _StoresListState extends State<StoresList> {
     const Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 2, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Vlasnik", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Adresa", style: TextStyle(fontWeight: FontWeight.bold))),
+   const Expanded(
+  flex: 3,
+  child: Center(
+    child: Text(
+      "Slika",
+      style: TextStyle(fontWeight: FontWeight.bold),
+    ),
+  ),
+),
    
    if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
@@ -172,15 +261,17 @@ class _StoresListState extends State<StoresList> {
 ),
 
           Expanded(
-            child: storeResult == null
+            child: storesPagination.isLoading && storesPagination.items.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : storeResult!.result.isEmpty
+                : storesPagination.items.isEmpty
                     ? const Center(child: Text('Nisu pronađene trgovine.'))
                     : ListView.separated(
-                        itemCount: storeResult!.result.length,
+                        controller: _scrollController,
+                        itemCount: storesPagination.items.length + 
+                        (storesPagination.hasNextPage ? 1 : 0),
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final s = storeResult!.result[index];
+                          final s = storesPagination.items[index];
                      
 
                           return Padding(
@@ -190,6 +281,28 @@ class _StoresListState extends State<StoresList> {
                                 Expanded(flex: 2, child: Text(s.storeName ?? '')),
                                 Expanded(flex: 2, child: Text(s.location?.locationName ?? '')),
                                 Expanded(flex: 3, child: Text('${s.user?.firstName} ${s.user?.lastName}' )), 
+                                Expanded(flex: 3, child: Text('${s.address}' )), 
+                                Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 40,
+                              maxWidth: 40,
+                            ),
+                            child: ClipOval(
+                              child: s.image != null
+                                  ? imageFromString(s.image!)
+                                  : const Image(
+                                      image: AssetImage(
+                                          'assets/images/Sample_User_Icon.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
                                
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
@@ -202,7 +315,10 @@ class _StoresListState extends State<StoresList> {
                                           context: context,
                                           builder: (_) => StoreUpdateDialog(store: s),
                                         );
-                                        _getStores();
+                                        await storesPagination.refresh(newFilter: {
+                                          'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+                                    });
                                         
                                       },
                                     ),
@@ -257,7 +373,11 @@ class _StoresListState extends State<StoresList> {
                                           icon: const Icon(Icons.close, color: Colors.red),
                                           tooltip: 'Odbaci',
                                           onPressed: () async {
-                                            // Add rejection logic here
+                                            await  storesProvider.delete(s.storeId);
+                                            await storesPagination.refresh(newFilter: {
+                                              'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+                                            });
                                           },
                                         ),
                                       ],

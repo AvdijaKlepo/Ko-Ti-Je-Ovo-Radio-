@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Database
 {
-    internal interface ISoftDelete
-    {
-		public bool IsDeleted { get; set; }
+	internal interface IApplicantDelete
+	{
+		public bool IsApplicant { get; set; }
+
+
+
+
+
+
 
 		
-
-
-
-
-
-		public void Undo()
-		{
-			IsDeleted = false;
-			
-		}
 	}
 }

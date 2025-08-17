@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/service.dart';
@@ -20,14 +19,17 @@ class ServicesListScreen extends StatefulWidget {
 class _ServicesListScreenState extends State<ServicesListScreen> {
   late ServiceProvider serviceProvider;
   late LocationProvider locationProvider;
+
   late PaginatedFetcher<Service> servicePagination;
+  late PaginatedFetcher<Location> locationPagination;
+
+  late ScrollController _serviceScrollController;
+  late ScrollController _locationScrollController;
+
   bool _isInitialized = false;
 
-  List<Service> filteredServices = [];
-  List<Location> filteredLocations = [];
-
-  String serviceSearch = "";
-  String locationSearch = "";
+  final TextEditingController _serviceNameController = TextEditingController();
+  final TextEditingController _locationNameController = TextEditingController();
 
   Timer? _serviceDebounce;
   Timer? _locationDebounce;
@@ -35,93 +37,94 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
   @override
   void initState() {
     super.initState();
+
+    _serviceScrollController = ScrollController();
+    _locationScrollController = ScrollController();
+
+    _serviceScrollController.addListener(() {
+      if (_serviceScrollController.position.pixels >=
+              _serviceScrollController.position.maxScrollExtent - 100 &&
+          servicePagination.hasNextPage &&
+          !servicePagination.isLoading) {
+        servicePagination.loadMore();
+      }
+    });
+
+    _locationScrollController.addListener(() {
+      if (_locationScrollController.position.pixels >=
+              _locationScrollController.position.maxScrollExtent - 100 &&
+          locationPagination.hasNextPage &&
+          !locationPagination.isLoading) {
+        locationPagination.loadMore();
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       serviceProvider = context.read<ServiceProvider>();
       locationProvider = context.read<LocationProvider>();
+
       servicePagination = PaginatedFetcher<Service>(
-    fetcher: ({
-      required int page,
-      required int pageSize,
-      Map<String, dynamic>? filter,
-    }) async {
-      final result = await serviceProvider.get(
-        page: page,
-        pageSize: pageSize,
-        filter: filter,
-      );
-      return PaginatedResult<Service>(
-        result: result.result,
-        count: result.count,
-      );
-    },
-    pageSize: 10,
-  );
+        pageSize: 20,
+        fetcher: ({required page, required pageSize, filter}) async {
+          final result = await serviceProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
 
-  servicePagination.refresh(); 
-    await _loadData();
+      locationPagination = PaginatedFetcher<Location>(
+        pageSize: 20,
+        fetcher: ({required page, required pageSize, filter}) async {
+          final result = await locationProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
 
-    setState(() {
-      _isInitialized = true;
-    });
-    });
-  
-  }
+      await Future.wait([
+        servicePagination.refresh(),
+        locationPagination.refresh(),
+      ]);
 
-  Future<void> _loadData() async {
-    final servicesResult = await serviceProvider.get();
-    final locationsResult = await locationProvider.get();
-
-    setState(() {
-      filteredServices = servicesResult.result;
-      filteredLocations = locationsResult.result;
+      setState(() => _isInitialized = true);
     });
   }
 
   void _onServiceSearchChanged(String query) {
     if (_serviceDebounce?.isActive ?? false) _serviceDebounce!.cancel();
     _serviceDebounce = Timer(const Duration(milliseconds: 300), () async {
-      await _searchServices(query);
+      final filter = <String, dynamic>{};
+      if (_serviceNameController.text.trim().isNotEmpty) {
+        filter['ServiceName'] = _serviceNameController.text.trim();
+      }
+      await servicePagination.refresh(newFilter: filter);
     });
   }
-
-  Future<void> _searchServices(String query) async {
-  final filter = <String, dynamic>{};
-  if (query.trim().isNotEmpty) {
-    filter['ServiceName'] = query.trim();
-  }
-  await servicePagination.refresh(newFilter: filter);
-}
 
   void _onLocationSearchChanged(String query) {
     if (_locationDebounce?.isActive ?? false) _locationDebounce!.cancel();
     _locationDebounce = Timer(const Duration(milliseconds: 300), () async {
-      await _searchLocations(query);
+      final filter = <String, dynamic>{};
+      if (_locationNameController.text.trim().isNotEmpty) {
+        filter['LocationName'] = _locationNameController.text.trim();
+      }
+      await locationPagination.refresh(newFilter: filter);
     });
   }
-
- Future<void> _searchLocations(String query) async {
-  final filter = <String, dynamic>{};
-
-  if (query.trim().isNotEmpty) {
-    filter['LocationName'] = query.trim();
-  }
-
-  final result = await locationProvider.get(filter: filter);
-
-  setState(() {
-    filteredLocations = result.result;
-    locationSearch = query;
-  });
-}
 
   Future<void> _openServiceDialog({Service? service}) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => ServiceFormDialog(service: service),
-
     );
     if (result == true) {
-      await _searchServices(serviceSearch); 
+      _onServiceSearchChanged(_serviceNameController.text);
     }
   }
 
@@ -131,7 +134,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       builder: (_) => LocationFormDialog(location: location),
     );
     if (result == true) {
-      await _searchLocations(locationSearch); 
+      _onLocationSearchChanged(_locationNameController.text);
     }
   }
 
@@ -139,32 +142,33 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
   void dispose() {
     _serviceDebounce?.cancel();
     _locationDebounce?.cancel();
+    _serviceNameController.dispose();
+    _locationNameController.dispose();
     super.dispose();
   }
 
- @override
-Widget build(BuildContext context) {
-  if (!_isInitialized) {
-    return const Center(child: CircularProgressIndicator());
-  }
-  return Padding(
-    padding: const EdgeInsets.all(12),
-    child: SizedBox(
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
+    return Padding(
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-
+          // SERVICES COLUMN
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-  
                 Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: _serviceNameController,
                         decoration: const InputDecoration(
-                          labelText: "Search Services",
+                          labelText: "Pretraži usluge",
                           prefixIcon: Icon(Icons.search),
                           border: OutlineInputBorder(),
                         ),
@@ -173,55 +177,58 @@ Widget build(BuildContext context) {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: const Text("Add Service"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B4C7D),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text("Dodaj uslugu", style: TextStyle(color: Colors.white)),
                       onPressed: () => _openServiceDialog(),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: servicePagination.items.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Text("No services found."),
-                        )
-                      : ListView.separated(
-                          itemCount: servicePagination.items.length +1,
-                          controller: ScrollController(),
-                          separatorBuilder: (_, __) => const Divider(),
-                          itemBuilder: (context, index) {
-                            if(index<servicePagination.items.length){
-                            final service = servicePagination.items[index];
-                            return ListTile(
-                              title: Text(service.serviceName ?? ""),
-                              leading: service.image != null
-                                  ? SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: imageFromString(service.image!),
-                                    )
-                                  : const Icon(Icons.miscellaneous_services),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _openServiceDialog(service: service),
-                              ),
-                              onTap: () => _openServiceDialog(service: service),
-
-                            );
-                            }
-                           else if (servicePagination.hasNextPage) {
-              // Load more trigger
-              servicePagination.loadMore();
-              return const Padding(
-                padding: EdgeInsets.all(8),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-                          },
-                        ),
+                  child: servicePagination.isLoading && servicePagination.items.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : servicePagination.items.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Text("Usluga nije pronađena."),
+                            )
+                          : ListView.separated(
+                              controller: _serviceScrollController,
+                              itemCount: servicePagination.items.length +
+                                  (servicePagination.hasNextPage ? 1 : 0),
+                              separatorBuilder: (_, __) => const Divider(),
+                              itemBuilder: (context, index) {
+                                if (index < servicePagination.items.length) {
+                                  final service = servicePagination.items[index];
+                                  return ListTile(
+                                    title: Text(service.serviceName ?? ""),
+                                    leading: service.image != null
+                                        ? SizedBox(
+                                            width: 50,
+                                            height: 50,
+                                            child: imageFromString(service.image!),
+                                          )
+                                        : const Icon(Icons.miscellaneous_services),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () => _openServiceDialog(service: service),
+                                    ),
+                                    onTap: () => _openServiceDialog(service: service),
+                                  );
+                                } else {
+                                  // loader for pagination
+                                  servicePagination.loadMore();
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Center(child: CircularProgressIndicator()),
+                                  );
+                                }
+                              },
+                            ),
                 ),
               ],
             ),
@@ -234,13 +241,13 @@ Widget build(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search + Add
                 Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: _locationNameController,
                         decoration: const InputDecoration(
-                          labelText: "Search Locations",
+                          labelText: "Pretraži lokacije",
                           prefixIcon: Icon(Icons.location_on),
                           border: OutlineInputBorder(),
                         ),
@@ -249,42 +256,56 @@ Widget build(BuildContext context) {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: const Text("Add Location"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B4C7D),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text("Dodaj lokaciju", style: TextStyle(color: Colors.white)),
                       onPressed: () => _openLocationDialog(),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: filteredLocations.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Text("No locations found."),
-                        )
-                      : ListView.separated(
-                          itemCount: filteredLocations.length,
-                          separatorBuilder: (_, __) => const Divider(),
-                          itemBuilder: (context, index) {
-                            final location = filteredLocations[index];
-                            return ListTile(
-                              title: Text(location.locationName ?? ""),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _openLocationDialog(location: location),
-                              ),
-                              onTap: () => _openLocationDialog(location: location),
-                            );
-                          },
-                        ),
+                  child: locationPagination.isLoading && locationPagination.items.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : locationPagination.items.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Text("Lokacija nije pronađena."),
+                            )
+                          : ListView.separated(
+                              controller: _locationScrollController,
+                              itemCount: locationPagination.items.length +
+                                  (locationPagination.hasNextPage ? 1 : 0),
+                              separatorBuilder: (_, __) => const Divider(),
+                              itemBuilder: (context, index) {
+                                if (index < locationPagination.items.length) {
+                                  final location = locationPagination.items[index];
+                                  return ListTile(
+                                    title: Text(location.locationName ?? ""),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () => _openLocationDialog(location: location),
+                                    ),
+                                    onTap: () => _openLocationDialog(location: location),
+                                  );
+                                } else {
+                                  locationPagination.loadMore();
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Center(child: CircularProgressIndicator()),
+                                  );
+                                }
+                              },
+                            ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

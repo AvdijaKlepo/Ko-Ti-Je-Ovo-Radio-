@@ -44,12 +44,30 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsApplicant == false);
 			}
+			if(search?.Name!=null)
+			{
+			
+				query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).StartsWith( search.Name));
+		
+			}
+			if(search?.EmployeeRole!=null)
+			{
+				query = query.Where(x => x.CompanyRoleId == search.EmployeeRole);
+			}
+			if(search?.IsDeleted==true)
+			{
+				query = query.Where(x => x.IsDeleted == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsDeleted == false);
+			}
 
 
 
 
 
-			return base.AddFilter(search, query);
+				return base.AddFilter(search, query);
 		}
 		public override Task AfterUpdateAsync(CompanyEmployeeUpdateRequest request, Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
 		{

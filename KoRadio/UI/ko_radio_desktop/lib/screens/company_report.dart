@@ -320,7 +320,7 @@ class _CompanyReportState extends State<CompanyReport> {
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            const Icon(Icons.work_off_outlined, size: 50),
+                            const Icon(Icons.money, size: 50),
                             const SizedBox(height: 16),
                             ListTile(
                               

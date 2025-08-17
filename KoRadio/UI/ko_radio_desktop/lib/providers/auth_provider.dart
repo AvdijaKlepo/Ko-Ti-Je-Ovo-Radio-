@@ -1,3 +1,4 @@
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/role.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/models/user_role.dart';
@@ -13,6 +14,7 @@ class AuthProvider {
   static bool isSignedIn = false;
   static int? selectedCompanyId;
   static int? selectedStoreId;
+  static Company? selectedCompany;
 
 
   static String? getCompanyId() {

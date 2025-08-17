@@ -21,22 +21,73 @@ class StoreProductList extends StatefulWidget {
 class _StoreProductListState extends State<StoreProductList> {
   late ProductProvider productProvider;
   late ServiceProvider serviceProvider;
+  late PaginatedFetcher<Product> productPagination;
+  late ScrollController _scrollController;
   SearchResult<Product>? productResult;
   SearchResult<Service>? serviceResult;
 
   final TextEditingController _productNameController = TextEditingController();
   bool showDeleted = false;
+  bool _isInitialized = false;
+  bool isLoading = false;
   Timer? _debounce;
   int? selectedServiceId;
 
   @override
   void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    super.initState(); 
+    setState(() {
+      isLoading=true;
+    });
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          productPagination.hasNextPage &&
+          !productPagination.isLoading) {
+        productPagination.loadMore();
+      }
+    });
+    productPagination = PaginatedFetcher<Product>(
+      pageSize: 20,
+      initialFilter: {},
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+        
+      }) async {
+        final result = await productProvider.get(filter: filter);
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    );
       productProvider = context.read<ProductProvider>();
       serviceProvider = context.read<ServiceProvider>();
-      _getServices();
-      _getProducts();
+      productPagination = PaginatedFetcher<Product>(
+        pageSize: 20,
+        initialFilter: {},
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await productProvider.get(filter: filter);
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await productPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+        'storeId': AuthProvider.selectedStoreId,
+      });
+      await _getServices();
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
+     
+  
     });
   }
 
@@ -49,7 +100,24 @@ class _StoreProductListState extends State<StoreProductList> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), _getProducts);
+    _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
+  }
+  Future<void> _refreshWithFilter() async {
+    setState(() => isLoading = true);
+    final filter =<String, dynamic> {
+      'isDeleted': showDeleted,
+      'storeId': AuthProvider.selectedStoreId,
+    };
+    if(_productNameController.text.trim().isNotEmpty)
+    {
+      filter['Name'] = _productNameController.text.trim();
+    }
+    if(selectedServiceId!=null)
+    {
+      filter['ServiceId'] = selectedServiceId;
+    }
+    await productPagination.refresh(newFilter: filter);
+    setState(() => isLoading = false);
   }
 
   final storeId = AuthProvider.selectedStoreId;
@@ -61,6 +129,18 @@ class _StoreProductListState extends State<StoreProductList> {
     } catch (e) {
       if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+  Future<void> _openProductDialog({Product? product}) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => ProductDetailsDialog(product: product),
+    );
+    if (result == true) {
+      await productPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+        'storeId': AuthProvider.selectedStoreId,
+      });
     }
   }
 
@@ -79,9 +159,66 @@ class _StoreProductListState extends State<StoreProductList> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
+    void _openUserDeleteDialog({required Product product}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Izbriši?'),
+        content: Text('Jeste li sigurni da želite izbrisati ovaj proizvod?'),
+        actions: [
+          
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await productProvider.delete(product.productId);
+              await productPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'storeId': AuthProvider.selectedStoreId,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openUserRestoreDialog({required Product product}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Vrati?'),
+        content: Text('Jeste li sigurni da želite vratiti ovaj proizvod?'),
+        actions: [
+          
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await productProvider.delete(product.productId);
+              await productPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'storeId': AuthProvider.selectedStoreId,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -112,7 +249,7 @@ class _StoreProductListState extends State<StoreProductList> {
                 ],
                 onChanged: (value) {
                   setState(() => selectedServiceId = value);
-                  _getProducts();
+                  _onSearchChanged();
                 },
               ),
               const SizedBox(width: 16),
@@ -123,7 +260,7 @@ class _StoreProductListState extends State<StoreProductList> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _getProducts();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -131,7 +268,7 @@ class _StoreProductListState extends State<StoreProductList> {
             ],
           ),
           const SizedBox(height: 16),
-const Row(
+ Row(
   children: [
     Expanded(flex: 2, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -153,27 +290,37 @@ const Row(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
     )),
+    if(!showDeleted)
     Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.edit, size: 18),
     )),
+    if(!showDeleted)
     Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.delete, size: 18),
+    )),
+    if(showDeleted)
+     Expanded(flex: 1, child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Icon(Icons.restore, size: 18),
     )),
   ],
 ),
 const SizedBox(height: 8),
 Expanded(
-  child: productResult == null
+  child: productPagination.isLoading && productPagination.items.isEmpty
       ? const Center(child: CircularProgressIndicator())
-      : productResult!.result.isEmpty
+      : productPagination.items.isEmpty
           ? const Center(child: Text('Nema proizvoda.'))
           : ListView.separated(
-              itemCount: productResult!.result.length,
+              controller: _scrollController,
+              itemCount: productPagination.items.length + 
+              (productPagination.hasNextPage ? 1 : 0),
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final p = productResult!.result[index];
+                final p = productPagination.items[index];
+                if(isLoading) return const Center(child: CircularProgressIndicator());
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Row(
@@ -194,39 +341,57 @@ Expanded(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(p.productsServices?.map((e) => e.service?.serviceName ?? '').join('\n') ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.left),
                       )),
-                      Expanded(flex: 3, child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final width = constraints.maxWidth;
-                            final height = width * 0.15;
-                            return SizedBox(
-                              width: width,
-                              height: height,
+                       Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 40,
+                              maxWidth: 40,
+                            ),
+                            child: ClipOval(
                               child: p.image != null
                                   ? imageFromString(p.image!)
-                                  : Image.asset("assets/images/Image_not_available.png"),
-                            );
-                          },
+                                  : const Image(
+                                      image: AssetImage(
+                                          'assets/images/Image_not_available.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
                         ),
-                      )),
+                      ),
+                      if(!showDeleted)
                       Expanded(
                         flex: 1,
                         child: IconButton(
                           icon: const Icon(Icons.edit),
                           tooltip: 'Uredi',
-                          onPressed: () {
-                            // TODO: Open product edit dialog
+                          onPressed: () async {
+                            _openProductDialog(product: p);
                           },
                         ),
                       ),
+                      if(!showDeleted)
                       Expanded(
                         flex: 1,
                         child: IconButton(
                           icon: const Icon(Icons.delete),
                           tooltip: 'Izbriši',
                           onPressed: () {
-                            // TODO: Handle soft delete
+                            _openUserDeleteDialog(product: p);
+                          },
+                        ),
+                      ),
+                      if(showDeleted)
+                       Expanded(
+                        flex: 1,
+                        child: IconButton(
+                          icon: const Icon(Icons.restore),
+                          tooltip: 'Izbriši',
+                          onPressed: () {
+                            _openUserRestoreDialog(product: p);
                           },
                         ),
                       ),

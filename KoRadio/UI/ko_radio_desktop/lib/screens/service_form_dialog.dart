@@ -10,6 +10,7 @@ import 'package:ko_radio_desktop/layout/master_screen.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class ServiceFormDialog extends StatefulWidget {
@@ -74,33 +75,68 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                         validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       ),
                       const SizedBox(height: 20),
-                      FormBuilderField<String>(
-                        name: 'image',
-                        builder: (field) {
-                          return InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: "Odaberi sliku",
-                              border: OutlineInputBorder(),
-                            ),
-                            child: InkWell(
-                              onTap: getImage,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: const [
-                                      Icon(Icons.image),
-                                      SizedBox(width: 10),
-                                      Text("Odaberi sliku"),
-                                    ],
-                                  ),
-                                  const Icon(Icons.file_upload),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                     FormBuilderField(
+  name: "image",
+
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku trgovine",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  widget.service?.image!= null ?
+            const Text('Proslijeđena slika') :
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label:widget.service?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) :
+            widget.service?.image!=null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child : imageFromString(widget.service?.image ?? '',
+              fit: BoxFit.cover
+              ),
+            ) : const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
                       const SizedBox(height: 30),
                       Align(
                         alignment: Alignment.centerRight,
@@ -124,7 +160,13 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
-      request['image'] = _base64Image;
+      if(_image!=null)
+      {
+        request['image'] = _base64Image;
+      }
+      else{
+        request['image'] = widget.service?.image;
+      }
 
       try {
         if (widget.service == null) {
@@ -149,12 +191,17 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
     }
   }
 
-  Future<void> getImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+  void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
 }

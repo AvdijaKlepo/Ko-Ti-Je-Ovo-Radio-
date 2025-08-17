@@ -51,10 +51,14 @@ class SignalRProvider with ChangeNotifier {
     {
      url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
     }
-     if(AuthProvider.selectedStoreId!=null)
+    else if(AuthProvider.selectedStoreId!=null)
     {
-     url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
+     url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedStoreId}';
     }
+    else{
+     url = '$_baseUrl$_endpoint?userId=${AuthProvider.user?.userId}';
+    }
+    
  debugPrint('Connecting to SignalR at $url');
 
 
@@ -72,12 +76,18 @@ class SignalRProvider with ChangeNotifier {
         'IsOpened': false,
       });
        }
-       if(AuthProvider.selectedStoreId!=null)
+       else if(AuthProvider.selectedStoreId!=null)
        {
       await messagesProvider.get(filter: {
         'StoreId': AuthProvider.selectedStoreId,
         'IsOpened': false,
       });
+       }
+       else{
+        await messagesProvider.get(filter: {
+          'UserId': AuthProvider.user?.userId,
+          'IsOpened': false,
+        });
        }
 
 

@@ -90,14 +90,15 @@ void initState() {
         child:  ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
       child: tenderFetcher.items.isEmpty
-            ? ListView(
-        
+            ?  Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               
-                children:  const [
+                children:   [
                 
-                  SizedBox(height: 10),
                  
-                 Center(child: Text("Nema aktivnih tendera", style: TextStyle(fontSize: 18))) ,
+                  Image.asset('assets/images/tenderNotFound.webp'),
+                  Text("Nema aktivnih tendera. Provjerite kasnije.", style: TextStyle(fontSize: 18)) ,
                   SizedBox(height: 10,),
                 ]
             ):

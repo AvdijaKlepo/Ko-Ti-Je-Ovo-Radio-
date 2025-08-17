@@ -15,6 +15,7 @@ class Store{
   bool? isApplicant;
   Location? location;
   String? address;
+  String? image;
 
   Store({
     required this.storeId,

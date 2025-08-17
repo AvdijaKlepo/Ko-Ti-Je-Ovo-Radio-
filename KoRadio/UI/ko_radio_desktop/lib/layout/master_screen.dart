@@ -5,15 +5,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/main.dart';
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/messages.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/messages_provider.dart';
 import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 import 'package:ko_radio_desktop/screens/company_employee_list.dart';
 import 'package:ko_radio_desktop/screens/company_job.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/company_report.dart';
+import 'package:ko_radio_desktop/screens/company_update_dialog.dart';
+import 'package:ko_radio_desktop/screens/company_update_screen.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
 import 'package:ko_radio_desktop/screens/message_details.dart';
 import 'package:ko_radio_desktop/screens/messages_screen.dart';
@@ -23,6 +27,8 @@ import 'package:ko_radio_desktop/screens/settings.dart';
 import 'package:ko_radio_desktop/screens/store_orders.dart';
 import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/store_report.dart';
+import 'package:ko_radio_desktop/screens/store_update_dialog.dart';
+import 'package:ko_radio_desktop/screens/store_update_screen.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/tender_screen.dart';
 import 'package:ko_radio_desktop/screens/user_list_screen.dart';
@@ -37,16 +43,21 @@ class MasterScreen extends StatefulWidget {
 
 class _MasterScreenState extends State<MasterScreen> {
   late MessagesProvider messagesProvider;
+  late CompanyProvider companyProvider;
   SearchResult<Messages>? result;
-  SearchResult<Messages>? notificationResult; 
+  SearchResult<Messages>? notificationResult;
+  SearchResult<Company>? companyResult;
   bool isChecked = false;
   @override
   void initState()  {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
     messagesProvider = context.read<MessagesProvider>();
+    companyProvider = context.read<CompanyProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    
      await _getNotifications();
      await _getNotificationsList();
+    
      
     });
     final signalR = context.read<SignalRProvider>();
@@ -59,6 +70,7 @@ signalR.onNotificationReceived = (message) async {
 };
 
   }
+
   Future<void> _getNotifications() async {
     Map<String, dynamic> filter = {};
     if(AuthProvider.selectedCompanyId!=null)
@@ -66,9 +78,13 @@ signalR.onNotificationReceived = (message) async {
        filter = {'CompanyId' : AuthProvider.selectedCompanyId,
     'IsOpened': false};
     }
-    if(AuthProvider.selectedStoreId!=null)
+    else if(AuthProvider.selectedStoreId!=null)
     {
       filter = {'StoreId' : AuthProvider.selectedStoreId,
+    'IsOpened': false};
+    }
+    else{
+      filter = {'UserId' : AuthProvider.user?.userId,
     'IsOpened': false};
     }
     
@@ -76,7 +92,7 @@ signalR.onNotificationReceived = (message) async {
       var fetched = await messagesProvider.get(filter: filter);
       setState(() => result = fetched);
     } catch (e) {
-
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Greška: $e')),
         
@@ -89,10 +105,14 @@ signalR.onNotificationReceived = (message) async {
     {
        filter = {'CompanyId' : AuthProvider.selectedCompanyId};
     }
-    if(AuthProvider.selectedStoreId!=null)
+    else if(AuthProvider.selectedStoreId!=null)
     {
       filter = {'StoreId' : AuthProvider.selectedStoreId};
     }
+    else{
+      filter = {'UserId' : AuthProvider.user?.userId};
+    }
+
     
     try {
       var fetched = await messagesProvider.get(filter: filter,orderBy: 'desc');
@@ -139,11 +159,7 @@ signalR.onNotificationReceived = (message) async {
       label: Text('Izveštaji'),
     ),
  
-    NavigationRailDestination(
-      icon: Icon(Icons.manage_accounts_outlined),
-      selectedIcon: Icon(Icons.manage_accounts),
-      label: Text('Uredi Profil'),
-    ),
+   
  
  
   ];
@@ -169,6 +185,7 @@ signalR.onNotificationReceived = (message) async {
       selectedIcon: Icon(Icons.report),
       label: Text('Izveštaji'),
     ),
+    
   ];
 
   final List<NavigationRailDestination> destinationsStoreManager = const <NavigationRailDestination>[
@@ -196,14 +213,18 @@ signalR.onNotificationReceived = (message) async {
     const StoresList(),
     const ServicesListScreen(),
     const Report(),
-    const Settings(),
+
   
   ];
     final List _pagesCompanyAdmin = [
     const CompanyEmployeeList(),
     const CompanyJob(),
     const TenderScreen(),
-    const CompanyReport()
+    const CompanyReport(),
+
+ 
+
+   
   
   ];
   final List _pagesStoreManager = [
@@ -260,71 +281,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
         child: Column(
           children: [
         
-               Row(
-                 children: [
-                   Checkbox(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    value: isChecked, 
-                    onChanged: (bool? value)async {
-                   setState(() {
-                     isChecked = true;
-                     _getNotifications();
-                     _getNotificationsList();
-                     
-                   });
-                   if (isChecked) {
-                    for (var message in result!.result.where((element) => element.isOpened == false)) {
-                      var request = {
-                        'messageId': message.messageId, 
-              'message1': message.message1,
-              'companyId': AuthProvider.selectedCompanyId,
-              'isOpened': true,
-            };
-                      await messagesProvider.update(message.messageId!,request);
-                    }
-                     
-                   }
-                      await _getNotificationsList();
-                      await _getNotifications();
-                    },
-                                 ),
-                                 Container(margin:EdgeInsets.only(),
-                   child:  Text('Označi sve kao pročitano',style: TextStyle(color: Colors.black),)
-                    ,
-                               ),
-                 ],
-               ),
-               Expanded(
-                child:   ListView.builder(
-              itemCount: notificationResult?.result.length ?? 0,
-              itemBuilder: (context, index) {
-                var e = notificationResult!.result[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    shape:  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    tileColor: e.isOpened == true ?Color.fromRGBO(27, 76, 125, 25) : Colors.amberAccent,
-                    onTap: () async { 
-                      showDialog(context: context, builder: (_)  =>   MessageDetails(messages: e,));
-                      setState(() {
-                        _getNotifications();
-                        _getNotificationsList();
-                      });
-                      await _getNotifications();
-                      await _getNotificationsList();
-                     
-                    },
-                    leading: Text('Notifikacija',style: TextStyle(color: e.isOpened == true ?Colors.white : Colors.black),),
-                  ),
-                );
-              },
-            ),),
-          
-         
+            MessagesScreen(),
            
           ],
         ),),
@@ -336,22 +293,77 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
          
             trailing:Padding(padding: const EdgeInsets.only(right: 110),
 
-            child: Row(
-
-      
+            child: Column(
               children: [
-              
-               IconButton(alignment: Alignment.topLeft,icon: const Icon(Icons.logout),color: Colors.white, onPressed: ()  {
-                    
-            
-              AuthProvider().logout();
-        
-            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  const LoginPage()), (route) => false);
-           
-            }),
-            const SizedBox(width: 25,),
-            const Text('Odjava',style: TextStyle(color: Colors.white),),
-            ]
+                if(AuthProvider.selectedCompanyId!=null)
+                InkWell(
+                  onTap: () async {
+                    print(AuthProvider.selectedCompanyId);
+                    showDialog(
+                      context: context,
+                      builder: (_) => CompanyUpdateScreen(
+                        companyId: AuthProvider.selectedCompanyId!,
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (_) => CompanyUpdateScreen(
+                            companyId: AuthProvider.selectedCompanyId!,
+                          ),
+                        );
+                      }, icon: Icon(Icons.settings_outlined,color: Colors.white,),),
+                      const SizedBox(width: 10,),
+                      Text('Postavke',style: TextStyle(color: Colors.white),),
+                    ],
+                  ),
+                ),
+                if(AuthProvider.selectedStoreId!=null)
+                InkWell(
+                  onTap: () async {
+                    showDialog(
+                      context: context,
+                      builder: (_) => StoreUpdateScreen(
+                        storeId: AuthProvider.selectedStoreId!,
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (_) => StoreUpdateScreen(
+                            storeId: AuthProvider.selectedStoreId!,
+                          ),
+                        );
+                      }, icon: Icon(Icons.settings_outlined,color: Colors.white,),),
+                      const SizedBox(width: 10,),
+                      Text('Postavke',style: TextStyle(color: Colors.white),),
+                    ],
+                  ),
+                ),
+                Row(
+                
+                      
+                  children: [
+                  
+                   IconButton(alignment: Alignment.topLeft,icon: const Icon(Icons.logout),color: Colors.white, onPressed: ()  {
+                        
+                
+                  AuthProvider().logout();
+                        
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  const LoginPage()), (route) => false);
+                           
+                }),
+                const SizedBox(width: 25,),
+                const Text('Odjava',style: TextStyle(color: Colors.white),),
+                ]
+                ),
+              ],
             )
             ,),
              

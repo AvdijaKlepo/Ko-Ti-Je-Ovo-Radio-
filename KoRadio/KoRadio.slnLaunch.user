@@ -5,6 +5,10 @@
       {
         "Path": "KoRadio\\KoRadio.API.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "Subscriber\\Subscriber.csproj",
+        "Action": "Start"
       }
     ]
   }

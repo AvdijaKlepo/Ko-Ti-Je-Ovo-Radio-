@@ -9,6 +9,7 @@ part 'messages.g.dart';
 class Messages{
  int? messageId;
  String? message1;
+  DateTime? createdAt;
  int? userId;
  bool? isOpened;
  int? companyId;

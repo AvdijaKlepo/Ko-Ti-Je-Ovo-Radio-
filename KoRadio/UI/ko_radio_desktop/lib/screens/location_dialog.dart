@@ -27,16 +27,15 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late LocationProvider locationProvider;
-  File? _image;
-  String? _base64Image;
+
 
   @override
   void initState() {
     super.initState();
     locationProvider = context.read<LocationProvider>();
     _initialValue = {
-      'serviceId': widget.location?.locationId,
-      'serviceName': widget.location?.locationName,
+      'locationId': widget.location?.locationId,
+      'locationName': widget.location?.locationName,
 
     };
   }
@@ -100,7 +99,7 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
-      request['image'] = _base64Image;
+ 
 
       try {
         if (widget.location == null) {
@@ -118,12 +117,5 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
     }
   }
 
-  Future<void> getImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
-      _image = File(result.files.single.path!);
-      _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
-  }
+
 }

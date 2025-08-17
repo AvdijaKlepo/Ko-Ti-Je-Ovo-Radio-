@@ -10,5 +10,8 @@ namespace KoRadio.Model.SearchObject
 	{
         public int? UserId { get; set; }
         public int? StoreId { get; set; }
-    }
+        public string? Name { get; set; }
+        public bool? IsShipped { get; set; }
+        public bool? IsCancelled { get; set; }
+	}
 }

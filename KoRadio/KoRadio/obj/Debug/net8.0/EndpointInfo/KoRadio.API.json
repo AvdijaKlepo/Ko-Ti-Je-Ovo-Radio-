@@ -365,6 +365,21 @@
             }
           },
           {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "EmployeeRole",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -1099,6 +1114,22 @@
           "EmployeeTask"
         ],
         "parameters": [
+          {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "JobId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
           {
             "name": "Page",
             "in": "query",
@@ -2468,6 +2499,20 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IsShipped",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -6093,10 +6138,6 @@
       "LocationUpdateRequest": {
         "type": "object",
         "properties": {
-          "locationId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "locationName": {
             "type": "string",
             "nullable": true

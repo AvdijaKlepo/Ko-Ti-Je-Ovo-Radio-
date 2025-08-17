@@ -5,6 +5,7 @@ import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_services.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/company_update_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -17,18 +18,75 @@ class CompanyList extends StatefulWidget {
 
 class _CompanyListState extends State<CompanyList> {
   late CompanyProvider companyProvider;
+  late PaginatedFetcher<Company> companyPagination;
+  late ScrollController _scrollController;
   SearchResult<Company>? companyResult;
 
   final TextEditingController _companyNameController = TextEditingController();
   bool showApplicants = false;
   bool showDeleted = false;
+  bool _isInitialized = false;
+  bool isLoading = false;
   Timer? _debounce;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      companyProvider = context.read<CompanyProvider>();
-      _getCompanies();
+    setState(() {
+      isLoading=true;
+    });
+    companyPagination = PaginatedFetcher<Company>(
+      pageSize: 20,
+      initialFilter: {},
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+        
+      }) async {
+        final result = await companyProvider.get(filter: filter);
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    );
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          companyPagination.hasNextPage &&
+          !companyPagination.isLoading) {
+        companyPagination.loadMore();
+      }
+    });
+    
+    companyProvider = context.read<CompanyProvider>();
+    companyPagination = PaginatedFetcher<Company>(
+      pageSize: 20,
+      initialFilter: {},
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+        
+      }) async {
+        final result = await companyProvider.get(filter: filter);
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    )..addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        isLoading = true;
+        
+      });
+      await companyPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+        'IsApplicant': showApplicants,
+      });
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
+      
+      
     });
 
   }
@@ -41,8 +99,23 @@ class _CompanyListState extends State<CompanyList> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), _getCompanies);
+    _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
   }
+  Future<void> _refreshWithFilter() async {
+    setState(() => isLoading = true);
+    final filter =<String, dynamic> {
+      'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+    };
+    if(_companyNameController.text.trim().isNotEmpty)
+    {
+      filter['CompanyNameGTE'] = _companyNameController.text.trim();
+    }
+    await companyPagination.refresh(newFilter: filter);
+    setState(() => isLoading = false);
+  }
+    
+  
 
   Future<void> _getCompanies() async {
     final filter = {
@@ -85,17 +158,21 @@ class _CompanyListState extends State<CompanyList> {
         title: const Text('Izbriši?'),
         content: Text('Jeste li sigurni da želite izbrisatu ovu firmu?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await companyProvider.delete(company.companyId);
-              _getCompanies();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+          
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await companyProvider.delete(company.companyId);
+              await companyPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -109,17 +186,21 @@ class _CompanyListState extends State<CompanyList> {
         title: const Text('Vrati?'),
         content: Text('Jeste li sigurni da želite vratiti ovu firmu?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await companyProvider.delete(company.companyId);
-              _getCompanies();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+         
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+           TextButton(
+            onPressed: () async {
+              await companyProvider.delete(company.companyId);
+              await companyPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -127,6 +208,8 @@ class _CompanyListState extends State<CompanyList> {
   }
   @override
   Widget build(BuildContext context) {
+    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+    if(isLoading) return const Center(child: CircularProgressIndicator());
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -152,7 +235,7 @@ class _CompanyListState extends State<CompanyList> {
                     value: showApplicants,
                     onChanged: (val) {
                       setState(() => showApplicants = val);
-                      _getCompanies();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -164,7 +247,7 @@ class _CompanyListState extends State<CompanyList> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _getCompanies();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -182,8 +265,18 @@ class _CompanyListState extends State<CompanyList> {
     const Expanded(flex: 3, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
+   const Expanded(
+  flex: 3,
+  child: Center(
+    child: Text(
+      "Slika",
+      style: TextStyle(fontWeight: FontWeight.bold),
+    ),
+  ),
+),
     const Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-   if (!showApplicants && !showDeleted)
+        
+       if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
               if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
@@ -195,15 +288,17 @@ class _CompanyListState extends State<CompanyList> {
 ),
 
           Expanded(
-            child: companyResult == null
+            child: companyPagination.isLoading && companyPagination.items.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : companyResult!.result.isEmpty
+                : companyPagination.items.isEmpty
                     ? const Center(child: Text('No companies found.'))
                     : ListView.separated(
-                        itemCount: companyResult!.result.length,
+                        controller: _scrollController,
+                        itemCount: companyPagination.items.length + 
+                        (companyPagination.hasNextPage ? 1 : 0),
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final c = companyResult!.result[index];
+                          final c = companyPagination.items[index];
                           final days = getWorkingDaysShort(c.workingDays);
 
                           return Padding(
@@ -218,6 +313,28 @@ class _CompanyListState extends State<CompanyList> {
                                 Expanded(flex: 3, child: Text(c.experianceYears.toString())),
                                 Expanded(flex: 3, child: Text(c.rating.toStringAsFixed(1) ?? '')),
                                 Expanded(flex: 3, child: Text(c.companyEmployees.length.toString())),
+                                 Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 40,
+                              maxWidth: 40,
+                            ),
+                            child: ClipOval(
+                              child: c.image != null
+                                  ? imageFromString(c.image!)
+                                  : const Image(
+                                      image: AssetImage(
+                                          'assets/images/Sample_User_Icon.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                             
                                 Expanded(
                                   flex: 6,
                                   child: Wrap(
@@ -228,6 +345,8 @@ class _CompanyListState extends State<CompanyList> {
                                     }).toList() ?? [],
                                   ),
                                 ),
+                                 
+                              
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
                                     flex: 2,
@@ -239,7 +358,11 @@ class _CompanyListState extends State<CompanyList> {
                                           context: context,
                                           builder: (_) => CompanyUpdateDialog(company: c),
                                         );
-                                        _getCompanies();
+                                        await companyPagination.refresh(newFilter: {
+                                          'isDeleted': showDeleted,
+                                          'IsApplicant': showApplicants,
+                                        });
+                                       
                                       },
                                     ),
                                   ),
@@ -307,7 +430,10 @@ class _CompanyListState extends State<CompanyList> {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               const SnackBar(content: Text("Firma odobrena!")),
                                             );
-                                            _getCompanies();
+                                            await companyPagination.refresh(newFilter: {
+                                              'isDeleted': showDeleted,
+                                              'IsApplicant': showApplicants,
+                                            });
                                           },
                                         ),
                                         IconButton(

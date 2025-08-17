@@ -8,7 +8,7 @@ namespace KoRadio.Model.Request
 {
     public class LocationUpdateRequest
     {
-		public int LocationId { get; set; }
+	
 
 		public string LocationName { get; set; } = null!;
 	}

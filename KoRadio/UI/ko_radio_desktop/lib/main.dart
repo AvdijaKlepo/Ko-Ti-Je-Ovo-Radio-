@@ -128,153 +128,138 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      AuthProvider.username = usernameController.text;
-                      AuthProvider.password = passwordController.text;
+  onPressed: () async {
+    try {
+      AuthProvider.username = usernameController.text;
+      AuthProvider.password = passwordController.text;
 
-                      final userProvider = UserProvider();
+      final userProvider = UserProvider();
+      final user = await userProvider.login(
+        AuthProvider.username,
+        AuthProvider.password,
+        AuthProvider.connectionId,
+      );
 
-           
-                    
+      AuthProvider.user = user;
+      final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
+      AuthProvider.isSignedIn = true;
 
-                      final user = await userProvider.login(
-                        AuthProvider.username,
-                        AuthProvider.password,
-                        AuthProvider.connectionId,
-                      );
+      final companyEmployees = user.companyEmployees ?? [];
+      final stores = user.stores ?? [];
+      final signalRProvider = context.read<SignalRProvider>();
 
-                    
- 
+      // --- COMPANY SELECTION ---
+      if (companyEmployees.length > 1) {
+        await showDialog(
+          context: context,
+          builder: (context) => SimpleDialog(
+            title: const Text("Odaberite firmu:"),
+            children: companyEmployees.map((company) {
+              return SimpleDialogOption(
+                onPressed: () async {
+                  AuthProvider.selectedCompanyId = company.companyId;
+                  await signalRProvider.startConnection(); // ✅ only once here
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MasterScreen()),
+                  );
+                },
+                child: Text(company.companyName ?? 'Nepoznata firma',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              );
+            }).toList(),
+          ),
+        );
+        return;
+      }
 
-              
+      if (companyEmployees.length == 1) {
+        AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+        await signalRProvider.startConnection();
+      }
 
-                      AuthProvider.user = user;
-                    final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
-                      AuthProvider.isSignedIn = true;
+      // --- STORE SELECTION ---
+      if (stores.length > 1) {
+        await showDialog(
+          context: context,
+          builder: (context) => SimpleDialog(
+            title: const Text("Odaberite trgovinu:"),
+            children: stores.map((store) {
+              return SimpleDialogOption(
+                onPressed: () async {
+                  AuthProvider.selectedStoreId = store.storeId;
+                  await signalRProvider.startConnection(); // ✅ only once here
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MasterScreen()),
+                  );
+                },
+                child: Text(store.storeName ?? 'Nepoznata trgovina',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              );
+            }).toList(),
+          ),
+        );
+        return;
+      }
 
-                 
+      if (stores.length == 1) {
+        AuthProvider.selectedStoreId = stores.first.storeId;
+        await signalRProvider.startConnection();
+      }
 
-                      
-                      
 
-                      final companyEmployees = user.companyEmployees ?? [];
-                   
+      if (roles.contains("Admin") && AuthProvider.selectedCompanyId == null && AuthProvider.selectedStoreId == null) {
+        await signalRProvider.startConnection();
+      }
 
-                      if (companyEmployees.length > 1) {
-                        await showDialog(
-                          context: context,
-                          builder: (context) => SimpleDialog(
-                            title: const Text("Odaberite firmu: "),
-                            children: companyEmployees.map((company)  {
-                              return SimpleDialogOption(
-                                onPressed: () async {
-                                  AuthProvider.selectedCompanyId = company.companyId;
-                                     final signalRProvider = context.read<SignalRProvider>();
-                                      await signalRProvider.startConnection();
-                                  Navigator.pop(context);
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const MasterScreen()),
-                                  );
-                                },
-                                child: Text(company.companyName ?? 'Nepoznata firma', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              );
-                            }).toList(),
-                          ),
-                        );
-                        return;
-                      }
+      debugPrint('Role(s): $roles');
+      debugPrint('CompanyId: ${AuthProvider.selectedCompanyId}');
+      debugPrint('StoreId: ${AuthProvider.selectedStoreId}');
 
-                      if (companyEmployees.length == 1) {
-                        AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
-                          final signalRProvider = context.read<SignalRProvider>();
-                                      await signalRProvider.startConnection();
-                      }
-                      
-                      final stores = user.stores ?? [];
-                      if (stores.length > 1) {
-                    
-                        await showDialog(
-                          context: context,
-                          builder: (context) => SimpleDialog(
-                            title: const Text("Odaberite trgovinu: "),
-                            children: stores.map((store)  {
-                              return SimpleDialogOption(
-                                onPressed: () async {
-                                  AuthProvider.selectedStoreId = store.storeId;
-                                    final signalRProvider = context.read<SignalRProvider>();
-                                      await signalRProvider.startConnection();
-                                  Navigator.pop(context);
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const MasterScreen()),
-                                  );
-                                },
-                                child: Text(store.storeName ?? 'Nepoznata trgovina', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              );
-                            }).toList(),
-                          ),
-                        );
-                        return;
-                      }
-                      if (stores.length == 1) {
-                        AuthProvider.selectedStoreId = stores.first.storeId;
-                        final signalRProvider = context.read<SignalRProvider>();
-                                      await signalRProvider.startConnection();
-             
-                        
-                      }
+      if (roles.contains("Admin") ||
+          roles.contains("CompanyAdmin") ||
+          roles.contains("StoreAdministrator")) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MasterScreen()),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Greška"),
+            content: const Text('Pogrešan email ili password'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Greška"),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  },
+  child: const Text("Prijavi se"),
+),
 
-                      debugPrint('Role: ${AuthProvider.userRoles?.role?.roleName}');
-                      debugPrint('CompanyId: ${AuthProvider.selectedCompanyId}');
-                         
-                         
-                         if(roles.contains("Admin") ||
-                      roles.contains("Company Admin") ||
-                      roles.contains("StoreAdministrator")
-                         ){
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const MasterScreen()),
-                      );
-                         
-                      }
-                    
-                      else{
-                         showDialog(
-                         
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Greška"),
-                          content: const Text('Pogrešan email ili password'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("OK"),
-                            ),
-                          ],
-                        ),
-                      );
-                      }
-                    } catch (e) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Greška"),
-                          content: Text(e.toString()),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("OK"),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text("Prijavi se"),
-                ),
               ],
             ),
           ),

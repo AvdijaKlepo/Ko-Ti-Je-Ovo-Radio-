@@ -14,6 +14,7 @@ import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 
 import 'package:ko_radio_desktop/providers/user_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class UserFormDialog extends StatefulWidget {
@@ -49,6 +50,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
       'phoneNumber': widget.user?.phoneNumber,
       'locationId': widget.user?.location?.locationId,
       'address': widget.user?.address,
+      'image': widget.user?.image,
     };
 
     _getLocations();
@@ -96,113 +98,157 @@ class _UserFormDialogState extends State<UserFormDialog> {
                       const SizedBox(height: 20),
 
                       FormBuilderTextField(
-                        name: "firstName",
-                        decoration: const InputDecoration(
-                          labelText: "Ime",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      ),
-                      const SizedBox(height: 12),
-
-                      FormBuilderTextField(
-                        name: "lastName",
-                        decoration: const InputDecoration(
-                          labelText: "Prezime",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      ),
-                      const SizedBox(height: 12),
-
-                      FormBuilderTextField(
-                        name: "email",
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                          FormBuilderValidators.email(errorText: 'Neispravan email'),
-                        ]),
-                      ),
-                      const SizedBox(height: 12),
-
-                      FormBuilderTextField(
-                        name: "phoneNumber",
-                        decoration: const InputDecoration(
-                          labelText: "Broj Telefona",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      ),
-                      const SizedBox(height: 12),
-
-                      _isLoadingLocations
-                          ? const Center(child: CircularProgressIndicator())
-                          : FormBuilderDropdown<int>(
-                              name: 'locationId',
-                              decoration: const InputDecoration(
-                                labelText: "Lokacija",
-                                border: OutlineInputBorder(),
-                              ),
-                              validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                              items: locationResult?.result
-                                      .map((loc) => DropdownMenuItem(
-                                            value: loc.locationId,
-                                            child: Text(loc.locationName ?? ''),
-                                          ))
-                                      .toList() ??
-                                  [],
-                            ),
-                      const SizedBox(height: 12),
-
-                      FormBuilderTextField(
-                        name: "address",
-                        decoration: const InputDecoration(
-                          labelText: "Adresa Stanovanja",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      ),
-                      FormBuilderTextField(
-  name: "password",
-  obscureText: true,
-  decoration: const InputDecoration(labelText: "Nova Lozinka"),
-  validator: FormBuilderValidators.match(
-    _formKey.currentState?.fields['confirmPassword']?.value ?? '',
-    errorText: 'Lozinke se ne poklapaju',
-  ),
-),
-
-FormBuilderTextField(
-  name: "confirmPassword",
-  obscureText: true,
-  decoration: const InputDecoration(labelText: "Potvrdi Lozinku"),
-),
-
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        children: [
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.upload),
-                            label: const Text("Dodaj Sliku"),
-                            onPressed: getImage,
+                          name: "firstName",
+                          decoration: const InputDecoration(
+                            labelText: "Ime",
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(width: 16),
-                          if (_image != null)
-                            ClipOval(
-                              child: Image.file(
-                                _image!,
-                                width: 40,
-                                height: 40,
-                                fit: BoxFit.cover,
+                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        ),
+                        const SizedBox(height: 12),
+        
+                        FormBuilderTextField(
+                          name: "lastName",
+                          decoration: const InputDecoration(
+                            labelText: "Prezime",
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        ),
+                        const SizedBox(height: 12),
+        
+                        FormBuilderTextField(
+                          name: "email",
+                          decoration: const InputDecoration(
+                            labelText: "Email",
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.email(errorText: 'Neispravan email'),
+                          ]),
+                        ),
+                        const SizedBox(height: 12),
+        
+                        FormBuilderTextField(
+                          name: "phoneNumber",
+                          decoration: const InputDecoration(
+                            labelText: "Broj Telefona",
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        ),
+                        const SizedBox(height: 12),
+        
+                        _isLoadingLocations
+                            ? const Center(child: CircularProgressIndicator())
+                            : FormBuilderDropdown<int>(
+                                name: 'locationId',
+                                decoration: const InputDecoration(
+                                  labelText: "Lokacija",
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                items: locationResult?.result
+                                        .map((loc) => DropdownMenuItem(
+                                              value: loc.locationId,
+                                              child: Text(loc.locationName ?? ''),
+                                            ))
+                                        .toList() ??
+                                    [],
                               ),
-                            ),
-                        ],
-                      ),
+                        const SizedBox(height: 12),
+        
+                        FormBuilderTextField(
+                          name: "address",
+                          decoration: const InputDecoration(
+                            labelText: "Adresa Stanovanja",
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        ),
+                        SizedBox(height: 10),
+                     
+                         FormBuilderField(
+  name: "image",
+
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  widget.user?.image!= null ?
+            const Text('Proslijeđena slika') :
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label:widget.user?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) :
+            widget.user?.image!=null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child : imageFromString(widget.user?.image ?? '',
+              fit: BoxFit.cover
+              ),
+            ) : const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
+SizedBox(height: 20,),
+                        Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
+                        FormBuilderTextField(
+          name: "password",
+          obscureText: true,
+          decoration: InputDecoration(labelText: "Nova Lozinka",border: OutlineInputBorder()),
+          validator: FormBuilderValidators.match(
+            _formKey.currentState?.fields['confirmPassword']?.value ?? '',
+            errorText: 'Lozinke se ne poklapaju',
+          ),
+        ),
+                        const SizedBox(height: 12),
+        
+        FormBuilderTextField(
+          name: "confirmPassword",
+          obscureText: true,
+          decoration: InputDecoration(labelText: "Potvrdi Lozinku",border: OutlineInputBorder()),
+        ),
 
                       const SizedBox(height: 30),
 
@@ -228,8 +274,14 @@ FormBuilderTextField(
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
-      request['image'] = _base64Image;
+      if (_base64Image != null) {
+                  request['image'] = _base64Image;
+                }
+                else{
+                  request['image'] = widget.user?.image;
+                }
       request['roles']= [11];
+  
 
     
       
@@ -259,12 +311,17 @@ FormBuilderTextField(
     }
   }
 
-  Future<void> getImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+  void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
 }

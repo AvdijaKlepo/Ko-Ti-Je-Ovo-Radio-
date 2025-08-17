@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ko_radio_desktop/models/product.dart';
@@ -11,6 +12,7 @@ import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/product_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetailsDialog extends StatefulWidget {
@@ -29,31 +31,37 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
   SearchResult<Service>? serviceResult;
   File? _image;
   String? _base64Image;
+  
   @override
   void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {  
+    super.initState();  
       productProvider = context.read<ProductProvider>();
       serviceProvider = context.read<ServiceProvider>();
       _initialValue = {
             "productName": widget.product?.productName,
-            "description": widget.product?.productDescription,
-            "price": widget.product?.price,
+            "productDescription": widget.product?.productDescription,
+            "price": widget.product?.price.toString(),
             "image": widget.product?.image,
 
-            "serviceId": widget.product?.productsServices?.map((e) => e.serviceId).toList(),
+            "serviceId": widget.product?.productsServices?.map((e) => e.serviceId).whereType<int>().toSet()
+      .toList()
 
           };
-          _getServices();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {  
+     
+   
+         await _getServices();
 
     });
-  
+
 
  
 
   
    
   }
+  
+  
   Future<void> _getServices() async {
     try {
       var fetchedServices= await serviceProvider.get();
@@ -64,6 +72,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
+  
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -108,39 +117,92 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                 valueTransformer: (value) => double.tryParse(value ?? ''),
               ),
                       const SizedBox(height: 20),
-                      FormBuilderField(
-                name: 'image',
-                builder: (field) => InputDecorator(
-                  decoration: const InputDecoration(labelText: "Odaberi sliku"),
-                  child: ListTile(
-                    leading: const Icon(Icons.image),
-                    title: const Text("Select image"),
-                    trailing: const Icon(Icons.file_upload),
-                    onTap: getImage,
-                  ),
-                ),
-              ),
-                      const SizedBox(height: 20),
+                     
+                 
 
                     
+ Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0),
+                            child: serviceResult?.result != null
+                                ? FormBuilderFilterChip(
+                                    name: "serviceId",
+                                    decoration: const InputDecoration(border: InputBorder.none,label: Text("Kategorije")),
+                                    options: serviceResult!.result
+                                        .map((s) => FormBuilderChipOption(
+                                          
+                                            value: s.serviceId, 
+                                             child: Text(s.serviceName ?? "")))
+                                        .toList(),
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                  )
+                                : const Text("Nema dostupnih usluga"),
+                          ),
+                          SizedBox(height: 20,),
+                    
+                    
+                         FormBuilderField(
+  name: "image",
 
-                      Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: serviceResult?.result.length != null
-                          ? FormBuilderFilterChip(
-                              name: "serviceId", 
-  decoration: const InputDecoration(labelText: 'Kategorije proizvoda'),
-  options: serviceResult!.result
-      .map((s) => FormBuilderChipOption(
-            value: s.serviceId,
-            child: Text(s.serviceName ?? ''),
-          ))
-      .toList(),
-                              spacing: 6,
-                              runSpacing: 4,
-                            )
-                          : const Text("Nema dostupnih kategorija"),
-                    ),
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  widget.product?.image!= null ?
+            const Text('Proslijeđena slika') :
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label:widget.product?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) :
+            widget.product?.image!=null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child : imageFromString(widget.product?.image ?? '',
+              fit: BoxFit.cover
+              ),
+            ) : const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
                       const SizedBox(height: 30),
                       Align(
                         alignment: Alignment.centerRight,
@@ -161,14 +223,19 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
     );
     
   }
-Future<void> getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
@@ -179,7 +246,14 @@ Future<void> getImage() async {
     } else {
       request["price"] = null;
     }
-    request['image'] = _base64Image;
+    if(_image!=null)
+    {
+      request['image'] = _base64Image;
+    }
+    else{
+      request['image'] = widget.product?.image;
+    }
+    
     
       if(widget.product!=null){
       try {

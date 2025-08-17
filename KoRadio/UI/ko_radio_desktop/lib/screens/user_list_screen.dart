@@ -19,21 +19,102 @@ class UserListScreen extends StatefulWidget {
 
 class _UserListScreenState extends State<UserListScreen> {
   late UserProvider provider;
+  late PaginatedFetcher<User> usersPagination;
+  late ScrollController _scrollController;
   SearchResult<User>? result;
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   bool showDeleted = false;
+  bool _isInitialized = false;
+  bool isLoading = false;
 
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider = context.read<UserProvider>();
-      _loadUsers();
+    usersPagination = PaginatedFetcher<User>(
+    pageSize: 0,
+    initialFilter: {},
+    fetcher: ({
+      required int page,
+      required int pageSize,
+      Map<String, dynamic>? filter,
+    }) async {
+      return PaginatedResult(result: [], count: 0);
+    },
+  );
+    
+   
+      _scrollController = ScrollController();
+  _scrollController.addListener(() {
+    if (!_isInitialized) return; 
+
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 100 &&
+        usersPagination.hasNextPage &&
+        !usersPagination.isLoading) {
+      usersPagination.loadMore();
+    }
+  });
+  provider = context.read<UserProvider>();
+  usersPagination = PaginatedFetcher<User>(
+        pageSize: 20,
+        initialFilter: {
+        },
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await provider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+
+      
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() => isLoading = true);
+      await usersPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+      'IsFreelancerIncluded': true,
+      });
+
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
+     
+    
     });
+  }
+  Future<void> _refreshWithFilter() async {
+    setState(() => isLoading = true);
+
+    final filter = <String, dynamic>{
+      'isDeleted': showDeleted,
+      'IsFreelancerIncluded': true,
+    };
+
+    if (_firstNameController.text.trim().isNotEmpty) {
+      filter['FirstNameGTE'] = _firstNameController.text.trim();
+    }
+    if (_lastNameController.text.trim().isNotEmpty) {
+      filter['LastNameGTE'] = _lastNameController.text.trim();
+    }
+    if (filter.isNotEmpty) {
+      filter['isNameIncluded'] = true;
+    }
+
+    await usersPagination.refresh(newFilter: filter);
+    setState(() => isLoading = false);
   }
 
   Future<void> _loadUsers({String? firstName, String? lastName}) async {
@@ -70,10 +151,7 @@ class _UserListScreenState extends State<UserListScreen> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      _loadUsers(
-        firstName: _firstNameController.text,
-        lastName: _lastNameController.text,
-      );
+      _refreshWithFilter();
     });
   }
 
@@ -99,9 +177,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filterLoggedInUser = result?.result
-        .where((element) => element.userId != AuthProvider.user?.userId)
-        .toList();
+   if(!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -139,7 +215,7 @@ class _UserListScreenState extends State<UserListScreen> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _loadUsers();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -211,109 +287,128 @@ class _UserListScreenState extends State<UserListScreen> {
           ),
           const SizedBox(height: 4),
           Expanded(
-            child: result == null
-                ? const Center(child: CircularProgressIndicator())
-                : filterLoggedInUser!.isEmpty
-                    ? const Center(child: Text('Korisnici nisu pronađeni.'))
-                    : ListView.separated(
-                        itemCount: filterLoggedInUser.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final user = filterLoggedInUser[index];
+  child: usersPagination.isLoading && usersPagination.items.isEmpty
+      ? const Center(child: CircularProgressIndicator())
+      : usersPagination.items.isEmpty
+          ? const Center(child: Text('Korisnici nisu pronađeni.'))
+          : ListView.separated(
+              controller: _scrollController,
+              itemCount: usersPagination.items.length + 
+                  (usersPagination.hasNextPage ? 1 : 0),
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+              
+                if (index >= usersPagination.items.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 4),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    flex: 2,
-                                    child: Text(user.firstName ?? ' ?? ' '')),
-                                Expanded(
-                                    flex: 2, child: Text(user.lastName ?? '')),
-                                Expanded(
-                                    flex: 3, child: Text(user.email ?? '')),
-                                Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                        user.location?.locationName ?? '')),
-                                Expanded(
-                                    flex: 3, child: Text(user.address ?? '')),
-                                Expanded(
-                                    flex: 3,
-                                    child: Text(user.phoneNumber ?? '')),
-                                Expanded(
-                                    flex: 3,
-                                    child: Text(DateFormat('dd-MM-yyyy')
-                                        .format(user.createdAt!))),
-                                Expanded(
-                                  flex: 3,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                        maxHeight: 40,
-                                        maxWidth: 40,
-                                      ),
-                                      child: ClipOval(
-                                        child: user.image != null
-                                            ? imageFromString(user.image!)
-                                            : const Image(
-                                                image: AssetImage(
-                                                    'assets/images/Sample_User_Icon.png'),
-                                                fit: BoxFit.cover,
-                                              ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                showDeleted
-                                    ? const SizedBox.shrink()
-                                    : Expanded(
-                                        flex: 2,
-                                        child: Center(
-                                          child: IconButton(
-                                            tooltip: 'Uredi',
-                                            onPressed: () {
-                                              _openUserDialog(user: user);
-                                            },
-                                            icon: const Icon(Icons.edit),
-                                          ),
-                                        ),
-                                      ),
-                                showDeleted
-                                    ? Expanded(
-                                        flex: 2,
-                                        child: Center(
-                                          child: IconButton(
-                                            tooltip: 'Vrati',
-                                            onPressed: () {
-                                              _openUserRestoreDialog(
-                                                  user: user);
-                                            },
-                                            icon: const Icon(
-                                                Icons.restore_outlined),
-                                          ),
-                                        ),
-                                      )
-                                    : Expanded(
-                                        flex: 2,
-                                        child: Center(
-                                          child: IconButton(
-                                            tooltip: 'Izbriši',
-                                            onPressed: () {
-                                              _openUserDeleteDialog(user: user);
-                                            },
-                                            icon: const Icon(Icons.delete),
-                                          ),
-                                        ),
-                                      ),
-                              ],
-                            ),
-                          );
-                        },
+                final user = usersPagination.items[index];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12, horizontal: 4),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 2, child: Text(user.firstName ?? '')),
+                      Expanded(flex: 2, child: Text(user.lastName ?? '')),
+                      Expanded(flex: 3, child: Text(user.email ?? '')),
+                      Expanded(
+                          flex: 3,
+                          child: Text(user.location?.locationName ?? '')),
+                      Expanded(flex: 3, child: Text(user.address ?? '')),
+                      Expanded(flex: 3, child: Text(user.phoneNumber ?? '')),
+                      Expanded(
+                        flex: 3,
+                        child: Text(DateFormat('dd-MM-yyyy')
+                            .format(user.createdAt!)),
                       ),
-          ),
+                      Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 40,
+                              maxWidth: 40,
+                            ),
+                            child: ClipOval(
+                              child: user.image != null
+                                  ? imageFromString(user.image!)
+                                  : const Image(
+                                      image: AssetImage(
+                                          'assets/images/Sample_User_Icon.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      showDeleted
+                          ? const SizedBox.shrink()
+                          : Expanded(
+                              flex: 2,
+                              child: Center(
+                                child: IconButton(
+                                  color: user.userId!= AuthProvider.user?.userId
+                                ? Colors.black
+                                : Colors.grey,
+                                  tooltip: 'Uredi',
+                                  onPressed: () async {
+                                  if(user.userId!=AuthProvider.user?.userId)
+                                  {
+                                    await _openUserDialog(user: user);
+                                    await usersPagination.refresh(newFilter: {
+                                      'isDeleted': showDeleted,
+      'IsFreelancerIncluded': true,
+                                    });
+                                  }
+                                
+                                  },
+                                  icon: const Icon(Icons.edit),
+                                ),
+                              ),
+                            ),
+                      showDeleted
+                          ? Expanded(
+                              flex: 2,
+                              child: Center(
+                                child: IconButton(
+                                  tooltip: 'Vrati',
+                                  onPressed: () {
+                                    _openUserRestoreDialog(user: user);
+                                  },
+                                  icon: const Icon(Icons.restore_outlined),
+                                ),
+                              ),
+                            )
+                          : Expanded(
+                              flex: 2,
+                              child: Center(
+                                child: IconButton(
+                                  color: user.userId!= AuthProvider.user?.userId
+                                ? Colors.black
+                                : Colors.grey,
+                                  tooltip: 'Izbriši',
+                                  onPressed: () {
+                                      if(user.userId!=AuthProvider.user?.userId)
+                                  {
+                                    _openUserDeleteDialog(user: user);
+                                  }
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                ),
+                              ),
+                            ),
+                    ],
+                  ),
+                );
+              },
+            ),
+)
+
         ],
       ),
     );
@@ -327,20 +422,22 @@ class _UserListScreenState extends State<UserListScreen> {
         content:
             const Text('Jeste li sigurni da želite izbrisati ovog korisnika?'),
         actions: [
+         
           TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+           TextButton(
             onPressed: () async {
               await provider.delete(user.userId);
-              _loadUsers(
-                  firstName: _firstNameController.text,
-                  lastName: _lastNameController.text);
+              await usersPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+      'IsFreelancerIncluded': true,
+            });
               if (!mounted) return;
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Ne'),
           ),
         ],
       ),
@@ -355,20 +452,22 @@ class _UserListScreenState extends State<UserListScreen> {
         content:
             const Text('Jeste li sigurni da želite vratiti ovog korisnika?'),
         actions: [
+          
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
           TextButton(
             onPressed: () async {
               await provider.delete(user.userId);
-              _loadUsers(
-                  firstName: _firstNameController.text,
-                  lastName: _lastNameController.text);
+              await usersPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+      'IsFreelancerIncluded': true,
+            });
               if (!mounted) return;
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Ne'),
           ),
         ],
       ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_role.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
+import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -18,17 +20,34 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late CompanyRoleProvider companyRoleProvider;
+  late CompanyEmployeeProvider companyEmployeeProvider;
   SearchResult<CompanyRole>? companyRoleResult;
+  SearchResult<CompanyEmployee>? companyEmployeeResult;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      companyRoleProvider = context.read<CompanyRoleProvider>();
-      _getCompanyRoles();
+    companyRoleProvider = context.read<CompanyRoleProvider>();
+    companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+     
+      await _getCompanyRoles();
+      await _getCompanyEmployees();
     });
   }
-
+  Future<void> _getCompanyEmployees() async {
+    try {
+      var filter = {'companyId': widget.companyId};
+      var fetchedCompanyEmployees = await companyEmployeeProvider.get(filter: filter);
+      setState(() {
+        companyEmployeeResult = fetchedCompanyEmployees;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
   Future<void> _getCompanyRoles() async {
     try {
       var filter = {'companyId': widget.companyId};
@@ -58,7 +77,7 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Uloga uspješno sačuvana!")),
         );
-        Navigator.pop(context, true);
+        await _getCompanyRoles();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),
@@ -113,9 +132,10 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                               onPressed: _save,
-                              icon: const Icon(Icons.save),
-                              label: const Text("Sačuvaj"),
+                              icon: const Icon(Icons.save,color: Colors.white,),
+                              label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
                             ),
                           )
                         ],
@@ -146,11 +166,12 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
             final c = companyRoleResult!.result[index];
             return Card(
               elevation: 1,
-              margin: EdgeInsets.zero,
+              margin: EdgeInsets.only(top: 5),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               child: ListTile(
                 title: Text(c.roleName ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
-                
+                subtitle: Text(companyEmployeeResult?.result.where((element) => element.companyRoleId == c.companyRoleId).map((e) => e.user?.firstName ?? '').join(', ') ?? ''),
               ),
+
             );
           },
         ),

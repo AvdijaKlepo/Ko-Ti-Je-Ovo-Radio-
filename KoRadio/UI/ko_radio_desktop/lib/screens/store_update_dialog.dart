@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,6 +11,7 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class StoreUpdateDialog extends StatefulWidget {
@@ -23,6 +28,9 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
   late StoreProvider storesProvider;
   late LocationProvider locationProvider;
   SearchResult<Location>? locationResult;
+  File? _image;
+  String? _base64Image;
+
 
   @override
   void initState() {
@@ -31,8 +39,9 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
     storesProvider = context.read<StoreProvider>();
     _initialValue = {
       "storeName": widget.store.storeName,
-      "description": widget.store.description,
-
+      "description": widget.store.description,  
+      "address": widget.store.address,
+      "image": widget.store.image,
       "locationId": widget.store.location?.locationId,
     };
     _getLocations();
@@ -79,10 +88,20 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                     children: [
                       const Text("Podaci Trgovine", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:")),
+                      FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis")),
+                      FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis"),
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      ),
                       const SizedBox(height: 20),
+                      FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa"),
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      ),
+                      const SizedBox(height: 20),
+
+                      
                      
                     
 
@@ -98,6 +117,69 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                                 .toList() ??
                             [],
                       ),
+                      SizedBox(height: 20),
+                       FormBuilderField(
+  name: "image",
+
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku trgovine",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  widget.store.image!= null ?
+            const Text('Proslijeđena slika') :
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label:widget.store.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) :
+            widget.store.image!=null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child : imageFromString(widget.store.image ?? '',
+              fit: BoxFit.cover
+              ),
+            ) : const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
                       const SizedBox(height: 30),
                       Align(
                         alignment: Alignment.centerRight,
@@ -117,6 +199,19 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
       ),
     );
   }
+   void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+    });
+
+ 
+    field.didChange(_image);
+  }
+}
 
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
@@ -125,6 +220,14 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
       request['isDeleted'] = false;
       request['roles']=[10,1011];
       request['userId']=widget.store.user?.userId;
+  
+      if(_image!=null)
+      {
+        request['image'] = _base64Image;
+      }
+      else{
+        request['image'] = widget.store.image;
+      }
     
 
       try {

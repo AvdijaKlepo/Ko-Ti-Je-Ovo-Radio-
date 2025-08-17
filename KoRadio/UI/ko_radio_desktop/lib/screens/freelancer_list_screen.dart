@@ -17,20 +17,72 @@ class FreelancerListScreen extends StatefulWidget {
 
 class _FreelancerListScreenState extends State<FreelancerListScreen> {
   late FreelancerProvider provider;
+  late PaginatedFetcher<Freelancer> freelancerPagination;
+  late ScrollController _scrollController;
   SearchResult<Freelancer>? result;
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   bool showApplicants = false;
   bool showDeleted = false;
+  bool _isInitialized = false;
+  bool isLoading = false;
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider = context.read<FreelancerProvider>();
-      _getFreelancers();
+    setState(() {
+      isLoading=true;
+    });
+      freelancerPagination = PaginatedFetcher<Freelancer>(
+        pageSize: 20,
+        initialFilter: {},
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await provider.get(filter: filter);
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      );
+
+      _scrollController = ScrollController();
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+                _scrollController.position.maxScrollExtent - 100 &&
+            freelancerPagination.hasNextPage &&
+            !freelancerPagination.isLoading) {
+          freelancerPagination.loadMore();
+        }
+      });
+     provider = context.read<FreelancerProvider>();
+     freelancerPagination = PaginatedFetcher<Freelancer>(
+        pageSize: 20,
+        initialFilter: {},
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await provider.get(filter: filter);
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+     
+      await freelancerPagination.refresh(newFilter: {
+        'IsServiceIncluded': true,
+        'IsApplicant': showApplicants,
+        'isDeleted': showDeleted,
+      });
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
     });
   }
 
@@ -44,7 +96,27 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), _getFreelancers);
+    _debounce = Timer(const Duration(milliseconds: 300),
+    _refreshWithFilter
+    );
+  }
+  Future<void> _refreshWithFilter() async {
+    setState(() => isLoading = true);
+    final filter =<String, dynamic> {
+      'IsServiceIncluded': true,
+      'IsApplicant': showApplicants,
+      'isDeleted': showDeleted,
+    };
+    if(_firstNameController.text.trim().isNotEmpty)
+    {
+      filter['FirstNameGTE'] = _firstNameController.text.trim();
+    }
+    if(_lastNameController.text.trim().isNotEmpty)
+    {
+      filter['LastNameGTE'] = _lastNameController.text.trim();
+    }
+    await freelancerPagination.refresh(newFilter: filter);
+    setState(() => isLoading = false);
   }
 
   Future<void> _getFreelancers() async {
@@ -99,17 +171,22 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
         title: const Text('Izbriši?'),
         content: Text('Jeste li sigurni da želite izbrisati ovog korisnika?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await provider.delete(user.freelancerId);
-              _getFreelancers();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+          
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await provider.delete(user.freelancerId);
+              await freelancerPagination.refresh(newFilter: {
+                'IsServiceIncluded': true,
+                'IsApplicant': showApplicants,
+                'isDeleted': showDeleted,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -123,17 +200,22 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
         title: const Text('Vrati?'),
         content: Text('Jeste li sigurni da želite vratiti ovog korisnika?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await provider.delete(user.freelancerId);
-              _getFreelancers();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+          
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await provider.delete(user.freelancerId);
+              await freelancerPagination.refresh(newFilter: {
+                'IsServiceIncluded': true,
+                'IsApplicant': showApplicants,
+                'isDeleted': showDeleted,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -142,6 +224,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -179,7 +262,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                     value: showApplicants,
                     onChanged: (val) {
                       setState(() => showApplicants = val);
-                      _getFreelancers();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -191,7 +274,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _getFreelancers();
+                         _onSearchChanged();
                     },
                   ),
                 ],
@@ -221,15 +304,17 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           ),
           
           Expanded(
-            child: result == null
+            child: freelancerPagination.isLoading && freelancerPagination.items.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : result!.result.isEmpty
+                : freelancerPagination.items.isEmpty
                     ? const Center(child: Text('Radnici nisu pronađeni.'))
                     : ListView.separated(
-                        itemCount: result!.result.length,
+                        controller: _scrollController,
+                        itemCount: freelancerPagination.items.length + 
+                        (freelancerPagination.hasNextPage ? 1 : 0),
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final f = result!.result[index];
+                          final f = freelancerPagination.items[index];
                           final days = getWorkingDaysShort(f.workingDays);
 
                           return Padding(

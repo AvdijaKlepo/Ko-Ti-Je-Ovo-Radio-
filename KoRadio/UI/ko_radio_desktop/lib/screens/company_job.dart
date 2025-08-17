@@ -5,6 +5,7 @@ import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/book_company_job.dart';
 import 'package:provider/provider.dart';
 
@@ -16,11 +17,16 @@ class CompanyJob extends StatefulWidget {
 }
 
 class _CompanyJobState extends State<CompanyJob> {
-  late JobProvider jobProvider;
+late JobProvider jobProvider;
+  late PaginatedFetcher<Job> jobsPagination;
+  final ScrollController _scrollController = ScrollController();
   SearchResult<Job>? result;
   int selectedIndex = 0;
-  final _userId = AuthProvider.user?.userId;
+  bool _isInitialized = false;
+  bool _isLoading = false;
+ 
 
+  late JobStatus jobStatus;
   final List<JobStatus> jobStatuses = [
     JobStatus.finished,
     JobStatus.approved,
@@ -28,36 +34,83 @@ class _CompanyJobState extends State<CompanyJob> {
     JobStatus.cancelled,
 
   ];
+Map<String, dynamic> filterMap(JobStatus status)  {
+  return{
+
+        'CompanyId': AuthProvider.selectedCompanyId,
+        
+        'JobStatus': jobStatus.name,
+        'isTenderFinalized': false,
+        'OrderBy': 'desc',
+        'isDeleted': false,
+  };
+}
 
   @override
   void initState() {
     super.initState();
+
+
+    jobStatus = jobStatuses[selectedIndex];
     jobProvider = context.read<JobProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchJobsByStatus(jobStatuses[selectedIndex]));
-  }
 
-  Future<void> _fetchJobsByStatus(JobStatus status) async {
-   
-    final filter = <String, dynamic>{
-      'CompanyId': AuthProvider.selectedCompanyId,
-      'JobStatus': status.name,"isTenderFinalized":false
-    };
+    jobsPagination = PaginatedFetcher<Job>(
+      pageSize: 5,
+      initialFilter: {
+        'CompanyId': AuthProvider.selectedCompanyId,
+        
+        'JobStatus': jobStatus.name,
+        'isTenderFinalized': false,
+        'OrderBy': 'desc',
+        'isDeleted': false,
+  
+      },
+      fetcher: ({
+        required int page,
+        required int pageSize,
+        Map<String, dynamic>? filter,
+      }) async {
+        final result = await jobProvider.get(
+          page: page,
+          pageSize: pageSize,
+          filter: filter,
+        );
+        return PaginatedResult(result: result.result, count: result.count);
+      },
+    )..addListener(() =>setState(() {
+     if(mounted) setState(() {});
+    }));
 
-    try {
-  final job = await jobProvider.get(filter: filter);
-  if (!mounted) return; 
-  setState(() {
-    result = job;
-  });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u dohvaćanju poslova: ${e.toString()}')));
-}
-  }
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100 &&
+          jobsPagination.hasNextPage &&
+          !jobsPagination.isLoading) {
+        jobsPagination.loadMore();
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading=true;
+      });
+      await jobsPagination.refresh();
+      setState(() {
+        _isInitialized = true;
+        _isLoading=false;
+      });
+    });
+   }
+
   @override
   void dispose() {
-    result = null;
+    _scrollController.dispose();
+    
     super.dispose();
   }
+     
+  
+   
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +124,23 @@ class _CompanyJobState extends State<CompanyJob> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TabBar(
-                onTap: (index) {
-                  setState(() {
+                onTap: (index) async {
+                   setState(() {
                     selectedIndex = index;
+                    jobStatus = jobStatuses[index];
+                    _isLoading=true;
+                    
                   });
-                  _fetchJobsByStatus(jobStatuses[index]);
+
+                
+                  
+                 
+        
+                  await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+
+                  setState(() {
+                    _isLoading=false;
+                  });
                 },
                 indicatorColor: Colors.blue,
                 labelColor: const Color.fromRGBO(27, 76, 125, 25),
@@ -90,7 +155,7 @@ class _CompanyJobState extends State<CompanyJob> {
               const SizedBox(height: 15),
               Center(
                 child: Text(
-                'Broj poslova: ${result?.result.length ?? 0}',
+                'Broj poslova: ${jobsPagination.items.length}',
                 style: Theme.of(context).textTheme.titleMedium,
               ), 
               ),
@@ -98,9 +163,19 @@ class _CompanyJobState extends State<CompanyJob> {
               const SizedBox(height: 16),
               Expanded(
                 child: TabBarView(
-                  physics: const NeverScrollableScrollPhysics(), 
+                 physics: const NeverScrollableScrollPhysics(), 
+                  
                   children: jobStatuses.map((status) {
-                    return _buildJobList(context, result?.result ?? [], status);
+                     if(_isLoading){
+      return const Center(child: CircularProgressIndicator());
+    }
+                     if (jobsPagination.items.isEmpty) {
+      return const Center(
+        child: Text('Nema poslova za prikaz.'),
+      );
+    }
+   
+                    return _buildJobList(context, jobsPagination.items, status);
                   }).toList(),
                 ),
               ),
@@ -112,6 +187,8 @@ class _CompanyJobState extends State<CompanyJob> {
   }
 
  Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
+   if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+
   if (jobs.isEmpty) {
     return const Center(child: Text('Nema poslova za prikaz.'));
   }
@@ -120,10 +197,13 @@ class _CompanyJobState extends State<CompanyJob> {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
       child: ListView.builder(
-        itemCount: jobs.length,
+        controller: _scrollController,
+        itemCount: jobs.length + (jobsPagination.hasNextPage ? 1 : 0),
         itemBuilder: (context, index) {
+          if(index < jobs.length){
           final job = jobs[index];
           return _jobCard(context, job);
+          }
         },
       ),
     ),
@@ -144,7 +224,7 @@ class _CompanyJobState extends State<CompanyJob> {
       onTap: () async {
        await showDialog(context: context, builder: (_) => BookCompanyJob(job));
       
-          await _fetchJobsByStatus(jobStatuses[selectedIndex]);
+          await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
 
          
        

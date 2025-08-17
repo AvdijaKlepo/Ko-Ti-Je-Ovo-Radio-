@@ -19,7 +19,7 @@ namespace Subscriber.MailSenderService
 				Env.Load();
 
 				string fromAddress = Environment.GetEnvironmentVariable("_fromAddress") ?? "ko.radio.servis@gmail.com";
-				string password = Environment.GetEnvironmentVariable("_password") ?? "password";
+				string password = Environment.GetEnvironmentVariable("_password") ?? "";
 				string host = Environment.GetEnvironmentVariable("_host") ?? "smtp.gmail.com";
 				int port = int.Parse(Environment.GetEnvironmentVariable("_port") ?? "465");
 				bool enableSSL = bool.Parse(Environment.GetEnvironmentVariable("_enableSSL") ?? "true");

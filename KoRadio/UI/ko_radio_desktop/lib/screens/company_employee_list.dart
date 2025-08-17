@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
+import 'package:ko_radio_desktop/models/company_role.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
+import 'package:ko_radio_desktop/providers/company_role_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/add_employee_dialog.dart';
 import 'package:ko_radio_desktop/screens/company_employee_details.dart';
 import 'package:ko_radio_desktop/screens/company_role_dialog.dart';
@@ -26,40 +29,105 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   late CompanyProvider companyProvider;
   late CompanyEmployeeProvider companyEmployeeProvider;
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
+  late CompanyRoleProvider companyRoleProvider;
+  late PaginatedFetcher<CompanyEmployee> companyEmployeePagination;
+  late final ScrollController _scrollController;
   SearchResult<Company>? companyResult;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
+  SearchResult<CompanyRole>? companyRoleResult;
 
   final TextEditingController _companyNameController = TextEditingController();
+  int? _selectedCompanyRoleId;
   bool showApplicants = false;
   bool showDeleted = false;
+  bool _isInitialized = false;
+  bool isLoading = false;
   int companyEmployeeId = 0;
+    List<DropdownMenuItem<int>> roleDropdownItems = [];
 
   Timer? _debounce;
   int _selectedCompanyId = AuthProvider.selectedCompanyId ?? 0;
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      companyProvider = context.read<CompanyProvider>();
-      companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
-      companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
+void initState() {
+  super.initState();
 
-       if (AuthProvider.selectedCompanyId == null) {
 
+  companyEmployeePagination = PaginatedFetcher<CompanyEmployee>(
+    pageSize: 0,
+    initialFilter: {},
+    fetcher: ({
+      required int page,
+      required int pageSize,
+      Map<String, dynamic>? filter,
+    }) async {
+      return PaginatedResult(result: [], count: 0);
+    },
+  );
+
+  _scrollController = ScrollController();
+  _scrollController.addListener(() {
+    if (!_isInitialized) return; 
+
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 100 &&
+        companyEmployeePagination.hasNextPage &&
+        !companyEmployeePagination.isLoading) {
+      companyEmployeePagination.loadMore();
+    }
+  });
+
+  companyProvider = context.read<CompanyProvider>();
+  companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
+  companyRoleProvider = context.read<CompanyRoleProvider>();
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    setState(() => isLoading = true);
+
+
+    if (AuthProvider.selectedCompanyId == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
     if (AuthProvider.selectedCompanyId != null) {
+      companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+
+      companyEmployeePagination = PaginatedFetcher<CompanyEmployee>(
+        pageSize: 20,
+        initialFilter: {
+        },
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+          
+        }) async {
+          final result = await companyEmployeeProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult(result: result.result, count: result.count);
+        },
+      )..addListener(() => setState(() {}));
+
+      await companyEmployeePagination.refresh(newFilter: {
+        'CompanyId': AuthProvider.selectedCompanyId,
+        'IsDeleted': showDeleted,
+        'IsApplicant': showApplicants,
+      });
       await _getCompany();
-      await _getEmployees();
       await _getJobAssignments();
-    } else {
-      debugPrint("selectedCompanyId is still null, aborting fetch.");
+      await _getCompanyRoles();
+
+      setState(() {
+        _isInitialized = true;
+        isLoading = false;
+      });
     }
-     
-    });
-  }
+  });
+}
+
     @override
   void dispose() {
     _debounce?.cancel();
@@ -107,30 +175,94 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
       companyResult = fetchedCompanies;
     });
   }
-  
+  Future<void> _getCompanyRoles() async {
+    final filter = {
+      'CompanyId':AuthProvider.selectedCompanyId,
+    };
+
+    try {
+  final fetchedCompanyRoles = await companyRoleProvider.get(filter: filter);
+  if(!mounted) return;
+  setState(() {
+    companyRoleResult = fetchedCompanyRoles;
+    roleDropdownItems = [
+        const DropdownMenuItem(value: null, child: Text("Sve uloge")),
+        ...fetchedCompanyRoles.result.map((e) => DropdownMenuItem(
+              value: e.companyRoleId,
+              child: Text(e.roleName ?? ''),
+            ))
+      ];
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text('Greška u dohvaćanju uloga radnika'),
+  ));
+}
+  }
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), _getCompany);
+    _refreshWithFilter();
   }
+   Future<void> _refreshWithFilter() async {
+  setState(() => isLoading = true);
+
+  final filter = <String, dynamic>{
+    'CompanyId': AuthProvider.selectedCompanyId,
+  };
+
+  if (_companyNameController.text.trim().isNotEmpty) {
+    filter['Name'] = _companyNameController.text.trim();
+  }
+
+  if (_selectedCompanyRoleId != null) {
+    filter['EmployeeRole'] = _selectedCompanyRoleId;
+  }
+
+  if (showApplicants) {
+    filter['IsApplicant'] = true;
+  }
+  if (showDeleted) {
+    filter['IsDeleted'] = true;
+  }
+  if (!showApplicants && !showDeleted) {
+
+    filter['IsApplicant'] = false;
+    filter['IsDeleted'] = false;
+  }
+
+  await companyEmployeePagination.refresh(newFilter: filter);
+  setState(() => isLoading = false);
+}
 
    void _openUserDeleteDialog({required CompanyEmployee companyEmployee}) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisatu ovu firmu?'),
+        content: Text('Jeste li sigurni da želite izbrisatu ovog zaposlenika?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await companyProvider.delete(companyEmployee.companyEmployeeId);
-              _getCompany();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+          
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              print('Saljemo id: ${companyEmployee.companyEmployeeId}');
+              try{
+              await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
+              }catch(e){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u brisanju radnika. Pokušajte ponovo.')));
+              }
+              await companyEmployeePagination.refresh(newFilter: {
+                'CompanyId': AuthProvider.selectedCompanyId,
+                'IsDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
@@ -142,41 +274,64 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovu firmu?'),
+        content: Text('Jeste li sigurni da želite vratiti ovog zaposlenika?'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await companyProvider.delete(companyEmployee.companyEmployeeId);
-              _getCompany();
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
+          
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
+              await companyEmployeePagination.refresh(newFilter: {
+                'CompanyId': AuthProvider.selectedCompanyId,
+                'IsDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
           ),
         ],
       ),
     );
   }
-   void _openEmployeeRoleDialog({required int companyId}) {
+   void _openEmployeeRoleDialog({required int companyId}) async {
     showDialog(
       context: context,
-      builder: (_) =>
+      builder: (_)  =>
           CompanyRoleDialog(companyId: companyId),
-    
+
     );
+    await companyEmployeePagination.refresh(newFilter: {
+      'CompanyId': AuthProvider.selectedCompanyId,
+      'IsDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+    });
   }
-     void _openEmployeeRoleAddDialog({required int companyId, required CompanyEmployee companyEmployee}) {
-    showDialog(
-      context: context,
-      builder: (_) =>
-          CompanyRoleAssignmentDialog(companyId: companyId,companyEmployee: companyEmployee,),
-    
-    );
-    _getEmployees();
+     Future<void> _openEmployeeRoleAddDialog({
+  required int companyId,
+  required CompanyEmployee companyEmployee,
+}) async {
+  final result = await showDialog(
+    context: context,
+    builder: (_) => CompanyRoleAssignmentDialog(
+      companyId: companyId,
+      companyEmployee: companyEmployee,
+    ),
+  );
+
+
+  if (result == true) {
+    await companyEmployeePagination.refresh(newFilter: {
+      'CompanyId': AuthProvider.selectedCompanyId,
+      'IsDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+    });
   }
+}
+
   void _openAddEmployeeDialog({required int companyId}) {
     showDialog(
       context: context,
@@ -188,9 +343,8 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   
   @override
   Widget build(BuildContext context) {
-    final filterLoggedInUser = companyEmployeeResult?.result
-        .where((element) => element.userId != AuthProvider.user?.userId)
-        .toList();
+    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+    
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -203,13 +357,33 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                 child: TextField(
                   controller: _companyNameController,
                   decoration: const InputDecoration(
-                    labelText: 'Ime Firme',
+                    labelText: 'Ime Zaposlenika',
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (_) => _onSearchChanged(),
                 ),
               ),
+              const SizedBox(width: 8),
+            Expanded(
+  child: DropdownButtonFormField<int>(
+   value: _selectedCompanyRoleId,
+    decoration: InputDecoration(
+      
+   
+      labelText: 'Uloge',
+                    prefixIcon: Icon(Icons.content_paste_search_rounded),
+                    border: OutlineInputBorder(),
+    ),
+    items: roleDropdownItems,
+    onChanged: (val) {
+      setState(() => _selectedCompanyRoleId = val);
+      _onSearchChanged();
+    },
+  ),
+),
+
+
               const SizedBox(width: 8),
               Row(
                 children: [
@@ -218,7 +392,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                     value: showApplicants,
                     onChanged: (val) {
                       setState(() => showApplicants = val);
-                      _getCompany();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -230,7 +404,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                     value: showDeleted,
                     onChanged: (val) {
                       setState(() => showDeleted = val);
-                      _getCompany();
+                      _onSearchChanged();
                     },
                   ),
                 ],
@@ -238,7 +412,8 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
                Row(
                 children: [
                   
-                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),child: const Text("Uloge"),)
+                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),child: const Text("Uloge",style: TextStyle(color: Colors.white),),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),)
                 ],
               ),
             ],
@@ -256,7 +431,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     const Expanded(flex: 3, child: Text("Broj Angažmana", style: TextStyle(fontWeight: FontWeight.bold))),
 
    if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
+                const Expanded(flex: 2, child: Icon(Icons.schedule, size: 18)),
               if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
               if (showDeleted)
@@ -266,97 +441,138 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   ],
 ),
 
-          Expanded(
-            child: companyEmployeeResult == null
-                ? const Center(child: CircularProgressIndicator())
-                : companyEmployeeResult!.result.isEmpty
-                    ? const Center(child: Text('No companies found.'))
-                    : ListView.separated(
-                        itemCount: filterLoggedInUser?.length ?? 0,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final c = filterLoggedInUser?[index] ?? companyEmployeeResult!.result[index];
-             
+      Expanded(
+  child: companyEmployeePagination.isLoading && companyEmployeePagination.items.isEmpty
+      ? const Center(child: CircularProgressIndicator())
+      : companyEmployeePagination.items.isEmpty
+          ? const Center(child: Text('Nema zaposlenika.'))
+          : ListView.separated(
+              controller: _scrollController,
+              itemCount: companyEmployeePagination.items.length + 1,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                if (index == companyEmployeePagination.items.length) {
+              
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          onPressed: () {
+                            _openAddEmployeeDialog(companyId: _selectedCompanyId);
+                          },
+                          child: const Text("Dodaj zaposlenika",style: TextStyle(color: Colors.white),),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                            child: Row(
-                              children: [
-                                Expanded(flex: 2, child: Text(c.user?.firstName ?? 'Nema')),
-                                Expanded(flex: 2, child: Text(c.user?.lastName ?? '')),
-                                Expanded(flex: 2, child: Text(c.user?.email ?? '')),
-                                Expanded(flex: 3, child: Text(c.user?.phoneNumber ?? '')),
-                                Expanded(flex:3,child: InkWell(child:Text(c.companyRoleName ?? 'Nema Ulogu'),onTap: ()=>
-                              _openEmployeeRoleAddDialog(companyId: _selectedCompanyId,companyEmployee: c))),
-                              Expanded(flex: 3,child: Text('${getJobsPerEmployee(c.companyEmployeeId)}')),
-                                if (!showApplicants && !showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      tooltip: 'Uredi',
-                                      onPressed: () async {
-                                       showDialog(context: context, builder: (_) => CompanyEmployeeDetails(companyEmployee: c,));
-                                      },
-                                    ),
-                                  ),
-                                  
-                                if (!showApplicants && !showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      tooltip: 'Izbriši',
-                                      onPressed: () => _openUserDeleteDialog(companyEmployee: c),
-                                    ),
-                                  ),
-                                if (showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.restore),
-                                      tooltip: 'Vrati',
-                                      onPressed: () => _openUserRestoreDialog(companyEmployee: c),
-                                    ),
-                                  ),
-                                if (showApplicants)
-                                  Expanded(
-                                    flex: 2,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.check, color: Colors.green),
-                                          tooltip: 'Odobri',
-                                          onPressed: () async {
-                                          }
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.close, color: Colors.red),
-                                          tooltip: 'Odbaci',
-                                          onPressed: () async {
-                                            // Add rejection logic here
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            
-                          );
-                          
-                        },
-                        
+                final c = companyEmployeePagination.items[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 2, child: Text(c.user?.firstName ?? 'Nema')),
+                      Expanded(flex: 2, child: Text(c.user?.lastName ?? '')),
+                      Expanded(flex: 2, child: Text(c.user?.email ?? '')),
+                      Expanded(flex: 3, child: Text(c.user?.phoneNumber ?? '')),
+                      Expanded(
+                        flex: 3,
+                        child: InkWell(
+                          child: Text(c.companyRoleName ?? 'Nema Ulogu'),
+                          onTap: () async {
+                            _openEmployeeRoleAddDialog(
+                              companyId: _selectedCompanyId,
+                              companyEmployee: c,
+                            );
+                          },
+                        ),
                       ),
+                      Expanded(
+                        flex: 3,
+                        child: c.userId != AuthProvider.user?.userId
+                            ? Text('${getJobsPerEmployee(c.companyEmployeeId)}')
+                            : const Text('Administrator'),
+                      ),
+                      if (!showApplicants && !showDeleted)
+                        Expanded(
+                          flex: 2,
+                          child: IconButton(
+                            color: c.userId != AuthProvider.user?.userId
+                                ? Colors.black
+                                : Colors.grey,
+                            icon: const Icon(Icons.schedule),
+                            tooltip: 'Uredi',
+                            onPressed: () async {
+                              if (c.userId != AuthProvider.user?.userId) {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      CompanyEmployeeDetails(companyEmployee: c),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      if (!showApplicants && !showDeleted)
+                        Expanded(
+                          flex: 2,
+                          child: IconButton(
+                            color: c.userId != AuthProvider.user?.userId
+                                ? Colors.black
+                                : Colors.grey,
+                            icon: const Icon(Icons.delete),
+                            tooltip: 'Izbriši',
+                            onPressed: () async {
+                              if (c.userId != AuthProvider.user?.userId) {
+                                _openUserDeleteDialog(companyEmployee: c);
+                              }
+                            },
+                          ),
+                        ),
+                      if (showDeleted)
+                        Expanded(
+                          flex: 2,
+                          child: IconButton(
+                            icon: const Icon(Icons.restore),
+                            tooltip: 'Vrati',
+                            onPressed: () async =>
+                                _openUserRestoreDialog(companyEmployee: c),
+                          ),
+                        ),
+                      if (showApplicants)
+                        Expanded(
+                          flex: 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.check, color: Colors.green),
+                                tooltip: 'Odobri',
+                                onPressed: () async {},
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.red),
+                                tooltip: 'Odbaci',
+                                onPressed: () async {},
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+)
 
 
-          ),
+
           
-          ElevatedButton(onPressed: (){
-            _openAddEmployeeDialog(companyId: _selectedCompanyId);
-
-          }, child: Text("Dodaj zaposlenika")),
+        
         ],
       ),
     );

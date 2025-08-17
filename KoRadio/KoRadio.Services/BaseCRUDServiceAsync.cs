@@ -68,11 +68,14 @@ namespace KoRadio.Services
 		{
 
 			var entity = await _context.Set<TDbEntity>().FindAsync(id, cancellationToken);
+
 			await BeforeDeleteAsync(entity, cancellationToken);
 			if (entity == null)
 			{
 				throw new UserException("Unesite postojeći id.");
 			}
+			
+		
 
 			if (entity is ISoftDelete softDeleteEntity)
 			{
@@ -84,10 +87,7 @@ namespace KoRadio.Services
 
 					_context.Update(entity);
 				}
-				if(softDeleteEntity.IsDeletedWorker==false)
-				{
-					softDeleteEntity.IsDeletedWorker = true;
-				}
+				
 			
 
 
@@ -99,7 +99,21 @@ namespace KoRadio.Services
 				}
 				
 			}
-		
+			else if (entity is IApplicantDelete applicantDeleteEntity && entity is ISoftDelete softDeleteEntityApplicant)
+			{
+
+				if (softDeleteEntityApplicant.IsDeleted == false && applicantDeleteEntity.IsApplicant == true)
+				{
+
+					_context.Remove(entity);
+
+
+
+				}
+
+			}
+
+
 
 			else
 			{

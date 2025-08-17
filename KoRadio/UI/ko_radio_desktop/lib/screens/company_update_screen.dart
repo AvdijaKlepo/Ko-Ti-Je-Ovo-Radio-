@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,18 +11,17 @@ import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
-import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
-class CompanyUpdateDialog extends StatefulWidget {
-  const CompanyUpdateDialog({super.key, required this.company});
-  final Company company;
+class CompanyUpdateScreen extends StatefulWidget {
+  const CompanyUpdateScreen({super.key, required this.companyId});
+  final int companyId;
 
   @override
-  State<CompanyUpdateDialog> createState() => _CompanyUpdateDialogState();
+  State<CompanyUpdateScreen> createState() => _CompanyUpdateScreenState();
 }
 
-class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
+class _CompanyUpdateScreenState extends State<CompanyUpdateScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late CompanyProvider companyProvider;
@@ -38,9 +33,6 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
   late List<bool> _selectedDays;
-  File? _image;
-  String? _base64Image;
-
 
   @override
   void initState() {
@@ -48,29 +40,35 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
     locationProvider = context.read<LocationProvider>();
     serviceProvider = context.read<ServiceProvider>();
     companyProvider = context.read<CompanyProvider>();
-    _startTime = _parseTime(widget.company.startTime);
-    _endTime   = _parseTime(widget.company.endTime);
+   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  await _getCompany();
+  if (companyResult == null || companyResult!.result.isEmpty) return;
 
-    final now = DateTime.now();
-    _initialValue = {
-    "companyName":     widget.company.companyName,
-    "email":           widget.company.email,
-    "bio":             widget.company.bio,
-    "phoneNumber":     widget.company.phoneNumber,
-    "experianceYears": widget.company.experianceYears.toString(),
-    "workingDays":     widget.company.workingDays?.map((d) => d.toString()).toList(),
+  final company = companyResult!.result.first;
+
+  _startTime = _parseTime(company.startTime);
+  _endTime   = _parseTime(company.endTime);
+
+  final now = DateTime.now();
+  _initialValue = {
+    "companyName":     company.companyName,
+    "email":           company.email,
+    "bio":             company.bio,
+    "phoneNumber":     company.phoneNumber,
+    "experianceYears": company.experianceYears.toString(),
+    "workingDays":     company.workingDays?.map((d) => d.toString()).toList(),
     "startTime":       DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute),
-    "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour,   _endTime.minute),
-    "serviceId": widget.company.companyServices
-    .map((e) => e.serviceId)
-    .whereType<int>() 
-    .toList(),
-    "locationId": widget.company.location?.locationId,
-    'image': widget.company.image,
-
+    "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute),
+    "serviceId": company.companyServices
+        .map((e) => e.serviceId)
+        .whereType<int>() 
+        .toList(),
+    "locationId": company.location?.locationId,
   };
-    _getLocations();
-    _getServices();
+
+  await _getLocations();
+  await _getServices();
+});
 
   }
   TimeOfDay _parseTime(String timeStr) {
@@ -141,7 +139,9 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
+              child: companyResult == null
+                ? const Center(child: CircularProgressIndicator()) 
+                : SingleChildScrollView(
                 child: FormBuilder(
                   key: _formKey,
                   initialValue: _initialValue,
@@ -150,21 +150,21 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                   children: [
                     const Text("Podaci Firme", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 20),
-                     FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:")),
+                     FormBuilderTextField(name: "companyName", decoration: const InputDecoration(labelText: "Ime Firme:"),validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     const SizedBox(height: 20),
 
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis")),
+                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Opis"), maxLines: 3,validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     const SizedBox(height: 20),
 
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email")),
+                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"), validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     const SizedBox(height: 20),
                     
                     FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva")),
+                        name: "experianceYears", decoration: const InputDecoration(labelText: "Godine iskustva"), validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                     const SizedBox(height: 20),
 
                           FormBuilderTextField(
-                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj")),
+                        name: "phoneNumber", decoration: const InputDecoration(labelText: "Telefonski broj"), validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
                 
                     const SizedBox(height: 20),
                   
@@ -172,6 +172,7 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                       name: 'startTime',
                       decoration: const InputDecoration(labelText: "Početak radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                     ),
                     const SizedBox(height: 20),
                 
@@ -179,15 +180,19 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                       name: 'endTime',
                       decoration: const InputDecoration(labelText: "Kraj radnog vremena"),
                       inputType: InputType.time,
+                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                     ),
                     const SizedBox(height: 20),
 
                      Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: serviceResult?.result.length != null
-                          ? FormBuilderFilterChip(
+                          ? FormBuilderFilterChip<int>(
+                          
+                              
                               name: "serviceId",
                               decoration: const InputDecoration(border: InputBorder.none),
+                              validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                               options: serviceResult!.result
                                   .map((s) => FormBuilderChipOption(
                                       value: s.serviceId, child: Text(s.serviceName ?? "")))
@@ -200,6 +205,7 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                     const SizedBox(height: 20),
                     
                        FormBuilderCheckboxGroup<String>(
+                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       name: 'workingDays',
                       decoration: InputDecoration(labelText: "Radni dani"),
                       options: [
@@ -215,6 +221,7 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                     const SizedBox(height: 20),
 
                     FormBuilderDropdown<int>(
+                      
                       name: 'locationId',
                       decoration: const InputDecoration(labelText: "Lokacija*"),
                       validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
@@ -226,69 +233,6 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                               .toList() ??
                           [],
                     ),
-                    SizedBox(height: 20,),
-                      FormBuilderField(
-  name: "image",
-
-  builder: (field) {
-    return InputDecorator(
-      decoration:  InputDecoration(
-        labelText: "Proslijedite sliku firme",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: 
-            
-             _image != null
-                ? Text(_image!.path.split('/').last)
-                :  widget.company.image!= null ?
-            const Text('Proslijeđena slika') :
-                
-                 const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-
-
-
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.company.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () =>  getImage(field) 
-             
-            ),
-          ),
-          const SizedBox(height: 10),
-          _image != null ?
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-               
-                fit: BoxFit.cover,
-              ),
-            ) :
-            widget.company.image!=null ?
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child : imageFromString(widget.company.image ?? '',
-              fit: BoxFit.cover
-              ),
-            ) : const SizedBox.shrink()
-           
-            ,
-        ],
-      ),
-    );
-  },
-),
                  const SizedBox(height: 30),
                       Align(
                         alignment: Alignment.centerRight,
@@ -309,62 +253,41 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
       ),
     );
   }
-   void getImage(FormFieldState field) async {
-  var result = await FilePicker.platform.pickFiles(type: FileType.image);
-
-  if (result != null && result.files.single.path != null) {
-    setState(() {
-      _image = File(result.files.single.path!);
-      _base64Image = base64Encode(_image!.readAsBytesSync());
-    });
-
- 
-    field.didChange(_image);
-  }
-}
   Future<void> _save() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final request = Map<String, dynamic>.from(_formKey.currentState!.value);
+  if (_formKey.currentState?.saveAndValidate() ?? false) {
+    final request = Map<String, dynamic>.from(_formKey.currentState!.value);
+    final company = companyResult!.result.first;
 
-      request['isApplicant'] = false;
-      request['isDeleted'] = false;
-      request['employee'] = widget.company.companyEmployees.map((e) => e.userId).toList();
-      request['rating'] = widget.company.rating;
-      request['companyId'] = widget.company.companyId;
-      if(_image!=null)
-      {
-        request['image'] = _base64Image;
-      }
-      else{
-        request['image'] = widget.company.image;
-      }
-   
-   
+    request['isApplicant'] = false;
+    request['isDeleted'] = false;
+    request['employee'] = company.companyEmployees.map((e) => e.userId).toList();
+    request['rating'] = company.rating;
+    request['companyId'] = company.companyId;
 
-   
-      request['workingDays'] = (request['workingDays'] as List).map((e) => e.toString()).toList();
+    request['workingDays'] = (request['workingDays'] as List).map((e) => e.toString()).toList();
+    request['serviceId'] = (request['serviceId'] as List)
+        .map((e) => int.tryParse(e.toString()) ?? 0)
+        .toList();
 
-
-      request['serviceId'] = (request['serviceId'] as List).map((e) => int.tryParse(e.toString()) ?? 0).toList();
-
-       if (request["startTime"] is DateTime) {
+    if (request["startTime"] is DateTime) {
       request["startTime"] = (request["startTime"] as DateTime).toIso8601String().substring(11, 19);
     }
     if (request["endTime"] is DateTime) {
       request["endTime"] = (request["endTime"] as DateTime).toIso8601String().substring(11, 19);
     }
 
-      try {
-        await companyProvider.update(widget.company.companyId, request);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Podaci uspješno uređeni!")),
-        );
-        Navigator.pop(context, true);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Greška: ${e.toString()}")),
-        );
-      }
+    try {
+      await companyProvider.update(company.companyId, request);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Podaci uspješno uređeni!")),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
     }
   }
+}
+
 }

@@ -2,8 +2,10 @@
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.RabbitMQ;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Subscriber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +16,11 @@ namespace KoRadio.Services
 {
 	public class OrderService : BaseCRUDServiceAsync<Model.Order, OrderSearchObject, Database.Order, OrderInsertRequest, OrderUpdateRequest>, IOrderService
 	{
-		public OrderService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
+		private readonly IRabbitMQService _rabbitMQService;
+		public OrderService(KoTiJeOvoRadioContext context, IMapper mapper,IRabbitMQService rabbitMQService) : base(context, mapper)
 		{
+			_rabbitMQService = rabbitMQService;
 
-			
 		}
 
 		public override IQueryable<Order> AddFilter(OrderSearchObject search, IQueryable<Order> query)
@@ -47,6 +50,28 @@ namespace KoRadio.Services
 		});
 
 			}
+			if(search.Name!=null)
+			{
+				
+				query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).StartsWith(search.Name));
+			
+			}
+			if(search.IsShipped==true)
+			{
+				query = query.Where(x => x.IsShipped == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsShipped == false);
+			}
+			if (search.IsCancelled == true)
+			{
+				query = query.Where(x => x.IsCancelled == true);
+			}
+			else
+			{
+				query = query.Where(x => x.IsCancelled == false);
+			}
 			return base.AddFilter(search, query);
 		}
 
@@ -59,6 +84,26 @@ namespace KoRadio.Services
 		{
 			entity.OrderItems.Clear();          
 			return base.BeforeInsertAsync(request, entity, cancellationToken);
+		}
+		public override async Task BeforeUpdateAsync(OrderUpdateRequest request, Order entity, CancellationToken cancellationToken = default)
+		{
+			
+			var order = await _context.Orders
+				.Include(x => x.User)
+				.FirstOrDefaultAsync(x => x.OrderId == entity.OrderId, cancellationToken);
+
+			if (request.IsShipped == true && entity.IsShipped == false)
+			{
+				await _rabbitMQService.SendEmail(new Email
+				{
+					EmailTo = order.User.Email,
+					Message = $"Poštovani, vaša narudžba broja {entity.OrderNumber} je poslana na vašu adresu." +
+					"Očekujte je u slijedećih par dana. Lijep pozdrav",
+					ReceiverName = $"{order.User.FirstName} {order.User.LastName}",
+					Subject = "Stanje narudžbe"
+				});
+			}
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 
 		public override async Task AfterInsertAsync(
