@@ -30,18 +30,21 @@ class _StoreReportState extends State<StoreReport> {
   SearchResult<Store>? storeResult;
   SearchResult<Product>? productResult;
   SearchResult<Order>? orderResult;
+  SearchResult<Order>? cancelledOrderResult;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      storeProvider = context.read<StoreProvider>();
+    storeProvider = context.read<StoreProvider>();
       productProvider = context.read<ProductProvider>();
       orderProvider = context.read<OrderProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      
 
       await _loadStores();
       await _loadProducts();
       await _loadOrders();
+      await _loadCancelledOrders();
     
     });
   }
@@ -76,8 +79,27 @@ class _StoreReportState extends State<StoreReport> {
   );
 }
   }
+  Future<void> _loadCancelledOrders() async {
+    var filter = {'StoreId':AuthProvider.selectedStoreId,
+    'IsShipped': false,
+    'IsCancelled': true};
+    try {
+  final fetchedOrders =
+      await orderProvider.get(filter: filter);
+  
+  setState(() {
+    cancelledOrderResult = fetchedOrders;
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Greška: ${e.toString()}")),
+  );
+}
+  }
    Future<void> _loadOrders() async {
-    var filter = {'StoreId':AuthProvider.selectedStoreId};
+    var filter = {'StoreId':AuthProvider.selectedStoreId,
+    'IsShipped': true,
+    'IsCancelled': false};
     try {
   final fetchedOrders =
       await orderProvider.get(filter: filter);
@@ -202,39 +224,7 @@ class _StoreReportState extends State<StoreReport> {
                                 ),
                 ),
             ),
-              Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.shopping_cart, size: 50),
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj narudžbi',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${orderResult?.count ?? 0}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
+              
                   Card(
                  
                     color: Colors.white,
@@ -257,7 +247,7 @@ class _StoreReportState extends State<StoreReport> {
                             ),
                             subtitle: Center(
                               child: Text(
-                                '${orderResult?.result.where((element) => element.isShipped==true) ?? 0}',
+                                '${orderResult?.result.where((element) => element.isShipped==true).length ?? 0}',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -290,7 +280,7 @@ class _StoreReportState extends State<StoreReport> {
                             ),
                             subtitle: Center(
                               child: Text(
-                                '${orderResult?.result.where((element) => element.isCancelled==true) ?? 0}',
+                                '${cancelledOrderResult?.count}',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),

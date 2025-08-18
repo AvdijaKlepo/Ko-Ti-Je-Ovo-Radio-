@@ -35,7 +35,7 @@ namespace KoRadio.Model.Request
 		public bool? IsApplicant { get; set; }
 		public bool? IsDeleted { get; set; }
 		public List<int> Employee { get; set; }
-		public List<int> Roles { get; set; }
+	
 
 
 	}

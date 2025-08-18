@@ -404,7 +404,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                                                 "endTime": f.endTime,
                                                 "workingDays": workingDaysIntList,
                                                 "serviceId": f.freelancerServices.map((e) => e.serviceId).toList(),
-                                                "roles": [10, 11],
+                                                "roles": [11],
                                                 "isApplicant": false,
                                                 "isDeleted": false,
                                                 'freelancerNavigation': f.freelancerNavigation,
@@ -413,7 +413,11 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               const SnackBar(content: Text("Radnik odobren!")),
                                             );
-                                            _getFreelancers();
+                                            await freelancerPagination.refresh(newFilter: {
+                                              'IsServiceIncluded': true,
+                                              'IsApplicant': showApplicants,
+                                              'isDeleted': showDeleted,
+                                            });
                                           },
                                         ),
                                         IconButton(

@@ -55,33 +55,39 @@ namespace KoRadio.Services
 			}
 			return base.AddFilter(search, query);
 		}
-		public override Task BeforeUpdateAsync(StoreUpdateRequest request, Store entity, CancellationToken cancellationToken = default)
+		public override async Task BeforeUpdateAsync(StoreUpdateRequest request, Store entity, CancellationToken cancellationToken = default)
 		{
-			if(entity.IsApplicant==true && request.IsApplicant==false)
+			if (entity.IsApplicant == true && request.IsApplicant == false)
 			{
 				if (request.Roles != null && request.Roles.Any())
 				{
-					var existingRoles = _context.UserRoles
+					
+					var existingRoleIds = _context.UserRoles
 						.Where(ur => ur.UserId == entity.UserId)
-						.ToList();
-
-					_context.UserRoles.RemoveRange(existingRoles);
+						.Select(ur => ur.RoleId)
+						.ToHashSet();
 
 					foreach (var roleId in request.Roles.Distinct())
 					{
-						_context.UserRoles.Add(new Database.UserRole
+						if (!existingRoleIds.Contains(roleId))
 						{
-							UserId = entity.UserId,
-							RoleId = roleId,
-							ChangedAt = DateTime.UtcNow,
-							CreatedAt = DateTime.UtcNow
-						});
+							_context.UserRoles.Add(new Database.UserRole
+							{
+								UserId = entity.UserId,
+								RoleId = roleId,
+								ChangedAt = DateTime.Now,
+								CreatedAt = DateTime.Now
+							});
+						}
 					}
 
 					_context.SaveChanges();
 				}
 			}
-			return base.BeforeUpdateAsync(request, entity, cancellationToken);
+
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 	}
 }

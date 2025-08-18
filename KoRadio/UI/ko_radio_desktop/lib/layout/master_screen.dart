@@ -118,7 +118,7 @@ signalR.onNotificationReceived = (message) async {
       var fetched = await messagesProvider.get(filter: filter,orderBy: 'desc');
       setState(() => notificationResult = fetched);
     } catch (e) {
-
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Greška: $e')),
         
@@ -275,7 +275,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
+      drawer: const Drawer(
         backgroundColor: Colors.white,
 
         child: Column(
@@ -315,9 +315,9 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                             companyId: AuthProvider.selectedCompanyId!,
                           ),
                         );
-                      }, icon: Icon(Icons.settings_outlined,color: Colors.white,),),
+                      }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
                       const SizedBox(width: 10,),
-                      Text('Postavke',style: TextStyle(color: Colors.white),),
+                      const Text('Postavke',style: TextStyle(color: Colors.white),),
                     ],
                   ),
                 ),
@@ -340,9 +340,9 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                             storeId: AuthProvider.selectedStoreId!,
                           ),
                         );
-                      }, icon: Icon(Icons.settings_outlined,color: Colors.white,),),
+                      }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
                       const SizedBox(width: 10,),
-                      Text('Postavke',style: TextStyle(color: Colors.white),),
+                      const Text('Postavke',style: TextStyle(color: Colors.white),),
                     ],
                   ),
                 ),
@@ -391,7 +391,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
                 Padding(padding: const EdgeInsets.only(right: 110),
                 child:  Row(
                        children: [

@@ -26,7 +26,7 @@ namespace KoRadio.Model.Request
 		public TimeOnly EndTime { get; set; }
 
 		public  ICollection<int> ServiceId { get; set; } = new List<int>();
-		public List<int> Roles { get; set; }
+	
 		public bool IsApplicant { get; set; }
 
 

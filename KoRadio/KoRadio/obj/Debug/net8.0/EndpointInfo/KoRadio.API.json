@@ -2516,6 +2516,13 @@
             }
           },
           {
+            "name": "IsCancelled",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -4938,14 +4945,6 @@
               "format": "int32"
             },
             "nullable": true
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5222,6 +5221,14 @@
             "nullable": true
           },
           "employee": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "roles": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -5539,14 +5546,6 @@
             "format": "time"
           },
           "serviceId": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
-          },
-          "roles": {
             "type": "array",
             "items": {
               "type": "integer",

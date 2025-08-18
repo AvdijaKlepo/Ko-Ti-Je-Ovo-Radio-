@@ -23,6 +23,9 @@ class _OrderListState extends State<OrderList> {
   bool _isInitialized = false;
   Timer? _debounce;
 
+  // New: segment selection
+  String _selectedSegment = "made"; // "made", "shipped", "cancelled"
+
   @override
   void initState() {
     super.initState();
@@ -70,36 +73,74 @@ class _OrderListState extends State<OrderList> {
     });
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      _refreshWithFilter();
-    });
-  }
-
   Future<void> _refreshWithFilter() async {
+    bool? isShipped;
+    bool? isCancelled;
+
+    switch (_selectedSegment) {
+      case "made":
+        isShipped = false;
+        isCancelled = false;
+        break;
+      case "shipped":
+        isShipped = true;
+        isCancelled = false;
+        break;
+      case "cancelled":
+        isShipped = null;
+        isCancelled = true;
+        break;
+    }
+
     final filter = <String, dynamic>{
       'UserId': AuthProvider.user?.userId,
+      'IsShipped': isShipped,
+      'IsCancelled': isCancelled,
     };
 
     await orderPagination.refresh(newFilter: filter);
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _debounce?.cancel();
-    super.dispose();
+  void _onSegmentChanged(String segment) {
+    setState(() {
+      _selectedSegment = segment;
+    });
+    _refreshWithFilter();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text('Moje narudžbe',style: TextStyle(color:Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
+      appBar: AppBar(
+        title: Text(
+          'Moje narudžbe',
+          style: TextStyle(
+            color: Color.fromRGBO(27, 76, 125, 25),
+            fontFamily: GoogleFonts.lobster().fontFamily,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: !_isInitialized
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                // SegmentedButton filter
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  child: SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: "made", label: Text("Kreirane")),
+                      ButtonSegment(value: "shipped", label: Text("Poslane")),
+                      ButtonSegment(value: "cancelled", label: Text("Otkazane")),
+                    ],
+                    selected: {_selectedSegment},
+                    onSelectionChanged: (newSelection) {
+                      _onSegmentChanged(newSelection.first);
+                    },
+                  ),
+                ),
+
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _refreshWithFilter,
@@ -114,6 +155,7 @@ class _OrderListState extends State<OrderList> {
                             controller: _scrollController,
                             itemCount: orderPagination.items.length + 1,
                             itemBuilder: (context, index) {
+                              
                               if (index < orderPagination.items.length) {
                                 final order = orderPagination.items[index];
                                 final itemCount = order.orderItems?.length ?? 0;
@@ -129,8 +171,14 @@ class _OrderListState extends State<OrderList> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    title: Text('Narudžba #${order.orderNumber ?? "-"}',style: TextStyle(color: Colors.white),),
-                                    subtitle: Text('Broj stavki: $itemCount \nTrgovina: ${order.orderItems?.map((e) => e.store?.storeName ?? "Nije dostupno").join(', ')}\nStanje: ${order.isShipped==null ? "Poslana" : "Nije poslana"}',style: TextStyle(color: Colors.white),),
+                                    title: Text(
+                                      'Narudžba #${order.orderNumber ?? "-"}',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    subtitle: Text(
+                                      'Broj stavki: $itemCount \nTrgovina: ${order.orderItems?.first.store?.storeName}',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
                                     trailing: const Icon(Icons.chevron_right, color: Colors.white),
                                     onTap: () {
                                       Navigator.of(context).push(

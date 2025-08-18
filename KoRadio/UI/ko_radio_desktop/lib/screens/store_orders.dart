@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/order.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/messages_provider.dart';
 import 'package:ko_radio_desktop/providers/order_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
+import 'package:ko_radio_desktop/screens/order_details.dart';
 import 'package:provider/provider.dart';
 
 class StoreOrders extends StatefulWidget {
@@ -18,6 +20,7 @@ class StoreOrders extends StatefulWidget {
 
 class _StoreOrdersState extends State<StoreOrders> {
   late OrderProvider orderProvider;
+  late MessagesProvider messagesProvider;
   late PaginatedFetcher<Order> orderPagination;
   late ScrollController _scrollController;
   SearchResult<Order>? orderResult;
@@ -57,6 +60,7 @@ class _StoreOrdersState extends State<StoreOrders> {
         }
       });
       orderProvider = context.read<OrderProvider>();
+      messagesProvider = context.read<MessagesProvider>();
       orderPagination = PaginatedFetcher<Order>(
         pageSize: 20,
         initialFilter: {},
@@ -118,6 +122,52 @@ class _StoreOrdersState extends State<StoreOrders> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
+  Future<void> _showCancellDialog(Order order) async {
+    
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Otkaži?'),
+        content:
+            const Text('Jeste li sigurni da želite otkazati ovu narudžbu?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+  await orderProvider.delete(order.orderId);
+  await messagesProvider.insert({
+    'message1': 'Narudžba ${order.orderNumber} je otkazana.',
+    'userId':order.user?.userId,
+    'isOpened': false,
+    'createdAt': DateTime.now().toIso8601String(),
+  });
+
+  orderPagination.refresh(newFilter: {
+    'StoreId': AuthProvider.selectedStoreId,
+    'IsShipped': showShipped,
+    'IsCancelled': showCancelled,
+  });
+  if (!mounted) return;
+} on Exception catch (e) {
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+   
+    const SnackBar(content: Text('Greška pri otkazivanju. Pokušajte ponoovo.')),
+  );
+  
+}
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     if(!_isInitialized) return const Center(child: CircularProgressIndicator());
@@ -135,12 +185,12 @@ class _StoreOrdersState extends State<StoreOrders> {
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(),
                   ),
-              
+                  onChanged: (_) => _onSearchChanged(),
                 ),
               ),
               Row(
                 children: [
-                  const Text("Prikaži posalne"),
+                  const Text("Prikaži poslane"),
                   Switch(
                     value: showShipped,
                     onChanged: (val) {
@@ -168,19 +218,22 @@ class _StoreOrdersState extends State<StoreOrders> {
           const SizedBox(height: 16),
          Row(
   children: [
-    Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
-    Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
-    Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
  
-    Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
-
-      if(!showShipped)
-      Expanded(flex: 1, child: Padding(
+    const Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
+ const Expanded(flex: 1, child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Icon(Icons.receipt_long, size: 18),
+    )),
+      if(!showShipped && !showCancelled)
+      const Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.local_shipping, size: 18),
     )),
-    if(!showShipped)
-    Expanded(flex: 1, child: Padding(
+    if(!showShipped && !showCancelled)
+    const Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.delete, size: 18),
     )),
@@ -221,7 +274,18 @@ class _StoreOrdersState extends State<StoreOrders> {
                                   flex: 2,
                                   child: Text(order.isShipped == true ? 'Poslano' : 'Nije poslano'),
                                 ),
-                                if(!showShipped)
+                                Expanded(flex:1,child: IconButton(
+                                  icon: const Icon(Icons.receipt_long),
+                                  tooltip: 'Prikaži detalje',
+                                  onPressed: () async {
+                                   await showDialog(context: context, builder: (context) => OrderDetails(order: order));
+                                   await orderPagination.refresh(newFilter: {
+                                  'StoreId': AuthProvider.selectedStoreId,
+                                  'IsShipped': showShipped,
+                                });
+                                  },
+                                )),
+                                if(!showShipped && !showCancelled)
                                 Expanded(
                                   flex: 1,
                                   child: Checkbox(
@@ -237,14 +301,14 @@ class _StoreOrdersState extends State<StoreOrders> {
                                     },
                                   ),
                                 ),
-                                if(!showShipped)
+                                if(!showShipped && !showCancelled)
                                 Expanded(
                                   flex: 1,
                                   child: IconButton(
                                     icon: const Icon(Icons.delete),
-                                    tooltip: 'Izbriši',
+                                    tooltip: 'Otkaži',
                                     onPressed: () {
-                                      // TODO: soft delete
+                                     _showCancellDialog(order);
                                     },
                                   ),
                                 ),

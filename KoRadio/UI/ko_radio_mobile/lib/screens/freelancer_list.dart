@@ -6,6 +6,7 @@ import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
@@ -199,6 +200,7 @@ class _FreelancerListState extends State<FreelancerList> {
           body: Center(child: CircularProgressIndicator()));
     }
     
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -337,7 +339,8 @@ class _FreelancerListState extends State<FreelancerList> {
   }
 
   Widget _buildFreelancerList() {
-    final items = freelancerPagination?.items ?? [];
+    var filterOutLoggedInUser = freelancerPagination?.items.where((element) => element.freelancerNavigation?.userId!=AuthProvider.user?.userId).toList();
+    final items = filterOutLoggedInUser ?? [];
     return ListView.builder(
       controller: _scrollController,
       itemCount: items.length +

@@ -421,7 +421,7 @@ class _CompanyListState extends State<CompanyList> {
                                                 "workingDays": workingDaysIntList,
                                                 "serviceId": c.companyServices?.map((e) => e.serviceId).toList(),
                                                 "locationId": c.location?.locationId,
-                                                "roles":[10,1009],
+                                                "roles":[1009],
                                                 "isApplicant": false,
                                                 "isDeleted": false,
                                                 "employee": c.companyEmployees?.map((e) => e.userId).toList(),

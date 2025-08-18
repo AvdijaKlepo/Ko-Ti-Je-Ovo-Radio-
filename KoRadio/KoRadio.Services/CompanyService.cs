@@ -4,7 +4,9 @@ using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.SignalRService;
 using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,9 +18,12 @@ namespace KoRadio.Services
 {
     public class CompanyService: BaseCRUDServiceAsync<Model.Company, CompanySearchObject,Database.Company, CompanyInsertRequest, CompanyUpdateRequest>, ICompanyService
 	{
-         public CompanyService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
+		private readonly IHubContext<SignalRHubService> _hubContext;
+		private readonly IMessageService _messageService;
+		public CompanyService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
 		{
-
+			_hubContext = hubContext;
+			_messageService = messageService;
 		}
 
 		public override IQueryable<Database.Company> AddFilter(CompanySearchObject search, IQueryable<Database.Company> query)
@@ -99,7 +104,7 @@ namespace KoRadio.Services
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
-		public override Task BeforeUpdateAsync(CompanyUpdateRequest request, Database.Company entity, CancellationToken cancellationToken = default)
+		public override async Task BeforeUpdateAsync(CompanyUpdateRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
 			if (request.ServiceId != null && request.ServiceId.Any())
 			{
@@ -135,38 +140,66 @@ namespace KoRadio.Services
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
 
-			//if (entity.IsApplicant == true && request.IsApplicant == false)
-			//{
-			//	var companyAdminIds = _context.CompanyEmployees
-			//		.Where(x => x.CompanyId == entity.CompanyId)
-			//		.Select(x => x.UserId)
-			//		.ToList();
+			if (entity.IsApplicant == true && request.IsApplicant == false)
+			{
+				var companyAdminIds = _context.CompanyEmployees
+					.Where(x => x.CompanyId == entity.CompanyId)
+					.Select(x => x.UserId)
+					.ToList();
 
-			//	if (companyAdminIds.Any() && request.Roles != null && request.Roles.Any())
-			//	{
-			//		var existingRoles = _context.UserRoles
-			//			.Where(ur => companyAdminIds.Contains(ur.UserId))
-			//			.ToList();
+				if (companyAdminIds.Any() && request.Roles != null && request.Roles.Any())
+				{
+				
+					var existingUserRoles = _context.UserRoles
+						.Where(ur => companyAdminIds.Contains(ur.UserId))
+						.ToList();
 
-			//		_context.UserRoles.RemoveRange(existingRoles);
+					foreach (var userId in companyAdminIds)
+					{
+						var existingRoleIds = existingUserRoles
+							.Where(ur => ur.UserId == userId)
+							.Select(ur => ur.RoleId)
+							.ToHashSet();
 
-			//		foreach (var userId in companyAdminIds)
-			//		{
-			//			foreach (var roleId in request.Roles)
-			//			{
-			//				_context.UserRoles.Add(new Database.UserRole
-			//				{
-			//					UserId = userId,
-			//					RoleId = roleId,
-			//					ChangedAt = DateTime.UtcNow,
-			//					CreatedAt = DateTime.UtcNow
-			//				});
-			//			}
-			//		}
-			//	}
+						foreach (var roleId in request.Roles.Distinct())
+						{
+							if (!existingRoleIds.Contains(roleId))
+							{
+								_context.UserRoles.Add(new Database.UserRole
+								{
+									UserId = userId,
+									RoleId = roleId,
+									ChangedAt = DateTime.Now,
+									CreatedAt = DateTime.Now
+								});
+							}
+						}
+					}
+					var messageContent = "Freelancer status changed";
 
-			//	_context.SaveChanges();
-			//}
+
+					await _hubContext.Clients.User(companyAdminIds.ToString())
+						.SendAsync("ReceiveNotification", messageContent, cancellationToken);
+
+
+					var insertRequest = new MessageInsertRequest
+					{
+						Message1 = messageContent,
+						
+						UserId = companyAdminIds.First(),
+						
+						IsOpened = false,
+						CreatedAt = DateTime.Now
+					};
+
+					await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+					Console.WriteLine("Notification sent and saved");
+				}
+
+				_context.SaveChanges();
+			}
+
 			if (request.Rating.HasValue && request.Rating.Value > 0)
 			{
 				entity.RatingSum += request.Rating.Value;
@@ -178,7 +211,7 @@ namespace KoRadio.Services
 
 
 
-			return base.BeforeUpdateAsync(request, entity, cancellationToken);
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 
 		public override Task AfterInsertAsync(CompanyInsertRequest request, Database.Company entity, CancellationToken cancellationToken = default)
@@ -193,7 +226,7 @@ namespace KoRadio.Services
 						UserId = userId,
 						IsDeleted = false,
 						IsApplicant=false,
-						DateJoined = DateTime.UtcNow,
+						DateJoined = DateTime.Now,
 						
 
 					});

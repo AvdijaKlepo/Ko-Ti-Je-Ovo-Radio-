@@ -358,15 +358,19 @@ class _StoresListState extends State<StoresList> {
                                                 "description": s.description,
                                                 "isApplicant": false,
                                                 "isDeleted": false,
-                                                "roles":[10,1011],
+                                                "roles":[1011],
                                                 'locationId': s.location?.locationId,
+                                                'address': s.address,
                                               });
                                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Trgovina odobrena!")));
                                             
                                            }catch(e){
                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                                            }
-                                           _getStores();
+                                          await storesPagination.refresh(newFilter: {
+                                            'isDeleted': showDeleted,
+      'IsApplicant': showApplicants,
+                                          });
                                           },
                                         ),
                                         IconButton(

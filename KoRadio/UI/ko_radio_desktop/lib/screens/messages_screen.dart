@@ -203,6 +203,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 itemCount: messagesPagination.items.length + 
                 (messagesPagination.hasNextPage ? 1 : 0),
                 itemBuilder: (context, index) {
+           
                   final e = messagesPagination.items[index];
 
                   return Card(

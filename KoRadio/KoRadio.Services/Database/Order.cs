@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KoRadio.Services.Database;
 
-public partial class Order
+public partial class Order:ISoftCancel
 {
     public int OrderId { get; set; }
 

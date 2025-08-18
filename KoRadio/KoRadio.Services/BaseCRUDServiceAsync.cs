@@ -75,7 +75,21 @@ namespace KoRadio.Services
 				throw new UserException("Unesite postojeći id.");
 			}
 			
-		
+			if(entity is ISoftCancel softCancelEntity)
+			{
+				if (softCancelEntity.IsCancelled == false)
+				{
+					softCancelEntity.IsCancelled = true;
+					_context.Update(entity);
+				}
+				else
+				{
+					softCancelEntity.Undo();
+					_context.Update(entity);
+				}
+			}
+			else
+
 
 			if (entity is ISoftDelete softDeleteEntity)
 			{

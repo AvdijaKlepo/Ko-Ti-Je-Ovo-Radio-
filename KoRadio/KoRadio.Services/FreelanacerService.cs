@@ -123,20 +123,7 @@ namespace KoRadio.Services
 
 			entity.FreelancerId = request.FreelancerId;
 
-			if (request.Roles != null && request.Roles.Any())
-			{
-				foreach (var roleId in request.Roles)
-				{
-					_context.UserRoles.Add(new Database.UserRole
-					{
-						UserId = entity.FreelancerId,
-						RoleId = roleId,
-						ChangedAt = DateTime.UtcNow,
-						CreatedAt = DateTime.UtcNow
-					});
-				}
-				_context.SaveChanges();
-			}
+		
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
@@ -167,7 +154,7 @@ namespace KoRadio.Services
 				{
 					ServiceId = service.ServiceId,
 					FreelancerId = entity.FreelancerId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 				}).ToList();
 			}
 
@@ -185,28 +172,50 @@ namespace KoRadio.Services
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
 
-
-			if (request.Roles != null && request.Roles.Any())
+			if (request.IsApplicant == false && entity.IsApplicant == true)
 			{
-				var existingRoles = _context.UserRoles
+				
+				var existingRoleIds = _context.UserRoles
 					.Where(ur => ur.UserId == entity.FreelancerId)
-					.ToList();
+					.Select(ur => ur.RoleId)
+					.ToHashSet();
 
-				_context.UserRoles.RemoveRange(existingRoles);
-
-				foreach (var roleId in request.Roles.Distinct()) 
+				foreach (var roleId in request.Roles.Distinct())
 				{
-					_context.UserRoles.Add(new Database.UserRole
+					
+					if (!existingRoleIds.Contains(roleId))
 					{
-						UserId = entity.FreelancerId,
-						RoleId = roleId,
-						ChangedAt = DateTime.UtcNow,
-						CreatedAt = DateTime.UtcNow
-					});
+						_context.UserRoles.Add(new Database.UserRole
+						{
+							UserId = entity.FreelancerId,
+							RoleId = roleId,
+							ChangedAt = DateTime.Now,
+							CreatedAt = DateTime.Now
+						});
+					}
 				}
+				var messageContent = "Freelancer status changed";
+
+
+				await _hubContext.Clients.User(entity.FreelancerId.ToString())
+					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					UserId = entity.FreelancerId,
+					IsOpened = false,
+					CreatedAt=DateTime.Now
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+				Console.WriteLine("Notification sent and saved");
 
 				_context.SaveChanges();
 			}
+
 			if (request.Rating.HasValue && request.Rating.Value > 0)
 			{
 				entity.RatingSum ??= 0;
@@ -223,26 +232,6 @@ namespace KoRadio.Services
 				.Include(u => u.Freelancer)
 				.FirstOrDefaultAsync(u => u.UserId == entity.FreelancerId, cancellationToken);
 
-			if (entity.IsApplicant==true && request.IsApplicant == false)
-			{
-				var messageContent = "Freelancer status changed";
-
-			
-				await _hubContext.Clients.User(user.UserId.ToString())
-					.SendAsync("ReceiveNotification", messageContent, cancellationToken);
-
-			
-				var insertRequest = new MessageInsertRequest
-				{
-					Message1 = messageContent,
-					UserId = user.UserId,
-					IsOpened = false
-				};
-
-				await _messageService.InsertAsync(insertRequest, cancellationToken);
-
-				Console.WriteLine("Notification sent and saved: " + user.FirstName);
-			}
 			
 
 

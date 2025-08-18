@@ -143,18 +143,63 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
               _buildTextField('address', 'Adresa*',validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
               const SizedBox(height: 16),
 
-              FormBuilderField(
-                name: 'image',
-                builder: (field) => InputDecorator(
-                  decoration: const InputDecoration(labelText: "Odaberi sliku"),
-                  child: ListTile(
-                    leading: const Icon(Icons.image),
-                    title: const Text("Select image"),
-                    trailing: const Icon(Icons.file_upload),
-                    onTap: getImage,
-                  ),
-                ),
+             FormBuilderField(
+  name: "image",
+
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
               ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) 
+           
+            : 
+            const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
 
               const SizedBox(height: 24),
               ElevatedButton(
@@ -206,12 +251,17 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
     }
   }
 
-  Future<void> getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+ void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-      setState(() {});
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
 }

@@ -172,7 +172,8 @@ Widget build(BuildContext context) {
                   '${AuthProvider.user?.email}',
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
-                if(user.freelancer?.freelancerId!=null)
+                if(user.freelancer?.freelancerId!=null && AuthProvider.selectedRole=="Freelancer" &&
+                freelancer?.rating!=0)
                  RatingBar.builder(
                   itemSize: 30,
           initialRating: freelancer?.rating ?? 0,
@@ -230,7 +231,7 @@ Widget build(BuildContext context) {
         },
       )
      ),
-     if(AuthProvider.user?.freelancer?.freelancerId!=null) 
+     if(AuthProvider.user?.freelancer?.freelancerId!=null && AuthProvider.selectedRole=="Freelancer") 
        Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,

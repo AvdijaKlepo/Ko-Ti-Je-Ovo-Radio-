@@ -73,8 +73,15 @@ class _OrderDetailsState extends State<OrderDetails> {
 
             // Summary
             const SizedBox(height: 16),
-            Text('Broj stavki: ${items.length}',
-                style: Theme.of(context).textTheme.bodyMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Unikatnih proizvoda: ${items.length}',
+                    style: Theme.of(context).textTheme.bodyMedium),
+                    Text('Ukupno: ${items.fold(0.0, (sum, item) => sum + (item.quantity! * item.product!.price!))} KM',
+                    style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
             const SizedBox(height: 8),
            
           ],

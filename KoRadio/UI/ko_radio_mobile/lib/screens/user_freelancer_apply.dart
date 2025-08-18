@@ -88,9 +88,9 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
           .toList();
     }
 
-    formData['userId'] = AuthProvider.user?.userId ?? 0;
+    formData['freelancerId'] = AuthProvider.user?.userId ?? 0;
 
-    formData["roles"] = [10];
+ 
     formData["isDeleted"] = false;
     formData["isApplicant"] = true;
     formData["rating"] = 0; 

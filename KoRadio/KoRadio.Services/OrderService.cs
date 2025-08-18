@@ -3,7 +3,9 @@ using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using KoRadio.Services.RabbitMQ;
+using KoRadio.Services.SignalRService;
 using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Subscriber;
 using System;
@@ -16,10 +18,15 @@ namespace KoRadio.Services
 {
 	public class OrderService : BaseCRUDServiceAsync<Model.Order, OrderSearchObject, Database.Order, OrderInsertRequest, OrderUpdateRequest>, IOrderService
 	{
+		string signalRMessage = "Nova notifikacija je stigla.";
 		private readonly IRabbitMQService _rabbitMQService;
-		public OrderService(KoTiJeOvoRadioContext context, IMapper mapper,IRabbitMQService rabbitMQService) : base(context, mapper)
+		private readonly IHubContext<SignalRHubService> _hubContext;
+		private readonly IMessageService _messageService;
+		public OrderService(KoTiJeOvoRadioContext context, IMapper mapper,IRabbitMQService rabbitMQService, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
 		{
 			_rabbitMQService = rabbitMQService;
+			_hubContext = hubContext;
+			_messageService = messageService;
 
 		}
 
@@ -103,14 +110,20 @@ namespace KoRadio.Services
 					Subject = "Stanje narudžbe"
 				});
 			}
+			
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
+		
 
 		public override async Task AfterInsertAsync(
 			OrderInsertRequest request,
 			Database.Order entity,
 			CancellationToken cancellationToken = default)
 		{
+			string notification;
+
+
+			notification = $"Novi narudžba od korisnika {entity.User.FirstName} {entity.User.LastName}.";
 			using var tx = await _context.Database.BeginTransactionAsync(cancellationToken);
 			try
 			{
@@ -134,6 +147,22 @@ namespace KoRadio.Services
 							StoreId = g.StoreId,
 							Quantity = g.TotalQty
 						});
+						await _hubContext.Clients.User(g.StoreId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+						var insertRequest = new MessageInsertRequest
+						{
+							Message1 = notification,
+							StoreId = g.StoreId,
+							CreatedAt = DateTime.Now,
+							IsOpened = false
+						};
+
+						await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+						Console.WriteLine("Notification sent and saved: ");
+
 					}
 
 					await _context.SaveChangesAsync(cancellationToken);

@@ -83,6 +83,12 @@ class _UserStoreApplyState extends State<UserStoreApply> {
       return null;
     },
                     ])),
+                     FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa"),validator: FormBuilderValidators.compose(
+                      [
+                        FormBuilderValidators.required(errorText: "Obavezno polje"),
+                        
+                      ]
+                    )),
                     FormBuilderDropdown<int>(
                       name: 'locationId',
                       decoration: const InputDecoration(labelText: "Lokacija*"),
