@@ -107,8 +107,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Company).WithMany(p => p.CompanyEmployees)
                 .HasForeignKey(d => d.CompanyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CompanyEm__Compa__69C6B1F5");
+                .OnDelete(DeleteBehavior.Cascade)
+				.HasConstraintName("FK__CompanyEm__Compa__69C6B1F5");
 
             entity.HasOne(d => d.CompanyRole).WithMany(p => p.CompanyEmployees)
                 .HasForeignKey(d => d.CompanyRoleId)
@@ -165,7 +165,9 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Company).WithMany(p => p.CompanyServices)
                 .HasForeignKey(d => d.CompanyId)
-                .HasConstraintName("FK__CompanySe__Compa__1F98B2C1");
+
+				.OnDelete(DeleteBehavior.Cascade)
+				.HasConstraintName("FK__CompanySe__Compa__1F98B2C1");
 
             entity.HasOne(d => d.Service).WithMany(p => p.CompanyServices)
                 .HasForeignKey(d => d.ServiceId)
@@ -230,8 +232,8 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Freelancer).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.FreelancerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Freelance__Freel__1F63A897");
+				.OnDelete(DeleteBehavior.Cascade) 
+				.HasConstraintName("FK__Freelance__Freel__1F63A897");
 
             entity.HasOne(d => d.Service).WithMany(p => p.FreelancerServices)
                 .HasForeignKey(d => d.ServiceId)

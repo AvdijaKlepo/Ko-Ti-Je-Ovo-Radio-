@@ -15,4 +15,5 @@ class AuthProvider {
   static bool isSignedIn = false;
   static String selectedRole="";
   static int? selectedCompanyId;
+  static int? selectedCompanyEmployeeId;
 }

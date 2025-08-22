@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
@@ -105,11 +106,14 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     try {
       freelancerProvider.insert(formData);
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Prijava poslana!")));
     } catch (e) {
-      debugPrint(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Greška prilikom prijave! Pokušajte ponovo.")));
     }
+
+
   }
 
   @override
@@ -117,7 +121,7 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     final spacing = const SizedBox(height: 16);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Prijava za radnika")),
+      appBar: AppBar(title:  Text("Prijava za radnika" ,style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -246,7 +250,7 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
              FormBuilderCheckboxGroup<String>(
               validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
                       name: 'workingDays',
-                      decoration: InputDecoration(labelText: "Radni dani"),
+                      decoration: const InputDecoration(labelText: "Radni dani"),
                       options: [
                         'Ponedjeljak',
                         'Utorak',
@@ -263,7 +267,10 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
                 children: [
                   TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text("Odustani")),
                   const SizedBox(width: 12),
-                  ElevatedButton(onPressed: _onSave, child: const Text("Sačuvaj")),
+                  ElevatedButton(onPressed: _onSave,style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),child: const Text("Sačuvaj", style: TextStyle(color: Colors.white))),
                 ],
               ),
             ],

@@ -108,15 +108,16 @@ Future<void> _getFreelancer() async {
  @override
 Widget build(BuildContext context) {
 
- int _companyEmployeeId = 
-    AuthProvider.user?.companyEmployees?.isNotEmpty == true
-        ? AuthProvider.user!.companyEmployees!.first.companyEmployeeId
-        : 0;
+int _companyEmployeeId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
+    ? (companyEmployeeResult!.result.first.companyEmployeeId ?? 0)
+    : 0;
 
-  int _userId = AuthProvider.user?.userId ?? 0;
+int _userId = AuthProvider.user?.userId ?? 0;
 
-  int? _companyId = 
-  AuthProvider.user?.companyEmployees?.isNotEmpty==true ? AuthProvider.user!.companyEmployees!.first.companyId : 0;
+int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
+    ? (companyEmployeeResult!.result.first.companyId ?? 0)
+    : null;
+
 
   return SingleChildScrollView(
     padding: const EdgeInsets.all(16),
@@ -423,7 +424,7 @@ Widget build(BuildContext context) {
     
 
 
-      
+        SizedBox(height: 30,),
         if (companyEmployeeResult == null)
           const Center(child: CircularProgressIndicator())
         else if (companyEmployeeResult!.result.isEmpty)
@@ -457,21 +458,25 @@ Widget build(BuildContext context) {
                             try {
                               companyEmployeeProvider.update(_companyEmployeeId,
                                   {
-                                     "userId": _userId,
+                                      "userId": _userId,
                                       "companyId": _companyId,
                                       "isDeleted": false,
                                       "isApplicant": false,
-                                      "roles": [10,1010],
+                                      "roles": [1010],
                                       
                                       "companyRoleId": null,
-                                      "dateJoined": DateTime.now().toUtc().toIso8601String(),
+                                      "dateJoined": DateTime.now().toIso8601String(),
                                   }
                               );
+                              print(_companyEmployeeId);
+                              print(_userId);
+                              print(_companyId);
                                ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Zapošljenje uspješno!")),
           
         );
-        Navigator.pop(context, true);
+        await _getEmployee();
+        
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),

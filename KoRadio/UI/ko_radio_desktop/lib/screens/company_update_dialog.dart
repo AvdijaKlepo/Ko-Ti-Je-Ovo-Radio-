@@ -201,7 +201,7 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                     
                        FormBuilderCheckboxGroup<String>(
                       name: 'workingDays',
-                      decoration: InputDecoration(labelText: "Radni dani"),
+                      decoration: const InputDecoration(labelText: "Radni dani"),
                       options: [
                       
                           'Monday',
@@ -226,13 +226,13 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                               .toList() ??
                           [],
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
                       FormBuilderField(
   name: "image",
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         labelText: "Proslijedite sliku firme",
         border: OutlineInputBorder(),
       ),
@@ -260,7 +260,7 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.company.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.company.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () =>  getImage(field) 
              
             ),

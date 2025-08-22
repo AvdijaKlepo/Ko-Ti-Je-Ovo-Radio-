@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 class UserFormDialog extends StatefulWidget {
   final User? user;
 
-  UserFormDialog({super.key, this.user});
+  const UserFormDialog({super.key, this.user});
 
   @override
   State<UserFormDialog> createState() => _UserFormDialogState();
@@ -167,14 +167,14 @@ class _UserFormDialogState extends State<UserFormDialog> {
                           ),
                           validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                      
                          FormBuilderField(
   name: "image",
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         labelText: "Proslijedite sliku problema",
         border: OutlineInputBorder(),
       ),
@@ -202,7 +202,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.user?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.user?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () =>  getImage(field) 
              
             ),
@@ -231,12 +231,12 @@ class _UserFormDialogState extends State<UserFormDialog> {
     );
   },
 ),
-SizedBox(height: 20,),
-                        Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
+const SizedBox(height: 20,),
+                        const Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
                         FormBuilderTextField(
           name: "password",
           obscureText: true,
-          decoration: InputDecoration(labelText: "Nova Lozinka",border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: "Nova Lozinka",border: OutlineInputBorder()),
           validator: FormBuilderValidators.match(
             _formKey.currentState?.fields['confirmPassword']?.value ?? '',
             errorText: 'Lozinke se ne poklapaju',
@@ -247,7 +247,7 @@ SizedBox(height: 20,),
         FormBuilderTextField(
           name: "confirmPassword",
           obscureText: true,
-          decoration: InputDecoration(labelText: "Potvrdi Lozinku",border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: "Potvrdi Lozinku",border: OutlineInputBorder()),
         ),
 
                       const SizedBox(height: 30),

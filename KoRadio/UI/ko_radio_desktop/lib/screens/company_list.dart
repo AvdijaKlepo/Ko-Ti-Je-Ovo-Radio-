@@ -156,7 +156,7 @@ class _CompanyListState extends State<CompanyList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisatu ovu firmu?'),
+        content: const Text('Jeste li sigurni da želite izbrisatu ovu firmu?'),
         actions: [
           
           TextButton(
@@ -184,7 +184,7 @@ class _CompanyListState extends State<CompanyList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovu firmu?'),
+        content: const Text('Jeste li sigurni da želite vratiti ovu firmu?'),
         actions: [
          
           TextButton(
@@ -258,7 +258,7 @@ class _CompanyListState extends State<CompanyList> {
          Row(
   children: [
     const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -283,7 +283,7 @@ class _CompanyListState extends State<CompanyList> {
               if (showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.restore, size: 18)),
               if (showApplicants)
-                const Expanded(flex: 2, child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 2, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
   ],
 ),
 
@@ -306,7 +306,7 @@ class _CompanyListState extends State<CompanyList> {
                             child: Row(
                               children: [
                                 Expanded(flex: 2, child: Text(c.companyName ?? '')),
-                                Expanded(flex: 2, child: Text(c.email ?? '')),
+                                Expanded(flex: 3, child: Text(c.email ?? '')),
                                 Expanded(flex: 3, child: Text(c.phoneNumber ?? '')),
                                 Expanded(flex: 3, child: Text(c.location?.locationName ?? '')),
                                 Expanded(flex: 3, child: Text(days.join(', '))),
@@ -340,7 +340,7 @@ class _CompanyListState extends State<CompanyList> {
                                   child: Wrap(
                                     spacing: 4,
                                     runSpacing: 4,
-                                    children: c.companyServices?.map((CompanyServices s) {
+                                    children: c.companyServices.map((CompanyServices s) {
                                       return Text(s.service?.serviceName ?? '', style: const TextStyle(fontSize: 12));
                                     }).toList() ?? [],
                                   ),
@@ -387,63 +387,114 @@ class _CompanyListState extends State<CompanyList> {
                                 if (showApplicants)
                                   Expanded(
                                     flex: 2,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.check, color: Colors.green),
-                                          tooltip: 'Odobri',
-                                          onPressed: () async {
-                                            final dayMap = {
-                                              'Nedjelja': 0, 'Ponedjeljak': 1, 'Utorak': 2, 'Srijeda': 3,
-                                              'Četvrtak': 4, 'Petak': 5, 'Subota': 6
-                                            };
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.check, color: Colors.green),
+                                            tooltip: 'Odobri',
+                                            onPressed: () async {
+                                            await showDialog(context: context, builder: (_) =>  AlertDialog(
+                                              title: const Text("Odobreno"),
+                                              content: const Text("Jeste li sigurni da želite odobriti ovu firmu?"), 
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(false),
+                                                  child: const Text("Ne"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                  final dayMap = {
+                                                  'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+                                                'Thursday': 4, 'Friday': 5, 'Saturday': 6
+                                                };
 
-                                            var workingDaysStringList = c.workingDays as List<String>? ?? [];
+                                                var workingDaysStringList = c.workingDays ?? [];
 
-                                            final workingDaysIntList = workingDaysStringList
-                                                .map((day) => dayMap[day])
-                                                .whereType<int>()
-                                                .toList();
+                                                final workingDaysIntList = workingDaysStringList
+                                                    .map((day) => dayMap[day])
+                                                    .whereType<int>()
+                                                    .toList();
 
-                                            await companyProvider.update(
-                                              c.companyId,
-                                              {
-                                                "companyName": c.companyName,
-                                                "bio": c.bio,
-                                                "email": c.email,
-                                                "rating": c.rating,
-                                                "phoneNumber": c.phoneNumber,
-                                                "experianceYears": c.experianceYears,
-                                                "image": c.image,
-                                                "startTime": c.startTime,
-                                                "endTime": c.endTime,
-                                                "workingDays": workingDaysIntList,
-                                                "serviceId": c.companyServices?.map((e) => e.serviceId).toList(),
-                                                "locationId": c.location?.locationId,
-                                                "roles":[1009],
-                                                "isApplicant": false,
-                                                "isDeleted": false,
-                                                "employee": c.companyEmployees?.map((e) => e.userId).toList(),
-                                              },
-                                            );
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text("Firma odobrena!")),
-                                            );
-                                            await companyPagination.refresh(newFilter: {
-                                              'isDeleted': showDeleted,
-                                              'IsApplicant': showApplicants,
-                                            });
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.close, color: Colors.red),
-                                          tooltip: 'Odbaci',
-                                          onPressed: () async {
-                                            // Add rejection logic here
-                                          },
-                                        ),
-                                      ],
+                                                await companyProvider.update(
+                                                  c.companyId,
+                                                  {
+                                                    "companyName": c.companyName,
+                                                    "bio": c.bio,
+                                                    "email": c.email,
+                                                    "rating": c.rating,
+                                                    "phoneNumber": c.phoneNumber,
+                                                    "experianceYears": c.experianceYears,
+                                                    "image": c.image,
+                                                    "startTime": c.startTime,
+                                                    "endTime": c.endTime,
+                                                    "workingDays": workingDaysIntList,
+                                                    "serviceId": c.companyServices.map((e) => e.serviceId).toList(),
+                                                    "locationId": c.location?.locationId,
+                                                    "roles":[1009],
+                                                    "isApplicant": false,
+                                                    "isDeleted": false,
+                                                    "employee": c.companyEmployees.map((e) => e.userId).toList(),
+                                                    'isOwner': true,
+                                                  },
+                                                );
+                                               
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text("Firma odobrena!")),
+                                                  );
+                                                  await companyPagination.refresh(newFilter: {
+                                                    'isDeleted': showDeleted,
+                                                    'IsApplicant': showApplicants,
+                                                  }); 
+                                                  if(mounted && context.mounted)
+                                                  {
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                 
+                                                
+                                                
+                                                 
+                                                  
+                                                },
+                                                child: const Text("Da"),
+                                              )
+                                            ]
+                                          ));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.close, color: Colors.red),
+                                            tooltip: 'Odbaci',
+                                            onPressed: () async {
+                                              await showDialog(context: context, builder: (_) => AlertDialog(
+                                                title: const Text('Odbaci?'),
+                                                content: const Text('Jeste li sigurni da želite odbaciti ovu firmu?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(false),
+                                                    child: const Text('Ne'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      await companyProvider.delete(c.companyId);
+                                                      await companyPagination.refresh(newFilter: {
+                                                        'isDeleted': showDeleted,
+                                                        'IsApplicant': showApplicants,
+                                                      });
+                                                    if(mounted && context.mounted)
+                                                    {
+                                                      Navigator.of(context).pop();
+                                                    }
+                                                    },
+                                                    child: const Text('Da'),
+                                                  ),
+                                                ],
+                                              ));
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                               ],

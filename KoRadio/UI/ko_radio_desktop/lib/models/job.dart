@@ -24,6 +24,7 @@ class Job{
   bool? isInvoiced;
   bool? isRated;
   bool? isEdited;
+  bool? isWorkerEdited;
   DateTime jobDate;
   String jobDescription;
   String? image;

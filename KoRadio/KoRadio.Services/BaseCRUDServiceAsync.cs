@@ -66,18 +66,40 @@ namespace KoRadio.Services
 
 		public virtual async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
 		{
-
 			var entity = await _context.Set<TDbEntity>().FindAsync(id, cancellationToken);
 
-			await BeforeDeleteAsync(entity, cancellationToken);
 			if (entity == null)
-			{
 				throw new UserException("Unesite postojeći id.");
-			}
-			
-			if(entity is ISoftCancel softCancelEntity)
+
+			await BeforeDeleteAsync(entity, cancellationToken);
+
+			// 1. Applicant + not deleted -> Hard delete
+			if (entity is IApplicantDelete applicantEntity &&
+				entity is ISoftDelete softDeleteApplicantEntity)
 			{
-				if (softCancelEntity.IsCancelled == false)
+				if (applicantEntity.IsApplicant && !softDeleteApplicantEntity.IsDeleted)
+				{
+					_context.Remove(entity);
+				}
+				else
+				{
+					// 2. Soft delete toggle (undo/redo)
+					if (!softDeleteApplicantEntity.IsDeleted)
+					{
+						softDeleteApplicantEntity.IsDeleted = true;
+						_context.Update(entity);
+					}
+					else
+					{
+						softDeleteApplicantEntity.Undo();
+						_context.Update(entity);
+					}
+				}
+			}
+			// 3. Soft cancel handling
+			else if (entity is ISoftCancel softCancelEntity)
+			{
+				if (!softCancelEntity.IsCancelled)
 				{
 					softCancelEntity.IsCancelled = true;
 					_context.Update(entity);
@@ -88,47 +110,21 @@ namespace KoRadio.Services
 					_context.Update(entity);
 				}
 			}
-			else
-
-
-			if (entity is ISoftDelete softDeleteEntity)
+			// 4. Generic soft delete
+			else if (entity is ISoftDelete softDeleteEntity)
 			{
-				if (softDeleteEntity.IsDeleted == false)
+				if (!softDeleteEntity.IsDeleted)
 				{
 					softDeleteEntity.IsDeleted = true;
-					
-			
-
 					_context.Update(entity);
 				}
-				
-			
-
-
 				else
 				{
 					softDeleteEntity.Undo();
-
 					_context.Update(entity);
 				}
-				
 			}
-			else if (entity is IApplicantDelete applicantDeleteEntity && entity is ISoftDelete softDeleteEntityApplicant)
-			{
-
-				if (softDeleteEntityApplicant.IsDeleted == false && applicantDeleteEntity.IsApplicant == true)
-				{
-
-					_context.Remove(entity);
-
-
-
-				}
-
-			}
-
-
-
+			// 5. Fallback → Hard delete
 			else
 			{
 				_context.Remove(entity);
@@ -136,8 +132,8 @@ namespace KoRadio.Services
 
 			await _context.SaveChangesAsync(cancellationToken);
 			await AfterDeleteAsync(entity, cancellationToken);
-
 		}
+
 		public virtual async Task BeforeDeleteAsync(TDbEntity entity, CancellationToken cancellationToken) { }
 		public virtual async Task AfterDeleteAsync(TDbEntity entity, CancellationToken cancellationToken) { }
 

@@ -1131,6 +1131,14 @@
             }
           },
           {
+            "name": "CompanyEmployeeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -4732,6 +4740,9 @@
           "isApplicant": {
             "type": "boolean"
           },
+          "isOwner": {
+            "type": "boolean"
+          },
           "companyRoleId": {
             "type": "integer",
             "format": "int32",
@@ -4774,6 +4785,9 @@
             "type": "boolean"
           },
           "isDeleted": {
+            "type": "boolean"
+          },
+          "isOwner": {
             "type": "boolean"
           },
           "companyRoleId": {
@@ -4846,6 +4860,9 @@
             "type": "boolean"
           },
           "isApplicant": {
+            "type": "boolean"
+          },
+          "isOwner": {
             "type": "boolean"
           },
           "companyRoleId": {
@@ -5750,6 +5767,9 @@
           "isEdited": {
             "type": "boolean"
           },
+          "isWorkerEdited": {
+            "type": "boolean"
+          },
           "isApproved": {
             "type": "boolean"
           },
@@ -6049,6 +6069,9 @@
             "type": "boolean"
           },
           "isEdited": {
+            "type": "boolean"
+          },
+          "isWorkerEdited": {
             "type": "boolean"
           },
           "isApproved": {

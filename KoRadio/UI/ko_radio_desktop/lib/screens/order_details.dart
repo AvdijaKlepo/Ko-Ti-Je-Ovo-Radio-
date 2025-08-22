@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/order.dart';
-import 'package:ko_radio_desktop/models/order_items.dart';
 import 'package:ko_radio_desktop/providers/order_provider.dart';
 import 'package:provider/provider.dart';
 

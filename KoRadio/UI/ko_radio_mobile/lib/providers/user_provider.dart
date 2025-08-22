@@ -59,7 +59,7 @@ class UserProvider extends BaseProvider<User>{
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw new UserException("Unknown error");
+      throw UserException("Unknown error");
     }
 }
 

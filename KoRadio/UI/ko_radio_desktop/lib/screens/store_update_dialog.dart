@@ -117,13 +117,13 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                                 .toList() ??
                             [],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                        FormBuilderField(
   name: "image",
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         labelText: "Proslijedite sliku trgovine",
         border: OutlineInputBorder(),
       ),
@@ -151,7 +151,7 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.store.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.store.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () =>  getImage(field) 
              
             ),

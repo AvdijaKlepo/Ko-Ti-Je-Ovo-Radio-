@@ -47,7 +47,7 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
     List<DropdownMenuItem<int>> roleDropdownItems = [];
 
   Timer? _debounce;
-  int _selectedCompanyId = AuthProvider.selectedCompanyId ?? 0;
+  final int _selectedCompanyId = AuthProvider.selectedCompanyId ?? 0;
   @override
 void initState() {
   super.initState();
@@ -193,8 +193,8 @@ void initState() {
             ))
       ];
   });
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+} on Exception {
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
     content: Text('Greška u dohvaćanju uloga radnika'),
   ));
 }
@@ -240,7 +240,7 @@ void initState() {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisatu ovog zaposlenika?'),
+        content: const Text('Jeste li sigurni da želite izbrisatu ovog zaposlenika?'),
         actions: [
           
           TextButton(
@@ -253,7 +253,7 @@ void initState() {
               try{
               await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
               }catch(e){
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u brisanju radnika. Pokušajte ponovo.')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Greška u brisanju radnika. Pokušajte ponovo.')));
               }
               await companyEmployeePagination.refresh(newFilter: {
                 'CompanyId': AuthProvider.selectedCompanyId,
@@ -274,7 +274,7 @@ void initState() {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovog zaposlenika?'),
+        content: const Text('Jeste li sigurni da želite vratiti ovog zaposlenika?'),
         actions: [
           
           TextButton(
@@ -368,7 +368,7 @@ void initState() {
             Expanded(
   child: DropdownButtonFormField<int>(
    value: _selectedCompanyRoleId,
-    decoration: InputDecoration(
+    decoration: const InputDecoration(
       
    
       labelText: 'Uloge',
@@ -412,8 +412,8 @@ void initState() {
                Row(
                 children: [
                   
-                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),child: const Text("Uloge",style: TextStyle(color: Colors.white),),
-                  style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),)
+                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),child: const Text("Uloge",style: TextStyle(color: Colors.white),),)
                 ],
               ),
             ],
@@ -459,7 +459,7 @@ void initState() {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           onPressed: () {
                             _openAddEmployeeDialog(companyId: _selectedCompanyId);
                           },

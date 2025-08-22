@@ -47,6 +47,7 @@ namespace KoRadio.Services
 			query = query.Include(x => x.Company).ThenInclude(x => x.Location);
 			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyServices).ThenInclude(x => x.Service);
 			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyEmployees);
+			query = query.Include(x => x.CompanyJobAssignments);
 
 
 
@@ -119,7 +120,7 @@ namespace KoRadio.Services
 			}
 			if(search?.CompanyEmployeeId!=null)
 			{
-				query = query.Where(x => x.Company.CompanyEmployees.Any(ce => ce.CompanyEmployeeId == search.CompanyEmployeeId));
+				query = query.Where(x => x.CompanyJobAssignments.Any(x => x.CompanyEmployeeId == search.CompanyEmployeeId));
 
 
 			}

@@ -207,7 +207,7 @@ class _CompanyUpdateScreenState extends State<CompanyUpdateScreen> {
                        FormBuilderCheckboxGroup<String>(
                         validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       name: 'workingDays',
-                      decoration: InputDecoration(labelText: "Radni dani"),
+                      decoration: const InputDecoration(labelText: "Radni dani"),
                       options: [
                       
                           'Monday',

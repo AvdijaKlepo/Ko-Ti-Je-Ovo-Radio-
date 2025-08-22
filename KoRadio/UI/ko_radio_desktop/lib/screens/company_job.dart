@@ -204,6 +204,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
           final job = jobs[index];
           return _jobCard(context, job);
           }
+          return null;
         },
       ),
     ),
@@ -213,7 +214,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
 
     Widget _jobCard(BuildContext context, Job job) {
   return Card(
-    color: const Color.fromRGBO(27, 76, 125, 1),
+    color: job.isEdited==false || job.isWorkerEdited==false ? Color.fromRGBO(27, 76, 125, 1) : Colors.amber,
     elevation: 2,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),

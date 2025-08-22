@@ -14,6 +14,7 @@ CompanyEmployee _$CompanyEmployeeFromJson(Map<String, dynamic> json) =>
       ..companyId = (json['companyId'] as num?)?.toInt()
       ..isDeleted = json['isDeleted'] as bool?
       ..isApplicant = json['isApplicant'] as bool?
+      ..isOwner = json['isOwner'] as bool?
       ..companyName = json['companyName'] as String?
       ..companyRoleName = json['companyRoleName'] as String?
       ..dateJoined = json['dateJoined'] == null
@@ -30,6 +31,7 @@ Map<String, dynamic> _$CompanyEmployeeToJson(CompanyEmployee instance) =>
       'companyId': instance.companyId,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
+      'isOwner': instance.isOwner,
       'companyName': instance.companyName,
       'companyRoleName': instance.companyRoleName,
       'dateJoined': instance.dateJoined?.toIso8601String(),

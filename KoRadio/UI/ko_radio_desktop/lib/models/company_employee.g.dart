@@ -17,6 +17,7 @@ CompanyEmployee _$CompanyEmployeeFromJson(Map<String, dynamic> json) =>
           ? null
           : User.fromJson(json['user'] as Map<String, dynamic>),
     )
+      ..isOwner = json['isOwner'] as bool?
       ..companyName = json['companyName'] as String?
       ..companyRoleId = (json['companyRoleId'] as num?)?.toInt()
       ..companyRoleName = json['companyRoleName'] as String?
@@ -31,6 +32,7 @@ Map<String, dynamic> _$CompanyEmployeeToJson(CompanyEmployee instance) =>
       'companyId': instance.companyId,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
+      'isOwner': instance.isOwner,
       'companyName': instance.companyName,
       'companyRoleId': instance.companyRoleId,
       'companyRoleName': instance.companyRoleName,

@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:ko_radio_desktop/layout/master_screen.dart';
-import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
@@ -80,7 +78,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         labelText: "Proslijedite sliku trgovine",
         border: OutlineInputBorder(),
       ),
@@ -108,7 +106,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.service?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.service?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () =>  getImage(field) 
              
             ),
@@ -172,13 +170,13 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
         if (widget.service == null) {
           await serviceProvider.insert(request);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Usluga uspješno dodana")),
+            const SnackBar(content: Text("Usluga uspješno dodana")),
           );
           
         } else {
           await serviceProvider.update(widget.service!.serviceId, request);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Usluga uspješno ažurirana")),
+            const SnackBar(content: Text("Usluga uspješno ažurirana")),
           );
         }
 

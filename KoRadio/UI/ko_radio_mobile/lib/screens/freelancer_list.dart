@@ -338,126 +338,132 @@ class _FreelancerListState extends State<FreelancerList> {
     );
   }
 
-  Widget _buildFreelancerList() {
-    var filterOutLoggedInUser = freelancerPagination?.items.where((element) => element.freelancerNavigation?.userId!=AuthProvider.user?.userId).toList();
-    final items = filterOutLoggedInUser ?? [];
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: items.length +
-          (freelancerPagination?.hasNextPage ?? false ? 1 : 0),
-      itemBuilder: (context, index) {
-         if(freelancerPagination?.items.isEmpty ?? true) return const Text('Nema prijavljenih radnika u ovom zanatu');
-        if (index < items.length) {
-          final f = items[index];
-          final freelancer = f.freelancerNavigation;
-         
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: ListTile(
-              tileColor: const Color.fromRGBO(27, 76, 125, 25),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              leading: ClipRRect(
-  borderRadius: BorderRadius.circular(10),
-  child: Container(
-    width: 80,
-    height: 80,
-    color: Colors.white, 
-    child:
-    
-    
-     freelancer?.image != null
-      ? imageFromString(freelancer!.image!, height: 80, width: 80, fit: BoxFit.cover)
-      : SvgPicture.asset(
-          "assets/images/undraw_construction-workers_z99i.svg",
-          width: 80,
-          height: 80,
-          fit: BoxFit.cover,
-        ),
-  ),
-),
-               
-              title: Text('${freelancer?.firstName} ${freelancer?.lastName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Iskustvo: ${f.experianceYears} godina',style: TextStyle(color: Colors.white),),
-                  Text('Ocjena: ${f.rating != 0 ? f.rating.toDouble().toStringAsFixed(1) : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
-                  Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}',style: TextStyle(color: Colors.white),),
-                 
-                ],
-              ),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
-              ),
-            ),
-          );
-        } else {
-          return const Padding(
-            padding: EdgeInsets.all(8),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-    );
+Widget _buildFreelancerList() {
+  final filtered = (freelancerPagination?.items ?? [])
+      .where((e) => e.freelancerNavigation?.userId != AuthProvider.user?.userId)
+      .toList();
+
+  if (filtered.isEmpty) {
+    return const Center(child: Text('Nema prijavljenih radnika u ovom zanatu'));
   }
 
-  Widget _buildCompanyList() {
-    final items = companyPagination?.items ?? [];
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount:
-          items.length + (companyPagination?.hasNextPage ?? false ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index < items.length) {
-          final c = items[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: ListTile(
-              tileColor: Color.fromRGBO(27, 76, 125, 25),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              leading: ClipRRect(
-  borderRadius: BorderRadius.circular(8),
-  child: Container(
-    width: 80,
-    height: 80,
-    color: Colors.white, // Optional: ensures good contrast regardless of image transparency
-    child: c.image != null
-      ? imageFromString(c!.image!, height: 80, width: 80, fit: BoxFit.cover)
-      : SvgPicture.asset(
-          "assets/images/undraw_under-construction_c2y1.svg",
-          width: 80,
-          height: 80,
-          fit: BoxFit.cover,
-        ),
-  ),
-),
-              title: Text(c.companyName ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Iskustvo: ${c.experianceYears} godina',style: TextStyle(color: Colors.white),),
-                  Text('Ocjena: ${c.rating != 0 ? c.rating : 'Neocijenjen'}',style: TextStyle(color: Colors.white),),
-                  Text('Lokacija: ${c.location?.locationName ?? '-'}',style: TextStyle(color: Colors.white),),
-                ],
-              ),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(company: c)),
+  return ListView.builder(
+    controller: _scrollController,
+    itemCount: filtered.length + (freelancerPagination?.hasNextPage ?? false ? 1 : 0),
+    itemBuilder: (context, index) {
+      if (index < filtered.length) {
+        final f = filtered[index];
+        final freelancer = f.freelancerNavigation;
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            tileColor: const Color.fromRGBO(27, 76, 125, 25),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                width: 80,
+                height: 80,
+                color: Colors.white,
+                child: freelancer?.image != null
+                    ? imageFromString(freelancer!.image!, height: 80, width: 80, fit: BoxFit.cover)
+                    : SvgPicture.asset(
+                        "assets/images/undraw_construction-workers_z99i.svg",
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
-          );
-        } else {
-          return const Padding(
-            padding: EdgeInsets.all(8),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-    );
+            title: Text(
+              '${freelancer?.firstName ?? ''} ${freelancer?.lastName ?? ''}',
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Iskustvo: ${f.experianceYears} godina', style: const TextStyle(color: Colors.white)),
+                Text('Ocjena: ${f.rating != 0 ? f.rating.toStringAsFixed(1) : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
+                Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
+            ),
+          ),
+        );
+      } else {
+        return const Padding(
+          padding: EdgeInsets.all(8),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+    },
+  );
+}
+
+Widget _buildCompanyList() {
+  final filtered = (companyPagination?.items ?? [])
+      .where((c) => c.companyEmployees.every((e) => e.userId != AuthProvider.user?.userId))
+      .toList();
+
+  if (filtered.isEmpty) {
+    return const Center(child: Text('Nema dostupnih firmi'));
   }
+
+  return ListView.builder(
+    controller: _scrollController,
+    itemCount: filtered.length + (companyPagination?.hasNextPage ?? false ? 1 : 0),
+    itemBuilder: (context, index) {
+      if (index < filtered.length) {
+        final c = filtered[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            tileColor: const Color.fromRGBO(27, 76, 125, 25),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 80,
+                height: 80,
+                color: Colors.white,
+                child: c.image != null
+                    ? imageFromString(c.image!, height: 80, width: 80, fit: BoxFit.cover)
+                    : SvgPicture.asset(
+                        "assets/images/undraw_under-construction_c2y1.svg",
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            title: Text(c.companyName ?? '',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Iskustvo: ${c.experianceYears} godina', style: const TextStyle(color: Colors.white)),
+                Text('Ocjena: ${c.rating != 0 ? c.rating.toString() : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
+                Text('Lokacija: ${c.location?.locationName ?? '-'}', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => FreelancerDetails(company: c)),
+            ),
+          ),
+        );
+      } else {
+        return const Padding(
+          padding: EdgeInsets.all(8),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+    },
+  );
+}
+
 }

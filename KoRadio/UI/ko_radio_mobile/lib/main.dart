@@ -231,32 +231,46 @@ class _LoginPageState extends State<LoginPage> {
               Navigator.pop(context);
 
               
-              final companyEmployees = user.companyEmployees ?? [];
-              if (AuthProvider.selectedRole == "CompanyEmployee" &&
-                  companyEmployees.length > 1) {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return SimpleDialog(
-                      title: const Text("Odaberite firmu:"),
-                      children: companyEmployees.map((company) {
-                        return SimpleDialogOption(
-                          onPressed: () {
-                            AuthProvider.selectedCompanyId = company.companyId;
-                            Navigator.pop(context); 
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MasterScreen()),
-                            );
-                          },
-                          child: Text(company.companyName ?? 'Nepoznata firma'),
-                        );
-                      }).toList(),
-                    );
-                  },
-                );
-              } else {
+             final companyEmployees = user.companyEmployees ?? [];
+
+if (AuthProvider.selectedRole == "CompanyEmployee" &&
+    companyEmployees.length > 1) {
+  // filter out employees where the user is owner
+  final nonOwnerEmployees = companyEmployees.where((ce) => ce.isOwner != true).toList();
+
+
+
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return SimpleDialog(
+        title: const Text("Odaberite firmu:"),
+        children: nonOwnerEmployees.map((ce) {
+          return SimpleDialogOption(
+            onPressed: () {
+              // assign selected companyId from the CompanyEmployee
+              AuthProvider.selectedCompanyId = ce.companyId;
+              AuthProvider.selectedCompanyEmployeeId = ce.companyEmployeeId;
+              print(AuthProvider.selectedCompanyId);
+              print(AuthProvider.selectedCompanyEmployeeId);
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MasterScreen()),
+              );
+            },
+            child: Text(ce.companyName ?? 'Nepoznata firma'),
+          );
+        }).toList(),
+      );
+    },
+  );
+}
+else {
+   AuthProvider.selectedCompanyId = AuthProvider.user!.companyEmployees?.first.companyId;
+      AuthProvider.selectedCompanyEmployeeId =AuthProvider.user!.companyEmployees?.first.companyEmployeeId;
+      print(AuthProvider.selectedCompanyId);
+      print(AuthProvider.selectedCompanyEmployeeId);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -276,6 +290,7 @@ class _LoginPageState extends State<LoginPage> {
       final selected = filteredRoles.first;
       AuthProvider.selectedRole = selected.role?.roleName ?? "";
       AuthProvider.userRoles = selected;
+     
        final signalrProvider = context.read<SignalRProvider>();
                 await signalrProvider.startConnection();
 

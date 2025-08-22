@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ko_radio_desktop/models/product.dart';
@@ -138,7 +137,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                                   )
                                 : const Text("Nema dostupnih usluga"),
                           ),
-                          SizedBox(height: 20,),
+                          const SizedBox(height: 20,),
                     
                     
                          FormBuilderField(
@@ -146,7 +145,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         labelText: "Proslijedite sliku problema",
         border: OutlineInputBorder(),
       ),
@@ -174,7 +173,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.product?.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.product?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () =>  getImage(field) 
              
             ),

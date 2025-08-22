@@ -18,7 +18,7 @@ class CompanyRoleAssignmentDialog extends StatefulWidget {
 
 class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
-  Map<String, dynamic> _initialValue = {};
+  final Map<String, dynamic> _initialValue = {};
   late CompanyRoleProvider companyRoleProvider;
   SearchResult<CompanyRole>? companyRoleResult;
   late CompanyEmployeeProvider companyEmployeeProvider;
@@ -67,7 +67,7 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
                 ),
               ),
             ),
-            Padding(padding: const EdgeInsets.all(24.0), child: Column(
+            const Padding(padding: EdgeInsets.all(24.0), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 
@@ -82,7 +82,7 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                     Text("Dodaj ulogu za zaposlenika ${widget.companyEmployee.user?.firstName} ${widget.companyEmployee.user?.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                     Text("Dodaj ulogu za zaposlenika ${widget.companyEmployee.user?.firstName} ${widget.companyEmployee.user?.lastName}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 20),
                      FormBuilderDropdown(
                       initialValue: widget.companyEmployee.companyRoleId,
@@ -94,7 +94,7 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
                       Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           icon: const Icon(Icons.save, color: Colors.white),
                           label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
                           onPressed: _save,

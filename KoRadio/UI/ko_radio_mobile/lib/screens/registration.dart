@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
@@ -43,6 +44,8 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
   bool _isLoadingLocations = true;
   File? _image;
   String? _base64Image;
+    String? _backendEmailError;
+    String? _backendPasswordError;
 
   @override
   void initState() {
@@ -75,7 +78,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Registracija")),
+      appBar: AppBar(title:  Text("Registracija",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -103,10 +106,29 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                     errorText:
                         "Prezime mora počinjati sa velikim slovom i smije sadržavati samo slova.")
               ]),),
-              _buildTextField('email', 'Email*', validator: FormBuilderValidators.compose([
+              Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: FormBuilderTextField(
+        name: 'email',
+        obscureText: false,
+        decoration: InputDecoration(
+          labelText: 'Email',
+          border: const OutlineInputBorder(),
+          errorText: _backendEmailError
+        ),
+        onChanged: (_) {
+          if (_backendEmailError != null) {
+            setState(() {
+              _backendEmailError = null;
+            });
+          }
+        },
+        validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'Obavezno polje'),
                 FormBuilderValidators.email(errorText: 'Neispravan email'),
-              ])),
+              ])
+      ),
+    ),
               _buildTextField('phoneNumber', 'Broj Telefona*',  validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: "Obavezno polje."),
                 FormBuilderValidators.match(r'^\+\d{7,15}$',
@@ -203,8 +225,12 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
 
               const SizedBox(height: 24),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
                 onPressed: _save,
-                child: const Text("Sačuvaj"),
+                child: const Text("Sačuvaj", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -237,16 +263,25 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
 
       try {
         var user = await userProvider.registration(request);
+        if(mounted && context.mounted)
+        {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Uspješna registracija: ${user.firstName}")),
           
         );
+        }
+        if(mounted && context.mounted)
+        {
         Navigator.of(context).pop();
+        }
       } catch (e) {
         print("${_formKey.currentState!.value}");
+        if(mounted && context.mounted)
+        {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),
         );
+        }
       }
     }
   }

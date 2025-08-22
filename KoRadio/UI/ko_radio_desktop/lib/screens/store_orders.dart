@@ -152,7 +152,7 @@ class _StoreOrdersState extends State<StoreOrders> {
     'IsCancelled': showCancelled,
   });
   if (!mounted) return;
-} on Exception catch (e) {
+} on Exception {
   
   ScaffoldMessenger.of(context).showSnackBar(
    
@@ -293,7 +293,7 @@ class _StoreOrdersState extends State<StoreOrders> {
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
-                                          _selectedOrders.add(order.orderId!);
+                                          _selectedOrders.add(order.orderId);
                                         } else {
                                           _selectedOrders.remove(order.orderId);
                                         }

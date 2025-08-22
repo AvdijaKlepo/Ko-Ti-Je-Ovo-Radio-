@@ -2,7 +2,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:ko_radio_desktop/models/freelancer_service.dart';
-import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 
 part 'freelancer.g.dart';

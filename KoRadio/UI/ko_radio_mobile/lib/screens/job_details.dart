@@ -233,7 +233,7 @@ class _JobDetailsState extends State<JobDetails> {
                   _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
                   jobResult.result.first.freelancer?.freelancerId!=null ?
                   _buildDetailRow('Vrijeme početka', jobResult.result.first.startEstimate.toString().substring(0,5) ?? ''):
-                  _buildDetailRow('Datum završetka radova', dateFormat.format(jobResult.result.first.dateFinished?? DateTime.now())),
+                  _buildDetailRow('Datum završetka radova', jobResult.result.first.dateFinished!=null ? dateFormat.format(jobResult.result.first.dateFinished!) : 'Nije unesen'),
                   if(jobResult.result.first.freelancer?.freelancerId!=null)
                   _buildDetailRow('Vrijeme završetka',
                  jobResult.result.first.endEstimate!=null ?
@@ -265,26 +265,37 @@ class _JobDetailsState extends State<JobDetails> {
                               : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
-                
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  
   const Divider(height: 32,),
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+
   _sectionTitle('Preuzeli dužnost'),
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+
   _buildDetailRow('Radnici', '${companyJobAssignmentResult?.result.map((e) => '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}').join(', ')}'),
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+
   SizedBox(height: 15,),
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+
   if(companyJobAssignmentResult?.result.isNotEmpty==true && AuthProvider.selectedRole == "CompanyEmployee")
+  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+
   Align(alignment: Alignment.bottomLeft,child: ElevatedButton(onPressed: () async{
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EmployeeTaskList()));
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  EmployeeTaskList(job: widget.job,)));
   }, child: Text('Pregled zadataka.'))),
 
-                  if(jobResult.result.first.isEdited==true)
+                  if(jobResult.result.first.isWorkerEdited==true)
                    const Divider(height: 32,),
-          if(jobResult.result.first.isEdited==true)
+          if(jobResult.result.first.isWorkerEdited==true)
                   _sectionTitle('Promjene'),
-                 if(jobResult.result.first.isEdited==true)
+                 if(jobResult.result.first.isWorkerEdited==true)
                   _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena')
                   ,
                   SizedBox(height: 15,),
             
-            if(jobResult.result.first.isEdited==true)
+            if(jobResult.result.first.isWorkerEdited==true)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -301,6 +312,7 @@ class _JobDetailsState extends State<JobDetails> {
                           _isLoading=true;
                         });
                         await _getJob();
+                        if(!mounted) return;
                         setState(() {
                           _isLoading=false;
                         });
@@ -540,50 +552,46 @@ class _JobDetailsState extends State<JobDetails> {
                           ),
                         ),
                         const SizedBox(width: 15,),
-                        if((widget.job.jobStatus==JobStatus.approved || AuthProvider.user?.freelancer?.freelancerId!=null) 
-                        || ((widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId==null ))
+                        if((widget.job.jobStatus==JobStatus.approved || AuthProvider.selectedRole=="Freelancer") 
+                        || ((widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved) && AuthProvider.selectedRole=="User" ))
                         ElevatedButton(
                           onPressed: () async {
-                            if(AuthProvider.user?.freelancer?.freelancerId==null && jobResult.result.first.freelancer?.freelancerId==null && jobResult.result.first.company?.companyId==null)
-                            {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => EditJob(
-                                  job: jobResult.result.first,
-                                ),
-                              ),
-                            );
-                         
-                            await _getJob();
-                          
-                          }
-                          else if(AuthProvider.user?.freelancer?.freelancerId!=null && jobResult.result.first.freelancer?.freelancerId==null && jobResult.result.first.company?.companyId==null){
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => EditJobFreelancer(
-                                  job:  jobResult.result.first,
-                                ),
-                              ),
-                            );
-                           
-                            await _getJob();
-                         
-                          }
-                          else if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.freelancer?.freelancerId==null){
-                             await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => EditCompanyJob(
-                                  job:  jobResult.result.first,
-                                ),
-                              ),
-                            );
-                           
-                            await _getJob();
-
-                          }
-                          
-                          
-                          },
+  // If job belongs to a company
+  if (widget.job.company?.companyId != null && widget.job.freelancer?.freelancerId == null) {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => EditCompanyJob(
+          job: widget.job,
+        ),
+      ),
+    );
+    await _getJob();
+  } 
+  // If job belongs to a freelancer
+  else if (widget.job.freelancer?.freelancerId != null && widget.job.company?.companyId == null) {
+    if (AuthProvider.selectedRole == "User") {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => EditJob(
+            job: widget.job,
+          ),
+        ),
+      );
+      await _getJob();
+    } 
+    else if (AuthProvider.selectedRole == "Freelancer") {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => EditJobFreelancer(
+            job: widget.job,
+          ),
+        ),
+      );
+      await _getJob();
+    }
+  }
+}
+,
                           
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.amber,
@@ -929,7 +937,7 @@ ScaffoldMessenger.of(context).showSnackBar(
     return AlertDialog(
       backgroundColor: Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
-      content: imageFromString(widget.job.image!),
+      content: imageFromString(jobResult.result.first.image??''),
       actions: [
         TextButton(
           style: TextButton.styleFrom(

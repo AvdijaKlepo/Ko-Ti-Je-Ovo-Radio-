@@ -5,7 +5,6 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
-import 'package:ko_radio_desktop/screens/company_update_dialog.dart';
 import 'package:ko_radio_desktop/screens/store_update_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -132,7 +131,7 @@ class _StoresListState extends State<StoresList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisatu ovu trgovinu?'),
+        content: const Text('Jeste li sigurni da želite izbrisatu ovu trgovinu?'),
         actions: [
          
           TextButton(
@@ -160,7 +159,7 @@ class _StoresListState extends State<StoresList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovu trgovinu?'),
+        content: const Text('Jeste li sigurni da želite vratiti ovu trgovinu?'),
         actions: [
          
           TextButton(

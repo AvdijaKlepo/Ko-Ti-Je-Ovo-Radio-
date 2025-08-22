@@ -39,7 +39,7 @@ class _EditJobState extends State<EditJob> {
   late Set<int> _workingDayInts;
   bool _isLoading = false;
 
-  var _userId = AuthProvider.user?.userId;
+  final _userId = AuthProvider.user?.userId;
 
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
@@ -241,14 +241,14 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
   var newDateFinished = DateTime(
     value!.year,
     value.month,
-    value.day + jobDifference!,
+    value.day + jobDifference,
   );
 
                              if(!_isWorkingDay(newDateFinished))
                           {
                             
                            while (!_isWorkingDay(newDateFinished)) {
-                              newDateFinished = newDateFinished.add(Duration(days: 1));
+                              newDateFinished = newDateFinished.add(const Duration(days: 1));
                             }
                             _formKey.currentState?.patchValue({
                               'dateFinished': newDateFinished,
@@ -270,7 +270,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                         
                       },
                     ),
-                    SizedBox(height: 15,),
+                    const SizedBox(height: 15,),
                     FormBuilderDateTimePicker(
                     
                       format: DateFormat('dd-MM-yyyy'),
@@ -290,7 +290,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                       selectableDayPredicate: _isWorkingDay,
                      
                     ),
-                    SizedBox(height: 15,),
+                    const SizedBox(height: 15,),
                       if(widget.job.jobStatus==JobStatus.approved)
                 FormBuilderTextField(name: 'rescheduleNote',
                 
@@ -391,7 +391,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
+      decoration:  const InputDecoration(
         enabled: false ,
         labelText: "Proslijedite sliku problema",
         border: OutlineInputBorder(),
@@ -421,7 +421,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.job.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              label:widget.job.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
               onPressed: () => 
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sliku može promijeniti samo korisnik."))),
             ),
@@ -451,8 +451,8 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
     );
   },
 ),
-SizedBox(height: 15,),
-                  ElevatedButton(onPressed: _save,style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),child: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),),
+const SizedBox(height: 15,),
+                  ElevatedButton(onPressed: _save,style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),child: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),),
             ],
           ),
         ),
@@ -534,7 +534,7 @@ SizedBox(height: 15,),
                   "image": formData["image"],
                   "jobStatus": widget.job.jobStatus.name,
                   "serviceId": formData["serviceId"],
-                  "isEdited":true,
+                  "isWorkerEdited":true,
                   'rescheduleNote':formData['rescheduleNote']
                 };
 

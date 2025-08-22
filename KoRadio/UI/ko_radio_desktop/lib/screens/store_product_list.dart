@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/product.dart';
-import 'package:ko_radio_desktop/models/products_services.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
@@ -164,7 +163,7 @@ class _StoreProductListState extends State<StoreProductList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: Text('Jeste li sigurni da želite izbrisati ovaj proizvod?'),
+        content: const Text('Jeste li sigurni da želite izbrisati ovaj proizvod?'),
         actions: [
           
           TextButton(
@@ -192,7 +191,7 @@ class _StoreProductListState extends State<StoreProductList> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: Text('Jeste li sigurni da želite vratiti ovaj proizvod?'),
+        content: const Text('Jeste li sigurni da želite vratiti ovaj proizvod?'),
         actions: [
           
           TextButton(
@@ -270,38 +269,38 @@ class _StoreProductListState extends State<StoreProductList> {
           const SizedBox(height: 16),
  Row(
   children: [
-    Expanded(flex: 2, child: Padding(
+    const Expanded(flex: 2, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.left),
     )),
-    Expanded(flex: 4, child: Padding(
+    const Expanded(flex: 4, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Opis", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.left),
     )),
-    Expanded(flex: 2, child: Padding(
+    const Expanded(flex: 2, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Cijena", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.left),
     )),
-    Expanded(flex: 3, child: Padding(
+    const Expanded(flex: 3, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Tip", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.left),
     )),
-    Expanded(flex: 3, child: Padding(
+    const Expanded(flex: 3, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
     )),
     if(!showDeleted)
-    Expanded(flex: 1, child: Padding(
+    const Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.edit, size: 18),
     )),
     if(!showDeleted)
-    Expanded(flex: 1, child: Padding(
+    const Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.delete, size: 18),
     )),
     if(showDeleted)
-     Expanded(flex: 1, child: Padding(
+     const Expanded(flex: 1, child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
       child: Icon(Icons.restore, size: 18),
     )),
@@ -403,8 +402,8 @@ Expanded(
 ),
 
           ElevatedButton(onPressed:  () async{
-            await showDialog(context: context, builder: (_) => ProductDetailsDialog());
-          }, child: Text("Dodaj proizvod")),
+            await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
+          }, child: const Text("Dodaj proizvod")),
         ],
       ),
     );

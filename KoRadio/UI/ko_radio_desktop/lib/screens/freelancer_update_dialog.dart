@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'package:ko_radio_desktop/models/freelancer.dart';
 import 'package:intl/intl.dart';
@@ -242,7 +239,10 @@ void initState() {
 
       try {
         await freelancerProvider.update(widget.freelancer.freelancerId, request);
+        if(mounted && context.mounted)
+        {
         Navigator.pop(context, true);
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),

@@ -69,8 +69,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Zahtjev će biti poslan korisniku sa navedenom email adresom.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal)),
-                    SizedBox(height: 15,),
+                    const Text("Zahtjev će biti poslan korisniku sa navedenom email adresom.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal)),
+                    const SizedBox(height: 15,),
                     FormBuilder(key: _formKey,child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -81,11 +81,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                             ),),
                         ])),
                    
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                              style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                               onPressed: _save,
                               icon: const Icon(Icons.save,color: Colors.white,),
                               label: const Text("Sačuvaj", style: TextStyle(color: Colors.white),),

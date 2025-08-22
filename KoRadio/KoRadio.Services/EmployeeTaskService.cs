@@ -29,6 +29,10 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.JobId == search.JobId);
 			}
+			if(search.CompanyEmployeeId!=null)
+			{
+				query = query.Where(x => x.CompanyEmployeeId == search.CompanyEmployeeId);
+			}
 			return base.AddFilter(search, query);
 		}
 	}

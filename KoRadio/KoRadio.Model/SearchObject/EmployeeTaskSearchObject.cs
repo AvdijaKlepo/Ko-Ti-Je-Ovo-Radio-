@@ -10,5 +10,6 @@ namespace KoRadio.Model.SearchObject
 	{
 		public int? CompanyId { get; set; }
 		public int? JobId { get; set; }
+		public int? CompanyEmployeeId { get; set; }
 	}
 }

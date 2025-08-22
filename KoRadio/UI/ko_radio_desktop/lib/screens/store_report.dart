@@ -342,12 +342,12 @@ class _StoreReportState extends State<StoreReport> {
             Center(
             child:  ElevatedButton(onPressed: (){
              _generatePdf();
-           }, child: const Text('Generiši izvještaj',style: TextStyle(color: Colors.white),),
+           },
            
            style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1B4C7D),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-           ),
+           ), child: const Text('Generiši izvještaj',style: TextStyle(color: Colors.white),),
           ),
             ),
           

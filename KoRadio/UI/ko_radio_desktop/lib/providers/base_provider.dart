@@ -66,10 +66,10 @@ abstract class BaseProvider<T> with ChangeNotifier {
       for (var item in data['resultList']) {
         result.result.add(fromJson(item));
       }
-      print(uri);
+   
       return result;
     } else {
-      throw new Exception("Unknown error");
+      throw Exception("Unknown error");
     }
     // print("response: ${response.request} ${response.statusCode}, ${response.body}");
   }
@@ -85,7 +85,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw new Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
    Future<T> insertDTO(dynamic request) async {
@@ -100,7 +100,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw new Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
 
@@ -116,7 +116,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw new Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
     Future delete(int id) async {
@@ -129,7 +129,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (isValidResponse(response)) {
       return;
     } else {
-      throw new Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
   Future<T> getById(int? id) async {
@@ -161,18 +161,18 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (response.statusCode < 299) {
       return true;
     } else if (response.statusCode == 401) {
-      throw new Exception("Unauthorized");
+      throw Exception("Unauthorized");
     } else {
-      print(response.body);
-      throw new Exception("Something bad happened please try again");
+    
+      throw Exception("Something bad happened please try again");
     }
   }
 
   Map<String, String> createHeaders() {
-    String username = AuthProvider.username ?? "";
-    String password = AuthProvider.password ?? "";
+    String username = AuthProvider.username;
+    String password = AuthProvider.password;
 
-    print("passed creds: $username, $password");
+
 
     String basicAuth =
         "Basic ${base64Encode(utf8.encode('$username:$password'))}";

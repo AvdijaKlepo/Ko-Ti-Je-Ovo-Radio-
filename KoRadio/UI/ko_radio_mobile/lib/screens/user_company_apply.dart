@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/models/user.dart';
+import 'package:ko_radio_mobile/providers/base_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
@@ -31,6 +33,8 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
 
 
   SearchResult<Service>? serviceResult;
+  String? _backendEmailError;
+
 
   @override
   void initState() {
@@ -57,7 +61,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
       });
   }
 
-  void _onSave() {
+  void _onSave() async {
    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
 
   if (!isValid) {
@@ -90,6 +94,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
     formData["rating"] = 0; 
     formData["employee"]=[widget.user?.userId];
     formData["roles"]=[1009 ];
+    formData["isOwner"]=true;
 
     var selectedServices = formData["serviceId"];
     formData["serviceId"] = (selectedServices is List)
@@ -99,18 +104,29 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
             : []);
 
     try {
-      companyProvider.insert(formData);
+     await companyProvider.insert(formData);
+     if(mounted && context.mounted)
+     {
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Prijava poslana!")));
-    } catch (e) {
+     }
+   } on UserException catch (e) {
+  setState(() {
+    _backendEmailError = e.exMessage; 
+  });
+}
+  
+
+     catch (e) {
       debugPrint(e.toString());
     }
   }
   @override
   Widget build(BuildContext context) {
      return Scaffold(
-      appBar: AppBar(title: const Text("Prijava firme")),
+      appBar: AppBar(title:  Text("Prijava firme",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -153,9 +169,19 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
       return null;
     },
                     ])),
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email firme"),validator: FormBuilderValidators.compose([
+                    FormBuilderTextField(name: "email", decoration:  InputDecoration(labelText: "Email firme",
+                    errorText: _backendEmailError),
+                    onChanged: (_) {
+    if (_backendEmailError != null) {
+      setState(() {
+        _backendEmailError = null;
+      });
+    }
+  },
+                    validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       FormBuilderValidators.email(errorText: "Email nije valjan"),
+                      
                     ])),
                     
                     FormBuilderTextField(
@@ -221,7 +247,7 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
              FormBuilderCheckboxGroup<String>(
                       name: 'workingDays',
                       validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      decoration: InputDecoration(labelText: "Radni dani"),
+                      decoration: const InputDecoration(labelText: "Radni dani"),
                       options: [
                         'Ponedjeljak',
                         'Utorak',
@@ -251,7 +277,10 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                 children: [
                   TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text("Odustani")),
                   const SizedBox(width: 12),
-                  ElevatedButton(onPressed: _onSave, child: const Text("Sačuvaj")),
+                  ElevatedButton(onPressed: _onSave, style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),child: const Text("Sačuvaj", style: TextStyle(color: Colors.white))),
                 ],
               ),
             ],

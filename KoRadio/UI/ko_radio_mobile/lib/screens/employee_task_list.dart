@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/employee_task.dart';
+import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/employee_task_provider.dart';
 import 'package:provider/provider.dart';
 
 class EmployeeTaskList extends StatefulWidget {
-  const EmployeeTaskList({super.key});
+  const EmployeeTaskList({ super.key, required this.job});
+  final Job job;
 
   @override
   State<EmployeeTaskList> createState() => _EmployeeTaskListState();
@@ -27,15 +30,18 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
   }
 
   Future<void> _getEmployeeTask() async {
+    var filter = {'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+    'JobId': widget.job.jobId};
     setState(() {
       _isLoading = true;
     });
 
     try {
-      var fetchedEmployeeTask = await employeeTaskProvider.get();
+      var fetchedEmployeeTask = await employeeTaskProvider.get(filter: filter);
       setState(() {
         employeeTaskResult = fetchedEmployeeTask;
         _isLoading = false;
+        print(AuthProvider.selectedCompanyEmployeeId);
       });
     } catch (e) {
       if (!mounted) return;

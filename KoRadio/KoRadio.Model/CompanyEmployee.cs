@@ -17,6 +17,7 @@ namespace KoRadio.Model
 		public bool IsDeleted { get; set; }
 
 		public bool IsApplicant { get; set; }
+		public bool IsOwner { get; set; }
 
 		public int? CompanyRoleId { get; set; }
 

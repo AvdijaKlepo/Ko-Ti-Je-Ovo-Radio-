@@ -12,7 +12,6 @@ class SignalRProvider with ChangeNotifier {
   SearchResult<Messages>? result;
   
   late HubConnection _hubConnection;
-  Timer? _reconnectTimer;
   Timer? _connectionIdTimeoutTimer;
   bool _isReconnecting = false;
 
@@ -46,7 +45,7 @@ class SignalRProvider with ChangeNotifier {
   }*/
 
   Future<void> startConnection() async {
-    var url;
+    String url;
     if(AuthProvider.selectedCompanyId!=null)
     {
      url = '$_baseUrl$_endpoint?userId=${AuthProvider.selectedCompanyId}';
@@ -147,7 +146,7 @@ void Function(String message)? onNotificationReceived = (message) {
 
 
   void _startConnectionIdTimeout() {
-    _connectionIdTimeoutTimer = Timer(Duration(seconds: 3), () {
+    _connectionIdTimeoutTimer = Timer(const Duration(seconds: 3), () {
       _restartConnection();
     });
   }
@@ -156,15 +155,6 @@ void Function(String message)? onNotificationReceived = (message) {
     if (_isReconnecting) return;
 
     _isReconnecting = true;
-    _reconnectTimer = Timer.periodic(Duration(seconds: 3), (timer) async {
-      try {
-        await startConnection();
-        if (_hubConnection.state == HubConnectionState.Connected) {
-          timer.cancel();
-          _isReconnecting = false;
-        }
-      } catch (e) {}
-    });
   }
 
   Future<void> _restartConnection() async {
@@ -186,39 +176,23 @@ void Function(String message)? onNotificationReceived = (message) {
     
   }
 
-  Future<void> _saveMessage(String message) async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = AuthProvider.username;
-
-    if (username != null) {
-      final key = 'messages_$username';
-      final messages = prefs.getStringList(key) ?? [];
-      messages.add(message);
-      await prefs.setStringList(key, messages);
-    } else {}
-  }
+  
 
   Future<List<String>> getMessages() async {
     final prefs = await SharedPreferences.getInstance();
     final username = AuthProvider.username;
 
-    if (username != null) {
-      return prefs.getStringList('messages_$username') ?? [];
-    } else {
-      return [];
+    return prefs.getStringList('messages_$username') ?? [];
     }
-  }
 
   Future<void> clearMessages() async {
     final prefs = await SharedPreferences.getInstance();
     final username = AuthProvider.username;
 
-    if (username != null) {
-      await prefs.remove('messages_$username');
-      notifyListeners();
-      _messageCount = 0;
-    } else {}
-  }
+    await prefs.remove('messages_$username');
+    notifyListeners();
+    _messageCount = 0;
+    }
 
   int get messageCount => _messageCount;
  // void Function(String message)? onNotificationReceived;

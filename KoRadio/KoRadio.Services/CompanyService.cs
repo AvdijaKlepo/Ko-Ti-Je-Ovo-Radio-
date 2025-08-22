@@ -101,6 +101,15 @@ namespace KoRadio.Services
 			{
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
+			var normalizedEmail = request.Email.ToLower();
+			var existingEmail = await _context.Companies
+				.AnyAsync(x => x.Email.ToLower() == normalizedEmail, cancellationToken);
+
+			if (existingEmail)
+			{
+				throw new UserException("Već postoji firma sa navedenim emailom. Unesite drugi.");
+			}
+
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
@@ -227,6 +236,7 @@ namespace KoRadio.Services
 						IsDeleted = false,
 						IsApplicant=false,
 						DateJoined = DateTime.Now,
+						IsOwner=true
 						
 
 					});

@@ -291,7 +291,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             if (messagesPagination.items.isEmpty)
               isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : Column(
+                  : const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:[  Center(

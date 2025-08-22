@@ -125,7 +125,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Card(
-            color: Color.fromRGBO(27, 76, 125, 25),
+            color: const Color.fromRGBO(27, 76, 125, 25),
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
@@ -135,15 +135,15 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                 children: [
                   _sectionTitle('Detalji tendera'),
           
-          _buildDetailRow('Posao', tender?.jobTitle ?? 'Nije dostupan'), 
-           _buildDetailRow('Potreban', tender?.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ') ?? 'Nije dostupan'), 
-             _buildDetailRow('Opis', tender?.jobDescription ?? 'Nije dostupan'), 
+          _buildDetailRow('Posao', tender.jobTitle ?? 'Nije dostupan'), 
+           _buildDetailRow('Potreban', tender.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ') ?? 'Nije dostupan'), 
+             _buildDetailRow('Opis', tender.jobDescription ?? 'Nije dostupan'), 
               _buildDetailRow('Početak radova', DateFormat('dd‑MM‑yyyy').format(tender.jobDate )),
               const SizedBox(height: 10),
                  _sectionTitle('Korisnički podaci'),
-                  _buildDetailRow('Korisnik', tender?.user?.firstName ?? 'Nije dostupan'), 
-                  _buildDetailRow('Lokacija', tender?.user?.location?.locationName ?? 'Nije dostupan'), 
-                  _buildDetailRow('Adresa', tender?.user?.address ?? 'Nije dostupan'), 
+                  _buildDetailRow('Korisnik', tender.user?.firstName ?? 'Nije dostupan'), 
+                  _buildDetailRow('Lokacija', tender.user?.location?.locationName ?? 'Nije dostupan'), 
+                  _buildDetailRow('Adresa', tender.user?.address ?? 'Nije dostupan'), 
             
                  
                 
@@ -222,7 +222,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
       
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title:  Text('Detalji tendera'),
+        title:  const Text('Detalji tendera'),
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -242,7 +242,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                              backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -252,7 +252,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                   ),
                 ),
             ] else ...[
-              Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: Color.fromRGBO(27, 76, 125, 25)),)),
+              Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25)),)),
               ...tenderBidFetcher.items.map(_buildBidCard),
               if (tenderBidFetcher.hasNextPage)
                 const Padding(
@@ -266,7 +266,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                              backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

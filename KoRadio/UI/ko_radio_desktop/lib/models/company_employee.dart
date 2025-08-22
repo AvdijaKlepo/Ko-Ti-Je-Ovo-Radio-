@@ -1,7 +1,5 @@
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:ko_radio_desktop/models/company.dart';
-import 'package:ko_radio_desktop/models/company_role.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 
 
@@ -13,6 +11,7 @@ class CompanyEmployee {
   int? companyId;
   bool? isDeleted;
   bool? isApplicant;
+  bool? isOwner;
   String? companyName;
   int? companyRoleId;
   String? companyRoleName;

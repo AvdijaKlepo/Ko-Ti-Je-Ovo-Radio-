@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/job.dart';
-import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/tender_bids_screen.dart';
@@ -20,7 +19,7 @@ class _TenderScreenState extends State<TenderScreen> {
   late final ScrollController _scrollController;
 
   bool _isInitialized = false;
-  bool _isFreelancer = true;
+  final bool _isFreelancer = true;
 
  @override
 void initState() {
@@ -98,8 +97,8 @@ void initState() {
                 
                  
                   Image.asset('assets/images/tenderNotFound.webp'),
-                  Text("Nema aktivnih tendera. Provjerite kasnije.", style: TextStyle(fontSize: 18)) ,
-                  SizedBox(height: 10,),
+                  const Text("Nema aktivnih tendera. Provjerite kasnije.", style: TextStyle(fontSize: 18)) ,
+                  const SizedBox(height: 10,),
                 ]
             ):
         

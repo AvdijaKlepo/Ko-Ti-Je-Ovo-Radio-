@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/freelancer.dart';
@@ -13,7 +11,6 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
@@ -24,7 +21,6 @@ import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:fl_chart/fl_chart.dart';
-import 'package:printing/printing.dart';
 
 
 class Report extends StatefulWidget {
@@ -577,20 +573,20 @@ Future<void> _loadUsers() async {
                 
              ],
            ),
-           SizedBox(height: 10,),
+           const SizedBox(height: 10,),
           
 
            _buildStats(),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
             Center(
             child:  ElevatedButton(onPressed: (){
              _generatePdf();
-           }, child: const Text('Generiši izvještaj',style: TextStyle(color: Colors.white),),
+           },
            
            style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1B4C7D),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-           ),
+           ), child: const Text('Generiši izvještaj',style: TextStyle(color: Colors.white),),
           ),
             ),
           
@@ -724,7 +720,7 @@ Future<void> _loadUsers() async {
                       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     ),
-                    gridData: FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
+                    gridData: const FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
                     borderData: FlBorderData(show: false),
                   ),
                 ),

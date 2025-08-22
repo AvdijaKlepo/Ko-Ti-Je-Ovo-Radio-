@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_desktop/layout/master_screen.dart';
-import 'package:ko_radio_desktop/models/company.dart';
-import 'package:ko_radio_desktop/models/company_job_assignment.dart';
-import 'package:ko_radio_desktop/models/product.dart';
-import 'package:ko_radio_desktop/models/search_result.dart';
-import 'package:ko_radio_desktop/models/user_role.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
@@ -23,7 +18,6 @@ import 'package:ko_radio_desktop/providers/stores_provider.dart';
 import 'package:ko_radio_desktop/providers/tender_bid_provider.dart';
 import 'package:ko_radio_desktop/providers/tender_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
-import 'package:ko_radio_desktop/screens/user_list_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 
@@ -69,7 +63,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
          fontFamily: GoogleFonts.roboto().fontFamily,
       ),
-      home: Center(
+      home: const Center(
         child: LoginPage(),
       ),
     );
@@ -146,8 +140,9 @@ class _LoginPageState extends State<LoginPage> {
 
       final companyEmployees = user.companyEmployees ?? [];
       final stores = user.stores ?? [];
+    
       final signalRProvider = context.read<SignalRProvider>();
-
+     
       // --- ROLE CHOICE if user has both ---
       if (roles.contains("Company Admin") && roles.contains("StoreAdministrator")) {
         final chosenRole = await showDialog<String>(
@@ -226,7 +221,9 @@ class _LoginPageState extends State<LoginPage> {
           }
 
           if (stores.length == 1) {
+            print(stores.length);
             AuthProvider.selectedStoreId = stores.first.storeId;
+            print(AuthProvider.selectedStoreId);
             await signalRProvider.startConnection();
           }
         }

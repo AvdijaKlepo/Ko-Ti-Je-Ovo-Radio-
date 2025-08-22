@@ -66,20 +66,10 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
   Future<void> _submit() async {
   if (_formKey.currentState?.saveAndValidate() ?? false) {
     final values = _formKey.currentState!.value;
-
- 
-
-
-    if (widget.tender.jobId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Greška: Tender nije validan")),
-      );
-      return;
-    }
   
 
     final request = {
-      "jobId": widget.tender!.jobId,
+      "jobId": widget.tender.jobId,
       "companyId": companyId,
       "dateFinished": (values['dateFinished'] as DateTime).toIso8601String().split('T')[0],
       "freelancerId": null,
@@ -200,7 +190,7 @@ bool _isWorkingDay(DateTime day) {
               const SizedBox(height: 15),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

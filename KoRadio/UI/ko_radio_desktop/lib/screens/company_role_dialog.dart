@@ -18,7 +18,7 @@ class CompanyRoleDialog extends StatefulWidget {
 
 class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
-  Map<String, dynamic> _initialValue = {};
+  final Map<String, dynamic> _initialValue = {};
   late CompanyRoleProvider companyRoleProvider;
   late CompanyEmployeeProvider companyEmployeeProvider;
   SearchResult<CompanyRole>? companyRoleResult;
@@ -132,7 +132,7 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                              style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                               onPressed: _save,
                               icon: const Icon(Icons.save,color: Colors.white,),
                               label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
@@ -166,7 +166,7 @@ class _CompanyRoleDialogState extends State<CompanyRoleDialog> {
             final c = companyRoleResult!.result[index];
             return Card(
               elevation: 1,
-              margin: EdgeInsets.only(top: 5),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              margin: const EdgeInsets.only(top: 5),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               child: ListTile(
                 title: Text(c.roleName ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
                 subtitle: Text(companyEmployeeResult?.result.where((element) => element.companyRoleId == c.companyRoleId).map((e) => e.user?.firstName ?? '').join(', ') ?? ''),

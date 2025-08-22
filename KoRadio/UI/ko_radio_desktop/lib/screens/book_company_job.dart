@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/company.dart';
@@ -33,7 +31,7 @@ class BookCompanyJob extends StatefulWidget {
   State<BookCompanyJob> createState() => _BookCompanyJobState();
 }
 
-class _BookCompanyJobState extends State<BookCompanyJob> {
+class _BookCompanyJobState extends State<BookCompanyJob> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormBuilderState>();
   final _formKeyEmployee = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
@@ -62,6 +60,14 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
   SearchResult<Job>? jobResult;
   bool _isLoading = false;
   bool _checkBoxSubmit = false;
+   bool _showEditPanel = false;
+  bool _showTaskPanel = false;
+
+  double _getDialogWidth() {
+    if (_showEditPanel && _showTaskPanel) return 1200;
+    if (_showEditPanel || _showTaskPanel) return 1000;
+    return 500;
+  }
 
 
 
@@ -87,6 +93,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
               .toList(),
 
      };
+     
     
     });
  
@@ -95,6 +102,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
             .where((dayInt) => dayInt != -1)
             .toSet() ??
         {};
+       
     _initialValue = {
   
     };
@@ -170,8 +178,10 @@ return StatefulBuilder(
       child: AnimatedContainer(
 
         duration: const Duration(milliseconds: 300),
-        width: _showTaskPanel ? _showEditPanel ? 1200 : 1000 : 500,
-        height: 1050,
+        width: 500 +
+        (_showTaskPanel ? 500 : 0) +
+        (_showEditPanel ? 500 : 0),
+        height: 1250,
         child: Padding(
             padding: const EdgeInsets.all(24),
             child: Row(
@@ -192,6 +202,7 @@ return StatefulBuilder(
 
                             children: [
                               Card(
+
                                 color: const Color.fromRGBO(27, 76, 125, 25),
                                 elevation: 4,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -200,6 +211,81 @@ return StatefulBuilder(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
+                                      if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
+  Container(
+    padding: const EdgeInsets.all(12),
+    margin: const EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.amber.shade100,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.info, color: Colors.black87),
+        const SizedBox(width: 8),
+        const Expanded(
+          child: Text(
+            "Ovaj posao je ažuriran.",
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        if(jobResult?.result.first.isEdited==true)
+        ElevatedButton(
+          onPressed: () async {
+            final jobUpdateRequest = {
+              "userId": widget.job.user?.userId,
+              "freelancerId": null,
+              "companyId": widget.job.company?.companyId,
+              "jobTitle": widget.job.jobTitle,
+              "isTenderFinalized": false,
+              "isFreelancer": false,
+              "isInvoiced": false,
+              "isRated": false,
+              "startEstimate": null,
+              "endEstimate": null,
+              "payEstimate": widget.job.payEstimate,
+              "payInvoice": null,
+              "jobDate": widget.job.jobDate.toIso8601String(),
+              "dateFinished": widget.job.dateFinished?.toIso8601String(),
+              "jobDescription": widget.job.jobDescription,
+              "image": widget.job.image,
+              "jobStatus": widget.job.jobStatus.name,
+              "serviceId": widget.job.jobsServices
+                  ?.map((e) => e.service?.serviceId)
+                  .toList(),
+              "isEdited": false,
+            };
+
+            try {
+              await jobProvider.update(widget.job.jobId, jobUpdateRequest);
+              await _getJob(); // refresh so banner disappears
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Posao označen kao pregledan.")),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Greška: $e")),
+                );
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text("Označi kao pregledano"),
+        ),
+      ],
+    ),
+  ),
+],
+
                                       _sectionTitle('Radne specifikacije'),
                                 _buildDetailRow('Posao', jobResult?.result.first.jobTitle ?? 'Nije dostupan'),
                                 _buildDetailRow(
@@ -242,8 +328,11 @@ return StatefulBuilder(
                                     ),
                                   ))
                               : _buildDetailRow('Slika','Nije unesena'),
-                             const Divider(height: 32),
+                              
+if(jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
 
+                             const Divider(height: 32),
+if(jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
 _sectionTitle('Preuzeli dužnost'),
 
 if (jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
@@ -497,7 +586,7 @@ const Divider(height: 32),
                                 if (jobResult?.result.first.jobStatus == JobStatus.approved) ...[
                                   const Divider(height: 32),
                                   FormBuilderTextField(
-                                       enabled: _showEditPanel==true || widget.job.isEdited==true ? false : true,
+                                       enabled: _showEditPanel==true || (widget.job.isWorkerEdited==true || widget.job.isEdited==true) ? false : true,
                                     name: "payInvoice",
                                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                     decoration: const InputDecoration(
@@ -822,7 +911,8 @@ const Divider(height: 32),
     
       backgroundColor: Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
-      content: imageFromString(widget.job.image!,),
+      insetPadding: EdgeInsets.symmetric(horizontal: 500),
+      content: imageFromString(widget.job.image!,fit: BoxFit.contain),
       actions: [
         TextButton(
           style: TextButton.styleFrom(

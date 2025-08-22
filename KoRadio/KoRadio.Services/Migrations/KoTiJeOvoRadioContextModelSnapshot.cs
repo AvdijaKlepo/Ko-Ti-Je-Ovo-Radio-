@@ -73,8 +73,14 @@ namespace KoRadio.Services.Migrations
                     b.Property<decimal?>("Rating")
                         .HasColumnType("decimal(3, 2)");
 
+                    b.Property<decimal>("RatingSum")
+                        .HasColumnType("decimal(10, 2)");
+
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<int>("TotalRatings")
+                        .HasColumnType("int");
 
                     b.Property<int>("WorkingDays")
                         .HasColumnType("int");
@@ -115,6 +121,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsOwner")
+                        .HasColumnType("bit");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("UserID");
@@ -146,6 +155,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<int?>("CompanyEmployeeId")
                         .HasColumnType("int")
                         .HasColumnName("CompanyEmployeeID");
+
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("JobId")
                         .HasColumnType("int");
@@ -203,6 +215,46 @@ namespace KoRadio.Services.Migrations
                     b.HasIndex("ServiceId");
 
                     b.ToTable("CompanyService", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.EmployeeTask", b =>
+                {
+                    b.Property<int>("EmployeeTaskId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeTaskId"));
+
+                    b.Property<int?>("CompanyEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Task")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("EmployeeTaskId")
+                        .HasName("PK__Employee__47942B9E0BC0A370");
+
+                    b.HasIndex("CompanyEmployeeId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("JobId");
+
+                    b.ToTable("EmployeeTask", (string)null);
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Freelancer", b =>
@@ -300,7 +352,33 @@ namespace KoRadio.Services.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeletedWorker")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFreelancer")
+                        .HasColumnType("bit")
+                        .HasColumnName("isFreelancer");
+
+                    b.Property<bool>("IsInvoiced")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRated")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTenderFinalized")
+                        .HasColumnType("bit")
+                        .HasColumnName("isTenderFinalized");
+
+                    b.Property<bool>("IsWorkerEdited")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JobDate")
@@ -320,11 +398,20 @@ namespace KoRadio.Services.Migrations
                         .HasDefaultValue("unnaproved")
                         .HasColumnName("Job_Status");
 
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<decimal?>("PayEstimate")
                         .HasColumnType("decimal(10, 2)");
 
                     b.Property<decimal?>("PayInvoice")
                         .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("RescheduleNote")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<TimeOnly?>("StartEstimate")
                         .HasColumnType("time");
@@ -395,10 +482,23 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"));
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int")
+                        .HasColumnName("CompanyID");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsOpened")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message1")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Message");
+
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int")
@@ -406,6 +506,10 @@ namespace KoRadio.Services.Migrations
 
                     b.HasKey("MessageId")
                         .HasName("PK__Messages__C87C0C9CD5627697");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("StoreId");
 
                     b.HasIndex("UserId");
 
@@ -419,6 +523,15 @@ namespace KoRadio.Services.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsShipped")
+                        .HasColumnType("bit");
 
                     b.Property<int>("OrderNumber")
                         .HasColumnType("int");
@@ -451,12 +564,17 @@ namespace KoRadio.Services.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderItemsId")
                         .HasName("PK__OrderIte__D5BB2555E439B0B6");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("StoreId");
 
                     b.ToTable("OrderItems");
                 });
@@ -468,6 +586,12 @@ namespace KoRadio.Services.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
@@ -481,20 +605,36 @@ namespace KoRadio.Services.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
 
                     b.HasKey("ProductId")
-                        .HasName("PK__Products__B40CC6CDDC48DB00");
-
-                    b.HasIndex("ServiceId");
+                        .HasName("PK__Products__B40CC6CDD7BA1DD8");
 
                     b.HasIndex("StoreId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.ProductsService", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int")
+                        .HasColumnName("ProductID");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int")
+                        .HasColumnName("ServiceID");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("ProductId", "ServiceId")
+                        .HasName("PK__Products__085D7DE34C94B474");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ProductsService", (string)null);
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
@@ -563,9 +703,25 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StoreId"));
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsApplicant")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StoreName")
                         .IsRequired()
@@ -578,9 +734,127 @@ namespace KoRadio.Services.Migrations
                     b.HasKey("StoreId")
                         .HasName("PK__Stores__3B82F10142B7B44A");
 
+                    b.HasIndex("LocationId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Stores");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Tender", b =>
+                {
+                    b.Property<int>("TenderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TenderId"));
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FreelancerId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsFinalized")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFreelancer")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JobDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("JobDescription")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TenderId")
+                        .HasName("PK__Tender__B21B4268197B2C83");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Tender", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.TenderBid", b =>
+                {
+                    b.Property<int>("TenderBidId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TenderBidId"));
+
+                    b.Property<decimal>("BidAmount")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("BidDescription")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<DateTime?>("DateFinished")
+                        .HasColumnType("datetime");
+
+                    b.Property<TimeOnly?>("EndEstimate")
+                        .HasColumnType("time");
+
+                    b.Property<int?>("FreelancerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly?>("StartEstimate")
+                        .HasColumnType("time");
+
+                    b.HasKey("TenderBidId")
+                        .HasName("PK__TenderBi__5C928D9693AA275C");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.HasIndex("JobId");
+
+                    b.ToTable("TenderBid", (string)null);
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.TenderService", b =>
+                {
+                    b.Property<int>("TenderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int")
+                        .HasColumnName("ServiceID");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("TenderId", "ServiceId")
+                        .HasName("PK__TenderSe__0E4AF96661B872C5");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("TenderService", (string)null);
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
@@ -662,6 +936,10 @@ namespace KoRadio.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRatingId"));
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int")
+                        .HasColumnName("CompanyID");
+
                     b.Property<int?>("FreelancerId")
                         .HasColumnType("int")
                         .HasColumnName("FreelancerID");
@@ -678,6 +956,8 @@ namespace KoRadio.Services.Migrations
 
                     b.HasKey("UserRatingId")
                         .HasName("PK__UserRati__9E5FEAAA63E96E4C");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("FreelancerId");
 
@@ -737,6 +1017,7 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.Company", "Company")
                         .WithMany("CompanyEmployees")
                         .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__CompanyEm__Compa__69C6B1F5");
 
@@ -806,6 +1087,32 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("KoRadio.Services.Database.EmployeeTask", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.CompanyEmployee", "CompanyEmployee")
+                        .WithMany("EmployeeTasks")
+                        .HasForeignKey("CompanyEmployeeId")
+                        .HasConstraintName("FK__EmployeeT__Compa__1387E197");
+
+                    b.HasOne("KoRadio.Services.Database.Company", "Company")
+                        .WithMany("EmployeeTasks")
+                        .HasForeignKey("CompanyId")
+                        .IsRequired()
+                        .HasConstraintName("FK__EmployeeT__Compa__269AB60B");
+
+                    b.HasOne("KoRadio.Services.Database.Job", "Job")
+                        .WithMany("EmployeeTasks")
+                        .HasForeignKey("JobId")
+                        .IsRequired()
+                        .HasConstraintName("FK__EmployeeT__JobId__25A691D2");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("CompanyEmployee");
+
+                    b.Navigation("Job");
+                });
+
             modelBuilder.Entity("KoRadio.Services.Database.Freelancer", b =>
                 {
                     b.HasOne("KoRadio.Services.Database.User", "FreelancerNavigation")
@@ -822,6 +1129,7 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
                         .WithMany("FreelancerServices")
                         .HasForeignKey("FreelancerId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Freelance__Freel__1F63A897");
 
@@ -882,10 +1190,24 @@ namespace KoRadio.Services.Migrations
 
             modelBuilder.Entity("KoRadio.Services.Database.Message", b =>
                 {
+                    b.HasOne("KoRadio.Services.Database.Company", "Company")
+                        .WithMany("Messages")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK__Messages__Compan__7E8CC4B1");
+
+                    b.HasOne("KoRadio.Services.Database.Store", "Store")
+                        .WithMany("Messages")
+                        .HasForeignKey("StoreId")
+                        .HasConstraintName("FK__Messages__StoreI__7F80E8EA");
+
                     b.HasOne("KoRadio.Services.Database.User", "User")
                         .WithMany("Messages")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK__Messages__UserID__2CBDA3B5");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Store");
 
                     b.Navigation("User");
                 });
@@ -916,39 +1238,133 @@ namespace KoRadio.Services.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_OrderItems_Products");
 
+                    b.HasOne("KoRadio.Services.Database.Store", "Store")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("StoreId")
+                        .HasConstraintName("FK_OrderItems_Stores");
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
                 {
-                    b.HasOne("KoRadio.Services.Database.Service", "Service")
-                        .WithMany("Products")
-                        .HasForeignKey("ServiceId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Products_Services");
-
                     b.HasOne("KoRadio.Services.Database.Store", "Store")
                         .WithMany("Products")
                         .HasForeignKey("StoreId")
                         .IsRequired()
                         .HasConstraintName("FK_Products_Stores");
 
-                    b.Navigation("Service");
-
                     b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.ProductsService", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Product", "Product")
+                        .WithMany("ProductsServices")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("FK__ProductsS__Produ__4DE98D56");
+
+                    b.HasOne("KoRadio.Services.Database.Service", "Service")
+                        .WithMany("ProductsServices")
+                        .HasForeignKey("ServiceId")
+                        .IsRequired()
+                        .HasConstraintName("FK__ProductsS__Servi__4EDDB18F");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Store", b =>
                 {
+                    b.HasOne("KoRadio.Services.Database.Location", "Location")
+                        .WithMany("Stores")
+                        .HasForeignKey("LocationId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Stores__Location__4460231C");
+
                     b.HasOne("KoRadio.Services.Database.User", "User")
                         .WithMany("Stores")
                         .HasForeignKey("UserId")
                         .IsRequired()
                         .HasConstraintName("FK_Stores_Users");
 
+                    b.Navigation("Location");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Tender", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Company", "Company")
+                        .WithMany("Tenders")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK__Tender__CompanyI__5C37ACAD");
+
+                    b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
+                        .WithMany("Tenders")
+                        .HasForeignKey("FreelancerId")
+                        .HasConstraintName("FK__Tender__Freelanc__5B438874");
+
+                    b.HasOne("KoRadio.Services.Database.User", "User")
+                        .WithMany("Tenders")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK__Tender__UserId__5A4F643B");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Freelancer");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.TenderBid", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Company", "Company")
+                        .WithMany("TenderBids")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK__TenderBid__Compa__61F08603");
+
+                    b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
+                        .WithMany("TenderBids")
+                        .HasForeignKey("FreelancerId")
+                        .HasConstraintName("FK__TenderBid__Freel__60FC61CA");
+
+                    b.HasOne("KoRadio.Services.Database.Job", "Job")
+                        .WithMany("TenderBids")
+                        .HasForeignKey("JobId")
+                        .IsRequired()
+                        .HasConstraintName("FK__TenderBid__JobId__6A85CC04");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Freelancer");
+
+                    b.Navigation("Job");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.TenderService", b =>
+                {
+                    b.HasOne("KoRadio.Services.Database.Service", "Service")
+                        .WithMany("TenderServices")
+                        .HasForeignKey("ServiceId")
+                        .IsRequired()
+                        .HasConstraintName("FK__TenderSer__Servi__67A95F59");
+
+                    b.HasOne("KoRadio.Services.Database.Tender", "Tender")
+                        .WithMany("TenderServices")
+                        .HasForeignKey("TenderId")
+                        .IsRequired()
+                        .HasConstraintName("FK__TenderSer__Tende__66B53B20");
+
+                    b.Navigation("Service");
+
+                    b.Navigation("Tender");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
@@ -964,6 +1380,11 @@ namespace KoRadio.Services.Migrations
 
             modelBuilder.Entity("KoRadio.Services.Database.UserRating", b =>
                 {
+                    b.HasOne("KoRadio.Services.Database.Company", "Company")
+                        .WithMany("UserRatings")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK__UserRatin__Compa__6B79F03D");
+
                     b.HasOne("KoRadio.Services.Database.Freelancer", "Freelancer")
                         .WithMany("UserRatings")
                         .HasForeignKey("FreelancerId")
@@ -978,6 +1399,8 @@ namespace KoRadio.Services.Migrations
                         .WithMany("UserRatings")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK__UserRatin__UserI__41B8C09B");
+
+                    b.Navigation("Company");
 
                     b.Navigation("Freelancer");
 
@@ -1013,12 +1436,24 @@ namespace KoRadio.Services.Migrations
 
                     b.Navigation("CompanyServices");
 
+                    b.Navigation("EmployeeTasks");
+
                     b.Navigation("Jobs");
+
+                    b.Navigation("Messages");
+
+                    b.Navigation("TenderBids");
+
+                    b.Navigation("Tenders");
+
+                    b.Navigation("UserRatings");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.CompanyEmployee", b =>
                 {
                     b.Navigation("CompanyJobAssignments");
+
+                    b.Navigation("EmployeeTasks");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.CompanyRole", b =>
@@ -1032,6 +1467,10 @@ namespace KoRadio.Services.Migrations
 
                     b.Navigation("Jobs");
 
+                    b.Navigation("TenderBids");
+
+                    b.Navigation("Tenders");
+
                     b.Navigation("UserRatings");
                 });
 
@@ -1039,7 +1478,11 @@ namespace KoRadio.Services.Migrations
                 {
                     b.Navigation("CompanyJobAssignments");
 
+                    b.Navigation("EmployeeTasks");
+
                     b.Navigation("JobsServices");
+
+                    b.Navigation("TenderBids");
 
                     b.Navigation("UserRatings");
                 });
@@ -1047,6 +1490,8 @@ namespace KoRadio.Services.Migrations
             modelBuilder.Entity("KoRadio.Services.Database.Location", b =>
                 {
                     b.Navigation("Companies");
+
+                    b.Navigation("Stores");
 
                     b.Navigation("Users");
                 });
@@ -1059,6 +1504,8 @@ namespace KoRadio.Services.Migrations
             modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
                 {
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductsServices");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Role", b =>
@@ -1074,12 +1521,23 @@ namespace KoRadio.Services.Migrations
 
                     b.Navigation("JobsServices");
 
-                    b.Navigation("Products");
+                    b.Navigation("ProductsServices");
+
+                    b.Navigation("TenderServices");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Store", b =>
                 {
+                    b.Navigation("Messages");
+
+                    b.Navigation("OrderItems");
+
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("KoRadio.Services.Database.Tender", b =>
+                {
+                    b.Navigation("TenderServices");
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.User", b =>
@@ -1095,6 +1553,8 @@ namespace KoRadio.Services.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Stores");
+
+                    b.Navigation("Tenders");
 
                     b.Navigation("UserRatings");
 

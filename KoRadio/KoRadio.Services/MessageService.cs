@@ -40,7 +40,7 @@ namespace KoRadio.Services
 			}
 			else if (search?.OrderBy == "desc")
 			{
-				query = query.OrderByDescending(x => x.MessageId); 
+				query = query.OrderByDescending(x => x.IsOpened == false).ThenBy(x=>x.MessageId); 
 			}
 			return base.AddFilter(search, query);
 		}

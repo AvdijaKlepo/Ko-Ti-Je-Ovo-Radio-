@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/job.dart';
@@ -14,6 +15,7 @@ import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -45,6 +47,7 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
 
   late CompanyProvider companyProvider;
   late JobProvider jobProvider;
+  late MessagesProvider messagesProvider;
 
   SearchResult<Service>? serviceResult;
   SearchResult<Company>? companyResult;
@@ -54,9 +57,11 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      companyProvider = context.read<CompanyProvider>();
+     companyProvider = context.read<CompanyProvider>();
       jobProvider = context.read<JobProvider>();
+      messagesProvider = context.read<MessagesProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+     
     
     });
   _workingDayInts = widget.job.company?.workingDays
@@ -98,7 +103,7 @@ if (jobEnd != null) {
   jobDifference = null; 
 }
    return Scaffold(
-      appBar: AppBar(title: const Text('Rezerviši posao')),
+      appBar: AppBar(title:  Text('Detalji poslaa',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),centerTitle: true,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
@@ -131,14 +136,8 @@ if (jobEnd != null) {
                    
                     ),  
                     const SizedBox(height: 15,),
-                    const ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
-                    children: [
-  Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
-                    style: TextStyle(fontSize: 12),),
-                    ]
-                  
-                    )
-                    ,
+                    
+                    
                     const SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
@@ -203,7 +202,9 @@ if (jobEnd != null) {
                         
                       },
                     ),
+                     if(widget.job.jobStatus == JobStatus.approved)
                     SizedBox(height: 15,),
+                     if(widget.job.jobStatus == JobStatus.approved)
                     FormBuilderDateTimePicker(
                       enabled: false,
                       format: DateFormat('dd-MM-yyyy'),
@@ -265,8 +266,9 @@ if (jobEnd != null) {
                               .toList() ??
                           [],
                     ),
+                    if(widget.job.jobStatus == JobStatus.approved)
                     const SizedBox(height: 15),
-
+ if(widget.job.jobStatus == JobStatus.approved)
                       FormBuilderTextField(
                       name: "payEstimate",
                       enabled: false,
@@ -288,12 +290,12 @@ if (jobEnd != null) {
                     
                    FormBuilderField(
   name: "image",
-  enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
+  enabled: AuthProvider.selectedRole=="Freelancer" ? false:true ,
 
   builder: (field) {
     return InputDecorator(
       decoration:  InputDecoration(
-        enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
+        enabled: AuthProvider.selectedRole=="Freelancer" ? false:true ,
         labelText: "Proslijedite sliku problema",
         border: OutlineInputBorder(),
       ),
@@ -316,14 +318,14 @@ if (jobEnd != null) {
 
               style: ElevatedButton.styleFrom(
                 
-                backgroundColor: AuthProvider.user?.freelancer?.freelancerId==null ? Color.fromRGBO(27, 76, 125, 1) : Colors.grey,
-                textStyle:  AuthProvider.user?.freelancer?.freelancerId==null ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.grey),
+                backgroundColor: AuthProvider.selectedRole=="User" ? Color.fromRGBO(27, 76, 125, 1) : Colors.grey,
+                textStyle:  AuthProvider.selectedRole=="User" ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.grey),
 
 
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
               label:widget.job.image!= null ? Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => AuthProvider.user?.freelancer?.freelancerId==null ? getImage(field) : 
+              onPressed: () => AuthProvider.selectedRole=="User" ? getImage(field) : 
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sliku može promijeniti samo korisnik."))),
             ),
           ),
@@ -421,7 +423,54 @@ if (jobEnd != null) {
                     : (selectedServices != null
                         ? [int.tryParse(selectedServices.toString()) ?? 0]
                         : []);
+                        if (widget.job.jobStatus == JobStatus.unapproved) {
                   var jobInsertRequest = {
+                  "userId": widget.job.user?.userId,
+                  "freelancerId": null,
+                  "companyId": widget.job.company?.companyId,
+                  "jobTitle": formData["jobTitle"],
+                  "isTenderFinalized": false,
+                  "isFreelancer": false,
+                  "isInvoiced": false,
+                  "isRated": false,
+                  "startEstimate": null,
+                  "endEstimate": null,
+                  "payEstimate": null,
+                  "payInvoice": null,
+                  "jobDate": formData["jobDate"],
+                  "dateFinished": null,
+                  "jobDescription": formData["jobDescription"],
+                  "image": formData["image"],
+                  "jobStatus": widget.job.jobStatus.name,
+                  "serviceId": formData["serviceId"]
+                };
+
+       
+              try{
+               
+                await jobProvider.update(widget.job.jobId,jobInsertRequest);
+                await messagesProvider.insert({
+                      'message1':
+                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
+                      'companyId': widget.job.company?.companyId,
+                      'createdAt': DateTime.now().toIso8601String(),
+                      'isOpened': false,
+                    });
+            
+                if(!mounted) return;
+                 Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Zahtjev proslijeđen firmi!")));
+              }
+              catch(e){
+                print(e);
+
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Greška u slanju zahtjeva. Molimo pokušajte ponovo.")));
+              }
+                        }
+              if (widget.job.jobStatus == JobStatus.approved) {
+var jobInsertRequestApproved = {
                   "userId": widget.job.user?.userId,
                   "freelancerId": null,
                   "companyId": widget.job.company?.companyId,
@@ -439,13 +488,21 @@ if (jobEnd != null) {
                   "jobDescription": formData["jobDescription"],
                   "image": formData["image"],
                   "jobStatus": widget.job.jobStatus.name,
-                  "serviceId": formData["serviceId"]
+                  "serviceId": formData["serviceId"],
+                  'isEdited':true,
                 };
 
        
               try{
                
-                await jobProvider.update(widget.job.jobId,jobInsertRequest);
+                await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
+                await messagesProvider.insert({
+                      'message1':
+                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
+                      'companyId': widget.job.company?.companyId,
+                      'createdAt': DateTime.now().toIso8601String(),
+                      'isOpened': false,
+                    });
             
                 if(!mounted) return;
                  Navigator.of(context).pop();
@@ -458,6 +515,8 @@ if (jobEnd != null) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("Greška u slanju zahtjeva. Molimo pokušajte ponovo.")));
               }
+              }
+
 
 
            },

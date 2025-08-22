@@ -215,10 +215,18 @@ class _ApproveJobState extends State<ApproveJob> {
     );
   }
 
-
+  
 
   @override
   Widget build(BuildContext context) {
+    if(_isLoading==true)
+    {
+      final job = null;
+    }
+    else{
+        final job = jobResult.result.first;
+    }
+  
     final dateFormat = DateFormat('dd.MM.yyyy');
     final _formKey = GlobalKey<FormBuilderState>();
     return Scaffold(
@@ -388,7 +396,7 @@ class _ApproveJobState extends State<ApproveJob> {
              
           },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
           const SizedBox(width: 15,),
-          if(jobResult.result.first.isEdited!=true)
+          if(jobResult.result.first.isEdited!=true && jobResult.result.first.jobStatus==JobStatus.approved)
           ElevatedButton(onPressed: () async{
             await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: jobResult.result.first)));
             await _getJob();
@@ -474,6 +482,9 @@ class _ApproveJobState extends State<ApproveJob> {
   }
 
   Widget _buildFreelancerJobView() {
+    final job;
+   _isLoading==true ? job = null : job = jobResult.result.first;
+  
     bool outOfWorkHours = false;
     String? selectedJobTime = widget.job.startEstimate;
 
@@ -664,7 +675,7 @@ DateTime normalizeTime(DateTime t) {
                      
                       FormBuilderTextField(
                         name: "payInvoice",
-                        enabled:  widget.job.isEdited==true ? false:true,
+                        enabled:  job.isEdited==true ? false:true,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         decoration: const InputDecoration(

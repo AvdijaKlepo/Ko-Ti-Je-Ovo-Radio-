@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:ko_radio_mobile/layout/master_screen.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
@@ -134,7 +135,7 @@ DateTime _findNextWorkingDay(DateTime start) {
           Expanded(
             child: TableCalendar(
               key: const PageStorageKey('calendar'), 
-
+        
               shouldFillViewport: true,
               firstDay: DateTime.now(),
               lastDay: DateTime(2035),

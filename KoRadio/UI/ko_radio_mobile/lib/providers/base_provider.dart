@@ -140,26 +140,34 @@ abstract class BaseProvider<T> with ChangeNotifier {
     throw Exception("Method not implemented");
   }
 
- bool isValidResponse(Response response) {
+bool isValidResponse(Response response) {
   if (response.statusCode >= 200 && response.statusCode < 300) {
     return true;
   }
 
-  String message = "Unknown error";
-
   try {
     var json = jsonDecode(response.body);
+
     if (json is Map<String, dynamic> && json.containsKey("errors")) {
-      // Flatten error messages into a single string
-      final errors = (json["errors"] as Map).values.expand((v) => v).join('\n');
-      message = errors;
+      final errors = json["errors"] as Map<String, dynamic>;
+
+      final errorMessages = errors.values
+          .expand((v) => (v as List).map((e) => e.toString()))
+          .join('\n');
+
+      throw UserException(errorMessages);
     }
+  } on UserException {
+    rethrow; 
   } catch (_) {
-    message = response.body; 
+    throw Exception("Unexpected error: ${response.body}");
   }
 
-  throw Exception(message);
+  throw Exception("Unknown error");
 }
+
+
+
 
 
   Map<String, String> createHeaders() {

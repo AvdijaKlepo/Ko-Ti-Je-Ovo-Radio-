@@ -107,6 +107,7 @@ namespace KoRadio.Services
 			{
 				throw new UserException("Lozinke se ne poklapaju!");
 			}
+
 			entity.PasswordSalt = GenerateSalt();
 			entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Password);
 			entity.CreatedAt = DateTime.Now;

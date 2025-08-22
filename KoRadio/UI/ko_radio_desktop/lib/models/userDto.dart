@@ -1,8 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:ko_radio_desktop/models/company_employee.dart';
-import 'package:ko_radio_desktop/models/location.dart';
-import 'package:ko_radio_desktop/models/role.dart';
-import 'package:ko_radio_desktop/models/user_role.dart';
 
 part 'userDto.g.dart';
 @JsonSerializable()

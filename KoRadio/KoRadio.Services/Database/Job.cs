@@ -46,6 +46,7 @@ public partial class Job
     public bool IsDeletedWorker { get; set; }
 
     public bool IsEdited { get; set; }
+    public bool IsWorkerEdited { get; set; }
 
     public bool IsApproved { get; set; }
 

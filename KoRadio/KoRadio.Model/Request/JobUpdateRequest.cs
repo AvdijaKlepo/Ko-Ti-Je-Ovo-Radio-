@@ -41,6 +41,7 @@ namespace KoRadio.Model.Request
 		public bool IsDeletedWorker { get; set; }
 
 		public bool IsEdited { get; set; }
+		public bool IsWorkerEdited { get; set; }
 		public bool IsApproved { get; set; }
 		public string? RescheduleNote { get; set; }
 	}

@@ -30,9 +30,12 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   bool _isInitialized = false;
   bool _isLoading = false;
   final isUser = AuthProvider.selectedRole=="User";
+  final isFreelancer = AuthProvider.selectedRole=="Freelancer";
+  final isCompanyEmployee= AuthProvider.selectedRole=="CompanyEmployee";
 
   final _userId = AuthProvider.user?.userId;
   final _freelancerId = AuthProvider.user?.freelancer?.freelancerId;
+  final _companyEmployeeId = AuthProvider.selectedCompanyEmployeeId;
   late JobStatus jobStatus;
   final List<JobStatus> jobStatuses = [
     JobStatus.finished,
@@ -44,8 +47,9 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
 Map<String, dynamic> filterMap(JobStatus status)  {
   return{
 
-    if(isUser) 'UserId': _userId,
-        if(!isUser) 'FreelancerId': _freelancerId,
+     if(isUser) 'UserId': _userId,
+        if(isFreelancer) 'FreelancerId': _freelancerId,
+        if(isCompanyEmployee) 'CompanyEmployeeId': _companyEmployeeId,
         
         'JobStatus': jobStatus.name,
         'isTenderFinalized': false,
@@ -66,7 +70,8 @@ Map<String, dynamic> filterMap(JobStatus status)  {
       pageSize: 5,
       initialFilter: {
         if(isUser) 'UserId': _userId,
-        if(!isUser) 'FreelancerId': _freelancerId,
+        if(isFreelancer) 'FreelancerId': _freelancerId,
+        if(isCompanyEmployee) 'CompanyEmployeeId': _companyEmployeeId,
         
         'JobStatus': jobStatus.name,
         'isTenderFinalized': false,
@@ -103,7 +108,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
       setState(() {
         _isLoading=true;
       });
-      await jobsPagination.refresh();
+      await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
       setState(() {
         _isInitialized = true;
         _isLoading=false;
@@ -130,8 +135,9 @@ Map<String, dynamic> filterMap(JobStatus status)  {
 
     final isUser = AuthProvider.selectedRole=="User";
     final filter = <String, dynamic>{
-      if (isUser) 'UserId': _userId,
-      if (!isUser) 'FreelancerId': _freelancerId,
+       if(isUser) 'UserId': _userId,
+        if(isFreelancer) 'FreelancerId': _freelancerId,
+        if(isCompanyEmployee) 'CompanyEmployeeId': _companyEmployeeId,
       'JobStatus': status.name,"isTenderFinalized":false,
       'OrderBy': 'desc',
       'isDeleted':false,
@@ -233,180 +239,178 @@ Map<String, dynamic> filterMap(JobStatus status)  {
   }
 
   Widget _buildJobList(BuildContext context, List<Job> jobs, JobStatus status) {
-       if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+  if (!_isInitialized) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
+  return ListView.separated(
+    separatorBuilder: (context, index) => const SizedBox(height: 12),
+    controller: _scrollController,
+    itemCount: jobs.length + (jobsPagination.hasNextPage ? 1 : 0),
+    itemBuilder: (context, index) {
+      if (index >= jobs.length) return const SizedBox.shrink();
 
+      final job = jobs[index];
 
-    return ListView.separated(
-      separatorBuilder: (context, index) => const Divider(height: 35),
-      controller: _scrollController,
-      itemCount: jobs.length + (jobsPagination.hasNextPage ? 1 : 0),
-      itemBuilder: (context, index) {
-         
-   
-    
-        if(index < jobs.length){
-        final job = jobs[index];
+      final isCompanyJob = job.company?.companyId != null;
+      final isFreelancerJob = job.freelancer?.freelancerId != null;
+      final isUserJob = job.user != null;
 
-   return Card(
-          color: job.isEdited==false ? const Color.fromRGBO(27, 76, 125, 25) : const Color(0xFFFFF3CD),
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child:
-             
-           Slidable(
-            enabled: 
-            (job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true)) ||
-            
-           ((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId== null) || 
+      final isDark = job.isEdited == false;
 
-            ((job.jobStatus==JobStatus.approved) && AuthProvider.user?.freelancer?.freelancerId!= null)
-           
-           
-            ? true : false,
-            
-            direction: Axis.horizontal,
+      final cardColor = isDark
+          ? const Color.fromRGBO(27, 76, 125, 1)
+          : Colors.white;
+      final textColor = isDark ? Colors.white : Colors.black87;
 
-            key: const ValueKey(0),
-            
-            endActionPane: ActionPane(
-
-              motion: const ScrollMotion() ,
-
-              
-              extentRatio: 0.25,
-              children: [
-
-                if(job.jobStatus==JobStatus.cancelled || (job.jobStatus==JobStatus.finished && job.isInvoiced==true))
+      return Card(
+        elevation: 3,
+        shadowColor: Colors.black26,
+        color: cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Slidable(
+          key: ValueKey(job.jobId),
+          enabled: (job.jobStatus == JobStatus.cancelled ||
+                  (job.jobStatus == JobStatus.finished && job.isInvoiced == true)) ||
+              ((job.jobStatus == JobStatus.approved ||
+                      job.jobStatus == JobStatus.unapproved) &&
+                  AuthProvider.selectedRole == "User") ||
+              ((job.jobStatus == JobStatus.approved &&
+                  AuthProvider.selectedRole == "Freelancer")),
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            extentRatio: 0.25,
+            children: [
+              if (job.jobStatus == JobStatus.cancelled ||
+                  (job.jobStatus == JobStatus.finished &&
+                      job.isInvoiced == true))
                 SlidableAction(
-
                   onPressed: (_) => _onLongPress(context, job),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   icon: Icons.delete_outline,
                   label: 'Obriši',
-                )  ,
-
-                if(((job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved) && AuthProvider.user?.freelancer?.freelancerId==null)
-                
-                || ((job.jobStatus==JobStatus.approved && AuthProvider.user?.freelancer?.freelancerId!=null))
-                ) 
-                 SlidableAction(
-                  onPressed: (_) async 
-                  {
-                    if(AuthProvider.user?.freelancer?.freelancerId==null)
-                    {
-                   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: job)));
+                ),
+              if (((job.jobStatus == JobStatus.approved ||
+                          job.jobStatus == JobStatus.unapproved) &&
+                      AuthProvider.selectedRole == "User") ||
+                  (job.jobStatus == JobStatus.approved &&
+                      AuthProvider.selectedRole == "Freelancer"))
+                SlidableAction(
+                  onPressed: (_) async {
+                    if (AuthProvider.selectedRole == "User") {
+                      await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => EditJob(job: job)));
+                    } else if (AuthProvider.selectedRole == "Freelancer") {
+                      await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => EditJobFreelancer(job: job)));
                     }
-                    else if(AuthProvider.user?.freelancer?.freelancerId!=null)
-                    {
-                   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: job)));
-                    }
-                   setState(() {
-                     _isLoading=true;
-                   });
-                   await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-                   setState(() {
-                     _isLoading=false;
-                   });
-                   
-                   },
+                    setState(() => _isLoading = true);
+                    await jobsPagination
+                        .refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+                    setState(() => _isLoading = false);
+                  },
                   backgroundColor: Colors.amber,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   icon: Icons.edit_outlined,
                   label: 'Uredi',
-                )  ,
-              ],
-            ),
-            child: ListTile(
-             
-            
-            onLongPress: () async {
-               if(job.isEdited==true)
-    {
-        var jobInsertRequest = {
-                  "userId": job.user?.userId,
-                  "freelancerId": job.freelancer?.freelancerId,
-                  "companyId": job.company?.companyId,
-                  "jobTitle": job.jobTitle,
-                  "isTenderFinalized": false,
-                  "isFreelancer": true,
-                  "isInvoiced": false,
-                  "isRated": false,
-                  "startEstimate": job.startEstimate,
-                  "endEstimate": job.endEstimate,
-                  "payEstimate": job.payEstimate,
-                  "payInvoice": null,
-                  "jobDate": job.jobDate.toIso8601String(),
-                  "dateFinished": null,
-                  "jobDescription": job.jobDescription,
-                  "image": job.image,
-                  "jobStatus": job.jobStatus.name,
-                  "serviceId": job.jobsServices
-                          ?.map((e) => e.service?.serviceId)
-                          .toList(),
-                  "isEdited":false,
-                };
-      
-      await jobProvider.update(job.jobId,
-      jobInsertRequest);
-    }
-    await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-            },
-              
-            
+                ),
+            ],
+          ),
+          child: ListTile(
             onTap: () async {
-              final destination = ((status == JobStatus.unapproved && AuthProvider.selectedRole == "Freelancer") ||
-                         (status == JobStatus.approved && AuthProvider.selectedRole == "Freelancer"))
-                  ?   ApproveJob(job: job, freelancer: job.freelancer!)  
-                  :  JobDetails(job: job);
-            
-           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => destination));
+              final destination =
+                  ((status == JobStatus.unapproved &&
+                              AuthProvider.selectedRole == "Freelancer") ||
+                          (status == JobStatus.approved &&
+                              AuthProvider.selectedRole == "Freelancer"))
+                      ? ApproveJob(job: job, freelancer: job.freelancer!)
+                      : JobDetails(job: job);
 
-           setState(() {
-             _isLoading=true;
-           });
-            
-            
-                
-            
-                await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-                
-                
-                  setState(() {
-                    _isLoading=false;
-                  });
-                
-              
-              
-            
-             
-             
-              
-              
+              await Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => destination));
+
+              setState(() => _isLoading = true);
+              await jobsPagination
+                  .refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+              setState(() => _isLoading = false);
             },
-            
-              leading:  Icon(Icons.info_outline, color: job.isEdited==false ? Colors.white : Colors.black),
-              title: Text(
-                "Posao: ${job.jobTitle}\nDatum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
-                style:  TextStyle(fontWeight: FontWeight.bold,color: job.isEdited==false ? Colors.white : Colors.black),
+            leading: CircleAvatar(
+              backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
+              child: Icon(
+                isCompanyJob
+                    ? Icons.business_outlined
+                    : Icons.construction_outlined,
+                color: isDark ? Colors.white : Colors.black87,
               ),
-              subtitle: job.user != null && AuthProvider.selectedRole=="Freelancer"
-                  ? Text("Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen'}",style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black))
-                  : job.freelancer?.freelancerId !=null ? Text("Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen\n${job.isEdited==true?'Uređen':''}'}",style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black))
-                  : Text('Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}\n${job.isInvoiced==true?'Plaćen':'Nije plaćen\n${job.isEdited==true?'Uređen':''}'}',style:  TextStyle(color: job.isEdited==false ? Colors.white : Colors.black)),
-              trailing: job.freelancer!= null ?  Icon(Icons.construction_outlined,color: job.isEdited==false ? Colors.white : Colors.black) :  Icon(Icons.business_outlined,color: job.isEdited==false ? Colors.white : Colors.black),
-            
+            ),
+            title: Text(
+              job.jobTitle!,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: textColor,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                    style: TextStyle(color: textColor),
+                  ),
+                  if (isUserJob && AuthProvider.selectedRole == "Freelancer")
+                    Text(
+                      "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}",
+                      style: TextStyle(color: textColor),
                     ),
-          ));
+                  if (isFreelancerJob)
+                    Text(
+                      "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                      style: TextStyle(color: textColor),
+                    ),
+                  if (isCompanyJob)
+                    Text(
+                      "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                      style: TextStyle(color: textColor),
+                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        job.isInvoiced ?? false ? Icons.check_circle : Icons.cancel,
+                        size: 16,
+                        color: job.isInvoiced ?? false ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        job.isInvoiced ?? false ? "Plaćen" : "Nije plaćen",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, color: textColor),
+                      ),
+                      if (job.isEdited == true || job.isWorkerEdited == true) ...[
+                        const SizedBox(width: 8),
+                        Chip(
+                          label: const Text("Uređen"),
+                          backgroundColor: Colors.orange.shade100,
+                          labelStyle: const TextStyle(color: Colors.black87),
+                          visualDensity: VisualDensity.compact,
+                        )
+                      ]
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
-
-      }
-        return null;},
-    );
-  
-  }
 
   void _onLongPress(BuildContext context, Job job) {
     showDialog(context: context, builder: (context) => AlertDialog(

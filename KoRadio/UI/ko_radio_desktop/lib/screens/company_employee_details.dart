@@ -4,7 +4,6 @@ import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
-import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
@@ -188,7 +187,7 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
           children: [
             Row(
               children: [
-                Container(
+                SizedBox(
                   width: 120,
                   height: 120,
                   child:ClipRRect(
@@ -196,7 +195,7 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
                   child:
                   widget.companyEmployee.user?.image != null ?
                    imageFromString(widget.companyEmployee.user?.image ?? ''):
-                   Image(image: AssetImage('assets/images/Sample_User_Icon.png'),fit: BoxFit.cover,),
+                   const Image(image: AssetImage('assets/images/Sample_User_Icon.png'),fit: BoxFit.cover,),
 
                 ) ,
                 ),

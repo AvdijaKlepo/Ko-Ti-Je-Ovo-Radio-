@@ -69,26 +69,43 @@ namespace KoRadio.Services
 
 				return base.AddFilter(search, query);
 		}
-		public override Task AfterUpdateAsync(CompanyEmployeeUpdateRequest request, Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
+		public override async Task AfterUpdateAsync(CompanyEmployeeUpdateRequest request, Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
 		{
-			if (request.IsApplicant==false && entity.IsApplicant==true)
+		
+
+			await base.AfterUpdateAsync(request, entity, cancellationToken);
+		}
+		public override async Task BeforeUpdateAsync(CompanyEmployeeUpdateRequest request, Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
+		{
+			if (request.IsApplicant == false && entity.IsApplicant == true)
 			{
 				if (request.Roles != null && request.Roles.Any())
 				{
-					foreach (var roleId in request.Roles)
+
+					var existingRoleIds = _context.UserRoles
+						.Where(ur => ur.UserId == entity.UserId)
+						.Select(ur => ur.RoleId)
+						.ToHashSet();
+
+					foreach (var roleId in request.Roles.Distinct())
 					{
-						_context.UserRoles.Add(new Database.UserRole
+						if (!existingRoleIds.Contains(roleId))
 						{
-							UserId = entity.UserId,
-							RoleId = roleId,
-							ChangedAt = DateTime.UtcNow,
-							CreatedAt = DateTime.UtcNow
-						});
+							_context.UserRoles.Add(new Database.UserRole
+							{
+								UserId = entity.UserId,
+								RoleId = roleId,
+								ChangedAt = DateTime.Now,
+								CreatedAt = DateTime.Now
+							});
+						}
 					}
+
 					_context.SaveChanges();
-				} 
+				}
 			}
-			return base.AfterUpdateAsync(request, entity, cancellationToken);
+
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 		public override async Task BeforeInsertAsync(CompanyEmployeeInsertRequest request, KoRadio.Services.Database.CompanyEmployee entity, CancellationToken cancellationToken = default)
 		{
@@ -103,6 +120,7 @@ namespace KoRadio.Services
 			entity.DateJoined = DateTime.UtcNow;
 			entity.IsApplicant = true;
 			entity.IsDeleted = false;
+			
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
@@ -121,6 +139,7 @@ namespace KoRadio.Services
 			DateJoined = x.DateJoined,
 			CompanyName = x.Company.CompanyName,
 			CompanyRoleName = x.CompanyRole.RoleName,
+			IsOwner=x.IsOwner,
 			User = new Model.DTOs.UserDTO
 			{
 				UserId = x.User.UserId,

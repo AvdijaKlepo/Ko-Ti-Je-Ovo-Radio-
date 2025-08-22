@@ -1,6 +1,5 @@
 
 
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,18 +15,14 @@ import 'package:ko_radio_desktop/screens/company_employee_list.dart';
 import 'package:ko_radio_desktop/screens/company_job.dart';
 import 'package:ko_radio_desktop/screens/company_list.dart';
 import 'package:ko_radio_desktop/screens/company_report.dart';
-import 'package:ko_radio_desktop/screens/company_update_dialog.dart';
 import 'package:ko_radio_desktop/screens/company_update_screen.dart';
 import 'package:ko_radio_desktop/screens/freelancer_list_screen.dart';
-import 'package:ko_radio_desktop/screens/message_details.dart';
 import 'package:ko_radio_desktop/screens/messages_screen.dart';
 import 'package:ko_radio_desktop/screens/report.dart';
 import 'package:ko_radio_desktop/screens/service_list_screen.dart';
-import 'package:ko_radio_desktop/screens/settings.dart';
 import 'package:ko_radio_desktop/screens/store_orders.dart';
 import 'package:ko_radio_desktop/screens/store_product_list.dart';
 import 'package:ko_radio_desktop/screens/store_report.dart';
-import 'package:ko_radio_desktop/screens/store_update_dialog.dart';
 import 'package:ko_radio_desktop/screens/store_update_screen.dart';
 import 'package:ko_radio_desktop/screens/stores_list.dart';
 import 'package:ko_radio_desktop/screens/tender_screen.dart';
@@ -237,8 +232,8 @@ signalR.onNotificationReceived = (message) async {
   final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
 
   if (roles.contains("Admin")) return "Admin";
-  if (roles.contains("Company Admin")) return "Company Admin";
-  if (roles.contains("StoreAdministrator")) return "StoreAdministrator";
+  if (roles.contains("Company Admin") && AuthProvider.selectedCompanyId!=null) return "Company Admin";
+  if (roles.contains("StoreAdministrator") && AuthProvider.selectedStoreId!=null) return "StoreAdministrator";
 
   return "User"; 
 }
