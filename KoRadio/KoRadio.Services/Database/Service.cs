@@ -10,7 +10,7 @@ public partial class Service
 
     public string ServiceName { get; set; } = null!;
 
-    public byte[] Image { get; set; } = null!;
+    public byte[]? Image { get; set; } = null!;
 
     public bool IsDeleted { get; set; }
 	[NotMapped]

@@ -29,10 +29,11 @@ namespace KoRadio.Services
 	public class UserService:BaseCRUDServiceAsync<Model.User,UserSearchObject,Database.User,UserInsertRequest,UserUpdateRequest>,IUserService
 	{
 		private readonly IHubContext<SignalRHubService> _hubContext;
-		//private readonly IUserGradeRecommenderService _userGradeRecommenderService;
-		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext) : base(context, mapper)
+		private readonly IUserGradeRecommenderService _userGradeRecommenderService;
+		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IUserGradeRecommenderService userGradeRecommenderService) : base(context, mapper)
 		{
 			_hubContext = hubContext;
+			_userGradeRecommenderService = userGradeRecommenderService;
 		
 
 		}
@@ -156,12 +157,18 @@ namespace KoRadio.Services
 			return Convert.ToBase64String(inArray);
 		}
 
-		//public async Task<List<Model.Freelancer>> GetRecommendedFreelancers(int userId)
-		//{
-		//	var freelancerObj = await _userGradeRecommenderService.GetRecommendedGradedProducts(userId);
+		public async Task<List<Model.Freelancer>> GetRecommendedFreelancers(int userId, int serviceId)
+		{
+			var freelancerObj = await _userGradeRecommenderService.GetRecommendedFreelancers(userId,serviceId);
 
-		//	return freelancerObj;
-		//}
+			return freelancerObj;
+		}
+		public async Task<List<Model.Company>> GetRecommendedCompanies(int userId, int serviceId)
+		{
+			var companyObj = await (_userGradeRecommenderService as Recommender.CompanyRecommenderService).GetRecommendedCompanies(userId, serviceId);
+			return companyObj;
+		}
+
 
 		public Model.User Login(string username, string password, string connectionId)
 		{

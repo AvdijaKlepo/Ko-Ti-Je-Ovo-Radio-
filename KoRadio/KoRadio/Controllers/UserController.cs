@@ -1,6 +1,7 @@
 ﻿using KoRadio.Model;
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
+using KoRadio.Services;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,16 @@ namespace KoRadio.API.Controllers
 			return (_service as IUserService).Registration(request);
 		}
 
-	
+		[HttpGet("RecommendedFreelancers/{userId}")]
+		public Task<List<Model.Freelancer>> GetRecommendedFreelancers(int userId,int serviceId)
+		{
+			return (_service as UserService).GetRecommendedFreelancers(userId, serviceId);
+		}
+		[HttpGet("RecommendedCompanies/{userId}")]
+		public Task<List<Model.Company>> GetRecommendedCompanies(int userId, int serviceId)
+		{
+			return (_service as UserService).GetRecommendedCompanies(userId, serviceId);
+		}
 
 
 

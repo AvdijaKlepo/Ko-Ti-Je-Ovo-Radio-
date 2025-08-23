@@ -22,8 +22,8 @@ Company _$CompanyFromJson(Map<String, dynamic> json) => Company(
           : Location.fromJson(json['location'] as Map<String, dynamic>),
       json['isDeleted'] as bool,
       json['isApplicant'] as bool,
-      (json['companyEmployees'] as List<dynamic>)
-          .map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
+      (json['companyEmployees'] as List<dynamic>?)
+          ?.map((e) => CompanyEmployee.fromJson(e as Map<String, dynamic>))
           .toList(),
       (json['companyServices'] as List<dynamic>)
           .map((e) => CompanyServices.fromJson(e as Map<String, dynamic>))

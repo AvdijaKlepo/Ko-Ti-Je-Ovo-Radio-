@@ -21,7 +21,7 @@ class Company {
   Location? location;
   bool isDeleted;
   bool isApplicant;
-  List<CompanyEmployee> companyEmployees;
+  List<CompanyEmployee>? companyEmployees;
   List<CompanyServices> companyServices; 
   Company(this.companyId ,this.companyName, this.bio, this.rating,
    this.phoneNumber, this.experianceYears, this.image, this.workingDays, this.startTime, 

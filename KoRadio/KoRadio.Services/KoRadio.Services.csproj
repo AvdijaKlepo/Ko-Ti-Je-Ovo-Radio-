@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Subscriber\Subscriber.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

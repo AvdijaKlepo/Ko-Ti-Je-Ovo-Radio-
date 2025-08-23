@@ -5,14 +5,14 @@ part 'service.g.dart';
 class Service{
   int serviceId;
   String serviceName;
-  String image;
+  String? image;
   bool isDeleted;
   int? freelancerCount;
   int? companyCount;
 
 
   
-  Service({required this.serviceId, required this.serviceName, required this.image, required this.isDeleted});
+  Service({required this.serviceId, required this.serviceName, required this.isDeleted});
 
   factory Service.fromJson(Map<String, dynamic> json) => _$ServiceFromJson(json);
 

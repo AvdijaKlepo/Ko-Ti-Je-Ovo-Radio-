@@ -10,6 +10,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/location_provider.dart';
+import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/freelancer_details.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _FreelancerListState extends State<FreelancerList> {
   late FreelancerProvider freelancerProvider;
   late LocationProvider locationProvider;
   late CompanyProvider companyProvider;
+  late UserProvider userProvider;
   final ScrollController _scrollController = ScrollController();
 
   PaginatedFetcher<Freelancer>? freelancerPagination;
@@ -43,7 +45,9 @@ class _FreelancerListState extends State<FreelancerList> {
   String _searchQuery = "";
   int? _selectedLocationId;
   Timer? _debounce;
-
+List<Freelancer> recommendedFreelancers = [];
+List<Company> recommendedCompanies = [];
+bool _isRecommendedLoading = false;
   @override
   void initState() {
     super.initState();
@@ -55,6 +59,7 @@ class _FreelancerListState extends State<FreelancerList> {
       freelancerProvider = context.read<FreelancerProvider>();
       locationProvider = context.read<LocationProvider>();
       companyProvider = context.read<CompanyProvider>();
+      userProvider = context.read<UserProvider>();
 
       _scrollController.addListener(() {
         if (_scrollController.position.pixels >=
@@ -74,7 +79,7 @@ class _FreelancerListState extends State<FreelancerList> {
       });
 
       freelancerPagination = PaginatedFetcher<Freelancer>(
-        pageSize: 5,
+        pageSize: 6,
         initialFilter: {
           'ServiceId': widget.serviceId,
           'IsDeleted': false,
@@ -95,7 +100,7 @@ class _FreelancerListState extends State<FreelancerList> {
       )..addListener(() => setState(() {}));
 
       companyPagination = PaginatedFetcher<Company>(
-        pageSize: 10,
+        pageSize: 6,
         initialFilter: {
           'ServiceId': widget.serviceId,
           'isDeleted': false,
@@ -118,6 +123,8 @@ class _FreelancerListState extends State<FreelancerList> {
       await freelancerPagination!.refresh();
       await companyPagination!.refresh();
       await _loadLocations();
+      await _loadRecommended();
+      await _loadRecommendedCompanies();
 
       setState(() {
         _isInitialized = true;
@@ -132,7 +139,28 @@ class _FreelancerListState extends State<FreelancerList> {
     _debounce?.cancel();
     super.dispose();
   }
-
+Future<void> _loadRecommended() async {
+  try {
+    setState(() => _isRecommendedLoading = true);
+    recommendedFreelancers = await userProvider.getRecommended(widget.serviceId);
+    print(recommendedFreelancers);
+  } catch (e) {
+    _showError(e.toString());
+  } finally {
+    setState(() => _isRecommendedLoading = false);
+  }
+}
+Future<void> _loadRecommendedCompanies() async {
+  try {
+    setState(() => _isRecommendedLoading = true);
+    recommendedCompanies = await userProvider.getRecommendedCompanies(widget.serviceId);
+    print(recommendedFreelancers);
+  } catch (e) {
+    _showError(e.toString());
+  } finally {
+    setState(() => _isRecommendedLoading = false);
+  }
+}
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -271,6 +299,10 @@ class _FreelancerListState extends State<FreelancerList> {
             ),
             const SizedBox(height: 12),
             _buildFilterCard(),
+            const SizedBox(height: 12),
+if (view == Options.radnici) _buildRecommendedFreelancers(),
+if  (view == Options.firme) _buildRecommendedCompanies(),
+const SizedBox(height: 12),
            Expanded(
   child: RefreshIndicator(
     onRefresh: _refreshWithFilter,
@@ -282,7 +314,8 @@ class _FreelancerListState extends State<FreelancerList> {
         if ((freelancerPagination?.items.isEmpty ?? true) &&
             (view == Options.radnici)) {
           return ListView(
-            children: const  [
+            children:   [
+            
              
               SizedBox(height: 50),
               
@@ -384,7 +417,7 @@ Widget _buildFreelancerList() {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Iskustvo: ${f.experianceYears} godina', style: const TextStyle(color: Colors.white)),
-                Text('Ocjena: ${f.rating != 0 ? f.rating.toStringAsFixed(1) : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
+                Text('Ocjena: ${f.rating != 0 ? f.rating?.toStringAsFixed(1) : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
                 Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}', style: const TextStyle(color: Colors.white)),
               ],
             ),
@@ -406,7 +439,7 @@ Widget _buildFreelancerList() {
 
 Widget _buildCompanyList() {
   final filtered = (companyPagination?.items ?? [])
-      .where((c) => c.companyEmployees.every((e) => e.userId != AuthProvider.user?.userId))
+      .where((c) => c.companyEmployees?.every((e) => e.userId != AuthProvider.user?.userId) ?? false)
       .toList();
 
   if (filtered.isEmpty) {
@@ -465,5 +498,152 @@ Widget _buildCompanyList() {
     },
   );
 }
+Widget _buildRecommendedFreelancers() {
+  if (_isRecommendedLoading) {
+    return const SizedBox(
+      height: 120,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  if (recommendedFreelancers.isEmpty) {
+    return const SizedBox.shrink(); // nothing to show
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          "Preporučeni radnici",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      SizedBox(
+        height: 150,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: recommendedFreelancers.length,
+          itemBuilder: (context, index) {
+            final f = recommendedFreelancers[index];
+            final user = f.freelancerNavigation;
+
+            return GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
+              ),
+              child: Container(
+                width: 120,
+                margin: const EdgeInsets.only(right: 12),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.white,
+                        child: user?.image != null
+                            ? imageFromString(user!.image!, height: 100, width: 100, fit: BoxFit.cover)
+                            : SvgPicture.asset(
+                                "assets/images/undraw_construction-workers_z99i.svg",
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "${user?.firstName ?? ''} ${user?.lastName ?? ''}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}
+Widget _buildRecommendedCompanies() {
+  if (_isRecommendedLoading) {
+    return const SizedBox(
+      height: 120,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  if (recommendedFreelancers.isEmpty) {
+    return const SizedBox.shrink(); // nothing to show
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          "Preporučeni radnici",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      SizedBox(
+        height: 150,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: recommendedCompanies.length,
+          itemBuilder: (context, index) {
+            final f = recommendedCompanies[index];
+            
+
+            return GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => FreelancerDetails(company: f)),
+              ),
+              child: Container(
+                width: 120,
+                margin: const EdgeInsets.only(right: 12),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.white,
+                        child: f?.image != null
+                            ? imageFromString(f!.image!, height: 100, width: 100, fit: BoxFit.cover)
+                            : SvgPicture.asset(
+                                "assets/images/undraw_construction-workers_z99i.svg",
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "$f.companyName",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}
+
 
 }

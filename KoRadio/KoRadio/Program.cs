@@ -3,6 +3,7 @@ using KoRadio.Services;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using KoRadio.Services.RabbitMQ;
+using KoRadio.Services.Recommender;
 using KoRadio.Services.SignalRService;
 using Mapster;
 using MapsterMapper;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using KoRadio.Services.Recommender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,8 @@ builder.Services.AddTransient<IOrderService, KoRadio.Services.OrderService>();
 builder.Services.AddTransient<ITenderService, KoRadio.Services.TenderService>();
 builder.Services.AddTransient<ITenderBidService, KoRadio.Services.TenderBidService>();
 builder.Services.AddTransient<IEmployeeTaskService, KoRadio.Services.EmployeeTaskService>();
+builder.Services.AddScoped<IUserGradeRecommenderService, UserGradeRecommenderService>();
+builder.Services.AddScoped<ICompanyRecommenderService, CompanyRecommenderService>();
 builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
 builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();

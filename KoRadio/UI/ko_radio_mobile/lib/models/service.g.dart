@@ -9,9 +9,9 @@ part of 'service.dart';
 Service _$ServiceFromJson(Map<String, dynamic> json) => Service(
       serviceId: (json['serviceId'] as num).toInt(),
       serviceName: json['serviceName'] as String,
-      image: json['image'] as String,
       isDeleted: json['isDeleted'] as bool,
     )
+      ..image = json['image'] as String?
       ..freelancerCount = (json['freelancerCount'] as num?)?.toInt()
       ..companyCount = (json['companyCount'] as num?)?.toInt();
 

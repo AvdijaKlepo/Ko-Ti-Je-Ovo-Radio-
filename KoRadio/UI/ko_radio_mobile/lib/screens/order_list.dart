@@ -59,7 +59,7 @@ class _OrderListState extends State<OrderList> {
             count: result.count,
           );
         },
-        pageSize: 6,
+        pageSize: 12,
       );
 
       orderPagination.addListener(() {

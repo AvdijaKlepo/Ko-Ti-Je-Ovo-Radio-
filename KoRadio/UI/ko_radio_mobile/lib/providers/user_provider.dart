@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:ko_radio_mobile/models/company.dart';
+import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/user.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/base_provider.dart';
 
 import 'package:http/http.dart' as http;
@@ -62,6 +65,35 @@ class UserProvider extends BaseProvider<User>{
       throw UserException("Unknown error");
     }
 }
+Future<List<Freelancer>> getRecommended(int serviceId) async {
+  var url = "${BaseProvider.baseUrl}User/RecommendedFreelancers/${AuthProvider.user?.userId}?serviceId=${serviceId}";
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
+
+  var response = await http.get(uri, headers: headers);
+
+  if (isValidResponse(response)) {
+    var data = jsonDecode(response.body) as List;
+    return data.map((e) => Freelancer.fromJson(e)).toList();
+  } else {
+    throw UserException("Unknown error");
+  }
+}
+Future<List<Company>> getRecommendedCompanies(int serviceId) async {
+  var url = "${BaseProvider.baseUrl}User/RecommendedFreelancers/${AuthProvider.user?.userId}?serviceId=${serviceId}";
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
+
+  var response = await http.get(uri, headers: headers);
+
+  if (isValidResponse(response)) {
+    var data = jsonDecode(response.body) as List;
+    return data.map((e) => Company.fromJson(e)).toList();
+  } else {
+    throw UserException("Unknown error");
+  }
+}
+
 
  
 }

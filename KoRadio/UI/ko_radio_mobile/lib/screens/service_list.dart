@@ -190,7 +190,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
  aspectRatio: 16 / 9,
                                       child: service.image != null
                                           ? imageFromString(
-                                              service.image,
+                                              service.image!,
                                               fit: BoxFit.cover,
                                             )
                                           : Image.asset(

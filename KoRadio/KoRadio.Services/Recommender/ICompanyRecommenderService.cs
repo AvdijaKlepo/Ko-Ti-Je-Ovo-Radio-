@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Recommender
 {
-    public interface IUserGradeRecommenderService
-    {
-		Task<List<Model.Freelancer>> GetRecommendedFreelancers(int userId,int? serviceId);
+	public interface ICompanyRecommenderService
+	{
+		Task<List<Model.Company>> GetRecommendedCompanies(int userId, int? serviceId);
 		void TrainData();
 	}
 }
