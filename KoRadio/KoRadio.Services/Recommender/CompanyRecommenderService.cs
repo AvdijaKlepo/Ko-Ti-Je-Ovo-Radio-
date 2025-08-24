@@ -41,8 +41,7 @@ namespace KoRadio.Services.Recommender
 			var companyQuery = _context.Companies
 				.Where(f => !f.IsDeleted && !ratedCompanyIds.Contains(f.CompanyId))
 				
-				.Include(f => f.CompanyServices)
-				.ThenInclude(x => x.Service)
+			
 				.AsQueryable();
 
 			if (serviceId.HasValue)
@@ -76,29 +75,15 @@ namespace KoRadio.Services.Recommender
 				{
 					CompanyId = p.Company.CompanyId,
 					CompanyName = p.Company.CompanyName,
-					Bio = p.Company.Bio,
-					Rating = p.Company.Rating,
-					IsDeleted = p.Company.IsDeleted,
-					Email = p.Company.Email,
-					EndTime=p.Company.EndTime,
-					StartTime=p.Company.StartTime,
-					ExperianceYears=p.Company.ExperianceYears,
-					Image=p.Company.Image,
-					LocationId=p.Company.LocationId,
-					IsApplicant=p.Company.IsApplicant,
-					PhoneNumber=p.Company.PhoneNumber,
-					WorkingDays= ConvertIntToDaysOfWeekList(p.Company.WorkingDays),
 					
-					CompanyServices = p.Company.CompanyServices.Select(cs => new Model.CompanyService
-					{
-						CompanyId = cs.CompanyId,
-						ServiceId = cs.ServiceId,
-						Service = new Model.Service
-						{
-							ServiceId = cs.Service.ServiceId,
-							ServiceName = cs.Service.ServiceName
-						}
-					}).ToList(),
+					
+					
+					Image=p.Company.Image,
+					
+				
+					
+					
+				
 					
 				})
 				.ToList();
@@ -170,8 +155,7 @@ namespace KoRadio.Services.Recommender
 			var companiesQuery = _context.Companies
 				.Where(c => !c.IsDeleted)
 				
-				.Include(c => c.CompanyServices)
-					.ThenInclude(cs => cs.Service)
+				
 				.OrderByDescending(c => c.UserRatings.Any() ? c.UserRatings.Average(r => r.Rating) : 0)
 				.ThenByDescending(c => c.UserRatings.Count())
 				.Take(3)
@@ -189,43 +173,17 @@ namespace KoRadio.Services.Recommender
 			{
 				CompanyId = p.CompanyId,
 				CompanyName = p.CompanyName,
-				Bio = p.Bio,
-				Rating = p.Rating,
-				IsDeleted = p.IsDeleted,
-				Email = p.Email,
-				EndTime = p.EndTime,
-				StartTime = p.StartTime,
-				ExperianceYears = p.ExperianceYears,
-				Image = p.Image,
-				LocationId = p.LocationId,
-				IsApplicant = p.IsApplicant,
-				PhoneNumber = p.PhoneNumber,
-				WorkingDays = ConvertIntToDaysOfWeekList(p.WorkingDays),
+			
 				
-				CompanyServices = p.CompanyServices.Select(cs => new Model.CompanyService
-				{
-					CompanyId = cs.CompanyId,
-					ServiceId = cs.ServiceId,
-					Service = new Model.Service
-					{
-						ServiceId = cs.Service.ServiceId,
-						ServiceName = cs.Service.ServiceName
-					}
-				}).ToList(),
+				Image = p.Image,
+				
+				
+				
 
 				
 			}).ToList();
 		}
-		private List<DayOfWeek> ConvertIntToDaysOfWeekList(int daysBitmask)
-		{
-			var days = new List<DayOfWeek>();
-			for (int i = 0; i < 7; i++)
-			{
-				if ((daysBitmask & (1 << i)) != 0)
-					days.Add((DayOfWeek)i);
-			}
-			return days;
-		}
+		
 
 		#endregion
 	}

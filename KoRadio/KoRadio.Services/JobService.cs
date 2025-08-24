@@ -39,15 +39,18 @@ namespace KoRadio.Services
 		public override IQueryable<Database.Job> AddFilter(JobSearchObject search, IQueryable<Database.Job> query)
 		{
 			query = base.AddFilter(search, query);
-			query = query.Include(x=>x.JobsServices).ThenInclude(x => x.Service);
-			query = query.Include(x => x.User);
-			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x=>x.Location);
-			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerServices).ThenInclude(x=>x.Service);
-			query = query.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.UserRoles);
-			query = query.Include(x => x.Company).ThenInclude(x => x.Location);
-			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyServices).ThenInclude(x => x.Service);
-			query = query.Include(x => x.Company).ThenInclude(x => x.CompanyEmployees);
-			query = query.Include(x => x.CompanyJobAssignments);
+			query = query
+			.Include(x => x.JobsServices).ThenInclude(x => x.Service)
+			.Include(x => x.User).ThenInclude(x => x.Location)
+			.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.Location)
+			.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerServices).ThenInclude(x => x.Service)
+			.Include(x => x.Freelancer).ThenInclude(x => x.FreelancerNavigation).ThenInclude(x => x.UserRoles)
+			.Include(x => x.Company).ThenInclude(x => x.Location)
+			.Include(x => x.Company).ThenInclude(x => x.CompanyServices).ThenInclude(x => x.Service)
+			.Include(x => x.Company).ThenInclude(x => x.CompanyEmployees)
+			.Include(x => x.CompanyJobAssignments)
+			.AsSplitQuery()  
+			.AsNoTracking();
 
 
 
@@ -73,26 +76,11 @@ namespace KoRadio.Services
 				query = query.Where(x => x.JobDate == search.JobDate);
 
 			}
-			if (search?.JobStatus=="unapproved")
+			if (!string.IsNullOrEmpty(search?.JobStatus))
 			{
-				query = query.Where(x => x.JobStatus == "unapproved");
+				query = query.Where(x => x.JobStatus == search.JobStatus);
 			}
-			if (search?.JobStatus == "approved")
-			{
-				query = query.Where(x => x.JobStatus == "approved");
-			}
-			if (search?.JobStatus == "finished")
-			{
-				query = query.Where(x => x.JobStatus == "finished");
-			}
-			if (search?.JobStatus == "cancelled")
-			{
-				query = query.Where(x => x.JobStatus == "cancelled");
-			}
-			if (search?.JobStatus == "inProgress")
-			{
-				query = query.Where(x => x.JobStatus == "inProgress");
-			}
+
 			if (search?.IsTenderFinalized != null)
 			{
 				query = query.Where(x => x.IsTenderFinalized == search.IsTenderFinalized);
@@ -133,6 +121,16 @@ namespace KoRadio.Services
 					(j.DateFinished ?? j.JobDate) >= chosenDate
 				);
 			}
+			if (string.IsNullOrEmpty(search?.OrderBy))
+			{
+				// fallback ordering to ensure deterministic Skip/Take
+				query = query.OrderBy(x => x.JobId);
+			}
+			if(search?.JobService!=null)
+			{
+				query = query.Where(x => x.JobsServices.Any(x => x.ServiceId == search.JobService));
+			}
+
 
 
 			return query;

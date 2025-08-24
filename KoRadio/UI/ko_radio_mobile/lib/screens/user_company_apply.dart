@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -34,7 +38,8 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
 
   SearchResult<Service>? serviceResult;
   String? _backendEmailError;
-
+  File? _image;
+  String? _base64Image;
 
   @override
   void initState() {
@@ -88,12 +93,18 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
           .whereType<int>()
           .toList();
     }
+    if(_image!=null)
+    {
+      formData['image'] = _base64Image;
+    }
+    {
+      formData['image']=null;
+    }
 
     formData["isDeleted"] = false;
     formData["isApplicant"] = true;
     formData["rating"] = 0; 
     formData["employee"]=[widget.user?.userId];
-    formData["roles"]=[1009 ];
     formData["isOwner"]=true;
 
     var selectedServices = formData["serviceId"];
@@ -271,6 +282,63 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
                               .toList() ??
                           [],
                     ),
+                      FormBuilderField(
+  name: "image",
+
+  builder: (field) {
+    return InputDecorator(
+      decoration:  InputDecoration(
+        labelText: "Proslijedite sliku firme",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: 
+            
+             _image != null
+                ? Text(_image!.path.split('/').last)
+                :  
+                
+                 const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+
+
+
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () =>  getImage(field) 
+             
+            ),
+          ),
+          const SizedBox(height: 10),
+          _image != null ?
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ) 
+           
+            : 
+            const SizedBox.shrink()
+           
+            ,
+        ],
+      ),
+    );
+  },
+),
            
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -289,4 +357,17 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
       ),
     );
   }
+  void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+    });
+
+ 
+    field.didChange(_image);
+  }
+}
 }

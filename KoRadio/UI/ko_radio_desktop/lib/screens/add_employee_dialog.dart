@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -78,7 +79,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                            FormBuilderTextField(name: 'email',decoration: const InputDecoration(
                               labelText: "Email",
                               border: OutlineInputBorder(),
-                            ),),
+                            ),validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                            ),
+                            
                         ])),
                    
                     const SizedBox(height: 24),

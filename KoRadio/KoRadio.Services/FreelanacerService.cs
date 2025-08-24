@@ -49,6 +49,10 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.FreelancerNavigation.LastName.StartsWith(searchObject.LastNameGTE));
 			}
+			if(searchObject?.FreelancerId!=null)
+			{
+				query = query.Where(x => x.FreelancerId == searchObject.FreelancerId);
+			}
 
 			if (searchObject?.ExperianceYears != null)
 			{

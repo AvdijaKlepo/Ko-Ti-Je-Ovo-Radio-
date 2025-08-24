@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KoRadio.Services.Migrations
 {
     [DbContext(typeof(KoTiJeOvoRadioContext))]
-    [Migration("20250823224422_InitialCreate")]
+    [Migration("20250824182543_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -923,6 +923,18 @@ namespace KoRadio.Services.Migrations
                         },
                         new
                         {
+                            FreelancerId = 4,
+                            ServiceId = 3,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            FreelancerId = 4,
+                            ServiceId = 4,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
                             FreelancerId = 9,
                             ServiceId = 1,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
@@ -931,6 +943,12 @@ namespace KoRadio.Services.Migrations
                         {
                             FreelancerId = 9,
                             ServiceId = 2,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            FreelancerId = 9,
+                            ServiceId = 3,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
@@ -947,6 +965,12 @@ namespace KoRadio.Services.Migrations
                         },
                         new
                         {
+                            FreelancerId = 10,
+                            ServiceId = 5,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
                             FreelancerId = 11,
                             ServiceId = 6,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
@@ -955,6 +979,12 @@ namespace KoRadio.Services.Migrations
                         {
                             FreelancerId = 11,
                             ServiceId = 2,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            FreelancerId = 11,
+                            ServiceId = 7,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
@@ -971,6 +1001,12 @@ namespace KoRadio.Services.Migrations
                         },
                         new
                         {
+                            FreelancerId = 12,
+                            ServiceId = 4,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
                             FreelancerId = 13,
                             ServiceId = 7,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
@@ -983,6 +1019,12 @@ namespace KoRadio.Services.Migrations
                         },
                         new
                         {
+                            FreelancerId = 13,
+                            ServiceId = 1,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
                             FreelancerId = 14,
                             ServiceId = 4,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
@@ -991,6 +1033,12 @@ namespace KoRadio.Services.Migrations
                         {
                             FreelancerId = 14,
                             ServiceId = 2,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            FreelancerId = 14,
+                            ServiceId = 5,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -2607,8 +2655,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Korisnik",
                             LocationId = 2,
-                            PasswordHash = "XyBQJzXrmRQjLLUJ8rOcYR19T3U=",
-                            PasswordSalt = "VnkK0uaxVrvoLWcFYztQ6w==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223224"
                         },
                         new
@@ -2621,8 +2669,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Struja",
                             LocationId = 1,
-                            PasswordHash = "7DktpTiYrzrxU9OT0Y8nrAIAmiw=",
-                            PasswordSalt = "GCzdDsLTTNlcpdbJ9Pl2sg==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223225"
                         },
                         new
@@ -2635,8 +2683,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2649,8 +2697,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 1,
-                            PasswordHash = "qb+MAlKTax4Vt2iOyztRSUsL7Bw=",
-                            PasswordSalt = "lZUxqs+CAHsgVPEB93mriQ==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223227"
                         },
                         new
@@ -2663,8 +2711,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Trgovine",
                             LocationId = 1,
-                            PasswordHash = "zU5py2BrtjOU7FpRw7cBGMCpupM=",
-                            PasswordSalt = "nEd6qI+j53C4CX+cwbp5Ng==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223228"
                         },
                         new
@@ -2677,8 +2725,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Trgovina",
                             LocationId = 1,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223229"
                         },
                         new
@@ -2691,8 +2739,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Keramika",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2705,8 +2753,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Moler",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2719,8 +2767,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Zidar",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2733,8 +2781,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Staklar",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2747,8 +2795,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Higijena",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2761,8 +2809,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Mreže",
                             LocationId = 2,
-                            PasswordHash = "mIYgsIL4940pyHDFceF39fJ9f7o==",
-                            PasswordSalt = "MfQtlQScHNSWa1cA5lJEHw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223230"
                         },
                         new
@@ -2775,8 +2823,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 2,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2789,8 +2837,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2803,8 +2851,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2817,8 +2865,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Radnik",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2831,8 +2879,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "FirmeDva",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2845,8 +2893,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Firme",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         },
                         new
@@ -2859,8 +2907,8 @@ namespace KoRadio.Services.Migrations
                             IsDeleted = false,
                             LastName = "Tester",
                             LocationId = 1,
-                            PasswordHash = "XL93jgkZ9pa7tCihSE9kUjULgc4=",
-                            PasswordSalt = "VlmtnpExEkGWf5mL6bKhRw==",
+                            PasswordHash = "oJyCENbGhk5rSYLZRG0FGb32ejw=",
+                            PasswordSalt = "gYMe5raFyV04jACZCJ7VIQ==",
                             PhoneNumber = "+38761223226"
                         });
                 });
@@ -3350,6 +3398,13 @@ namespace KoRadio.Services.Migrations
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 2,
                             UserId = 21
+                        },
+                        new
+                        {
+                            UserRoleId = 39,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            RoleId = 4,
+                            UserId = 7
                         });
                 });
 

@@ -157,6 +157,23 @@ class _BookCompanyJobState extends State<BookCompanyJob> with TickerProviderStat
   bool _isWorkingDay(DateTime day) {
     return _workingDayInts.contains(day.weekday);
   }
+  String formatPhoneNumber(String phone) {
+  // Step 1: Replace +387 at the start with 0
+  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+
+  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+
+  // Step 3: Ensure we only format if we have at least 9 digits
+  if (normalized.length < 9) return normalized;
+
+  // Step 4: Insert dashes in 3-3-3 format
+  String part1 = normalized.substring(0, 3);
+  String part2 = normalized.substring(3, 6);
+  String part3 = normalized.substring(6, 9);
+
+  return "$part1-$part2-$part3";
+}
   @override
   Widget build(BuildContext context) {
    
@@ -491,7 +508,7 @@ const Divider(height: 32),
                         ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
                         : 'Nepoznato',
                   ),
-                   _buildDetailRow('Broj Telefona',widget.job.user?.phoneNumber ??'Nepoznato'), 
+                   _buildDetailRow('Broj Telefona',formatPhoneNumber(widget.job.user?.phoneNumber??'Nepoznato')),
                    _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
                   _buildDetailRow(
                     'Adresa',
@@ -504,7 +521,7 @@ const Divider(height: 32),
                                 _sectionTitle('Podaci Firme'),
                                 _buildDetailRow('Naziv Firme', widget.job.company?.companyName ?? 'Nepoznato'),
                                 _buildDetailRow('E-mail', widget.job.company?.email ?? 'Nepoznato'),
-                                _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
+                                _buildDetailRow('Telefonski broj', formatPhoneNumber( widget.job.company?.phoneNumber ?? 'Nepoznato')),
                                 const Divider(height: 32),
 
                                 _sectionTitle('Račun'),
@@ -603,71 +620,7 @@ const Divider(height: 32),
                                 ],
 
                                 // --- Employee Assignment ---
-                                if (companyJobAssignmentResult?.count == 0 && widget.job.jobStatus == JobStatus.approved) ...[
-                                  const Divider(height: 32),
-                                  FormBuilder(
-                                    key: _formKeyEmployee,
-                                    child: Column(
-                                      children: [
-                                        FormBuilderCheckboxGroup<int>(
-                                             enabled: _showEditPanel==true ? false : true,
-                                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                          name: 'companyEmployeeId',
-                                          decoration: const InputDecoration(labelText: "Zaduženi radnici"),
-                                          options: filterLoggedInUser
-                                                  ?.map((e) => FormBuilderFieldOption(
-                                                        value: e.companyEmployeeId,
-                                                        child: Text('${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}'),
-                                                      ))
-                                                  .toList() ??
-                                              [],
-                                        ),
-                                        TextButton.icon(
-                                          icon: const Icon(Icons.check, color: Colors.blue),
-                                          label: const Text("Dodaj radnike na posao", style: TextStyle(color: Colors.black)),
-                                          onPressed: () async {
-                                  final isValid =
-                        _formKey.currentState?.saveAndValidate() ?? false;
-
-                                  if (!isValid) {
-                                    return;
-                                  }
-          
-                   
-                    var values = Map<String, dynamic>.from(
-                        _formKey.currentState?.value ?? {});
- try {
-  final selectedEmployeeIds = values["companyEmployeeId"] as List<dynamic>?;
-
-  if (selectedEmployeeIds != null && selectedEmployeeIds.isNotEmpty) {
-    for (final employeeId in selectedEmployeeIds) {
-      await companyJobAssignmentProvider.insert({
-        "jobId": widget.job.jobId,
-        "companyEmployeeId": employeeId,
-        "assignedAt":DateTime.now().toIso8601String(),
-        "isFinished":false
-      });
-    }
-  }
-
-  if (context.mounted) {
-    if(!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Zaposlenici uspješno dodani.")),
-    );
-  }
-} catch (e) {
-  if(!mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Greška tokom dodavanja radnika: $e")),
-  );
-}
-                              },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                
                                     ],
                                   ),
                                 )
@@ -784,12 +737,12 @@ const Divider(height: 32),
             jobUpdateRequest
             );
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
-               int count = 0;
-            Navigator.of(context).popUntil((_) => count++ >= 2);
+               Navigator.of(context).pop();
+              
           } on Exception catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-               int count = 0;
-          Navigator.of(context).popUntil((_) => count++ >= 2);
+               Navigator.of(context).pop();
+               
 
           }
             },

@@ -21,6 +21,7 @@ namespace KoRadio.Model.SearchObject
         public bool? IsDeletedWorker { get; set; }
         public int? CompanyEmployeeId { get; set; }
         public DateTime? DateRange { get; set; }
+        public int? JobService { get; set; }
 
 
     }

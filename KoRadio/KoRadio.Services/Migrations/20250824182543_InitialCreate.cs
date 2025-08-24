@@ -755,25 +755,25 @@ namespace KoRadio.Services.Migrations
                 {
                     { 1, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@email.com", "Admin", null, false, "Admin", 1, "5tJjrb/iLUCEc6wZo/o0Se14Cnk=", "OUJ+PWXNzP6V9uxMwP7FCg==", "+38761223223" },
                     { 2, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "korisnik@email.com", "Korisnik", null, false, "Aplikacije", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223224" },
-                    { 3, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "korisnik2@email.com", "Aplikacijski", null, false, "Korisnik", 2, "XyBQJzXrmRQjLLUJ8rOcYR19T3U=", "VnkK0uaxVrvoLWcFYztQ6w==", "+38761223224" },
-                    { 4, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "struja@email.com", "Radnik", null, false, "Struja", 1, "7DktpTiYrzrxU9OT0Y8nrAIAmiw=", "GCzdDsLTTNlcpdbJ9Pl2sg==", "+38761223225" },
-                    { 5, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "vlasnik@email.com", "Administrator", null, false, "Firme", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 6, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "zaposlenik@email.com", "Zaposlenik", null, false, "Firme", 1, "qb+MAlKTax4Vt2iOyztRSUsL7Bw=", "lZUxqs+CAHsgVPEB93mriQ==", "+38761223227" },
-                    { 7, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "trgovina@email.com", "Administrator", null, false, "Trgovine", 1, "zU5py2BrtjOU7FpRw7cBGMCpupM=", "nEd6qI+j53C4CX+cwbp5Ng==", "+38761223228" },
-                    { 8, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "trgovina2@email.com", "Keramika", null, false, "Trgovina", 1, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223229" },
-                    { 9, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "keramika@email.com", "Radnik", null, false, "Keramika", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 10, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "moler@email.com", "Radnik", null, false, "Moler", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 11, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "zidar@email.com", "Radnik", null, false, "Zidar", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 12, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "staklar@email.com", "Radnik", null, false, "Staklar", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 13, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "higijena@email.com", "Radnik", null, false, "Higijena", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 14, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "mreze@email.com", "Radnik", null, false, "Mreže", 2, "mIYgsIL4940pyHDFceF39fJ9f7o==", "MfQtlQScHNSWa1cA5lJEHw==", "+38761223230" },
-                    { 15, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "firma@email.com", "Vlasnik", null, false, "Firme", 2, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 16, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "terenac@email.com", "Terenac", null, false, "Firme", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 17, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "monter@email.com", "Monter", null, false, "Firme", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 18, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "novi@email.com", "Novi", null, false, "Radnik", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 19, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "dva@email.com", "Zaposlenik", null, false, "FirmeDva", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 20, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "uposlenik@email.com", "Uposlenik", null, false, "Firme", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" },
-                    { 21, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "test@email.com", "Test", null, false, "Tester", 1, "XL93jgkZ9pa7tCihSE9kUjULgc4=", "VlmtnpExEkGWf5mL6bKhRw==", "+38761223226" }
+                    { 3, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "korisnik2@email.com", "Aplikacijski", null, false, "Korisnik", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223224" },
+                    { 4, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "struja@email.com", "Radnik", null, false, "Struja", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223225" },
+                    { 5, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "vlasnik@email.com", "Administrator", null, false, "Firme", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 6, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "zaposlenik@email.com", "Zaposlenik", null, false, "Firme", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223227" },
+                    { 7, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "trgovina@email.com", "Administrator", null, false, "Trgovine", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223228" },
+                    { 8, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "trgovina2@email.com", "Keramika", null, false, "Trgovina", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223229" },
+                    { 9, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "keramika@email.com", "Radnik", null, false, "Keramika", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 10, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "moler@email.com", "Radnik", null, false, "Moler", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 11, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "zidar@email.com", "Radnik", null, false, "Zidar", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 12, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "staklar@email.com", "Radnik", null, false, "Staklar", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 13, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "higijena@email.com", "Radnik", null, false, "Higijena", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 14, "Sarajevo, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "mreze@email.com", "Radnik", null, false, "Mreže", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223230" },
+                    { 15, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "firma@email.com", "Vlasnik", null, false, "Firme", 2, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 16, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "terenac@email.com", "Terenac", null, false, "Firme", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 17, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "monter@email.com", "Monter", null, false, "Firme", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 18, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "novi@email.com", "Novi", null, false, "Radnik", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 19, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "dva@email.com", "Zaposlenik", null, false, "FirmeDva", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 20, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "uposlenik@email.com", "Uposlenik", null, false, "Firme", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" },
+                    { 21, "Mostar, b.b.", new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), "test@email.com", "Test", null, false, "Tester", 1, "oJyCENbGhk5rSYLZRG0FGb32ejw=", "gYMe5raFyV04jACZCJ7VIQ==", "+38761223226" }
                 });
 
             migrationBuilder.InsertData(
@@ -912,7 +912,8 @@ namespace KoRadio.Services.Migrations
                     { 35, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 19 },
                     { 36, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 20 },
                     { 37, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 20 },
-                    { 38, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 21 }
+                    { 38, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 21 },
+                    { 39, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, 7 }
                 });
 
             migrationBuilder.InsertData(
@@ -947,18 +948,26 @@ namespace KoRadio.Services.Migrations
                 values: new object[,]
                 {
                     { 4, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 9, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 9, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 9, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 10, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 10, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 10, 5, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 11, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 11, 6, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 11, 7, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 12, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 12, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 12, 5, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 13, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 13, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 13, 7, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 14, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 14, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 14, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 14, 5, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(

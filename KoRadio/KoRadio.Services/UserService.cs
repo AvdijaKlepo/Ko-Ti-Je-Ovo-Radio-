@@ -30,11 +30,16 @@ namespace KoRadio.Services
 	{
 		private readonly IHubContext<SignalRHubService> _hubContext;
 		private readonly IUserGradeRecommenderService _userGradeRecommenderService;
-		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IUserGradeRecommenderService userGradeRecommenderService) : base(context, mapper)
+		private readonly ICompanyRecommenderService _companyRecommenderService;
+		private readonly IOrderLocationRecommender _orderLocationRecommender;
+		public UserService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IUserGradeRecommenderService userGradeRecommenderService,
+			ICompanyRecommenderService companyRecommenderService, IOrderLocationRecommender orderLocationRecommender) : base(context, mapper)
 		{
 			_hubContext = hubContext;
 			_userGradeRecommenderService = userGradeRecommenderService;
-		
+			_companyRecommenderService = companyRecommenderService;
+			_orderLocationRecommender = orderLocationRecommender;
+
 
 		}
 
@@ -165,8 +170,13 @@ namespace KoRadio.Services
 		}
 		public async Task<List<Model.Company>> GetRecommendedCompanies(int userId, int serviceId)
 		{
-			var companyObj = await (_userGradeRecommenderService as Recommender.CompanyRecommenderService).GetRecommendedCompanies(userId, serviceId);
+			var companyObj = await (_companyRecommenderService as Recommender.CompanyRecommenderService).GetRecommendedCompanies(userId, serviceId);
 			return companyObj;
+		}
+		public async Task<List<Model.Product>> GetRecommendedProducts(int userId)
+		{
+			var productObj = await (_orderLocationRecommender as Recommender.OrderLocationRecommender).GetRecommendedProducts(userId);
+			return productObj;
 		}
 
 

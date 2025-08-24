@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/company.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
@@ -73,7 +74,10 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Rezerviši posao')),
+      appBar: AppBar(title:  Text('Rezerviši posao',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      scrolledUnderElevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
@@ -181,29 +185,47 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                     ),
                     const SizedBox(height: 15),
                     FormBuilderField(
-                      name: "image",
-                      builder: (field) {
-                        return InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: "Proslijedite sliku problema",
-                            border: OutlineInputBorder(),
-                          ),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.image),
-                            title: _image != null
-                                ? Text(_image!.path.split('/').last)
-                                : const Text("Nema izabrane slike",),
-                            trailing: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
-                              icon: const Icon(Icons.file_upload,color: Colors.white,),
-                              label: const Text("Odaberi",style: TextStyle(color: Colors.white),),
-                              onPressed: getImage,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : const Text("Nema izabrane slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
+                textStyle: const TextStyle(color: Colors.white),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => getImage(field),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+               
+                fit: BoxFit.cover,
+              ),
+            ),
+        ],
+      ),
+    );
+  },
+),
               
             ],
           ),
@@ -216,14 +238,20 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
   File? _image;
   String? _base64Image;
 
-  void getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
+  void getImage(FormFieldState field) async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
-    if (result != null && result.files.single.path != null) {
+  if (result != null && result.files.single.path != null) {
+    setState(() {
       _image = File(result.files.single.path!);
       _base64Image = base64Encode(_image!.readAsBytesSync());
-    }
+    });
+
+ 
+    field.didChange(_image);
   }
+}
+
   Widget _save() {
     return Padding(
       padding: const EdgeInsets.all(8.0),

@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:ko_radio_mobile/models/company.dart';
+import 'package:ko_radio_mobile/models/company_recommended_dto.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
+import 'package:ko_radio_mobile/models/freelancer_recommended_dto.dart';
+import 'package:ko_radio_mobile/models/product.dart';
 import 'package:ko_radio_mobile/models/user.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/base_provider.dart';
@@ -65,7 +68,7 @@ class UserProvider extends BaseProvider<User>{
       throw UserException("Unknown error");
     }
 }
-Future<List<Freelancer>> getRecommended(int serviceId) async {
+Future<List<FreelancerRecommendedDto>> getRecommended(int serviceId) async {
   var url = "${BaseProvider.baseUrl}User/RecommendedFreelancers/${AuthProvider.user?.userId}?serviceId=${serviceId}";
   var uri = Uri.parse(url);
   var headers = createHeaders();
@@ -74,13 +77,13 @@ Future<List<Freelancer>> getRecommended(int serviceId) async {
 
   if (isValidResponse(response)) {
     var data = jsonDecode(response.body) as List;
-    return data.map((e) => Freelancer.fromJson(e)).toList();
+    return data.map((e) => FreelancerRecommendedDto.fromJson(e)).toList();
   } else {
     throw UserException("Unknown error");
   }
 }
-Future<List<Company>> getRecommendedCompanies(int serviceId) async {
-  var url = "${BaseProvider.baseUrl}User/RecommendedFreelancers/${AuthProvider.user?.userId}?serviceId=${serviceId}";
+Future<List<CompanyRecommendedDto>> getRecommendedCompanies(int serviceId) async {
+  var url = "${BaseProvider.baseUrl}User/RecommendedCompanies/${AuthProvider.user?.userId}?serviceId=${serviceId}";
   var uri = Uri.parse(url);
   var headers = createHeaders();
 
@@ -88,7 +91,21 @@ Future<List<Company>> getRecommendedCompanies(int serviceId) async {
 
   if (isValidResponse(response)) {
     var data = jsonDecode(response.body) as List;
-    return data.map((e) => Company.fromJson(e)).toList();
+    return data.map((e) => CompanyRecommendedDto.fromJson(e)).toList();
+  } else {
+    throw UserException("Unknown error");
+  }
+}
+Future<List<Product>> getRecommendedProducts(int userId) async {
+  var url = "${BaseProvider.baseUrl}User/RecommendedProducts/${AuthProvider.user?.userId}";
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
+
+  var response = await http.get(uri, headers: headers);
+
+  if (isValidResponse(response)) {
+    var data = jsonDecode(response.body) as List;
+    return data.map((e) => Product.fromJson(e)).toList();
   } else {
     throw UserException("Unknown error");
   }

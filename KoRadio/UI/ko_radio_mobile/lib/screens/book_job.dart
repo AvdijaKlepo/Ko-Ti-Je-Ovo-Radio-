@@ -289,14 +289,7 @@ class _BookJobState extends State<BookJob> {
                       [],
                 ),
                 const SizedBox(height: 15),
-                const Text(
-                  'Slika nije obavezna, ali može značajno poboljšati procjenu potrebnog vremena do okončanja posla.',
-                  style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                  maxLines: 2,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
+                
          
 
 FormBuilderField(

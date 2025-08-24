@@ -108,6 +108,23 @@ Map<String, dynamic> filterMap(JobStatus status)  {
     
     super.dispose();
   }
+  String formatPhoneNumber(String phone) {
+  // Step 1: Replace +387 at the start with 0
+  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+
+  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+
+  // Step 3: Ensure we only format if we have at least 9 digits
+  if (normalized.length < 9) return normalized;
+
+  // Step 4: Insert dashes in 3-3-3 format
+  String part1 = normalized.substring(0, 3);
+  String part2 = normalized.substring(3, 6);
+  String part3 = normalized.substring(6, 9);
+
+  return "$part1-$part2-$part3";
+}
      
   
    
@@ -256,7 +273,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                     style: const TextStyle(color: Colors.white),
                   ),
                    Text(
-                    "Telefonski broj: ${job.user?.phoneNumber}",
+                    "Telefonski broj: ${formatPhoneNumber(job.user!.phoneNumber!)}",
                     style: const TextStyle(color: Colors.white),
                   ),
                   Text(

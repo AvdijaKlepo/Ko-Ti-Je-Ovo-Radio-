@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ko_radio_mobile/models/company.dart';
+import 'package:ko_radio_mobile/models/company_recommended_dto.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
+import 'package:ko_radio_mobile/models/freelancer_recommended_dto.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
@@ -45,14 +47,15 @@ class _FreelancerListState extends State<FreelancerList> {
   String _searchQuery = "";
   int? _selectedLocationId;
   Timer? _debounce;
-List<Freelancer> recommendedFreelancers = [];
-List<Company> recommendedCompanies = [];
+List<FreelancerRecommendedDto> recommendedFreelancers = [];
+List<CompanyRecommendedDto> recommendedCompanies = [];
 bool _isRecommendedLoading = false;
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if(!mounted) return;
       setState(() {
         _isLoading=true;
       });
@@ -121,10 +124,19 @@ bool _isRecommendedLoading = false;
       )..addListener(() => setState(() {}));
 
       await freelancerPagination!.refresh();
+      if(!mounted) return;
       await companyPagination!.refresh();
+      if(!mounted) return;
+
       await _loadLocations();
+      if(!mounted) return;
+
       await _loadRecommended();
+      if(!mounted) return;
+
       await _loadRecommendedCompanies();
+      if(!mounted) return;
+
 
       setState(() {
         _isInitialized = true;
@@ -140,30 +152,34 @@ bool _isRecommendedLoading = false;
     super.dispose();
   }
 Future<void> _loadRecommended() async {
-  try {
-    setState(() => _isRecommendedLoading = true);
-    recommendedFreelancers = await userProvider.getRecommended(widget.serviceId);
-    print(recommendedFreelancers);
-  } catch (e) {
-    _showError(e.toString());
-  } finally {
+  setState(() => _isRecommendedLoading = true);
+try {
+  recommendedFreelancers = await userProvider.getRecommended(widget.serviceId);
+} catch (e) {
+  if (mounted) _showError('Preporučeni radnici nisu dostupni.');
+} finally {
+  if (mounted) {
     setState(() => _isRecommendedLoading = false);
   }
 }
+
+}
 Future<void> _loadRecommendedCompanies() async {
+   setState(() => _isRecommendedLoading = true);
   try {
-    setState(() => _isRecommendedLoading = true);
+   
     recommendedCompanies = await userProvider.getRecommendedCompanies(widget.serviceId);
-    print(recommendedFreelancers);
+
   } catch (e) {
-    _showError(e.toString());
+    if(mounted)_showError('Preporučene firme nisu dostupne.');
   } finally {
-    setState(() => _isRecommendedLoading = false);
+    if(mounted) setState(() => _isRecommendedLoading = false);
   }
 }
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
+      if(!mounted) return;
       setState(() {
         _searchQuery = query.trim();
       });
@@ -197,6 +213,7 @@ Future<void> _loadRecommendedCompanies() async {
     } else {
       await companyPagination?.refresh(newFilter: filter);
     }
+    if(!mounted) return;
     setState(() {
       _isLoading=false;
     });
@@ -205,14 +222,18 @@ Future<void> _loadRecommendedCompanies() async {
   Future<void> _loadLocations() async {
     try {
       final fetched = await locationProvider.get();
-      locationResult = fetched;
+      if(!mounted) return;
+      setState(() {
+        locationResult = fetched;
       locationDropdownItems = [
         const DropdownMenuItem(value: null, child: Text("Sve lokacije")),
         ...fetched.result
             .map((l) => DropdownMenuItem(value: l.locationId, child: Text(l.locationName)))
       ];
+      });
+      
     } catch (e) {
-      _showError(e.toString());
+     if(mounted) _showError(e.toString());
     }
   }
 
@@ -417,13 +438,13 @@ Widget _buildFreelancerList() {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Iskustvo: ${f.experianceYears} godina', style: const TextStyle(color: Colors.white)),
-                Text('Ocjena: ${f.rating != 0 ? f.rating?.toStringAsFixed(1) : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
+                Text('Ocjena: ${f.rating != 0 ? f.rating.toStringAsFixed(1) : 'Neocijenjen'}', style: const TextStyle(color: Colors.white)),
                 Text('Lokacija: ${freelancer?.location?.locationName ?? '-'}', style: const TextStyle(color: Colors.white)),
               ],
             ),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
+              MaterialPageRoute(builder: (_) => FreelancerDetails(freelancerId: f.freelancerId)),
             ),
           ),
         );
@@ -453,6 +474,7 @@ Widget _buildCompanyList() {
       if (index < filtered.length) {
         final c = filtered[index];
         return Card(
+        
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
             tileColor: const Color.fromRGBO(27, 76, 125, 25),
@@ -473,7 +495,7 @@ Widget _buildCompanyList() {
                       ),
               ),
             ),
-            title: Text(c.companyName ?? '',
+            title: Text(c.companyName,
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,7 +507,7 @@ Widget _buildCompanyList() {
             ),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => FreelancerDetails(company: c)),
+              MaterialPageRoute(builder: (_) => FreelancerDetails(companyId: c.companyId)),
             ),
           ),
         );
@@ -516,7 +538,7 @@ Widget _buildRecommendedFreelancers() {
       const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(
-          "Preporučeni radnici",
+          "Preporučeno za vas",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
@@ -532,7 +554,7 @@ Widget _buildRecommendedFreelancers() {
             return GestureDetector(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancer: f)),
+                MaterialPageRoute(builder: (_) => FreelancerDetails(freelancerId: f.freelancerId)),
               ),
               child: Container(
                 width: 120,
@@ -542,9 +564,10 @@ Widget _buildRecommendedFreelancers() {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
+                        
                         width: 100,
                         height: 100,
-                        color: Colors.white,
+                        color: Colors.transparent,
                         child: user?.image != null
                             ? imageFromString(user!.image!, height: 100, width: 100, fit: BoxFit.cover)
                             : SvgPicture.asset(
@@ -589,7 +612,7 @@ Widget _buildRecommendedCompanies() {
       const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(
-          "Preporučeni radnici",
+          "Preporučeno za vas",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
@@ -605,7 +628,7 @@ Widget _buildRecommendedCompanies() {
             return GestureDetector(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FreelancerDetails(company: f)),
+                MaterialPageRoute(builder: (_) => FreelancerDetails(companyId: f.companyId)),
               ),
               child: Container(
                 width: 120,
@@ -618,10 +641,10 @@ Widget _buildRecommendedCompanies() {
                         width: 100,
                         height: 100,
                         color: Colors.white,
-                        child: f?.image != null
-                            ? imageFromString(f!.image!, height: 100, width: 100, fit: BoxFit.cover)
+                        child: f.image != null
+                            ? imageFromString(f.image!, height: 100, width: 100, fit: BoxFit.cover)
                             : SvgPicture.asset(
-                                "assets/images/undraw_construction-workers_z99i.svg",
+                                "assets/images/undraw_under-construction_c2y1.svg",
                                 width: 100,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -630,7 +653,7 @@ Widget _buildRecommendedCompanies() {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      "$f.companyName",
+                      "${f.companyName}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),

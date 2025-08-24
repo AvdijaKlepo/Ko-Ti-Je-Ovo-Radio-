@@ -357,7 +357,7 @@ class _StoresListState extends State<StoresList> {
                                                 "description": s.description,
                                                 "isApplicant": false,
                                                 "isDeleted": false,
-                                                "roles":[1011],
+                                                "roles":[6],
                                                 'locationId': s.location?.locationId,
                                                 'address': s.address,
                                               });

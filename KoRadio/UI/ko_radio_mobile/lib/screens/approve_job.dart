@@ -214,6 +214,23 @@ class _ApproveJobState extends State<ApproveJob> {
       ],
     );
   }
+  String formatPhoneNumber(String phone) {
+  // Step 1: Replace +387 at the start with 0
+  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+
+  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+
+  // Step 3: Ensure we only format if we have at least 9 digits
+  if (normalized.length < 9) return normalized;
+
+  // Step 4: Insert dashes in 3-3-3 format
+  String part1 = normalized.substring(0, 3);
+  String part2 = normalized.substring(3, 6);
+  String part3 = normalized.substring(6, 9);
+
+  return "$part1-$part2-$part3";
+}
 
   
 
@@ -267,6 +284,82 @@ class _ApproveJobState extends State<ApproveJob> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
+  Container(
+    padding: const EdgeInsets.all(12),
+    margin: const EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.amber.shade100,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.info, color: Colors.black87),
+        const SizedBox(width: 8),
+        const Expanded(
+          child: Text(
+            "Ovaj posao je ažuriran.",
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        if(jobResult?.result.first.isEdited==true)
+        ElevatedButton(
+          onPressed: () async {
+            final jobUpdateRequest = {
+              "userId": widget.job.user?.userId,
+              "freelancerId": widget.job.freelancer?.freelancerId,
+              "companyId":null,
+              "jobTitle": widget.job.jobTitle,
+              "isTenderFinalized": false,
+              "isFreelancer": false,
+              "isInvoiced": false,
+              "isRated": false,
+              "startEstimate": widget.job.startEstimate,
+              "endEstimate": widget.job.endEstimate,
+              "payEstimate": widget.job.payEstimate,
+              "payInvoice": null,
+              "jobDate": widget.job.jobDate.toIso8601String(),
+             
+
+              "jobDescription": widget.job.jobDescription,
+              "image": widget.job.image,
+              "jobStatus": widget.job.jobStatus.name,
+              "serviceId": widget.job.jobsServices
+                  ?.map((e) => e.service?.serviceId)
+                  .toList(),
+              "isEdited": false,
+
+            };
+
+            try {
+              await jobProvider.update(widget.job.jobId, jobUpdateRequest);
+              await _getJob(); 
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Posao označen kao pregledan.")),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Greška: $e")),
+                );
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text("Označi kao pregledano"),
+        ),
+      ],
+    ),
+  ),
+],
                     
                       _sectionTitle('Radne specifikacije'),
                   _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
@@ -325,7 +418,7 @@ class _ApproveJobState extends State<ApproveJob> {
                         ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
                         : 'Nepoznato',
                   ),
-                   _buildDetailRow('Broj Telefona', widget.job.user?.phoneNumber??'Nepoznato'),
+                   _buildDetailRow('Broj Telefona', formatPhoneNumber(widget.job.user!.phoneNumber!)),
                    _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
                   _buildDetailRow(
                     'Adresa',
@@ -347,7 +440,7 @@ class _ApproveJobState extends State<ApproveJob> {
                
                   _buildDetailRow('E-mail', widget.job.freelancer?.freelancerNavigation?.email ?? 'Nepoznato'),
                
-                  _buildDetailRow('Telefonski broj', widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato') ,
+                  _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato')) ,
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
                       jobResult.result.first.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
@@ -396,11 +489,11 @@ class _ApproveJobState extends State<ApproveJob> {
              
           },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
           const SizedBox(width: 15,),
-          if(jobResult.result.first.isEdited!=true && jobResult.result.first.jobStatus==JobStatus.approved)
+          if((jobResult.result.first.isEdited==false && jobResult.result.first.isWorkerEdited==false) && jobResult.result.first.jobStatus==JobStatus.approved)
           ElevatedButton(onPressed: () async{
             await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: jobResult.result.first)));
             await _getJob();
-          }, child: Text('Uredi',style: TextStyle(color: Colors.black),),
+          },child: Text('Uredi',style: TextStyle(color: Colors.black),),
           style: ElevatedButton.styleFrom(backgroundColor:  Colors.amber,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
           ),
           const SizedBox(width: 15,),
@@ -668,14 +761,14 @@ DateTime normalizeTime(DateTime t) {
                     ),
                   ],
                 ),
-                if (widget.job.jobStatus == JobStatus.approved)
+                  if (widget.job.jobStatus == JobStatus.approved)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                     
+                   
                       FormBuilderTextField(
                         name: "payInvoice",
-                        enabled:  job.isEdited==true ? false:true,
+                        enabled:  jobResult.result.first.isEdited==true || jobResult.result.first.isWorkerEdited==true ? false:true,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         decoration: const InputDecoration(

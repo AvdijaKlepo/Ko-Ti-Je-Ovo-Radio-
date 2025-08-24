@@ -47,6 +47,11 @@ namespace KoRadio.API.Controllers
 		{
 			return (_service as UserService).GetRecommendedCompanies(userId, serviceId);
 		}
+		[HttpGet("RecommendedProducts/{userId}")]
+		public Task<List<Model.Product>> GetRecommendedProducts(int userId)
+		{
+			return (_service as UserService).GetRecommendedProducts(userId);
+		}
 
 
 

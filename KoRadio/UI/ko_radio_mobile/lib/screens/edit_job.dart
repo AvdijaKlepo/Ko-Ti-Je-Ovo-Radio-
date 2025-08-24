@@ -169,7 +169,7 @@ void patchStartEnd(TimeOfDay? startTod, {required Duration duration}) {
 
 Future<void> _getJobs() async {
   if (!mounted) return;
-  final requested = _currentJobDate;        // capture
+  final requested = _currentJobDate;       
   setState(() => isLoading = true);
   try {
     final job = await jobProvider.get(filter: {
@@ -177,7 +177,7 @@ Future<void> _getJobs() async {
       'JobDate': requested,
       'JobStatus': JobStatus.approved.name,
     });
-    if (!mounted || requested != _currentJobDate) return; // discard stale result
+    if (!mounted || requested != _currentJobDate) return; 
     setState(() {
       jobResult = job;
       _currentBookedJobs = jobResult?.result
@@ -225,32 +225,34 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
   @override
   Widget build(BuildContext context) {
-    final jobStartTimeString = widget.job.startEstimate ?? "08:00";
-    final jobEndTimeString = widget.job.endEstimate ?? "17:00";
-    final jobStartTime = _parseTime(jobStartTimeString);
-    final jobEndTime = _parseTimeDate(jobEndTimeString);
+   // Parse nullable times safely
+final jobStartTime = widget.job.startEstimate != null
+    ? _parseTime(widget.job.startEstimate!)
+    : null;
+final jobEndTime = widget.job.endEstimate != null
+    ? _parseTimeDate(widget.job.endEstimate!)
+    : null;
 
+final freelancerShiftStartTime = widget.job.freelancer?.startTime != null
+    ? _parseTime(widget.job.freelancer!.startTime!)
+    : null;
+final freelancerShiftEndTime = widget.job.freelancer?.endTime != null
+    ? _parseTime(widget.job.freelancer!.endTime!)
+    : null;
 
-    final freelancerShiftStartTimeString = widget.job.freelancer?.startTime ?? "08:00";
-    final freelancerShiftEndTimeString = widget.job.freelancer?.endTime ?? "17:00";
+final dummyDate = DateTime.now();
+DateTime? originalStart;
+DateTime? originalEnd;
+Duration? duration;
 
-    final freelancerShiftStartTime = _parseTime(freelancerShiftStartTimeString);
-    final freelancerShiftendTime = _parseTime(freelancerShiftEndTimeString);
+if (jobStartTime != null && jobEndTime != null) {
+  originalStart = DateTime(dummyDate.year, dummyDate.month, dummyDate.day,
+      jobStartTime.hour, jobStartTime.minute);
+  originalEnd = DateTime(dummyDate.year, dummyDate.month, dummyDate.day,
+      jobEndTime.hour, jobEndTime.minute);
+  duration = originalEnd.difference(originalStart);
+}
 
-
-
- 
-
- 
-
-    final dummyDate = DateTime.now();
-
-    final originalStart = DateTime(dummyDate.year, dummyDate.month,
-        dummyDate.day, jobStartTime.hour, jobStartTime.minute);
-    final originalEnd = DateTime(dummyDate.year, dummyDate.month, dummyDate.day,
-        jobEndTime.hour, jobEndTime.minute);
-
-    final duration = originalEnd.difference(originalStart);
     
    
 
@@ -377,34 +379,35 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                   initialValue: jobStartTime,
                   name: 'startEstimate',
                   enabled: !isLoading,
-                 onChanged: (TimeOfDay? value) {
-   if (value == null || _currentJobDate == null) return;
-
-  final duration = originalEnd.difference(originalStart);
+                onChanged: (TimeOfDay? value) {
+  if (value == null || _currentJobDate == null || duration == null) return;
 
   final start = _atDate(_currentJobDate!, value);
-  final end   = start.add(duration);
+  final end = originalEnd != null && originalStart != null
+      ? start.add(duration!)
+      : null;
 
-
-  final shiftEnd = _parseOn(_currentJobDate!, freelancerShiftEndTimeString);
-  if (end.isAfter(shiftEnd)) {
-    _showSnackBar('Van okvira radnog vremena.', context);
-    patchStartEnd(null, duration: duration);                   
-    return;
+  if (freelancerShiftEndTime != null && end != null) {
+    final shiftEnd = _atDate(_currentJobDate!, freelancerShiftEndTime);
+    if (end.isAfter(shiftEnd)) {
+      _showSnackBar('Van okvira radnog vremena.', context);
+      patchStartEnd(null, duration: duration);
+      return;
+    }
   }
 
-  if (_overlapsAny(start, end)) {
+  if (end != null && _overlapsAny(start, end)) {
     _showSnackBar('Termin zauzet. Odaberite drugo vrijeme.', context);
-    patchStartEnd(null, duration: duration);               
+    patchStartEnd(null, duration: duration);
     return;
   }
-
 
   patchStartEnd(value, duration: duration);
 },
 
-                  minTime: freelancerShiftStartTime,
-                  maxTime: freelancerShiftendTime,
+
+                  minTime: freelancerShiftStartTime!,
+                  maxTime: freelancerShiftEndTime!,
                   now: TimeOfDay.now(),
                   jobDate: _currentJobDate,
                   bookedJobs: _currentBookedJobs,
@@ -466,7 +469,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 ),
                 const SizedBox(height: 15),
                 FormBuilderCheckboxGroup<int>(
-                  enabled: false,
+                  enabled: widget.job.jobStatus == JobStatus.approved ? false: true,
                   name: "serviceId",
                   decoration: const InputDecoration(
                     labelText: "Servis",

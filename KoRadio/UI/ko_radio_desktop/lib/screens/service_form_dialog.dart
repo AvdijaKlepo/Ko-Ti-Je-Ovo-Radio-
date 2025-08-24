@@ -79,7 +79,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   builder: (field) {
     return InputDecorator(
       decoration:  const InputDecoration(
-        labelText: "Proslijedite sliku trgovine",
+        labelText: "Proslijedite sliku servisa",
         border: OutlineInputBorder(),
       ),
       child: Column(

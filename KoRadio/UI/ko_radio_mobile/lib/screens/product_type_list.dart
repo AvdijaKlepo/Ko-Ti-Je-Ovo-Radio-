@@ -273,7 +273,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                             ),
                                           ),
                                           child:
-                                          Row(
+                                          Column(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                                Text(
@@ -282,9 +282,14 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                               color: Colors.black,
                                              
                                               fontSize: 16,
+                                         
                                             ),
-                                            maxLines: 2,
+
+
+                                            maxLines:1,
                                             overflow: TextOverflow.ellipsis,
+                                          
+
                                           ),
                                            Text(
                                             '${product.price?.toString()} KM' ?? "",
@@ -293,8 +298,9 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                              
                                               fontSize: 16,
                                             ),
-                                            maxLines: 2,
+                                            maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
+                                            
                                           ),
                                               
                                             ],
@@ -316,7 +322,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
                                                     content: Text(
-                                                        '${product.productName} dodan u košaricu.')),
+                                                        '${product.productName} dodan u korpu.')),
                                               );
                                             },
                                           ),

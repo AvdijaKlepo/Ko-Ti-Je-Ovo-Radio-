@@ -290,7 +290,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
             child: Column(
               children: [
-                if(AuthProvider.selectedCompanyId!=null)
+                if(AuthProvider.selectedCompanyId!=null &&  AuthProvider.selectedStoreId==null)
                 InkWell(
                   onTap: () async {
                     print(AuthProvider.selectedCompanyId);
@@ -316,7 +316,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                     ],
                   ),
                 ),
-                if(AuthProvider.selectedStoreId!=null)
+                if(AuthProvider.selectedCompanyId==null && AuthProvider.selectedStoreId!=null)
                 InkWell(
                   onTap: () async {
                     showDialog(
@@ -382,6 +382,13 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                    if(AuthProvider.selectedCompanyId!=null)
                     Text(
                       "${AuthProvider.user!.companyEmployees!.where((element) => element.companyId==AuthProvider.selectedCompanyId).map((e) => e.companyName).first}",
+                      style: GoogleFonts.lobster(
+                        textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                      ),
+                    ),
+                    if(AuthProvider.selectedStoreId!=null)
+                    Text(
+                      "${AuthProvider.user!.stores!.where((element) => element.storeId==AuthProvider.selectedStoreId).map((e) => e.storeName).first}",
                       style: GoogleFonts.lobster(
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),

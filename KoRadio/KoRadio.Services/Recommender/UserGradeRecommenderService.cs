@@ -40,8 +40,7 @@ namespace KoRadio.Services.Recommender
 			var freelancersQuery = _context.Freelancers
 				.Where(f => !f.IsDeleted && !ratedFreelancerIds.Contains(f.FreelancerId))
 				.Include(f => f.FreelancerNavigation)
-				.Include(f=>f.FreelancerServices)
-				.ThenInclude(x=>x.Service)
+				
 				.AsQueryable();
 
 			if (serviceId.HasValue)
@@ -75,23 +74,6 @@ namespace KoRadio.Services.Recommender
 					FreelancerId = p.Freelancer.FreelancerId,
 					IsApplicant = p.Freelancer.IsApplicant,
 					IsDeleted = p.Freelancer.IsDeleted,
-					Bio = p.Freelancer.Bio,
-					Rating = p.Freelancer.Rating,
-					ExperianceYears = p.Freelancer.ExperianceYears,
-					StartTime = p.Freelancer.StartTime,
-					EndTime = p.Freelancer.EndTime,
-					WorkingDays = ConvertIntToDaysOfWeekList(p.Freelancer.WorkingDays),
-					FreelancerServices = p.Freelancer.FreelancerServices.Select(fs => new Model.FreelancerService
-					{
-						FreelancerId = fs.FreelancerId,
-						ServiceId = fs.ServiceId,
-						Service = new Model.Service
-						{
-							ServiceId = fs.Service.ServiceId,
-							ServiceName = fs.Service.ServiceName
-						}
-
-					}).ToList(),
 
 					FreelancerNavigation = new Model.User
 					{
@@ -169,9 +151,7 @@ namespace KoRadio.Services.Recommender
 		{
 			var freelancersQuery = _context.Freelancers
 	.Where(f => !f.IsDeleted)
-	.Include(f => f.FreelancerNavigation)
-	.Include(f => f.FreelancerServices)
-		.ThenInclude(fs => fs.Service)
+	.Include(f=>f.FreelancerNavigation)
 	.OrderByDescending(f => f.UserRatings.Any() ? f.UserRatings.Average(r => r.Rating) : 0)
 	.ThenByDescending(f => f.UserRatings.Count())
 	.Take(3)
@@ -191,23 +171,7 @@ namespace KoRadio.Services.Recommender
 				FreelancerId = p.FreelancerId,
 				IsApplicant = p.IsApplicant,
 				IsDeleted = p.IsDeleted,
-				Bio = p.Bio,
-				Rating = p.Rating,
-				ExperianceYears = p.ExperianceYears,
-				StartTime = p.StartTime,
-				EndTime = p.EndTime,
-				WorkingDays = ConvertIntToDaysOfWeekList(p.WorkingDays),
-				FreelancerServices = p.FreelancerServices.Select(fs => new Model.FreelancerService
-				{
-					FreelancerId = fs.FreelancerId,
-					ServiceId = fs.ServiceId,
-					Service = new Model.Service
-					{
-						ServiceId = fs.Service.ServiceId,
-						ServiceName = fs.Service.ServiceName
-					}
-
-				}).ToList(),
+				
 				FreelancerNavigation = new Model.User
 				{
 					FirstName = p.FreelancerNavigation.FirstName,

@@ -1,14 +1,16 @@
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:ko_radio_mobile/models/job.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/models/service.dart';
 
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/service_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_tender.dart';
-
 import 'package:ko_radio_mobile/screens/tender_bids_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -22,237 +24,314 @@ class TenderScreen extends StatefulWidget {
 class _TenderScreenState extends State<TenderScreen> {
   late JobProvider tenderProvider;
   late PaginatedFetcher<Job> tenderFetcher;
-  late final ScrollController _scrollController;
+  late ServiceProvider serviceProvider;
+  SearchResult<Service>? serviceResult;
 
+  List<DropdownMenuItem<int?>> serviceDropdownItems = [];
+  int? _selectedServiceId;
+
+  late final ScrollController _scrollController;
   bool _isInitialized = false;
   bool _isFreelancer = true;
+  bool _isLoading = false;
+  Timer? _debounce;
 
- @override
-void initState() {
-  super.initState();
-  _scrollController = ScrollController();
-  _scrollController.addListener(() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
-        tenderFetcher.hasNextPage &&
-        !tenderFetcher.isLoading) {
-      tenderFetcher.loadMore();
-    }
-  });
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        if (_scrollController.position.pixels >=
+                _scrollController.position.maxScrollExtent - 100 &&
+            tenderFetcher.hasNextPage &&
+            !tenderFetcher.isLoading) {
+          tenderFetcher.loadMore();
+        }
+      });
 
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
     tenderProvider = context.read<JobProvider>();
+    serviceProvider = context.read<ServiceProvider>();
 
-    tenderFetcher = PaginatedFetcher<Job>(
-      fetcher: ({
-        required int page,
-        required int pageSize,
-        Map<String, dynamic>? filter,
-      }) async {
-        final result = await tenderProvider.get(
-          page: page,
-          pageSize: pageSize,
-          filter: filter,
-        );
-        return PaginatedResult<Job>(
-          result: result.result,
-          count: result.count,
-        );
-      },
-      pageSize: 6,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _getServices();
 
-    tenderFetcher.addListener(() {
-      if (mounted) setState(() {});
+      tenderFetcher = PaginatedFetcher<Job>(
+        fetcher: ({
+          required int page,
+          required int pageSize,
+          Map<String, dynamic>? filter,
+        }) async {
+          final result = await tenderProvider.get(
+            page: page,
+            pageSize: pageSize,
+            filter: filter,
+          );
+          return PaginatedResult<Job>(
+            result: result.result,
+            count: result.count,
+          );
+        },
+        pageSize: 6,
+      );
+
+      tenderFetcher.addListener(() {
+        if (mounted) setState(() {});
+      });
+
+      await _refreshWithFilter();
+      if (!mounted) return;
+
+      setState(() {
+        _isInitialized = true;
+      });
     });
+  }
 
-    final selectedRole = AuthProvider.selectedRole;
-
-
-    Map<String, dynamic>? filter;
-    if (selectedRole != "Freelancer") {
-      filter = {'userId': AuthProvider.user?.userId,'IsTenderFinalized':true};
+  Future<void> _getServices() async {
+    try {
+      var fetchedServices = await serviceProvider.get();
+      setState(() {
+        serviceResult = fetchedServices;
+        serviceDropdownItems = [
+          const DropdownMenuItem<int?>(
+            value: null,
+            child: Text("Svi tipovi"),
+          ),
+          ...fetchedServices.result
+              .map((s) => DropdownMenuItem<int?>(
+                  value: s.serviceId, child: Text(s.serviceName)))
+        ];
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
     }
-    else{
-      filter = {'IsTenderFinalized':true,'isFreelancer':true};
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
+  }
+
+  Future<void> _refreshWithFilter() async {
+    setState(() => _isLoading = true);
+
+    // base filter depending on role
+    final filter = <String, dynamic>{
+      'IsTenderFinalized': true,
+      if (AuthProvider.selectedRole != "Freelancer")
+        'userId': AuthProvider.user?.userId
+      else
+        'isFreelancer': true,
+    };
+
+    // apply job service filter (like your .NET LINQ Any condition)
+    if (_selectedServiceId != null) {
+      filter['JobService'] = _selectedServiceId;
     }
 
     await tenderFetcher.refresh(newFilter: filter);
-    if(!mounted) return;
-    setState(() {
-      _isInitialized = true;
-    });
-  });
-}
-
-
-
- @override
-Widget build(BuildContext context) {
-  final selectedRole = AuthProvider.selectedRole;
-  Map<String, dynamic>? filter;
-    if (selectedRole != "Freelancer") {
-      filter = {'userId': AuthProvider.user?.userId,'IsTenderFinalized':true};
-    }
-    else{
-      filter = {'IsTenderFinalized':true,'isFreelancer':true};
-    }
-  if (!_isInitialized) {
-    return const Center(child: CircularProgressIndicator());
+    setState(() => _isLoading = false);
   }
 
-  return  RefreshIndicator(
-  
+  Widget _buildServiceDropdown() {
+    if (serviceDropdownItems.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: DropdownButtonFormField<int?>(
+        iconDisabledColor: Colors.grey,
+        iconEnabledColor: const Color.fromRGBO(27, 76, 125, 25),
+        value: _selectedServiceId,
+        decoration: InputDecoration(
+          labelText: "Tip servisa",
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+        items: serviceDropdownItems,
+        onChanged: (value) {
+          setState(() => _selectedServiceId = value);
+          _refreshWithFilter();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final selectedRole = AuthProvider.selectedRole;
+
+    return RefreshIndicator(
       onRefresh: tenderFetcher.refresh,
       child: tenderFetcher.items.isEmpty
           ? Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-         
-            
-
-
-            
-              children:  [
-
               
+              children: [
+                _buildServiceDropdown(),
                 const SizedBox(height: 10),
-                AuthProvider.selectedRole== "User" ? 
-                const Center(child: Text("Nemate aktivan tender", style: TextStyle(fontSize: 18))):
-               const Center(child: Text("Trenutno nema aktivnih tendera", style: TextStyle(fontSize: 18))) ,
-                const SizedBox(height: 10,),
-
-                AuthProvider.selectedRole == "User" ?
-                Column(
-                
-                  children: [
-                    const SizedBox(height: 15,),
-                    ElevatedButton(
-                    
-                      style: ElevatedButton.styleFrom(backgroundColor:const Color.fromRGBO(27, 76, 125, 25)),
-                      onPressed: () {
-                       AlertDialog alert = AlertDialog(
-                       
-                      title: const Text("Kreiraj tender"),
-                      content: const Text("Stranka?",style: TextStyle(fontSize: 16),),
-                      actions: [
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop(); 
-                            _isFreelancer = true;
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => BookTender(isFreelancer: _isFreelancer),
-                              ),
-                            );
-                            await tenderFetcher.refresh(newFilter: filter); 
-                          },
-                          child: const Text("Radnik"),
+                selectedRole == "User"
+                    ? const Center(
+                        child: Text("Nemate aktivan tender",
+                            style: TextStyle(fontSize: 18)))
+                    : const Center(
+                        child: Text("Nema aktivnih tendera",
+                            style: TextStyle(fontSize: 18))),
+                const SizedBox(height: 10),
+                if (selectedRole == "User")
+                  Column(
+                    children: [
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromRGBO(27, 76, 125, 25),
                         ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop(); 
-                            _isFreelancer = false;
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => BookTender(isFreelancer: _isFreelancer),
+                        onPressed: () {
+                          final alert = AlertDialog(
+                            title: const Text("Kreiraj tender"),
+                            content: const Text("Stranka?",
+                                style: TextStyle(fontSize: 16)),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(context).pop();
+                                  _isFreelancer = true;
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookTender(isFreelancer: _isFreelancer),
+                                    ),
+                                  );
+                                  await _refreshWithFilter();
+                                },
+                                child: const Text("Radnik"),
                               ),
-                            );
-                            await tenderFetcher.refresh(newFilter: filter);
-                          },
-                          child: const Text("Firma"),
-                        ),
-                      ],
-                    );
-                    
-                        showDialog(
-                          context: context,
-                          builder: (context) => alert,
-                        );
-                    
-                    
-                      
-                      },
-                      child: const Text("Kreiraj tender",style: TextStyle(color: Colors.white),),
-                    
-                    ),
-                  ],
-                ): const SizedBox.shrink(),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(context).pop();
+                                  _isFreelancer = false;
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookTender(isFreelancer: _isFreelancer),
+                                    ),
+                                  );
+                                  await _refreshWithFilter();
+                                },
+                                child: const Text("Firma"),
+                              ),
+                            ],
+                          );
 
-              ],
-            )
-          : 
-        
-          
-          ListView.builder(
-          
-              controller: _scrollController,
-              itemCount: tenderFetcher.items.length + (tenderFetcher.hasNextPage ? 1 : 0),
-              padding: const EdgeInsets.all(12),
-              itemBuilder: (context, index) {
-                if (index < tenderFetcher.items.length) {
-                  final tender = tenderFetcher.items[index];
-
-                  return Card(
-
-                    color: const Color.fromRGBO(27, 76, 125, 25),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                    final updated = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => TenderBidsScreen(tender: tender)));
-                     
-                      if (selectedRole != "Freelancer") {
-      filter = {'userId': AuthProvider.user?.userId,'IsTenderFinalized':true};
-    }
-    else{
-      filter = {'IsTenderFinalized':true,'isFreelancer':true};
-    }
-    if(updated==true){
-      await tenderFetcher.refresh(newFilter: filter);
-    }
-    else if(updated==false){
-      setState(() {
-        
-      });
-    }
-                      
-
-  
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Naslov:  ${tender.jobTitle}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white)),
-                            Text(
-                              'Korisnik:  ${tender.user?.firstName} ${tender.user?.lastName}' ?? "",
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white),
-                            ),
-                            const SizedBox(height: 6),
-                            Text('Potreban:  ${tender.jobsServices?.map((e) => e.service?.serviceName ?? '').join('i ')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                            const SizedBox(height: 6),
-                            Text(
-                              "Početak radova:  ${formatDateTime(tender.jobDate)}",
-                              style: const TextStyle(fontSize: 14, color: Colors.white),
-                            ),
-                          ],
+                          showDialog(
+                            context: context,
+                            builder: (context) => alert,
+                          );
+                        },
+                        child: const Text(
+                          "Kreiraj tender",
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                    ),
-                  );
-                }
+                    ],
+                  )
+              ],
+            )
+          : Column(
+              children: [
+                _buildServiceDropdown(),
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: tenderFetcher.items.length +
+                        (tenderFetcher.hasNextPage ? 1 : 0),
+                    padding: const EdgeInsets.all(12),
+                    itemBuilder: (context, index) {
+                      if (index < tenderFetcher.items.length) {
+                        final tender = tenderFetcher.items[index];
+                        return Card(
+                          color: const Color.fromRGBO(27, 76, 125, 25),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              final updated = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      TenderBidsScreen(tender: tender),
+                                ),
+                              );
 
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              },
+                              if (updated == true) {
+                                await _refreshWithFilter();
+                              } else if (updated == false) {
+                                setState(() {});
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Naslov:  ${tender.jobTitle}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
+                                  Text(
+                                    'Korisnik:  ${tender.user?.firstName} ${tender.user?.lastName}' ??
+                                        "",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Potreban servis:  ${tender.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ')}',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    "Početak radova:  ${formatDateTime(tender.jobDate)}",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
     );
-  
-}
-
   }
+}

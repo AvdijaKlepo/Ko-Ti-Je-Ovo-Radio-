@@ -108,7 +108,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
       setState(() {
         _isLoading=true;
       });
-      await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+      if(mounted) await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
       setState(() {
         _isInitialized = true;
         _isLoading=false;
@@ -256,7 +256,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
       final isFreelancerJob = job.freelancer?.freelancerId != null;
       final isUserJob = job.user != null;
 
-      final isDark = job.isEdited == false;
+      final isDark = job.isEdited == false && job.isWorkerEdited == false;
 
       final cardColor = isDark
           ? const Color.fromRGBO(27, 76, 125, 1)

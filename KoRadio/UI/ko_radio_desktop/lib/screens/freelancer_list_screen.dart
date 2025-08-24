@@ -414,83 +414,93 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.check, color: Colors.green),
-                                            tooltip: 'Odobri',
-                                            onPressed: () async {
-                                              await showDialog(context: context, builder: (_) =>  AlertDialog(
-                                                title: const Text("Odobreno"),
-                                                content: const Text("Jeste li sigurni da želite odobriti ovog radnika?"), 
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(false),
-                                                    child: const Text("Ne"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-final dayMap = {
-                                                'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
-                                                'Thursday': 4, 'Friday': 5, 'Saturday': 6
-                                              };
-                                      
-                                              var workingDaysStringList = f.workingDays ?? [];
-                                      
-                                              final workingDaysIntList = workingDaysStringList
-                                                  .map((day) => dayMap[day])
-                                                  .whereType<int>()
-                                                  .toList();
-                                      
-                                              await provider.update(
-                                                f.freelancerId,
-                                                {
-                                                  "freelancerId": f.freelancerId,
-                                                  "bio": f.bio,
-                                                  "rating": f.rating,
-                                                  "experianceYears": f.experianceYears,
-                                                  "startTime": f.startTime,
-                                                  "endTime": f.endTime,
-                                                  "workingDays": workingDaysIntList,
-                                                  "serviceId": f.freelancerServices.map((e) => e.serviceId).toList(),
-                                                  "roles": [11],
-                                                  "isApplicant": false,
-                                                  "isDeleted": false,
-                                                  'freelancerNavigation': f.freelancerNavigation,
-                                                },
-                                              );
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text("Radnik odobren!")),
-                                              );
-                                              await freelancerPagination.refresh(newFilter: {
-                                                'IsServiceIncluded': true,
-                                                'IsApplicant': showApplicants,
-                                                'isDeleted': showDeleted,
-                                              });
-                                              if(mounted && context.mounted)
-                                              {
-                                                Navigator.of(context).pop();
-                                              }
-                                                      
-                                                    },
-                                                    child: const Text("Da"),
-                                                  )
-                                                ]
-                                              ));
-                                              
-                                            },
-                                          ),
+                                         IconButton(
+  icon: const Icon(Icons.check, color: Colors.green),
+  tooltip: 'Odobri',
+  onPressed: () async {
+    // capture the parent context
+    final parentContext = context;
+
+    await showDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Odobreno"),
+        content: const Text("Jeste li sigurni da želite odobriti ovog radnika?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text("Ne"),
+          ),
+          TextButton(
+            onPressed: () async {
+              final dayMap = {
+                'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+                'Thursday': 4, 'Friday': 5, 'Saturday': 6
+              };
+
+              var workingDaysStringList = f.workingDays ?? [];
+
+              final workingDaysIntList = workingDaysStringList
+                  .map((day) => dayMap[day])
+                  .whereType<int>()
+                  .toList();
+
+              await provider.update(
+                f.freelancerId,
+                {
+                  "freelancerId": f.freelancerId,
+                  "bio": f.bio,
+                  "rating": f.rating,
+                  "experianceYears": f.experianceYears,
+                  "startTime": f.startTime,
+                  "endTime": f.endTime,
+                  "workingDays": workingDaysIntList,
+                  "serviceId": f.freelancerServices.map((e) => e.serviceId).toList(),
+                  "roles": [3],
+                  "isApplicant": false,
+                  "isDeleted": false,
+                  'freelancerNavigation': f.freelancerNavigation,
+                },
+              );
+
+              if (parentContext.mounted) {
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  const SnackBar(content: Text("Radnik odobren!")),
+                );
+              }
+
+              await freelancerPagination.refresh(newFilter: {
+                'IsServiceIncluded': true,
+                'IsApplicant': showApplicants,
+                'isDeleted': showDeleted,
+              });
+
+              if (parentContext.mounted) {
+                Navigator.of(dialogContext).pop(true);
+              }
+            },
+            child: const Text("Da"),
+          )
+        ],
+      ),
+    );
+  },
+),
+
                                           IconButton(
                                             icon: const Icon(Icons.close, color: Colors.red),
                                             tooltip: 'Odbaci',
                                             onPressed: () async {
+                                                  final parentContext = context;
                                               await showDialog(
-                                                context: context,
-                                                builder: (_) => AlertDialog(
+                                                context: parentContext,
+                                                builder: (dialogContext) => AlertDialog(
                                                   title: const Text('Odbaci?'),
                                                   content: const Text('Jeste li sigurni da želite odbaciti ovog korisnika?'),
                                                   actions: [
                                                     
                                                     TextButton(
-                                                      onPressed: () => Navigator.of(context).pop(false),
+                                                      onPressed: () => Navigator.of(dialogContext).pop(false),
                                                       child: const Text('Ne'),
                                                     ),
                                                     TextButton(
@@ -501,7 +511,7 @@ final dayMap = {
                                                           'IsApplicant': showApplicants,
                                                           'isDeleted': showDeleted,
                                                         });
-                                                        if(mounted && context.mounted)
+                                                        if(parentContext.mounted)
                                                         {
                                                           Navigator.of(context).pop();
                                                         }

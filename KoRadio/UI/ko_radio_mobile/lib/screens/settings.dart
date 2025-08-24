@@ -462,7 +462,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
                                       "companyId": _companyId,
                                       "isDeleted": false,
                                       "isApplicant": false,
-                                      "roles": [1010],
+                                      "roles": [5],
                                       
                                       "companyRoleId": null,
                                       "dateJoined": DateTime.now().toIso8601String(),

@@ -39,6 +39,7 @@ class AuthProvider {
     selectedCompanyId=null;
     selectedStoreId=null;
     connectionId=null;
+    
 
     signalRProvider.stopConnection();
     

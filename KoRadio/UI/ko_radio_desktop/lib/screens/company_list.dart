@@ -395,12 +395,13 @@ class _CompanyListState extends State<CompanyList> {
                                             icon: const Icon(Icons.check, color: Colors.green),
                                             tooltip: 'Odobri',
                                             onPressed: () async {
-                                            await showDialog(context: context, builder: (_) =>  AlertDialog(
+                                              final parentContext = context;
+                                            await showDialog(context: parentContext, builder: (dialogContext) =>  AlertDialog(
                                               title: const Text("Odobreno"),
                                               content: const Text("Jeste li sigurni da želite odobriti ovu firmu?"), 
                                               actions: [
                                                 TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(false),
+                                                  onPressed: () => Navigator.of(dialogContext).pop(false),
                                                   child: const Text("Ne"),
                                                 ),
                                                 TextButton(
@@ -432,22 +433,23 @@ class _CompanyListState extends State<CompanyList> {
                                                     "workingDays": workingDaysIntList,
                                                     "serviceId": c.companyServices.map((e) => e.serviceId).toList(),
                                                     "locationId": c.location?.locationId,
-                                                    "roles":[1009],
+                                                    "roles":[4],
                                                     "isApplicant": false,
                                                     "isDeleted": false,
                                                     "employee": c.companyEmployees.map((e) => e.userId).toList(),
                                                     'isOwner': true,
                                                   },
                                                 );
-                                               
+                                               if (parentContext.mounted) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(content: Text("Firma odobrena!")),
                                                   );
+                                               }
                                                   await companyPagination.refresh(newFilter: {
                                                     'isDeleted': showDeleted,
                                                     'IsApplicant': showApplicants,
                                                   }); 
-                                                  if(mounted && context.mounted)
+                                                  if(parentContext.mounted)
                                                   {
                                                     Navigator.of(context).pop();
                                                   }
@@ -467,12 +469,13 @@ class _CompanyListState extends State<CompanyList> {
                                             icon: const Icon(Icons.close, color: Colors.red),
                                             tooltip: 'Odbaci',
                                             onPressed: () async {
-                                              await showDialog(context: context, builder: (_) => AlertDialog(
+                                              final parentContext = context;
+                                              await showDialog(context: parentContext, builder: (dialogContext) => AlertDialog(
                                                 title: const Text('Odbaci?'),
                                                 content: const Text('Jeste li sigurni da želite odbaciti ovu firmu?'),
                                                 actions: [
                                                   TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(false),
+                                                    onPressed: () => Navigator.of(dialogContext).pop(false),
                                                     child: const Text('Ne'),
                                                   ),
                                                   TextButton(
@@ -482,7 +485,7 @@ class _CompanyListState extends State<CompanyList> {
                                                         'isDeleted': showDeleted,
                                                         'IsApplicant': showApplicants,
                                                       });
-                                                    if(mounted && context.mounted)
+                                                    if(parentContext.mounted)
                                                     {
                                                       Navigator.of(context).pop();
                                                     }

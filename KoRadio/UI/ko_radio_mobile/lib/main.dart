@@ -267,8 +267,10 @@ if (AuthProvider.selectedRole == "CompanyEmployee" &&
   );
 }
 else {
+  if(AuthProvider.selectedRole == "CompanyEmployee"){
    AuthProvider.selectedCompanyId = AuthProvider.user!.companyEmployees?.first.companyId;
       AuthProvider.selectedCompanyEmployeeId =AuthProvider.user!.companyEmployees?.first.companyEmployeeId;
+  }
       print(AuthProvider.selectedCompanyId);
       print(AuthProvider.selectedCompanyEmployeeId);
                 Navigator.pushReplacement(

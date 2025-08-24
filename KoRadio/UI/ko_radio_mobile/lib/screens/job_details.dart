@@ -7,6 +7,7 @@ import 'package:ko_radio_mobile/models/company_job_assignment.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/models/user_ratings.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_job_assignemnt_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
@@ -38,6 +39,7 @@ class _JobDetailsState extends State<JobDetails> {
   late UserRatings userRatingsProvider;
   late Company companyResult;
   late SearchResult<Job> jobResult;
+  SearchResult<UserRating>? userRatingsResult;
   late MessagesProvider messagesProvider;
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
   SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
@@ -55,20 +57,24 @@ class _JobDetailsState extends State<JobDetails> {
 
     setState(() {
       _isLoading=true;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      messagesProvider = context.read<MessagesProvider>();
+    }); 
+    messagesProvider = context.read<MessagesProvider>();
       freelancerProvider = context.read<FreelancerProvider>();
       userRatingsProvider = context.read<UserRatings>();
       jobProvider = context.read<JobProvider>();
       companyProvider = context.read<CompanyProvider>();
       companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+     setState(() {
+       _isLoading=true;
+     });
       if(widget.job.company?.companyId!=null)
       {
        await _getCompany();
        await _getAssignments();
       }
       await _getJob();
+      await _getUserRatings();
        setState(() {
       _isLoading=false;
       final job = jobResult.result.first;
@@ -78,6 +84,20 @@ class _JobDetailsState extends State<JobDetails> {
    
    
   
+  }
+  Future<void> _getUserRatings() async {
+    var filter={'JobId': widget.job.jobId, 'UserId': widget.job.user?.userId};
+    try {
+      var fetchedUserRatings = await userRatingsProvider.get(filter: filter);
+      setState(() {
+        userRatingsResult = fetchedUserRatings;
+      });
+    } catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
   }
   Future<void> _getAssignments() async {
     try {
@@ -199,6 +219,24 @@ class _JobDetailsState extends State<JobDetails> {
       ],
     );
   }
+  String formatPhoneNumber(String phone) {
+  // Step 1: Replace +387 at the start with 0
+  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+
+  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+
+  // Step 3: Ensure we only format if we have at least 9 digits
+  if (normalized.length < 9) return normalized;
+
+  // Step 4: Insert dashes in 3-3-3 format
+  String part1 = normalized.substring(0, 3);
+  String part2 = normalized.substring(3, 6);
+  String part3 = normalized.substring(6, 9);
+
+  return "$part1-$part2-$part3";
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +260,84 @@ class _JobDetailsState extends State<JobDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
+  Container(
+    padding: const EdgeInsets.all(12),
+    margin: const EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.amber.shade100,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.info, color: Colors.black87),
+        const SizedBox(width: 8),
+        const Expanded(
+          child: Text(
+            "Ovaj posao je ažuriran.",
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        if((jobResult?.result.first.isEdited==true && AuthProvider.selectedRole=="Freelancer")
+        )
+        ElevatedButton(
+          onPressed: () async {
+            final jobUpdateRequest = {
+              "userId": widget.job.user?.userId,
+              "freelancerId": widget.job.freelancer?.freelancerId,
+              "companyId":null,
+              "jobTitle": widget.job.jobTitle,
+              "isTenderFinalized": false,
+              "isFreelancer": false,
+              "isInvoiced": false,
+              "isRated": false,
+              "startEstimate": widget.job.startEstimate,
+              "endEstimate": widget.job.endEstimate,
+              "payEstimate": widget.job.payEstimate,
+              "payInvoice": null,
+              "jobDate": widget.job.jobDate.toIso8601String(),
+             
+
+              "jobDescription": widget.job.jobDescription,
+              "image": widget.job.image,
+              "jobStatus": widget.job.jobStatus.name,
+              "serviceId": widget.job.jobsServices
+                  ?.map((e) => e.service?.serviceId)
+                  .toList(),
+              "isEdited": false,
+
+            };
+
+            try {
+              await jobProvider.update(widget.job.jobId, jobUpdateRequest);
+              await _getJob(); 
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Posao označen kao pregledan.")),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Greška: $e")),
+                );
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text("Označi kao pregledano"),
+        ),
+      ],
+    ),
+  ),
+],
+                    
                   
                   _sectionTitle('Radne specifikacije'),
                   _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
@@ -276,7 +392,7 @@ class _JobDetailsState extends State<JobDetails> {
   _buildDetailRow('Radnici', '${companyJobAssignmentResult?.result.map((e) => '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}').join(', ')}'),
   if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
 
-  SizedBox(height: 15,),
+  const SizedBox(height: 15,),
   if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
 
   if(companyJobAssignmentResult?.result.isNotEmpty==true && AuthProvider.selectedRole == "CompanyEmployee")
@@ -284,7 +400,7 @@ class _JobDetailsState extends State<JobDetails> {
 
   Align(alignment: Alignment.bottomLeft,child: ElevatedButton(onPressed: () async{
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  EmployeeTaskList(job: widget.job,)));
-  }, child: Text('Pregled zadataka.'))),
+  }, child: const Text('Pregled zadataka.'))),
 
                   if(jobResult.result.first.isWorkerEdited==true)
                    const Divider(height: 32,),
@@ -293,7 +409,7 @@ class _JobDetailsState extends State<JobDetails> {
                  if(jobResult.result.first.isWorkerEdited==true)
                   _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena')
                   ,
-                  SizedBox(height: 15,),
+                  const SizedBox(height: 15,),
             
             if(jobResult.result.first.isWorkerEdited==true)
                   Row(
@@ -328,7 +444,7 @@ class _JobDetailsState extends State<JobDetails> {
                                           color:
                                               Color.fromRGBO(27, 76, 125, 25)),
                                     ), ),
-                                    SizedBox(width: 15,),
+                                    const SizedBox(width: 15,),
                                      ElevatedButton(onPressed: () async{
                                      
 
@@ -443,7 +559,7 @@ class _JobDetailsState extends State<JobDetails> {
                         ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
                         : 'Nepoznato',
                   ),
-                   _buildDetailRow('Broj Telefona',widget.job.user?.phoneNumber ??'Nepoznato'), 
+                   _buildDetailRow('Broj Telefona',formatPhoneNumber(widget.job.user!.phoneNumber!)),
                    _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
                   _buildDetailRow(
                     'Adresa',
@@ -467,8 +583,8 @@ class _JobDetailsState extends State<JobDetails> {
                   _buildDetailRow('E-mail', widget.job.freelancer?.freelancerNavigation?.email ?? 'Nepoznato'):
                   _buildDetailRow('E-mail', widget.job.company?.email ?? 'Nepoznato'),
                    widget.job.freelancer != null ?
-                  _buildDetailRow('Telefonski broj', widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato') : 
-                   _buildDetailRow('Telefonski broj', widget.job.company?.phoneNumber ?? 'Nepoznato'),
+                  _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato')) : 
+                   _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.company?.phoneNumber ?? 'Nepoznato')),
                   const Divider(height: 32),
                   _buildDetailRow('Procijena',
                      jobResult.result.first.payEstimate!=null ?
@@ -487,14 +603,16 @@ class _JobDetailsState extends State<JobDetails> {
                         _buildDetailRow('Plaćen',
                         'Ne')
                       , 
-                       if(jobResult.result.first.isRated==true)
+                       if(jobResult.result.first.isRated==true && _isLoading==false)
                   _buildDetailRow('Ocijenjen',
                       'Da')
                       else
                       _buildDetailRow('Ocijenjen',
                         'Ne')
                       ,
-                 
+                 if(jobResult.result.first.isRated==true)
+                 _buildDetailRow('Ocjena',
+                    '${userRatingsResult?.result.first.rating}'),
 
                   const SizedBox(height: 30),
                   
@@ -552,8 +670,18 @@ class _JobDetailsState extends State<JobDetails> {
                           ),
                         ),
                         const SizedBox(width: 15,),
-                        if((widget.job.jobStatus==JobStatus.approved || AuthProvider.selectedRole=="Freelancer") 
-                        || ((widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved) && AuthProvider.selectedRole=="User" ))
+                       if (
+  (
+    (widget.job.jobStatus == JobStatus.approved || AuthProvider.selectedRole == "Freelancer")
+    || 
+    (
+      (widget.job.jobStatus == JobStatus.approved || widget.job.jobStatus == JobStatus.unapproved)
+      && AuthProvider.selectedRole == "User"
+    )
+  )
+  && 
+  (jobResult?.result.first.isEdited == false && jobResult?.result.first.isWorkerEdited == false)
+)
                         ElevatedButton(
                           onPressed: () async {
   // If job belongs to a company
@@ -661,7 +789,7 @@ class _JobDetailsState extends State<JobDetails> {
                   'image': widget.job.image,
                   'jobDate': widget.job.jobDate.toIso8601String(),
                   'IsTenderFinalized':false,
-                  'payInvoice': jobResult.result.first.payInvoice,
+                  'payInvoice': widget.job.payInvoice,
                   'isinvoiced':true,
                   'isRated':false,
                   'dateFinished': widget.job.dateFinished,
@@ -703,13 +831,13 @@ ScaffoldMessenger.of(context).showSnackBar(
                                   },
                                   onCancel: () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Plaćanje je otkazano.")),
+                                      const SnackBar(content: Text("Plaćanje je otkazano.")),
                                     );
                                     Navigator.of(context).pop();
                                   },
                                   onError: (error) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Greška tokom plaćanja.")),
+                                      const SnackBar(content: Text("Greška tokom plaćanja.")),
                                     );
                                     Navigator.of(context).pop();
                                   },
@@ -720,7 +848,7 @@ ScaffoldMessenger.of(context).showSnackBar(
                           child: const Text("Plati PayPal-om"),
                         ),
                          
-                        Divider(height: 32),
+                        const Divider(height: 32),
                        if (jobResult.result.first.isInvoiced == true &&
     widget.job.user?.userId == AuthProvider.user?.userId &&
     jobResult.result.first.isRated == false)
@@ -728,27 +856,31 @@ ScaffoldMessenger.of(context).showSnackBar(
     padding: const EdgeInsets.all(8.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+    
       children: [
-        widget.job.freelancer != null ? Text("Ocijenite radnika:", style: TextStyle(fontSize: 16,color: Colors.white)) : Text("Ocijenite firmu:", style: TextStyle(fontSize: 16,color: Colors.white)),
+        widget.job.freelancer != null ? const Text("Ocijenite radnika:", style: TextStyle(fontSize: 16,color: Colors.white)) : const Text("Ocijenite firmu:", style: TextStyle(fontSize: 16,color: Colors.white)),
       
         const SizedBox(height: 8),
-        RatingBar.builder(
-          unratedColor: Colors.white,
-          initialRating: _rating,
-          minRating: 1,
-          direction: Axis.horizontal,
-          allowHalfRating: true,
-          itemCount: 5,
-          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-          itemBuilder: (context, _) => const Icon(
-            Icons.star,
-            color: Colors.amber,
+        Align(
+          alignment: Alignment.centerLeft,
+          child: RatingBar.builder(
+            unratedColor: Colors.white,
+            initialRating: _rating,
+            minRating: 1,
+            direction: Axis.horizontal,
+            allowHalfRating: true,
+            itemCount: 5,
+            itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+            itemBuilder: (context, _) => const Icon(
+              Icons.star,
+              color: Colors.amber,
+            ),
+            onRatingUpdate: (rating) {
+              setState(() {
+                _rating = rating;
+              });
+            },
           ),
-          onRatingUpdate: (rating) {
-            setState(() {
-              _rating = rating;
-            });
-          },
         ),
         const SizedBox(height: 12),
         ElevatedButton(
@@ -935,7 +1067,7 @@ ScaffoldMessenger.of(context).showSnackBar(
   }
    _openImageDialog() {
     return AlertDialog(
-      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
       content: imageFromString(jobResult.result.first.image??''),
       actions: [

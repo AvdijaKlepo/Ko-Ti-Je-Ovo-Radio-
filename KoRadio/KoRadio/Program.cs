@@ -37,6 +37,7 @@ builder.Services.AddTransient<ITenderBidService, KoRadio.Services.TenderBidServi
 builder.Services.AddTransient<IEmployeeTaskService, KoRadio.Services.EmployeeTaskService>();
 builder.Services.AddScoped<IUserGradeRecommenderService, UserGradeRecommenderService>();
 builder.Services.AddScoped<ICompanyRecommenderService, CompanyRecommenderService>();
+builder.Services.AddScoped<IOrderLocationRecommender, OrderLocationRecommender>();
 builder.Services.AddScoped<ISignalRHubService, SignalRHubService>();
 builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();

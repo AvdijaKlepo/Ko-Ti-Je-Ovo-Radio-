@@ -259,7 +259,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       var request = Map.from(_formKey.currentState!.value);
       request['image'] = _base64Image;
-      request['roles'] = [10];
+      request['roles'] = [2];
 
       try {
         var user = await userProvider.registration(request);

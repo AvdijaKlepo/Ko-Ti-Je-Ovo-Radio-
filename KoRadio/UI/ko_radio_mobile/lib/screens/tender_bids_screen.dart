@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
+import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/tender_bids.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/tender_bid_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -24,17 +27,31 @@ class TenderBidsScreen extends StatefulWidget {
 class _TenderBidsScreenState extends State<TenderBidsScreen> {
   late TenderBidProvider tenderBidProvider;
   late JobProvider jobProvider;
+  late FreelancerProvider freelancerProvider;
   late PaginatedFetcher<TenderBid> tenderBidFetcher;
   late final ScrollController _scrollController;
+  late Set<int> _workingDayInts;
+  SearchResult<Freelancer>? freelancerResult;
+
 
   bool _isInitialized = false;
+  final Map<String, int> _dayStringToInt = {
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6,
+    'Sunday': 7,
+  };
   
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      jobProvider = context.read<JobProvider>();
-    });
+    jobProvider = context.read<JobProvider>();
+    freelancerProvider = context.read<FreelancerProvider>();
+       tenderBidProvider = context.read<TenderBidProvider>();
+ 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -44,9 +61,17 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
         tenderBidFetcher.loadMore();
       }
     });
+   
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      tenderBidProvider = context.read<TenderBidProvider>();
+      await _getFreelancer();
+      if(freelancerResult?.result.isNotEmpty==true) {
+        _workingDayInts = freelancerResult?.result.first.workingDays
+            ?.map((day) => _dayStringToInt[day] ?? -1)
+            .where((dayInt) => dayInt != -1)
+            .toSet() ??
+        {};
+      }
 
       tenderBidFetcher = PaginatedFetcher<TenderBid>(
         fetcher: ({
@@ -70,17 +95,37 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
       tenderBidFetcher.addListener(() {
         if (mounted) setState(() {});
       });
-
-      await tenderBidFetcher.refresh(newFilter: {
+      if(mounted) {
+        await tenderBidFetcher.refresh(newFilter: {
         'tenderId': widget.tender?.jobId,
       });
-
+      }
+      if(!mounted) return;
       setState(() {
         _isInitialized = true;
       });
     });
   }
-
+  bool _isWorkingDay(DateTime day) {
+    return _workingDayInts.contains(day.weekday);
+  }
+  
+  Future<void> _getFreelancer() async {
+    try {
+      var fetchedFreelancer = await freelancerProvider.get(filter: {'FreelancerId': AuthProvider.user?.userId});
+      if(mounted)
+      {
+      setState(() {
+        freelancerResult = fetchedFreelancer;
+      });
+      }
+    } on Exception catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
   @override
   void dispose() {
     _scrollController.dispose();
@@ -193,46 +238,77 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
 
        
                 if(AuthProvider.user?.userId==tenderBid.job?.user?.userId && tenderBid.freelancer!=null)
-                Center(child:  IconButton(alignment: Alignment.bottomRight, onPressed: (){
-                  try{
-                    var requestFreelancer ={
-                     
-                       'jobStatus': JobStatus.approved.name,
-                       
+               Center(
+  child: ElevatedButton(
+    onPressed: () {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Prihvati ponudu?'),
+          content: const Text('Jeste li sigurni da želite da prihvatite ovu ponudu?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Nazad",
+                style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  var requestFreelancer = {
+                    'jobStatus': JobStatus.approved.name,
                     'endEstimate': tenderBid.endEstimate,
                     'payEstimate': tenderBid.bidAmount,
                     'freelancerId': tenderBid.freelancer?.freelancerId,
                     'startEstimate': tenderBid.startEstimate,
-                    'userId':tenderBid.job?.user?.userId,
-                    
+                    'userId': tenderBid.job?.user?.userId,
                     'serviceId': tenderBid.job?.jobsServices
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
                     'jobDescription': tenderBid.bidDescription,
                     'image': tenderBid.job?.image,
                     'jobDate': tenderBid.job?.jobDate.toIso8601String(),
-                    
                     'isTenderFinalized': false,
                     'isInvoiced': false,
                     'isRated': false,
                     'jobTitle': tenderBid.job?.jobTitle,
-                    };
-                 
-                      jobProvider.update(tenderBid.jobId!,
-                    requestFreelancer);
-                    
-                  
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen radnik!")));
+                  };
+
+                  await jobProvider.update(tenderBid.jobId!, requestFreelancer);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Posao potvrđen!")),
+                  );
                   Navigator.of(context).pop(true);
-                  } catch(e){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Greška: ${e.toString()}")),
-                        
-                    );
-                    Navigator.of(context).pop(false);
-                  }
-             
-            }, icon: const Icon(Icons.check),color: Colors.white,),),
+                  Navigator.of(context).pop(true);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Greška: ${e.toString()}")),
+                  );
+                  Navigator.of(context).pop(false);
+                  Navigator.of(context).pop(false);
+                }
+              },
+              child: const Text(
+                "Potvrdi",
+                style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+    child: const Text(
+      "Prihvati ponudu",
+      style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
+    ),
+  ),
+),
+
               if(AuthProvider.user?.userId==tenderBid.job?.user?.userId && tenderBid.company!=null)
                 Center(child:  IconButton(alignment: Alignment.bottomRight, onPressed: (){
                   try{
@@ -286,15 +362,49 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
   }
 
   void _navigateToBidScreen()  async{
-   await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => TenderBidScreen(tender: widget.tender),
-      ),
-      
-    );
-      await tenderBidFetcher.refresh(newFilter: {
-        'tenderId': widget.tender?.jobId,
-      });
+    if(!_isWorkingDay(widget.tender!.jobDate))
+    {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Radni dani',),
+          content: const Text('Ovaj tender je obajavljen na dan koji ste proglasisi neradnim. Da li ste sigurni da želite nastaviti?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+              TextButton(onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => TenderBidScreen(tender: widget.tender,freelancer: freelancerResult?.result.first,),
+                  ),
+                  
+                ); 
+                Navigator.of(context).pop();
+                  await tenderBidFetcher.refresh(newFilter: {
+                    'tenderId': widget.tender?.jobId,
+                  });
+               
+              }, child: const Text("Da"),),
+          ],
+        ),
+      );
+    }
+    else
+    {
+      await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => TenderBidScreen(tender: widget.tender),
+                  ),
+                  
+                );
+                  await tenderBidFetcher.refresh(newFilter: {
+                    'tenderId': widget.tender?.jobId,
+                  });
+    }
+
 
   }
 
