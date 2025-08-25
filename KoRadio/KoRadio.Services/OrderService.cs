@@ -63,22 +63,16 @@ namespace KoRadio.Services
 				query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).StartsWith(search.Name));
 			
 			}
-			if(search.IsShipped==true)
+			if (search.IsShipped != null)
 			{
-				query = query.Where(x => x.IsShipped == true);
+				query = query.Where(x => x.IsShipped == search.IsShipped);
 			}
-			else
+
+			if (search.IsCancelled != null)
 			{
-				query = query.Where(x => x.IsShipped == false);
+				query = query.Where(x => x.IsCancelled == search.IsCancelled);
 			}
-			if (search.IsCancelled == true)
-			{
-				query = query.Where(x => x.IsCancelled == true);
-			}
-			else
-			{
-				query = query.Where(x => x.IsCancelled == false);
-			}
+
 			return base.AddFilter(search, query);
 		}
 

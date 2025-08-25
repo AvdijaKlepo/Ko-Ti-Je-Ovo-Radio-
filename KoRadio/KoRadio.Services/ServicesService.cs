@@ -1,4 +1,5 @@
-﻿using KoRadio.Model.Request;
+﻿using KoRadio.Model;
+using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
@@ -17,7 +18,7 @@ namespace KoRadio.Services
         public ServicesService(KoTiJeOvoRadioContext context, IMapper mapper) : base(context, mapper)
 		{
 		}
-		public override IQueryable<Service> AddFilter(ServiceSearchObject searchObject, IQueryable<Service> query)
+		public override IQueryable<Database.Service> AddFilter(ServiceSearchObject searchObject, IQueryable<Database.Service> query)
 		{
 
 
@@ -40,6 +41,13 @@ namespace KoRadio.Services
 
 
 			return query;
+		}
+		public override async Task BeforeInsertAsync(ServiceInsertRequest request, Database.Service entity, CancellationToken cancellationToken = default)
+		{
+			var serviceExists = await _context.Services.AnyAsync(x => x.ServiceName == request.ServiceName, cancellationToken);
+			if (serviceExists)
+				throw new UserException("Servis već postoji");
+			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
 	

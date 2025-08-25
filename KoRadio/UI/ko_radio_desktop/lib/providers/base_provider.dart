@@ -157,16 +157,89 @@ abstract class BaseProvider<T> with ChangeNotifier {
     throw Exception("Method not implemented");
   }
 
-  bool isValidResponse(Response response) {
-    if (response.statusCode < 299) {
-      return true;
-    } else if (response.statusCode == 401) {
-      throw Exception("Unauthorized");
-    } else {
-    
-      throw Exception("Something bad happened please try again");
-    }
+bool isValidResponse(Response response) {
+  // Success
+  if (response.statusCode < 300) return true;
+
+  // Unauthorized
+  if (response.statusCode == 401) {
+    throw Exception("Unauthorized");
   }
+
+  // Attempt to parse backend error messages
+  try {
+    final data = jsonDecode(response.body);
+
+    if (data is Map) {
+      // Handle explicit UserException from backend
+      if (data.containsKey('exMessage')) {
+        throw UserException(data['exMessage']);
+      }
+
+      // Handle ASP.NET ExceptionFilter errors
+      if (data.containsKey('errors')) {
+        final errors = data['errors'] as Map<String, dynamic>;
+        if (errors.isNotEmpty) {
+          final firstKey = errors.keys.first;
+          final firstErrorList = errors[firstKey];
+          if (firstErrorList is List && firstErrorList.isNotEmpty) {
+            throw UserException(firstErrorList.first.toString());
+          }
+        }
+      }
+
+      // Generic message field
+      if (data.containsKey('message')) {
+        throw UserException(data['message']);
+      }
+    }
+
+    // fallback if JSON but not expected format
+    throw Exception("Sistemska greška, molimo pokušajte ponovo.");
+  } catch (e) {
+    // If decoding or type casting fails, fallback
+    if (e is UserException) throw e; // preserve
+    throw Exception("Sistemska greška, molimo pokušajte ponovo.");
+  }
+}
+
+
+// Helper method to parse backend error and throw UserException
+void _handleErrorResponse(Response response) {
+  try {
+    final data = jsonDecode(response.body);
+    if (data is Map) {
+      // Handle UserException via exMessage
+      if (data.containsKey('exMessage')) {
+        throw UserException(data['exMessage']);
+      }
+      // Handle ModelState errors from ASP.NET ExceptionFilter
+      if (data.containsKey('errors')) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final firstKey = errors.keys.first;
+          final firstErrorList = errors[firstKey] as List;
+          if (firstErrorList.isNotEmpty) {
+            throw UserException(firstErrorList.first.toString());
+          }
+        }
+      }
+      // Handle generic message key
+      if (data.containsKey('message')) {
+        throw UserException(data['message']);
+      }
+    }
+    // fallback if response body is JSON but not expected format
+    throw Exception("Sistemska greška, molimo pokušajte ponovo.");
+  } catch (_) {
+    // fallback if response.body is not JSON
+    throw Exception("Sistemska greška, molimo pokušajte ponovo.");
+  }
+}
+
+
+
+
 
   Map<String, String> createHeaders() {
     String username = AuthProvider.username;
@@ -216,4 +289,13 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   return parts.join('&');
 }
+
+}
+class UserException implements Exception {
+  final String exMessage;
+
+  UserException(this.exMessage);
+
+  @override
+  String toString() => exMessage;
 }

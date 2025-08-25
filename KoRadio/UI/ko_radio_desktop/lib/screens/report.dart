@@ -22,6 +22,9 @@ import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:fl_chart/fl_chart.dart';
 
+extension NumFormatter on num {
+  String format() => this.toInt().toString();
+}
 
 class Report extends StatefulWidget {
   const Report({super.key});
@@ -37,691 +40,225 @@ class _ReportState extends State<Report> {
   late StoreProvider storeProvider;
   late CompanyEmployeeProvider companyEmployeeProvider;
   late JobProvider jobProvider;
+
   SearchResult<User>? userResult;
   SearchResult<Company>? companyResult;
   SearchResult<Store>? storeResult;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   SearchResult<Freelancer>? freelancerResult;
   SearchResult<Job>? jobResult;
-  @override 
+
+  @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {  
-        userProvider = context.read<UserProvider>();
-        freelancerProvider = context.read<FreelancerProvider>();
-        companyProvider = context.read<CompanyProvider>();
-        storeProvider = context.read<StoreProvider>();
-        companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
-        jobProvider = context.read<JobProvider>();
-     await _loadUsers();
-     await _loadCompanies();
-     await _loadStores();
-     await _loadCompanyEmployees();
-     await _loadFreelancers();
-     await _loadJobs();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      userProvider = context.read<UserProvider>();
+      freelancerProvider = context.read<FreelancerProvider>();
+      companyProvider = context.read<CompanyProvider>();
+      storeProvider = context.read<StoreProvider>();
+      companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+      jobProvider = context.read<JobProvider>();
+      await _loadAllData();
     });
-
- 
-
   }
-  Future<void> _loadJobs() async {
-  try {
-    final fetchedJobs = await jobProvider.get();
-    if (!mounted) return;
-    setState(() {
-      jobResult = fetchedJobs;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
-  }
-}
 
-Future<void> _loadCompanies() async {
-  try {
-    final fetchedCompanies = await companyProvider.get();
-    if (!mounted) return;
-    setState(() {
-      companyResult = fetchedCompanies;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
+  Future<void> _loadAllData() async {
+    await Future.wait([
+      _loadUsers(),
+      _loadFreelancers(),
+      _loadCompanies(),
+      _loadCompanyEmployees(),
+      _loadStores(),
+      _loadJobs(),
+    ]);
   }
-}
 
-Future<void> _loadStores() async {
-  try {
-    final fetchedStores = await storeProvider.get();
-    if (!mounted) return;
-    setState(() {
-      storeResult = fetchedStores;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
-  }
-}
+  Future<void> _loadUsers() async => _loadData(() => userProvider.get(), (res) => userResult = res);
+  Future<void> _loadFreelancers() async => _loadData(() => freelancerProvider.get(), (res) => freelancerResult = res);
+  Future<void> _loadCompanies() async => _loadData(() => companyProvider.get(), (res) => companyResult = res);
+  Future<void> _loadCompanyEmployees() async => _loadData(() => companyEmployeeProvider.get(), (res) => companyEmployeeResult = res);
+  Future<void> _loadStores() async => _loadData(() => storeProvider.get(), (res) => storeResult = res);
+  Future<void> _loadJobs() async => _loadData(() => jobProvider.get(), (res) => jobResult = res);
 
-Future<void> _loadCompanyEmployees() async {
-  try {
-    final fetchedCompanyEmployees = await companyEmployeeProvider.get();
-    if (!mounted) return;
-    setState(() {
-      companyEmployeeResult = fetchedCompanyEmployees;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
+  Future<void> _loadData<T>(Future<SearchResult<T>> Function() fetch, Function(SearchResult<T>) onSet) async {
+    try {
+      final result = await fetch();
+      if (!mounted) return;
+      setState(() => onSet(result));
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+    }
   }
-}
 
-Future<void> _loadFreelancers() async {
-  try {
-    final fetchedFreelancers = await freelancerProvider.get();
-    if (!mounted) return;
-    setState(() {
-      freelancerResult = fetchedFreelancers;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
-  }
-}
-
-Future<void> _loadUsers() async {
-  try {
-    final fetchedUsers = await userProvider.get();
-    if (!mounted) return;
-    setState(() {
-      userResult = fetchedUsers;
-    });
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
-  }
-}
   Future<void> _generatePdf() async {
-  final pdf = pw.Document();
+    final pdf = pw.Document();
+    final otkazane = (jobResult?.result ?? []).where((e) => e.jobStatus == JobStatus.cancelled).length;
+    final ukupno = (jobResult?.result ?? []).length;
+    final stopaOtkazivanja = ukupno > 0 ? (otkazane / ukupno) * 100 : 0;
 
-  var otkazane = (jobResult?.result ?? [])
-      .where((e) => e.jobStatus == JobStatus.cancelled)
-      .length;
-  var ukupno = (jobResult?.result ?? []).length;
-  var stopaOtkazivanja = ukupno > 0 ? (otkazane / ukupno) * 100 : 0;
-  try {
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            children: [
-              pw.Text('Broj korisnika aplikacije: ${userResult?.count ?? 0}',
-                  style: const pw.TextStyle(fontSize: 18)),
-              pw.Text('Broj radnika: ${freelancerResult?.count ?? 0}',
-                  style: const pw.TextStyle(fontSize: 18)),
-              pw.Text('Broj firma: ${companyResult?.count ?? 0}',
-                  style: const pw.TextStyle(fontSize: 18)),
-              pw.Text(
-                  'Stopa otkazivanja poslova: ${formatNumber(stopaOtkazivanja)}%',
-                  style: const pw.TextStyle(fontSize: 18)),
-              pw.Text('Ukupan broj poslova: ${jobResult?.count ?? 0}',
-                  style: const pw.TextStyle(fontSize: 18)),
-              pw.SizedBox(height: 20),
-            ],
-          );
-        },
-      ),
-    );
+    try {
+      pdf.addPage(pw.Page(
+        build: (pw.Context context) => pw.Column(children: [
+          pw.Text('Broj korisnika aplikacije: ${userResult?.count ?? 0}', style: const pw.TextStyle(fontSize: 18)),
+          pw.Text('Broj radnika: ${freelancerResult?.count ?? 0}', style: const pw.TextStyle(fontSize: 18)),
+          pw.Text('Broj firma: ${companyResult?.count ?? 0}', style: const pw.TextStyle(fontSize: 18)),
+          pw.Text('Stopa otkazivanja poslova: ${stopaOtkazivanja.toStringAsFixed(2)}%', style: const pw.TextStyle(fontSize: 18)),
+          pw.Text('Ukupan broj poslova: ${jobResult?.count ?? 0}', style: const pw.TextStyle(fontSize: 18)),
+        ]),
+      ));
 
-    final dir = await getApplicationDocumentsDirectory();
-    final vrijeme = DateTime.now();
-    String path =
-        '${dir.path}/Izvjestaj-Dana-${formatDate(vrijeme.toString())}.pdf';
-    File file = File(path);
-    file.writeAsBytes(await pdf.save());
+      final dir = await getApplicationDocumentsDirectory();
+      final vrijeme = DateTime.now();
+      final path = '${dir.path}/Izvjestaj-Dana-${formatDate(vrijeme.toString())}.pdf';
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Izvještaj uspješno sačuvan')),
-    );
-  } on Exception catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Greška: ${e.toString()}")),
-    );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Izvještaj uspješno sačuvan')));
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
- 
-      body: Column(
-
-        crossAxisAlignment: CrossAxisAlignment.start,
-   
-    
-        children: [
-          Text('Pregled statistike aplikacije',style: TextStyle(fontSize: 35,fontFamily: GoogleFonts.lobster().fontFamily),),
-          const SizedBox(height: 200),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-             
-                color: Colors.white,
-                
-                
-                child: SizedBox(
-                  width: 250,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.person_outline, size: 50),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          
-                          title:const Text(
-                          'Broj aktivnih korisnika',
-                          style: TextStyle(fontSize: 16),
-                  
-                        ),
-                        
-                        subtitle: Center(
-                          child: Text(
-                            '${userResult?.count}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        ),
-                      
-                      ]
-                    ),
-                                ),
-                ),
-            ),
-           Card(
-             
-                color: Colors.white,
-                
-                
-                child: SizedBox(
-                  width: 250,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.construction_outlined, size: 50),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          
-                          title:const Text(
-                          'Broj aktivnih radnika',
-                          style: TextStyle(fontSize: 16),
-                  
-                        ),
-                        subtitle: Center(
-                          child: Text(
-                            '${freelancerResult?.count}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        ),
-                      
-                      ]
-                    ),
-                                ),
-                ),
-            ),
-           Card(
-             
-                color: Colors.white,
-                
-                
-                child: SizedBox(
-                  width: 250,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.business_outlined, size: 50),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          
-                          title:const Text(
-                          'Broj aktivnih kompanija',
-                          style: TextStyle(fontSize: 16),
-                  
-                        ),
-                        subtitle: Center(
-                          child: Text(
-                            '${companyResult?.count}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        ),
-                      
-                      ]
-                    ),
-                                ),
-                ),
-            ),
-           Card(
-             
-                color: Colors.white,
-                
-                
-                child: SizedBox(
-                  width: 250,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.person_4_outlined, size: 50),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          
-                          title:const Text(
-                          'Broj aktivnih zaposlenika firma',
-                          style: TextStyle(fontSize: 16),
-                  
-                        ),
-                        subtitle: Center(
-                          child: Text(
-                            '${companyEmployeeResult?.count}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        ),
-                      
-                      ]
-                    ),
-                                ),
-                ),
-            ),
-             Card(
-             
-                color: Colors.white,
-                
-                
-                child: SizedBox(
-                  width: 250,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.store_outlined, size: 50),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          
-                          title:const Text(
-                          'Broj aktivnih trgovina',
-                          style: TextStyle(fontSize: 16),
-                  
-                        ),
-                        subtitle: Center(
-                          child: Text(
-                            '${storeResult?.count}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        ),
-                      
-                      ]
-                    ),
-                                ),
-                ),
-            ),
-            ],
-            
-          ),
-          const SizedBox(height: 20,),
-           Row(
-             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-             children: [
-               Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.work_outline, size: 50),
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj obrađenih poslova',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${jobResult?.result.where((element) => element.jobStatus==JobStatus.finished).length}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
-                  Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(Icons.work_outline, size: 50),
-                                Icon(Icons.construction, size: 50),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj obrađenih poslova od radnika',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${jobResult?.result.where((element) => element.jobStatus==JobStatus.finished && element.freelancer?.freelancerId!=null).length}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
-                   Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(Icons.work_outline, size: 50),
-                                Icon(Icons.business_outlined, size: 50),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj obrađenih poslova od firma',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${jobResult?.result.where((element) => element.jobStatus==JobStatus.finished && element.company?.companyId!=null).length}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
-                 Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.work_history_outlined, size: 50),
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj poslova u toku',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${jobResult?.result.where((element) => element.jobStatus==JobStatus.approved).length}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
-               
-                  Card(
-                 
-                    color: Colors.white,
-                    
-                    
-                    child: SizedBox(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.work_off_outlined, size: 50),
-                            const SizedBox(height: 16),
-                            ListTile(
-                              
-                              title:const Text(
-                              'Broj otkazanih poslova',
-                              style: TextStyle(fontSize: 16),
-                      
-                            ),
-                            subtitle: Center(
-                              child: Text(
-                                '${jobResult?.result.where((element) => element.jobStatus==JobStatus.cancelled).length}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            ),
-                          
-                          ]
-                        ),
-                                    ),
-                    ),
-                ),
-                
-             ],
-           ),
-           const SizedBox(height: 10,),
-          
+              Text(
+                'Dashboard',
+                style: TextStyle(fontSize: 36, fontFamily: GoogleFonts.lobster().fontFamily),
+              ),
+              const SizedBox(height: 20),
 
-           _buildStats(),
-                const SizedBox(height: 10,),
-            Center(
-            child:  ElevatedButton(onPressed: (){
-             _generatePdf();
-           },
-           
-           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1B4C7D),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-           ), child: const Text('Generiši izvještaj',style: TextStyle(color: Colors.white),),
+              // Grid dashboard
+              LayoutBuilder(builder: (context, constraints) {
+                final crossAxisCount = constraints.maxWidth ~/ 280;
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    _dashboardCard('Korisnici', Icons.person_outline, userResult?.count ?? 0, Colors.blueAccent),
+                    _dashboardCard('Radnici', Icons.construction_outlined, freelancerResult?.count ?? 0, Colors.orangeAccent),
+                    _dashboardCard('Kompanije', Icons.business_outlined, companyResult?.count ?? 0, Colors.green),
+                    _dashboardCard('Zaposlenici', Icons.person_4_outlined, companyEmployeeResult?.count ?? 0, Colors.purpleAccent),
+                    _dashboardCard('Trgovine', Icons.store_outlined, storeResult?.count ?? 0, Colors.teal),
+                    _dashboardCard('Obrađeni poslovi', Icons.work_outline,
+                        jobResult?.result.where((e) => e.jobStatus == JobStatus.finished).length ?? 0, Colors.indigo),
+                    _dashboardCard('Poslovi u toku', Icons.work_history_outlined,
+                        jobResult?.result.where((e) => e.jobStatus == JobStatus.approved).length ?? 0, Colors.deepOrange),
+                    _dashboardCard('Otkazani poslovi', Icons.work_off_outlined,
+                        jobResult?.result.where((e) => e.jobStatus == JobStatus.cancelled).length ?? 0, Colors.redAccent),
+                  ],
+                );
+              }),
+
+              const SizedBox(height: 30),
+              _buildJobsChart(),
+
+              const SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _generatePdf,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B4C7D),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                  ),
+                  child: const Text('Generiši izvještaj', style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            ],
           ),
-            ),
-          
-        ],
-      )
-    );
-  }
-   Widget _buildStats() {
-  if (jobResult == null || jobResult!.result.isEmpty) {
-    return const Center(
-      child: Text(
-        'Trenutno nema podataka za prikazati',
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+        ),
       ),
     );
   }
 
-  // Filter only valid jobs (exclude cancelled if needed)
-  List<Job> jobsList = jobResult!.result
-      .where((element) => element.jobStatus != JobStatus.cancelled)
-      .toList();
-
-  // Count jobs per month based on jobDate
-  List<int> jobsPerMonth = List.filled(12, 0);
-  for (var job in jobsList) {
-    int monthIndex = job.jobDate.month - 1; // 0-based index
-    jobsPerMonth[monthIndex]++;
+  Widget _dashboardCard(String title, IconData icon, int value, Color color) {
+    return SizedBox(
+      width: 260,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              CircleAvatar(backgroundColor: color, radius: 30, child: Icon(icon, color: Colors.white, size: 30)),
+              const SizedBox(height: 12),
+              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Text(value.format(), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  // Define months
-  List<String> months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+  Widget _buildJobsChart() {
+    if (jobResult == null || jobResult!.result.isEmpty) {
+      return const Center(child: Text('Trenutno nema podataka za prikazati', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)));
+    }
 
-  // Generate chart points
-  List<FlSpot> spots = List.generate(
-    12,
-    (index) => FlSpot(index.toDouble(), jobsPerMonth[index].toDouble()),
-  );
+    List<Job> jobsList = jobResult!.result.where((e) => e.jobStatus != JobStatus.cancelled).toList();
+    List<int> jobsPerMonth = List.filled(12, 0);
+    for (var job in jobsList) {
+      jobsPerMonth[job.jobDate.month - 1]++;
+    }
 
-  // Calculate max Y (rounded up to next multiple of 5)
-  double maxValue = jobsPerMonth.isNotEmpty
-      ? jobsPerMonth.reduce((a, b) => a > b ? a : b).toDouble()
-      : 1;
-  double maxY = ((maxValue ~/ 5) + 1) * 5;
+    List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    List<FlSpot> spots = List.generate(12, (i) => FlSpot(i.toDouble(), jobsPerMonth[i].toDouble()));
+    double maxY = ((jobsPerMonth.reduce((a, b) => a > b ? a : b) ~/ 5) + 1) * 5.0;
 
-  return Padding(
-    padding: const EdgeInsets.all(15),
-    child: ClipRRect(
+    return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
         color: const Color(0xFF1B4C7D),
-        width: double.infinity,
-        height: 600,
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                'Broj poslova po mjesecima ',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: LineChart(
-                  LineChartData(
-                    minY: 0,
-                    maxY: maxY,
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spots,
-                        isCurved: true,
-                        barWidth: 4,
-                        isStrokeCapRound: true,
-                        color: Colors.white,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                        dotData: const FlDotData(show: true),
-                      ),
-                    ],
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 5,
-                          getTitlesWidget: (value, meta) {
-                            if (value % 5 == 0) {
-                              return Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(color: Colors.white),
-                              );
-                            }
-                            return Container();
-                          },
-                        ),
-                        axisNameWidget: const Text(
-                          "Broj poslova",
-                          style: TextStyle(fontSize: 14, color: Colors.white),
-                        ),
-                        axisNameSize: 30,
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 1,
-                          getTitlesWidget: (value, meta) {
-                            if (value >= 0 && value < months.length) {
-                              return Text(
-                                months[value.toInt()],
-                                style: const TextStyle(color: Colors.white),
-                              );
-                            }
-                            return Container();
-                          },
-                        ),
-                        axisNameWidget: const Text(
-                          "Mjesec",
-                          style: TextStyle(fontSize: 14, color: Colors.white),
-                        ),
-                        axisNameSize: 30,
-                      ),
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            const Text('Broj poslova po mjesecima', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 20),
+            AspectRatio(
+              aspectRatio: 2.5,
+              child: LineChart(
+                LineChartData(
+                  minY: 0,
+                  maxY: maxY,
+                  gridData: const FlGridData(show: true, drawVerticalLine: false),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: Colors.white,
+                      barWidth: 4,
+                      belowBarData: BarAreaData(show: true, color: Colors.white.withOpacity(0.3)),
+                      dotData: const FlDotData(show: true),
+                    )
+                  ],
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: true, interval: 5, getTitlesWidget: (v, meta) => Text(v.toInt().toString(), style: const TextStyle(color: Colors.white))),
+                      axisNameWidget: const Text('Broj poslova', style: TextStyle(color: Colors.white, fontSize: 14)),
+                      axisNameSize: 30,
                     ),
-                    gridData: const FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
-                    borderData: FlBorderData(show: false),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: true, interval: 1, getTitlesWidget: (v, meta) => Text(months[v.toInt()], style: const TextStyle(color: Colors.white))),
+                      axisNameWidget: const Text('Mjesec', style: TextStyle(color: Colors.white, fontSize: 14)),
+                      axisNameSize: 30,
+                    ),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                 ),
               ),
@@ -729,8 +266,6 @@ Future<void> _loadUsers() async {
           ],
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

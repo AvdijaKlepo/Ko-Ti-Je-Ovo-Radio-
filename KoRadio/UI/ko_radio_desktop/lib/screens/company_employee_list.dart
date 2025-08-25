@@ -249,9 +249,15 @@ void initState() {
           ),
           TextButton(
             onPressed: () async {
-              print('Saljemo id: ${companyEmployee.companyEmployeeId}');
+              
               try{
               await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
+                await companyEmployeePagination.refresh(newFilter: {
+                'CompanyId': AuthProvider.selectedCompanyId,
+                'IsDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Radnik je uspješno izbrisan.')));
               }catch(e){
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Greška u brisanju radnika. Pokušajte ponovo.')));
               }
@@ -283,12 +289,19 @@ void initState() {
           ),
           TextButton(
             onPressed: () async {
+              try{
+                await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
+                await companyEmployeePagination.refresh(newFilter: {
+                  'CompanyId': AuthProvider.selectedCompanyId,
+                  'IsDeleted': showDeleted,
+                  'IsApplicant': showApplicants,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Radnik je uspješno reaktiviran.')));
+              }catch(e){
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Greška u brisanju radnika. Pokušajte ponovo.')));
+              }
               await companyEmployeeProvider.delete(companyEmployee.companyEmployeeId);
-              await companyEmployeePagination.refresh(newFilter: {
-                'CompanyId': AuthProvider.selectedCompanyId,
-                'IsDeleted': showDeleted,
-                'IsApplicant': showApplicants,
-              });
+              
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -309,6 +322,8 @@ void initState() {
       'IsDeleted': showDeleted,
       'IsApplicant': showApplicants,
     });
+      await _getCompanyRoles();
+    
   }
      Future<void> _openEmployeeRoleAddDialog({
   required int companyId,
@@ -343,6 +358,7 @@ void initState() {
   
   @override
   Widget build(BuildContext context) {
+    var filterOutLoggedInUser = companyEmployeePagination.items.where((element) => element.userId != AuthProvider.user?.userId).toList();
     if(!_isInitialized) return const Center(child: CircularProgressIndicator());
     
 
@@ -412,7 +428,8 @@ void initState() {
                Row(
                 children: [
                   
-                  ElevatedButton(onPressed: ()=> _openEmployeeRoleDialog(companyId: _selectedCompanyId,),
+                  ElevatedButton(onPressed: () async{ _openEmployeeRoleDialog(companyId: _selectedCompanyId,);},
+
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),child: const Text("Uloge",style: TextStyle(color: Colors.white),),)
                 ],
               ),
@@ -431,7 +448,7 @@ void initState() {
     const Expanded(flex: 3, child: Text("Broj Angažmana", style: TextStyle(fontWeight: FontWeight.bold))),
 
    if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.schedule, size: 18)),
+                const Expanded(flex: 2, child: Icon(Icons.switch_account, size: 18)),
               if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
               if (showDeleted)
@@ -448,16 +465,17 @@ void initState() {
           ? const Center(child: Text('Nema zaposlenika.'))
           : ListView.separated(
               controller: _scrollController,
-              itemCount: companyEmployeePagination.items.length + 1,
+              itemCount: filterOutLoggedInUser.length + 1,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                if (index == companyEmployeePagination.items.length) {
+                if (index == filterOutLoggedInUser.length) {
               
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        if(!showApplicants && !showDeleted)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           onPressed: () {
@@ -470,7 +488,7 @@ void initState() {
                   );
                 }
 
-                final c = companyEmployeePagination.items[index];
+                final c = filterOutLoggedInUser[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Row(
@@ -504,7 +522,7 @@ void initState() {
                             color: c.userId != AuthProvider.user?.userId
                                 ? Colors.black
                                 : Colors.grey,
-                            icon: const Icon(Icons.schedule),
+                            icon: const Icon(Icons.switch_account),
                             tooltip: 'Uredi',
                             onPressed: () async {
                               if (c.userId != AuthProvider.user?.userId) {

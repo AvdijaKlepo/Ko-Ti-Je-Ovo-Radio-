@@ -74,6 +74,7 @@ class _StoreOrdersState extends State<StoreOrders> {
           return PaginatedResult(result: result.result, count: result.count);
         },
       )..addListener(() => setState(() {}));
+      
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await orderPagination.refresh(newFilter: {
         'StoreId': AuthProvider.selectedStoreId,

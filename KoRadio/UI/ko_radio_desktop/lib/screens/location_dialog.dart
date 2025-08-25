@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_desktop/models/location.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -65,7 +66,13 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
                           labelText: "Naziv Lokacije*",
                           border: OutlineInputBorder(),
                         ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 30 znakova'),
+                          FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                          FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
+                        
+                        ]),
                       ),
                       const SizedBox(height: 20),
                      
@@ -102,7 +109,13 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
         }
 
         Navigator.of(context).pop(true); // Return success
-      } catch (e) {
+      } on UserException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.exMessage)),
+        );
+      }
+      
+      catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),
         );

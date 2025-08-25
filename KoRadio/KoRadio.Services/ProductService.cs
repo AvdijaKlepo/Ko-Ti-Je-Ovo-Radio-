@@ -62,5 +62,26 @@ namespace KoRadio.Services
 			}
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
+		public override async Task BeforeUpdateAsync(ProductUpdateRequest request, Product entity, CancellationToken cancellationToken = default)
+		{
+			if (request.ServiceId != null && request.ServiceId.Any())
+			{
+				var existingServices = _context.ProductsServices
+					.Where(p => p.ProductId == entity.ProductId);
+
+				_context.ProductsServices.RemoveRange(existingServices);
+				var services = _context.Services
+					.Where(s => request.ServiceId.Contains(s.ServiceId))
+					.ToList();
+
+				entity.ProductsServices = services.Select(service => new Database.ProductsService
+				{
+					ServiceId = service.ServiceId,
+					Product = entity,
+					CreatedAt = DateTime.UtcNow
+				}).ToList();
+			}
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
 	}
 }

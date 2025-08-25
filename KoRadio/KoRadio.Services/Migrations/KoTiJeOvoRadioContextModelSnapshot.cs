@@ -294,7 +294,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 3,
                             CompanyId = 3,
-                            CompanyRoleId = 1,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -305,7 +304,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 4,
                             CompanyId = 5,
-                            CompanyRoleId = 1,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -316,7 +314,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 5,
                             CompanyId = 7,
-                            CompanyRoleId = 1,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -327,7 +324,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 6,
                             CompanyId = 2,
-                            CompanyRoleId = 3,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -338,7 +334,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 7,
                             CompanyId = 4,
-                            CompanyRoleId = 3,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -349,7 +344,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 8,
                             CompanyId = 6,
-                            CompanyRoleId = 3,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -360,7 +354,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 9,
                             CompanyId = 2,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -371,7 +364,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 10,
                             CompanyId = 1,
-                            CompanyRoleId = 4,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -382,7 +374,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 11,
                             CompanyId = 2,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -393,7 +384,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 12,
                             CompanyId = 1,
-                            CompanyRoleId = 4,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -404,7 +394,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 13,
                             CompanyId = 2,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -415,7 +404,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 14,
                             CompanyId = 1,
-                            CompanyRoleId = 4,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -426,7 +414,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 15,
                             CompanyId = 2,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -437,7 +424,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 16,
                             CompanyId = 1,
-                            CompanyRoleId = 4,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -448,7 +434,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 17,
                             CompanyId = 2,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -459,7 +444,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 18,
                             CompanyId = 1,
-                            CompanyRoleId = 4,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,
@@ -510,7 +494,6 @@ namespace KoRadio.Services.Migrations
                         {
                             CompanyEmployeeId = 23,
                             CompanyId = 1,
-                            CompanyRoleId = 2,
                             DateJoined = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApplicant = false,
                             IsDeleted = false,

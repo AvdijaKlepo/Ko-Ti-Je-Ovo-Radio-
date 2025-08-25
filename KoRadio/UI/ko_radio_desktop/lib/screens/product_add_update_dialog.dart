@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_desktop/models/product.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
@@ -30,6 +32,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
   SearchResult<Service>? serviceResult;
   File? _image;
   String? _base64Image;
+  Uint8List? _decodedImage;
   
   @override
   void initState() {
@@ -46,6 +49,13 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
       .toList()
 
           };
+          if (widget.product?.image != null) {
+            try {
+              _decodedImage = base64Decode(widget.product!.image!);
+            } catch (_) {
+              _decodedImage = null;
+            }
+          }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {  
      
    
@@ -60,7 +70,18 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
    
   }
   
-  
+    Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
+
   Future<void> _getServices() async {
     try {
       var fetchedServices= await serviceProvider.get();
@@ -68,6 +89,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
         serviceResult = fetchedServices;
       });
     } catch (e) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
@@ -98,11 +120,27 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Podaci Proizvoda", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text("Podaci Proizvoda", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "productName", decoration: const InputDecoration(labelText: "Naziv proizvoda:")),
+                      FormBuilderTextField(name: "productName", decoration: const InputDecoration(labelText: "Naziv proizvoda:", border: OutlineInputBorder()),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(20, errorText: 'Maksimalno 20 znakova'),
+                        FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9 ]+$', errorText: 'Dozvoljena su samo slova i brojevi sa prvim velikim.'),
+                      ]),
+                      ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "productDescription", decoration: const InputDecoration(labelText: "Opis")),
+                      FormBuilderTextField(name: "productDescription", decoration: const InputDecoration(labelText: "Opis", border: OutlineInputBorder()),
+                      maxLines: 3,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(100, errorText: 'Maksimalno 100 znakova'),
+                        FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znaka'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9 .,-]+$', errorText: 'Dozvoljena su samo slova i brojevi sa prvim velikim i osnovnim znakovima.'),
+                      ]),
+                      ),
                       const SizedBox(height: 20),
                      
                        FormBuilderTextField(
@@ -113,6 +151,10 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                  FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
+                ]),
                 valueTransformer: (value) => double.tryParse(value ?? ''),
               ),
                       const SizedBox(height: 20),
@@ -142,61 +184,53 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                     
                          FormBuilderField(
   name: "image",
-
   builder: (field) {
     return InputDecorator(
-      decoration:  const InputDecoration(
-        labelText: "Proslijedite sliku problema",
+      decoration: const InputDecoration(
+        labelText: "Slika proizvoda",
         border: OutlineInputBorder(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.image),
-            title: 
-            
-             _image != null
+            title: _image != null
                 ? Text(_image!.path.split('/').last)
-                :  widget.product?.image!= null ?
-            const Text('Proslijeđena slika') :
-                
-                 const Text("Nema proslijeđene slike"),
+                : widget.product?.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
             trailing: ElevatedButton.icon(
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-
-
-
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.product?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () =>  getImage(field) 
-             
+              label: _image == null && widget.product?.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
             ),
           ),
           const SizedBox(height: 10),
-          _image != null ?
+          if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-               
                 fit: BoxFit.cover,
               ),
-            ) :
-            widget.product?.image!=null ?
+            )
+          else if (_decodedImage != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child : imageFromString(widget.product?.image ?? '',
-              fit: BoxFit.cover
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
               ),
-            ) : const SizedBox.shrink()
-           
-            ,
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
     );
@@ -252,6 +286,8 @@ void getImage(FormFieldState field) async {
     else{
       request['image'] = widget.product?.image;
     }
+    
+    request['serviceId'] = (request['serviceId'] as List).map((e) => int.tryParse(e.toString()) ?? 0).toList();
     
     
       if(widget.product!=null){

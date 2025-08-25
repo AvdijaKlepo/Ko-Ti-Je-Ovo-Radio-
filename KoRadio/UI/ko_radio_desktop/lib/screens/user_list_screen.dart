@@ -177,6 +177,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var filterOutLoggedInUser = usersPagination.items.where((element) => element.userId != AuthProvider.user?.userId).toList();
    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -293,19 +294,20 @@ class _UserListScreenState extends State<UserListScreen> {
           ? const Center(child: Text('Korisnici nisu pronađeni.'))
           : ListView.separated(
               controller: _scrollController,
-              itemCount: usersPagination.items.length + 
+              itemCount: filterOutLoggedInUser.length + 
                   (usersPagination.hasNextPage ? 1 : 0),
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
               
-                if (index >= usersPagination.items.length) {
+                if (index >= filterOutLoggedInUser.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final user = usersPagination.items[index];
+                final user = filterOutLoggedInUser[index];
+                
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(
@@ -436,6 +438,9 @@ class _UserListScreenState extends State<UserListScreen> {
             });
               if (!mounted) return;
               Navigator.of(context).pop(true);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Korisnik je uspiješno izbrisan.")),
+              );
             },
             child: const Text('Da'),
           ),
@@ -466,6 +471,9 @@ class _UserListScreenState extends State<UserListScreen> {
             });
               if (!mounted) return;
               Navigator.of(context).pop(true);
+               ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Korisnik je uspiješno reaktiviran.")),
+              );
             },
             child: const Text('Da'),
           ),

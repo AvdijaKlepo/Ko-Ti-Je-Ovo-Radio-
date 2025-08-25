@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:ko_radio_desktop/models/service.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +28,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   late ServiceProvider serviceProvider;
   File? _image;
   String? _base64Image;
+  String? serviceErrorMessage;
+  Uint8List? _decodedImage;
 
   @override
   void initState() {
@@ -36,7 +40,25 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
       'serviceName': widget.service?.serviceName,
       'image': widget.service?.image,
     };
+    if (widget.service?.image != null) {
+    try {
+      _decodedImage = base64Decode(widget.service!.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
+    }
   }
+    Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -66,70 +88,68 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                     children: [
                       FormBuilderTextField(
                         name: "serviceName",
-                        decoration: const InputDecoration(
+                        decoration:  InputDecoration(
                           labelText: "Naziv Servisa*",
                           border: OutlineInputBorder(),
+                          errorText: serviceErrorMessage,
                         ),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 15 znakova'),
+                          FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                          FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
+                        ])
                       ),
                       const SizedBox(height: 20),
                      FormBuilderField(
   name: "image",
-
   builder: (field) {
     return InputDecorator(
-      decoration:  const InputDecoration(
-        labelText: "Proslijedite sliku servisa",
+      decoration: const InputDecoration(
+        labelText: "Logo",
         border: OutlineInputBorder(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.image),
-            title: 
-            
-             _image != null
+            title: _image != null
                 ? Text(_image!.path.split('/').last)
-                :  widget.service?.image!= null ?
-            const Text('Proslijeđena slika') :
-                
-                 const Text("Nema proslijeđene slike"),
+                : widget.service?.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
             trailing: ElevatedButton.icon(
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-
-
-
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.service?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () =>  getImage(field) 
-             
+              label: _image == null && widget.service?.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
             ),
           ),
           const SizedBox(height: 10),
-          _image != null ?
+          if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-               
                 fit: BoxFit.cover,
               ),
-            ) :
-            widget.service?.image!=null ?
+            )
+          else if (_decodedImage != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child : imageFromString(widget.service?.image ?? '',
-              fit: BoxFit.cover
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
               ),
-            ) : const SizedBox.shrink()
-           
-            ,
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
     );
@@ -156,38 +176,42 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   }
 
   Future<void> _save() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final request = Map<String, dynamic>.from(_formKey.currentState!.value);
-      if(_image!=null)
-      {
-        request['image'] = _base64Image;
-      }
-      else{
-        request['image'] = widget.service?.image;
-      }
+  if (_formKey.currentState?.saveAndValidate() ?? false) {
+    final request = Map<String, dynamic>.from(_formKey.currentState!.value);
+    if (_image != null) {
+      request['image'] = _base64Image;
+    } else {
+      request['image'] = widget.service?.image;
+    }
 
-      try {
-        if (widget.service == null) {
-          await serviceProvider.insert(request);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Usluga uspješno dodana")),
-          );
-          
-        } else {
-          await serviceProvider.update(widget.service!.serviceId, request);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Usluga uspješno ažurirana")),
-          );
-        }
-
-        Navigator.of(context).pop(true); // Return success
-      } catch (e) {
+    try {
+      if (widget.service == null) {
+        await serviceProvider.insert(request);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Greška: ${e.toString()}")),
+          const SnackBar(content: Text("Usluga uspješno dodana")),
+        );
+      } else {
+        await serviceProvider.update(widget.service!.serviceId, request);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Usluga uspješno ažurirana")),
         );
       }
+
+      Navigator.of(context).pop(true);
+    } on UserException catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(e.exMessage)),
+  );
+    }
+ catch (e) {
+      // Fallback for unknown errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
     }
   }
+}
+
 
   void getImage(FormFieldState field) async {
   var result = await FilePicker.platform.pickFiles(type: FileType.image);

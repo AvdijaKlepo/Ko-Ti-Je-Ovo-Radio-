@@ -169,7 +169,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Izbriši?'),
-        content: const Text('Jeste li sigurni da želite izbrisati ovog korisnika?'),
+        content: const Text('Jeste li sigurni da želite izbrisati ovog radnika?'),
         actions: [
           
           TextButton(
@@ -178,12 +178,23 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           ),
           TextButton(
             onPressed: () async {
-              await provider.delete(user.freelancerId);
-              await freelancerPagination.refresh(newFilter: {
-                'IsServiceIncluded': true,
-                'IsApplicant': showApplicants,
-                'isDeleted': showDeleted,
-              });
+              try{
+                await provider.delete(user.freelancerId);
+                await freelancerPagination.refresh(newFilter: {
+                  'IsServiceIncluded': true,
+                  'IsApplicant': showApplicants,
+                  'isDeleted': showDeleted,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Radnik je uspješno izbrisan.")),
+                );
+               
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
+              
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -198,7 +209,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Vrati?'),
-        content: const Text('Jeste li sigurni da želite vratiti ovog korisnika?'),
+        content: const Text('Jeste li sigurni da želite reaktivirati ovog radnika?'),
         actions: [
           
           TextButton(
@@ -207,12 +218,22 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           ),
           TextButton(
             onPressed: () async {
-              await provider.delete(user.freelancerId);
-              await freelancerPagination.refresh(newFilter: {
-                'IsServiceIncluded': true,
-                'IsApplicant': showApplicants,
-                'isDeleted': showDeleted,
-              });
+              try{
+                await provider.delete(user.freelancerId);
+                await freelancerPagination.refresh(newFilter: {
+                  'IsServiceIncluded': true,
+                  'IsApplicant': showApplicants,
+                  'isDeleted': showDeleted,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Radnik je uspješno reaktiviran.")),
+                );
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
+              
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -418,7 +439,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
   icon: const Icon(Icons.check, color: Colors.green),
   tooltip: 'Odobri',
   onPressed: () async {
-    // capture the parent context
+ 
     final parentContext = context;
 
     await showDialog(
@@ -445,39 +466,51 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                   .whereType<int>()
                   .toList();
 
-              await provider.update(
-                f.freelancerId,
-                {
-                  "freelancerId": f.freelancerId,
-                  "bio": f.bio,
-                  "rating": f.rating,
-                  "experianceYears": f.experianceYears,
-                  "startTime": f.startTime,
-                  "endTime": f.endTime,
-                  "workingDays": workingDaysIntList,
-                  "serviceId": f.freelancerServices.map((e) => e.serviceId).toList(),
-                  "roles": [3],
-                  "isApplicant": false,
-                  "isDeleted": false,
-                  'freelancerNavigation': f.freelancerNavigation,
-                },
-              );
-
-              if (parentContext.mounted) {
+              try {
+  await provider.update(
+    f.freelancerId,
+    {
+      "freelancerId": f.freelancerId,
+      "bio": f.bio,
+      "rating": f.rating,
+      "experianceYears": f.experianceYears,
+      "startTime": f.startTime,
+      "endTime": f.endTime,
+      "workingDays": workingDaysIntList,
+      "serviceId": f.freelancerServices.map((e) => e.serviceId).toList(),
+      "roles": [3],
+      "isApplicant": false,
+      "isDeleted": false,
+      'freelancerNavigation': f.freelancerNavigation,
+    },
+  );   
+  
+  if (parentContext.mounted) {
                 ScaffoldMessenger.of(parentContext).showSnackBar(
                   const SnackBar(content: Text("Radnik odobren!")),
                 );
               }
-
               await freelancerPagination.refresh(newFilter: {
                 'IsServiceIncluded': true,
                 'IsApplicant': showApplicants,
                 'isDeleted': showDeleted,
               });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Greška tokom akcije. Pokušajte ponovo.")),
+  );
+  await freelancerPagination.refresh(newFilter: {
+                'IsServiceIncluded': true,
+                'IsApplicant': showApplicants,
+                'isDeleted': showDeleted,
+              });
+}
 
-              if (parentContext.mounted) {
-                Navigator.of(dialogContext).pop(true);
-              }
+             
+
+            
+
+            
             },
             child: const Text("Da"),
           )
@@ -496,7 +529,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                                                 context: parentContext,
                                                 builder: (dialogContext) => AlertDialog(
                                                   title: const Text('Odbaci?'),
-                                                  content: const Text('Jeste li sigurni da želite odbaciti ovog korisnika?'),
+                                                  content: const Text('Jeste li sigurni da želite odbiti ovog korisnika?'),
                                                   actions: [
                                                     
                                                     TextButton(
@@ -505,16 +538,26 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
-                                                        await provider.delete(f.freelancerId);
-                                                        await freelancerPagination.refresh(newFilter: {
-                                                          'IsServiceIncluded': true,
-                                                          'IsApplicant': showApplicants,
-                                                          'isDeleted': showDeleted,
-                                                        });
+                                                        try {
+  await provider.delete(f.freelancerId);
+  await freelancerPagination.refresh(newFilter: {
+    'IsServiceIncluded': true,
+    'IsApplicant': showApplicants,
+    'isDeleted': showDeleted,
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Greška tokom akcije. Pokušajte ponovo.")),
+  );
+}
                                                         if(parentContext.mounted)
                                                         {
                                                           Navigator.of(context).pop();
+
                                                         }
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text("Radnik je uspješno odbijen i uklonjen..")),
+                                                        );
                                                       },
                                                       child: const Text('Da'),
                                                     ),

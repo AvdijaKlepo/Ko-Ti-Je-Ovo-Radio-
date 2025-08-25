@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -27,6 +29,8 @@ class UserFormDialog extends StatefulWidget {
 }
 
 class _UserFormDialogState extends State<UserFormDialog> {
+  Uint8List? _decodedImage;
+
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late UserProvider userProvider;
@@ -52,9 +56,31 @@ class _UserFormDialogState extends State<UserFormDialog> {
       'address': widget.user?.address,
       'image': widget.user?.image,
     };
-
-    _getLocations();
+    if (widget.user?.image != null) {
+    try {
+      _decodedImage = base64Decode(widget.user!.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
   }
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await _getLocations();
+  });
+
+
+  }
+  Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
+
 
   Future<void> _getLocations() async {
     try {
@@ -103,7 +129,18 @@ class _UserFormDialogState extends State<UserFormDialog> {
                             labelText: "Ime",
                             border: OutlineInputBorder(),
                           ),
-                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.maxLength(35, errorText: 'Maksimalno dozvoljeno je 35 znakova'),
+                            FormBuilderValidators.minLength(2, errorText: 'Minimalno dozvoljeno je 2 znakova'),
+                            FormBuilderValidators.match(r'^[A-Za-zĆČĐŠŽćčđšž]+$', errorText: 'Dozvoljena su samo slova'),
+                            FormBuilderValidators.match(
+    r'^[A-Z][a-zA-Z]*$',
+    errorText: 'Prvo slovo mora biti veliko',
+  ),
+                            
+                        
+                          ])
                         ),
                         const SizedBox(height: 12),
         
@@ -113,7 +150,18 @@ class _UserFormDialogState extends State<UserFormDialog> {
                             labelText: "Prezime",
                             border: OutlineInputBorder(),
                           ),
-                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                         validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.maxLength(35, errorText: 'Maksimalno dozvoljeno je 35 znakova'),
+                            FormBuilderValidators.minLength(2, errorText: 'Minimalno dozvoljeno je 2 znakova'),
+                            FormBuilderValidators.match(r'^[a-zA-Z]+$', errorText: 'Dozvoljena su samo slova'),
+                            FormBuilderValidators.match(
+    r'^[A-Z][a-zA-Z]*$',
+    errorText: 'Prvo slovo mora biti veliko',
+  ),
+                            
+                        
+                          ])
                         ),
                         const SizedBox(height: 12),
         
@@ -136,7 +184,12 @@ class _UserFormDialogState extends State<UserFormDialog> {
                             labelText: "Broj Telefona",
                             border: OutlineInputBorder(),
                           ),
-                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(errorText: "Obavezno polje."),
+                FormBuilderValidators.match(r'^\+\d{11}$',
+                    errorText:
+                        "Telefon mora imati 11 cifara \ni počinjati znakom +."),
+              ]),
                         ),
                         const SizedBox(height: 12),
         
@@ -165,72 +218,72 @@ class _UserFormDialogState extends State<UserFormDialog> {
                             labelText: "Adresa Stanovanja",
                             border: OutlineInputBorder(),
                           ),
-                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.match(
+      r'^(?:[A-Za-zĆČĐŠŽćčđšž0-9\s,.\-]{5,100}|[bB]\.?[bB]\.?)$',
+      errorText: 'Adresa mora sadržavati slova/brojeve i , . - (dozvoljeno i "bb"/"b.b.").',
+    ),
+FormBuilderValidators.maxLength(40, errorText: 'Maksimalno dozvoljeno je 40 znakova'),
+                          ]),
                         ),
                         const SizedBox(height: 10),
                      
-                         FormBuilderField(
+                   FormBuilderField(
   name: "image",
-
   builder: (field) {
     return InputDecorator(
-      decoration:  const InputDecoration(
-        labelText: "Proslijedite sliku problema",
+      decoration: const InputDecoration(
+        labelText: "Profilna slika",
         border: OutlineInputBorder(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.image),
-            title: 
-            
-             _image != null
+            title: _image != null
                 ? Text(_image!.path.split('/').last)
-                :  widget.user?.image!= null ?
-            const Text('Proslijeđena slika') :
-                
-                 const Text("Nema proslijeđene slike"),
+                : widget.user?.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
             trailing: ElevatedButton.icon(
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-
-
-
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.user?.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () =>  getImage(field) 
-             
+              label: _image == null && widget.user?.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
             ),
           ),
           const SizedBox(height: 10),
-          _image != null ?
+          if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-               
                 fit: BoxFit.cover,
               ),
-            ) :
-            widget.user?.image!=null ?
+            )
+          else if (_decodedImage != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child : imageFromString(widget.user?.image ?? '',
-              fit: BoxFit.cover
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
               ),
-            ) : const SizedBox.shrink()
-           
-            ,
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
     );
   },
 ),
+
 const SizedBox(height: 20,),
                         const Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
                         FormBuilderTextField(
@@ -305,7 +358,7 @@ const SizedBox(height: 20,),
         Navigator.of(context).pop(true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Greška: ${e.toString()}")),
+          const SnackBar(content: Text("Greška tokom spašavanja podataka. Pokušajte ponovo.")),
         );
       }
     }

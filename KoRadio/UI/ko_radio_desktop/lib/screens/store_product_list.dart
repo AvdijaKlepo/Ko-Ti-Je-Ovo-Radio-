@@ -172,11 +172,20 @@ class _StoreProductListState extends State<StoreProductList> {
           ),
           TextButton(
             onPressed: () async {
-              await productProvider.delete(product.productId);
-              await productPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-                'storeId': AuthProvider.selectedStoreId,
-              });
+              try{
+                await productProvider.delete(product.productId);
+                await productPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'storeId': AuthProvider.selectedStoreId,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Proizvod je uspješno izbrisan.")),
+                );
+              }catch(e){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -200,11 +209,21 @@ class _StoreProductListState extends State<StoreProductList> {
           ),
           TextButton(
             onPressed: () async {
-              await productProvider.delete(product.productId);
-              await productPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-                'storeId': AuthProvider.selectedStoreId,
-              });
+              try{
+                await productProvider.delete(product.productId);
+                await productPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'storeId': AuthProvider.selectedStoreId,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Proizvod je uspješno reaktiviran.")),
+                );
+              }catch(e){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
+              
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -334,7 +353,7 @@ Expanded(
                       )),
                       Expanded(flex: 2, child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(p.price?.toStringAsFixed(2) ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.left),
+                        child: Text('${p.price?.toStringAsFixed(2)} KM' ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.left),
                       )),
                       Expanded(flex: 3, child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),

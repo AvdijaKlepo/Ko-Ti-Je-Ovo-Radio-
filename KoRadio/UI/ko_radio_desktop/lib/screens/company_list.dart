@@ -102,17 +102,17 @@ class _CompanyListState extends State<CompanyList> {
     _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
   }
   Future<void> _refreshWithFilter() async {
-    setState(() => isLoading = true);
+    
     final filter =<String, dynamic> {
       'isDeleted': showDeleted,
       'IsApplicant': showApplicants,
     };
     if(_companyNameController.text.trim().isNotEmpty)
     {
-      filter['CompanyNameGTE'] = _companyNameController.text.trim();
+      filter['CompanyName'] = _companyNameController.text.trim();
     }
     await companyPagination.refresh(newFilter: filter);
-    setState(() => isLoading = false);
+
   }
     
   
@@ -165,11 +165,20 @@ class _CompanyListState extends State<CompanyList> {
           ),
           TextButton(
             onPressed: () async {
-              await companyProvider.delete(company.companyId);
-              await companyPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-                'IsApplicant': showApplicants,
-              });
+              try{
+                await companyProvider.delete(company.companyId);
+                await companyPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'IsApplicant': showApplicants,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Firma je uspješno izbrisana.")),
+                );
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -193,11 +202,20 @@ class _CompanyListState extends State<CompanyList> {
           ),
            TextButton(
             onPressed: () async {
-              await companyProvider.delete(company.companyId);
-              await companyPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-                'IsApplicant': showApplicants,
-              });
+              try{
+                await companyProvider.delete(company.companyId);
+                await companyPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'IsApplicant': showApplicants,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Firma je uspješno reaktivirana.")),
+                );
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -257,14 +275,14 @@ class _CompanyListState extends State<CompanyList> {
           const SizedBox(height: 16),
          Row(
   children: [
-    const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 5, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 4, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
     const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 5, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
+    const Expanded(flex: 2, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
    const Expanded(
   flex: 3,
   child: Center(
@@ -305,14 +323,14 @@ class _CompanyListState extends State<CompanyList> {
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                             child: Row(
                               children: [
-                                Expanded(flex: 2, child: Text(c.companyName ?? '')),
-                                Expanded(flex: 3, child: Text(c.email ?? '')),
+                                Expanded(flex: 5, child: Text(c.companyName ?? '')),
+                                Expanded(flex: 4, child: Text(c.email ?? '')),
                                 Expanded(flex: 3, child: Text(c.phoneNumber ?? '')),
                                 Expanded(flex: 3, child: Text(c.location?.locationName ?? '')),
-                                Expanded(flex: 3, child: Text(days.join(', '))),
-                                Expanded(flex: 3, child: Text(c.experianceYears.toString())),
-                                Expanded(flex: 3, child: Text(c.rating.toStringAsFixed(1) ?? '')),
-                                Expanded(flex: 3, child: Text(c.companyEmployees.length.toString())),
+                                Expanded(flex: 5, child: Text(days.join(', '))),
+                                Expanded(flex: 2, child: Text(c.experianceYears.toString())),
+                                Expanded(flex: 2, child: Text(c.rating.toStringAsFixed(1) ?? '')),
+                                Expanded(flex: 2, child: Text(c.companyEmployees.length.toString())),
                                  Expanded(
                         flex: 3,
                         child: Align(

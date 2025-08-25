@@ -1,8 +1,10 @@
-﻿using KoRadio.Model.Request;
+﻿using KoRadio.Model;
+using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace KoRadio.Services
 		{
 		}
 
-		public override IQueryable<Location> AddFilter(LocationSearchObject search, IQueryable<Location> query)
+		public override IQueryable<Database.Location> AddFilter(LocationSearchObject search, IQueryable<Database.Location> query)
 		{
 			if (!string.IsNullOrWhiteSpace(search?.LocationName))
 			{
@@ -27,6 +29,13 @@ namespace KoRadio.Services
 			}
 			return base.AddFilter(search, query);
 
+		}
+		public override async Task BeforeInsertAsync(LocationInsertRequest request, Database.Location entity, CancellationToken cancellationToken = default)
+		{
+			var locations =await _context.Locations.AnyAsync(x => x.LocationName == request.LocationName);
+			if (locations)
+				throw new UserException("Lokacija već postoji.");
+			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
 		public async Task<Model.PagedResult<Model.Location>> GetForRegistration(LocationSearchObject locationSearchObject)

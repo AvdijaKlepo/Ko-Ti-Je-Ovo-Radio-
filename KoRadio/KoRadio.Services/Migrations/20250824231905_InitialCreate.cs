@@ -781,10 +781,27 @@ namespace KoRadio.Services.Migrations
                 columns: new[] { "CompanyEmployeeID", "CompanyID", "CompanyRoleId", "DateJoined", "IsApplicant", "IsDeleted", "IsOwner", "UserID" },
                 values: new object[,]
                 {
+                    { 3, 3, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
+                    { 4, 5, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
+                    { 5, 7, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
+                    { 6, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
+                    { 7, 4, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
+                    { 8, 6, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
+                    { 9, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 16 },
+                    { 10, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 16 },
+                    { 11, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 17 },
+                    { 12, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 17 },
+                    { 13, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 },
+                    { 14, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 },
+                    { 15, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 19 },
+                    { 16, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 19 },
+                    { 17, 2, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
+                    { 18, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
                     { 19, 3, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 16 },
                     { 20, 4, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
                     { 21, 5, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
-                    { 22, 6, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 }
+                    { 22, 6, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 },
+                    { 23, 1, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 7 }
                 });
 
             migrationBuilder.InsertData(
@@ -922,24 +939,7 @@ namespace KoRadio.Services.Migrations
                 values: new object[,]
                 {
                     { 1, 1, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 6 },
-                    { 2, 1, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
-                    { 3, 3, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
-                    { 4, 5, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
-                    { 5, 7, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 },
-                    { 6, 2, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
-                    { 7, 4, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
-                    { 8, 6, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 15 },
-                    { 9, 2, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 16 },
-                    { 10, 1, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 16 },
-                    { 11, 2, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 17 },
-                    { 12, 1, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 17 },
-                    { 13, 2, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 },
-                    { 14, 1, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 18 },
-                    { 15, 2, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 19 },
-                    { 16, 1, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 19 },
-                    { 17, 2, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
-                    { 18, 1, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 20 },
-                    { 23, 1, 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, false, 7 }
+                    { 2, 1, 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, true, 5 }
                 });
 
             migrationBuilder.InsertData(

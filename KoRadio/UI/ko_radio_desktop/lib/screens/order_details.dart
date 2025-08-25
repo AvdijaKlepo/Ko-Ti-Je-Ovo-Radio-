@@ -194,11 +194,21 @@ var total =  order.orderItems?.map((e) => e.product!.price! * e.quantity!).toLis
                     ),
                     if(widget.order.isCancelled!=true && widget.order.isShipped!=true)
                     ElevatedButton(onPressed: () async{
-                     await orderProvider.update(widget.order.orderId,{'orderNumber': order.orderNumber,
-                            'userId': order.user?.userId,
-                            'isCancelled': order.isCancelled,
-                            'isShipped': true,});
-                      Navigator.pop(context, true);
+                      try{
+                        await orderProvider.update(widget.order.orderId,{'orderNumber': order.orderNumber,
+                                'userId': order.user?.userId,
+                                'isCancelled': order.isCancelled,
+                                'isShipped': true,});
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Korisnik uspješno obaviješten..")));
+
+                      }catch(e){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Greška tokom slanja obaviještenja. Pokušajte ponovo.")));
+                      }
+                      
+Navigator.pop(context, true);
+                     
+                            
+                      
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 1),

@@ -95,10 +95,12 @@ Map<String, dynamic> filterMap(JobStatus status)  {
         _isLoading=true;
       });
       await jobsPagination.refresh();
-      setState(() {
+      if(mounted) {
+        setState(() {
         _isInitialized = true;
         _isLoading=false;
       });
+      }
     });
    }
 

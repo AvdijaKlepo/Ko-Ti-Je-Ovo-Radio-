@@ -140,11 +140,20 @@ class _StoresListState extends State<StoresList> {
           ),
            TextButton(
             onPressed: () async {
-              await storesProvider.delete(store.storeId);
-              await storesPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-      'IsApplicant': showApplicants,
-            });
+              try{
+                await storesProvider.delete(store.storeId);
+                await storesPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+        'IsApplicant': showApplicants,
+              });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Trgovina je uspješno izbrisana.")),
+                );
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),
@@ -168,11 +177,20 @@ class _StoresListState extends State<StoresList> {
           ),
            TextButton(
             onPressed: () async {
-              await storesProvider.delete(store.storeId);
-              await storesPagination.refresh(newFilter: {
-                'isDeleted': showDeleted,
-      'IsApplicant': showApplicants,
-            });
+              try{
+                await storesProvider.delete(store.storeId);
+                await storesPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+        'IsApplicant': showApplicants,
+              });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Trgovina je uspješno reaktivirana.")),
+                );
+              } on Exception catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                );
+              }
               Navigator.of(context).pop(true);
             },
             child: const Text('Da'),

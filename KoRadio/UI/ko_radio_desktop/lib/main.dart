@@ -97,31 +97,54 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: false),
+     
       body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
-          child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.asset("assets/images/logo.png"),
-                TextField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    prefixIcon: Icon(Icons.email),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
+            child: Card(
+            
+              
+              color: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Expanded(
+                      child: TextField(
+                        controller: usernameController,
+                       
+                        decoration:  InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                            labelText: "Email adresa", prefixIcon: const Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: passwordController,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    prefixIcon: Icon(Icons.password),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Expanded(
+                      child: TextField(
+                        obscureText: true,
+                        obscuringCharacter: '*',
+                        controller: passwordController,
+                        decoration:  InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                            labelText: "Lozinka",
+                            prefixIcon: const Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
+                      ),
+                    ),
                   ),
-                ),
-                ElevatedButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
   onPressed: () async {
     try {
       AuthProvider.username = usernameController.text;
@@ -146,17 +169,21 @@ class _LoginPageState extends State<LoginPage> {
       // --- ROLE CHOICE if user has both ---
       if (roles.contains("Company Admin") && roles.contains("StoreAdministrator")) {
         final chosenRole = await showDialog<String>(
+          barrierDismissible: false,
+
           context: context,
           builder: (context) => SimpleDialog(
+            
+
             title: const Text("Odaberite ulogu:"),
             children: [
               SimpleDialogOption(
                 onPressed: () => Navigator.pop(context, "Company Admin"),
-                child: const Text("Company Admin"),
+                child: const Text("Administrator firme"),
               ),
               SimpleDialogOption(
                 onPressed: () => Navigator.pop(context, "StoreAdministrator"),
-                child: const Text("Store Administrator"),
+                child: const Text("Administrator trgovine"),
               ),
             ],
           ),
@@ -331,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   },
-  child: const Text("Prijavi se"),
+  child: const Text("Prijavi se",style: TextStyle(color: Colors.white),),
 )
 
 
@@ -340,6 +367,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    ),
     );
   }
 }

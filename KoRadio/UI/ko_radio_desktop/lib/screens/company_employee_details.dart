@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
-import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +17,6 @@ class CompanyEmployeeDetails extends StatefulWidget {
 
 class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
   late JobProvider jobProvider;
-  SearchResult<Job>? jobResult;
-  SearchResult<Job>? jobOldResult;
   late PaginatedFetcher<Job> jobPagination;
   late PaginatedFetcher<Job> oldJobPagination;
   late final ScrollController _scrollController;
@@ -30,229 +27,164 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
   @override
   void initState() {
     super.initState();
-    jobPagination = PaginatedFetcher<Job>(
-      pageSize: 0,
-      initialFilter: {},
+
+    _scrollController = ScrollController();
+    _oldJobScrollController = ScrollController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeData());
+  }
+
+  Future<void> _initializeData() async {
+    setState(() => isLoading = true);
+    jobProvider = context.read<JobProvider>();
+
+    jobPagination = _createJobPagination(JobStatus.approved.name, _scrollController);
+    oldJobPagination = _createJobPagination(JobStatus.finished.name, _oldJobScrollController);
+
+    await jobPagination.refresh();
+    await oldJobPagination.refresh();
+
+    setState(() {
+      _isInitialized = true;
+      isLoading = false;
+    });
+  }
+
+  PaginatedFetcher<Job> _createJobPagination(String status, ScrollController controller) {
+    final fetcher = PaginatedFetcher<Job>(
+      pageSize: 20,
+      initialFilter: {
+        'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
+        'JobStatus': status,
+      },
       fetcher: ({
         required int page,
         required int pageSize,
         Map<String, dynamic>? filter,
       }) async {
-        return PaginatedResult(result: [], count: 0);
+        final result = await jobProvider.get(page: page, pageSize: pageSize, filter: filter);
+        return PaginatedResult(result: result.result, count: result.count);
       },
     );
 
-    _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (!_isInitialized) return; 
+    fetcher.addListener(() => setState(() {}));
 
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 100 &&
-          jobPagination.hasNextPage &&
-          !jobPagination.isLoading) {
-        jobPagination.loadMore();
-      }
-    });
-     _oldJobScrollController = ScrollController();
-    _oldJobScrollController.addListener(() {
-      if (!_isInitialized) return; 
-
-      if (_oldJobScrollController.position.pixels >=
-              _oldJobScrollController.position.maxScrollExtent - 100 &&
-          oldJobPagination.hasNextPage &&
-          !oldJobPagination.isLoading) {
-        oldJobPagination.loadMore();
+    controller.addListener(() {
+      if (controller.position.pixels >= controller.position.maxScrollExtent - 100 &&
+          fetcher.hasNextPage &&
+          !fetcher.isLoading) {
+        fetcher.loadMore();
       }
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setState(() => isLoading = true);
-
-      jobProvider = context.read<JobProvider>();
-      jobPagination = PaginatedFetcher<Job>(
-        pageSize: 20,
-        initialFilter: {
-          'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-          'JobStatus': JobStatus.approved.name,
-        },
-        fetcher: ({
-          required int page,
-          required int pageSize,
-          Map<String, dynamic>? filter,
-        }) async {
-          final result = await jobProvider.get(
-            page: page,
-            pageSize: pageSize,
-            filter: filter,
-          );
-          return PaginatedResult(result: result.result, count: result.count);
-        },
-      )..addListener(() => setState(() {}));
-      oldJobPagination = PaginatedFetcher<Job>(
-        pageSize: 20,
-        initialFilter: {
-          'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-          'JobStatus': JobStatus.finished.name,
-        },
-        fetcher: ({
-          required int page,
-          required int pageSize,
-          Map<String, dynamic>? filter,
-        }) async {
-          final result = await jobProvider.get(
-            page: page,
-            pageSize: pageSize,
-            filter: filter,
-          );
-          return PaginatedResult(result: result.result, count: result.count);
-        },
-      )..addListener(() => setState(() {}));
-
-
-      await jobPagination.refresh(newFilter: {
-        'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-        'JobStatus': JobStatus.approved.name,
-      });
-       await oldJobPagination.refresh(newFilter: {
-        'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-        'JobStatus': JobStatus.finished.name,
-      });
-
-      setState(() {
-        _isInitialized = true;
-        isLoading = false;
-      });
-    });
-
-    @override
-    void dispose() {
-      jobPagination.dispose();
-      _scrollController.dispose();
-      super.dispose();
-    }
-
-
-
-
-    
-
-    
+    return fetcher;
   }
 
-  Future<void> _getJob() async {
-    var filter = {'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-    'JobStatus': JobStatus.approved.name};
-    try {
-      var fetchedJob = await jobProvider.get(filter: filter);
-      if (!mounted) return;
-      setState(() {
-        jobResult = fetchedJob;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
-  Future<void> _getOldJob() async {
-    var filter = {'CompanyEmployeeId': widget.companyEmployee.companyEmployeeId,
-    'JobStatus': JobStatus.finished.name};
-    try {
-      var fetchedJob = await jobProvider.get(filter: filter);
-      if (!mounted) return;
-      setState(() {
-        jobOldResult = fetchedJob;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
+  @override
+  void dispose() {
+    jobPagination.dispose();
+    oldJobPagination.dispose();
+    _scrollController.dispose();
+    _oldJobScrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
- 
-    
-    if(!_isInitialized) return const Center(child: CircularProgressIndicator());
+    if (!_isInitialized || isLoading) return const Center(child: CircularProgressIndicator());
+
+    final user = widget.companyEmployee.user;
+
     return Dialog(
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
-        width: 600,
-        height: double.maxFinite, 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        width: 700,
+        height: 700,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(user),
+              const SizedBox(height: 20),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildJobSection(
+                        title: "Trenutni poslovi",
+                        jobs: jobPagination.items,
+                        controller: _scrollController,
+                        emptyMessage: "Trenutno nema aktivnih poslova.",
+                      ),
+                      const SizedBox(height: 20),
+                      _buildJobSection(
+                        title: "Završeni poslovi",
+                        jobs: oldJobPagination.items,
+                        controller: _oldJobScrollController,
+                        emptyMessage: "Nema završenih poslova.",
+                      ),
+                      const SizedBox(height: 20),
+
+                    
+                      
+                    ],
+                  ),
+                ),
+              ),
+                Align(alignment: Alignment.bottomRight,child: FloatingActionButton(onPressed: (){Navigator.of(context).pop();},child: const Icon(Icons.close,color: Colors.white,),)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(user) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          height: 120,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: user?.image != null
+                ? imageFromString(user?.image ?? '')
+                : const Image(
+                    image: AssetImage('assets/images/Sample_User_Icon.png'),
+                    fit: BoxFit.cover,
+                  ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _infoRow("Ime:", "${user?.firstName ?? ''} ${user?.lastName ?? ''}"),
+              _infoRow("Telefon:", "${user?.phoneNumber ?? ''}"),
+              _infoRow("Uloga:", "${widget.companyEmployee.companyRoleName ?? ''}"),
+              _infoRow("Zaposlen:", DateFormat('dd-MM-yyyy')
+                  .format(widget.companyEmployee.dateJoined ?? DateTime.now())),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: RichText(
+        text: TextSpan(
+          text: '$label ',
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
           children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: 120,
-                  height: 120,
-                  child:ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child:
-                  widget.companyEmployee.user?.image != null ?
-                   imageFromString(widget.companyEmployee.user?.image ?? ''):
-                   const Image(image: AssetImage('assets/images/Sample_User_Icon.png'),fit: BoxFit.cover,),
-
-                ) ,
-                ),
-
-                
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text('Ime: ${widget.companyEmployee.user?.firstName ?? ''} ${widget.companyEmployee.user?.lastName ?? ''} '),
-                    ),
-                     Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text('Telefonski broj: ${widget.companyEmployee.user?.phoneNumber ?? ''} '),
-                    ),
-                      Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text('Uloga: ${widget.companyEmployee.companyRoleName ?? ''} '),
-                    ),
-                     Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text('Zaposlen: ${DateFormat('dd-MM-yyyy').format(widget.companyEmployee.dateJoined ?? DateTime.now())} '),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                'Radnik ${widget.companyEmployee.user?.firstName ?? ''} '
-                '${widget.companyEmployee.user?.lastName ?? ''} '
-                'je trenutno angažovan na slijedećim poslovima.',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded( 
-              child: jobPagination.items.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildJobList(jobPagination.items),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                'Radnik ${widget.companyEmployee.user?.firstName ?? ''} '
-                '${widget.companyEmployee.user?.lastName ?? ''} '
-                'je bio angažovan slijedećim poslovima.',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded( 
-              child: jobPagination.items.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildOldJobList(oldJobPagination.items),
+            TextSpan(
+              text: value,
+              style: const TextStyle(fontWeight: FontWeight.normal),
             ),
           ],
         ),
@@ -260,35 +192,33 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
     );
   }
 
-  Widget _buildJobList(List<Job> jobs) {
-    if (jobs.isEmpty) {
-      return const Center(child: Text('Nema poslova za prikaz.'));
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      controller: jobPagination.items.isEmpty ? null : _scrollController,
-      shrinkWrap: true,
-      itemCount: jobPagination.items.length + (jobPagination.hasNextPage ? 1 : 0),
-      itemBuilder: (context, index) {
-        return _jobCard(jobs[index]);
-      },
+  Widget _buildJobSection({
+    required String title,
+    required List<Job> jobs,
+    required ScrollController controller,
+    required String emptyMessage,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Divider(),
+        jobs.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                controller: controller,
+                itemCount: jobs.length,
+                itemBuilder: (_, index) => _jobCard(jobs[index]),
+              ),
+             
+      ],
     );
   }
-  Widget _buildOldJobList(List<Job> jobs) {
-    if (jobs.isEmpty) {
-      return const Center(child: Text('Nema poslova za prikaz.'));
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: jobs.length,
-      itemBuilder: (context, index) {
-        return _jobCard(jobs[index]);
-      },
-    );
-  }
-  
 
   Widget _jobCard(Job job) {
     return Card(
@@ -309,37 +239,17 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
                 children: [
                   Text(
                     "Datum: ${DateFormat('dd-MM-yyyy').format(job.jobDate)}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    "Korisnik: ${job.user?.firstName ?? ''} ${job.user?.lastName ?? ''}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Telefonski broj: ${job.user?.phoneNumber ?? ''}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Adresa: ${job.user?.address ?? ''}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Posao: ${job.jobTitle ?? ''}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Opis: ${job.jobDescription ?? ''}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  _jobDetailRow("Korisnik:", "${job.user?.firstName ?? ''} ${job.user?.lastName ?? ''}"),
+                  _jobDetailRow("Telefon:", "${job.user?.phoneNumber ?? ''}"),
+                  _jobDetailRow("Adresa:", "${job.user?.address ?? ''}"),
+                  _jobDetailRow("Posao:", "${job.jobTitle ?? ''}"),
+                  _jobDetailRow("Opis:", "${job.jobDescription ?? ''}"),
+                  _jobDetailRow("Status:", job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'),
+             
+
                 ],
               ),
             ),
@@ -348,6 +258,13 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _jobDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Text("$label $value", style: const TextStyle(color: Colors.white)),
     );
   }
 }
