@@ -166,14 +166,41 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(isFreelancer
-                      ? 'Ime: ${freelancer?.freelancerNavigation?.firstName ?? ''} ${freelancer?.freelancerNavigation?.lastName ?? ''}'
-                      : company?.companyName ?? 'Nepoznata kompanija'),
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 18, color: Colors.grey),
+                      SizedBox(width: 4,),
+                      Text(isFreelancer
+                          ? 'Ime: ${freelancer?.freelancerNavigation?.firstName ?? ''} ${freelancer?.freelancerNavigation?.lastName ?? ''}'
+                          : company?.companyName ?? 'Nepoznata kompanija',style: TextStyle(fontWeight: FontWeight.bold),),
+                    ],
+                  ),
                   if (isFreelancer)
-                    Text('Iskustvo: ${freelancer?.experianceYears} godine'),
-                  Text('Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}'),
-                  Text('Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}'),
-                  Text('Radno vrijeme: ${isFreelancer ? freelancer?.startTime.substring(0,5) : company?.startTime.substring(0,5)} - ${isFreelancer ? freelancer?.endTime.substring(0,5) : company?.endTime.substring(0,5)}'),
+                    Row(
+                      children: [
+                        Icon(Icons.construction, size: 18, color: Colors.grey),
+                      SizedBox(width: 4,),
+
+                        Text('Iskustvo: ${freelancer?.experianceYears} godine', style: TextStyle(fontWeight: FontWeight.bold),),
+                      ],
+                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.star_outline, size: 18, color: Colors.grey),
+                      SizedBox(width: 4,),
+
+                      Text('Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}',style: TextStyle(fontWeight: FontWeight.bold),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 18, color: Colors.grey),
+                      SizedBox(width: 4,),
+
+                      Text('Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}',style: TextStyle(fontWeight: FontWeight.bold),),
+                    ],
+                  ),
+                  
                 ],
               ),
             ],
@@ -186,8 +213,14 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          Text('Radno vrijeme: ${isFreelancer ? freelancer?.startTime.substring(0,5) : company?.startTime.substring(0,5)} - ${isFreelancer ? freelancer?.endTime.substring(0,5) : company?.endTime.substring(0,5)}',
+          style: TextStyle(
+              color: Color.fromRGBO(27, 76, 125, 25),
+              fontWeight: FontWeight.bold,
+            ),),
           Expanded(
             child: TableCalendar(
+
               key: const PageStorageKey('calendar'),
               shouldFillViewport: true,
               firstDay: DateTime.now(),
@@ -219,6 +252,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                 }
               },
               calendarStyle: CalendarStyle(
+
                 isTodayHighlighted: true,
                 selectedDecoration: const BoxDecoration(
                   color: Color.fromRGBO(27, 76, 125, 1),
@@ -231,8 +265,10 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                defaultTextStyle: const TextStyle(color: Colors.black),
-                weekendTextStyle: const TextStyle(color: Colors.black54),
+                 defaultTextStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+    
+   
+               
                 outsideDaysVisible: false,
               ),
               headerStyle: const HeaderStyle(

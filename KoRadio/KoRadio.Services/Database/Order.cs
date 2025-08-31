@@ -11,9 +11,11 @@ public partial class Order:ISoftCancel
 
     public int UserId { get; set; }
 
+
     public bool IsCancelled { get; set; }
 
     public bool IsShipped { get; set; }
+    public decimal Price { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

@@ -73,7 +73,7 @@ namespace KoRadio.Services
 
 			await BeforeDeleteAsync(entity, cancellationToken);
 
-			// 1. Applicant + not deleted -> Hard delete
+		
 			if (entity is IApplicantDelete applicantEntity &&
 				entity is ISoftDelete softDeleteApplicantEntity)
 			{
@@ -83,7 +83,8 @@ namespace KoRadio.Services
 				}
 				else
 				{
-					// 2. Soft delete toggle (undo/redo)
+					
+				
 					if (!softDeleteApplicantEntity.IsDeleted)
 					{
 						softDeleteApplicantEntity.IsDeleted = true;
@@ -96,7 +97,7 @@ namespace KoRadio.Services
 					}
 				}
 			}
-			// 3. Soft cancel handling
+			
 			else if (entity is ISoftCancel softCancelEntity)
 			{
 				if (!softCancelEntity.IsCancelled)
@@ -110,7 +111,7 @@ namespace KoRadio.Services
 					_context.Update(entity);
 				}
 			}
-			// 4. Generic soft delete
+			
 			else if (entity is ISoftDelete softDeleteEntity)
 			{
 				if (!softDeleteEntity.IsDeleted)
@@ -124,7 +125,12 @@ namespace KoRadio.Services
 					_context.Update(entity);
 				}
 			}
-			// 5. Fallback → Hard delete
+			else if(entity is IJobDelete jobDeleteEntity)
+			{
+				_context.Remove(entity);
+			}
+
+
 			else
 			{
 				_context.Remove(entity);

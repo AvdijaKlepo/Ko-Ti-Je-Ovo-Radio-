@@ -20,7 +20,8 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
           ? null
           : Location.fromJson(json['location'] as Map<String, dynamic>)
       ..address = json['address'] as String?
-      ..image = json['image'] as String?;
+      ..image = json['image'] as String?
+      ..businessCertificate = json['businessCertificate'] as String?;
 
 Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'storeId': instance.storeId,
@@ -32,4 +33,5 @@ Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'location': instance.location,
       'address': instance.address,
       'image': instance.image,
+      'businessCertificate': instance.businessCertificate,
     };

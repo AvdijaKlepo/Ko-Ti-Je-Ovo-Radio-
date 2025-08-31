@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: KoRadio/Dockerfile
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    depends_on:
+      - rabbitmq
+
+  subscriber:
+    build:
+      context: .
+      dockerfile: Subscriber/Dockerfile
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

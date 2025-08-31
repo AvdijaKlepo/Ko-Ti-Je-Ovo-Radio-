@@ -1,6 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/location.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
@@ -19,7 +26,25 @@ class UserStoreApply extends StatefulWidget {
 
 class _UserStoreApplyState extends State<UserStoreApply> {
   final _formKey = GlobalKey<FormBuilderState>();
+  File? _image;
+  Uint8List? _decodedImage;
+  String? _base64Image;
+  File? _pdfFile;
+String? _base64Pdf;
 
+Future<void> _pickPdf() async {
+  var result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+  );
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _pdfFile = File(result.files.single.path!);
+      _base64Pdf = base64Encode(_pdfFile!.readAsBytesSync());
+    });
+  }
+}
 
   late StoreProvider storeProvider;
   late LocationProvider locationProvider;
@@ -29,10 +54,22 @@ class _UserStoreApplyState extends State<UserStoreApply> {
     super.initState();
     storeProvider = context.read<StoreProvider>();
     locationProvider = context.read<LocationProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _getLocations();
+  
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await _getLocations();
     });
   }
+    Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
   _getLocations() async {
     var filter = {'isDeleted:':false};
     var fetchedLocations = await locationProvider.get(filter: filter);
@@ -45,7 +82,7 @@ class _UserStoreApplyState extends State<UserStoreApply> {
   Widget build(BuildContext context) {
  
     return Scaffold(
-      appBar: AppBar(title: const Text("Prijava Trgovine")),
+      appBar: AppBar(title:  Text("Prijava Trgovine",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -53,65 +90,226 @@ class _UserStoreApplyState extends State<UserStoreApply> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Prijava Trgovine za korisnika: ${widget.user?.firstName} ${widget.user?.lastName}",
-                  style: Theme.of(context).textTheme.titleLarge),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: [
-                    FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),validator: FormBuilderValidators.compose(
-                      [
-                        FormBuilderValidators.required(errorText: "Obavezno polje"),
-                        (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova';
-      }
-      return null;
-    },
-                      ]
-                    )),
-                    FormBuilderTextField(name: "description", decoration: const InputDecoration(labelText: "Opis"),validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                    ])),
-                     FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa"),validator: FormBuilderValidators.compose(
-                      [
-                        FormBuilderValidators.required(errorText: "Obavezno polje"),
-                        
-                      ]
-                    )),
-                    FormBuilderDropdown<int>(
-                      name: 'locationId',
-                      decoration: const InputDecoration(labelText: "Lokacija*"),
-                      validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                      items: locationResult?.result
-                              .map((loc) => DropdownMenuItem(
-                                    value: loc.locationId,
-                                    child: Text(loc.locationName),
-                                  ))
-                              .toList() ??
-                          [],
-                    ),
-                    Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+             
                 
-                  const SizedBox(width: 12),
-                  ElevatedButton(onPressed: _onSave, child: const Text("Sačuvaj")),
-                ],
+           FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:",
+            border: OutlineInputBorder()),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 50 znakova'),
+                        FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž .]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
+                      ])
+                      ),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: "description",maxLines: 3, decoration: const InputDecoration(labelText: "Opis",
+                      border: OutlineInputBorder()),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
+                        FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znakova'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                      ])
+                      ),
+                      FormBuilderCheckboxGroup<String>(
+  name: 'workingDays',
+  decoration: const InputDecoration(
+    labelText: "Radni Dani",
+    border: InputBorder.none,
+  ),
+  options: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
+    (value) {
+      if (value != null && value.isEmpty) {
+        return "Morate odabrati barem jedan dan.";
+      }
+      return null;
+    }
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'startTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Početak Smjene",
+    border: OutlineInputBorder(),
+prefixIcon: Icon(Icons.access_time),
+  ),
+  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'endTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Kraj Smjene",
+    border: OutlineInputBorder(),
+    prefixIcon: Icon(Icons.access_time_filled_sharp),
+
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
+    (value) {
+      final start = FormBuilder.of(context)?.fields['startTime']?.value;
+
+      if (start != null && value != null) {
+        if (value.isBefore(start)) {
+          return "Kraj smjene mora biti nakon početka.";
+        }
+
+        final diff = value.difference(start).inHours;
+        if (diff < 3) {
+          return "Smjena mora trajati najmanje 3 sata.";
+        }
+      }
+      return null;
+    }
+  ]),
+),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa",
+                      border: OutlineInputBorder()),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                      ]),
+                      ),
+                      const SizedBox(height: 20),
+
+                      
+                     
+                    
+
+                       FormBuilderDropdown<int>(
+                        name: 'locationId',
+                        decoration: const InputDecoration(labelText: "Lokacija*",
+                        border: OutlineInputBorder()),
+                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        items: locationResult?.result
+                                .map((loc) => DropdownMenuItem(
+                                      value: loc.locationId,
+                                      child: Text(loc.locationName ?? ''),
+                                    ))
+                                .toList() ??
+                            [],
+                      ),
+                      const SizedBox(height: 20),
+                       FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Logo",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : 
+                     const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
               ),
-                  ]),
-                ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image == null 
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+                fit: BoxFit.cover,
               ),
+            )
+          else if (_decodedImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
+        ],
+      ),
+    );
+  },
+),
+const SizedBox(height: 20),
+FormBuilderField(
+  name: "pdf",
+  validator: (val) {
+    if (_pdfFile == null) {
+      return "Obavezno je učitati PDF dokument";
+    }
+    return null;
+  },
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Obrtni list (PDF)",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+            title: _pdfFile != null
+                ? Text(_pdfFile!.path.split('/').last)
+                : const Text("Nema učitanog PDF dokumenta"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _pdfFile == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickPdf(),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+),
+const SizedBox(height: 20),
+
+SizedBox(height: 20,),
+Align(
+  alignment: Alignment.bottomRight,
+  child: ElevatedButton(onPressed: _onSave,style: ElevatedButton.styleFrom(
+    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+  child: const Text("Sačuvaj", style: TextStyle(color: Colors.white))),
+),
             ],
           ),
         ),
@@ -130,6 +328,31 @@ class _UserStoreApplyState extends State<UserStoreApply> {
     formData['userId'] = _userId;
     formData['isApplicant'] = true;
     formData['isDeleted'] = false;
+      if (formData["startTime"] is DateTime) {
+      formData["startTime"] = (formData["startTime"] as DateTime).toIso8601String().substring(11, 19);
+    }
+    if (formData["endTime"] is DateTime) {
+      formData["endTime"] = (formData["endTime"] as DateTime).toIso8601String().substring(11, 19);
+    }
+
+    Map<String, int> dayMap = {
+      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+      'Thursday': 4, 'Friday': 5, 'Saturday': 6,
+    };
+
+    if (formData["workingDays"] != null) {
+      formData["workingDays"] = (formData["workingDays"] as List<String>)
+          .map((day) => dayMap[day])
+          .whereType<int>()
+          .toList();
+    }
+
+    if (_base64Pdf != null) {
+    formData['businessCertificate'] = _base64Pdf; 
+  }
+   if (_base64Image != null) {
+    formData['image'] = _base64Image;
+  }
  
 
     try {

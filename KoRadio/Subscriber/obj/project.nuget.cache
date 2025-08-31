@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fMI14c2BlU8=",
+  "dgSpecHash": "uu/Xx2FB8No=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\Subscriber\\Subscriber.csproj",
+  "projectFilePath": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\Subscriber\\Subscriber.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Avdija\\.nuget\\packages\\bouncycastle.cryptography\\2.4.0\\bouncycastle.cryptography.2.4.0.nupkg.sha512",
     "C:\\Users\\Avdija\\.nuget\\packages\\dotnetenv\\3.1.1\\dotnetenv.3.1.1.nupkg.sha512",

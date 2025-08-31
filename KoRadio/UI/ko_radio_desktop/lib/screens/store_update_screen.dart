@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
   SearchResult<Store>? storeResult;
   File? _image;
   String? _base64Image;
+  Uint8List? _decodedImage;
 
   @override
   void initState() {
@@ -51,11 +53,28 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
         "image":       store.image,
         "locationId":  store.location?.locationId,
       };
+      if (store.image != null) {
+    try {
+      _decodedImage = base64Decode(store.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
+  }
 
       await _getLocations();
     });
   }
+  Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
   Future<void> _getStore() async {
     var filter = {'StoreId': widget.storeId};
     try {
@@ -113,51 +132,105 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text("Podaci Trgovine",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 20),
+                          const Text("Podaci Trgovine", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 50 znakova'),
+                        FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž .]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
+                      ])
+                      ),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: "description",maxLines: 3, decoration: const InputDecoration(labelText: "Opis"),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
+                        FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znakova'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                      ])
+                      ),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa"),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                      ]),
+                      ),
+                      const SizedBox(height: 20),
 
-                            FormBuilderTextField(
-                              name: "storeName",
-                              decoration: const InputDecoration(labelText: "Ime Trgovine:"),
-                              validator: FormBuilderValidators.required(
-                                  errorText: 'Obavezno polje'),
-                            ),
-                            const SizedBox(height: 20),
+                      
+                     
+                    
 
-                            FormBuilderTextField(
-                              name: "description",
-                              decoration: const InputDecoration(labelText: "Opis"),
-                              validator: FormBuilderValidators.required(
-                                  errorText: 'Obavezno polje'),
-                            ),
-                            const SizedBox(height: 20),
-
-                            FormBuilderTextField(
-                              name: "address",
-                              decoration: const InputDecoration(labelText: "Adresa"),
-                              validator: FormBuilderValidators.required(
-                                  errorText: 'Obavezno polje'),
-                            ),
-                            const SizedBox(height: 20),
-
-                            FormBuilderDropdown<int>(
-                              name: 'locationId',
-                              decoration: const InputDecoration(labelText: "Lokacija*"),
-                              validator: FormBuilderValidators.required(
-                                  errorText: 'Obavezno polje'),
-                              items: locationResult?.result
-                                      .map((loc) => DropdownMenuItem(
-                                            value: loc.locationId,
-                                            child: Text(loc.locationName ?? ''),
-                                          ))
-                                      .toList() ??
-                                  [],
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildImageField(),
+                       FormBuilderDropdown<int>(
+                        name: 'locationId',
+                        decoration: const InputDecoration(labelText: "Lokacija*"),
+                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        items: locationResult?.result
+                                .map((loc) => DropdownMenuItem(
+                                      value: loc.locationId,
+                                      child: Text(loc.locationName ?? ''),
+                                    ))
+                                .toList() ??
+                            [],
+                      ),
+                      const SizedBox(height: 20),
+                       FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Logo",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : storeResult?.result.first.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image == null && storeResult?.result.first.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else if (_decodedImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
+        ],
+      ),
+    );
+  },
+),
 
                             const SizedBox(height: 30),
                             Align(

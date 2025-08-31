@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class _BookJobState extends State<BookJob> {
   List<Job>? _currentBookedJobs;
   late Set<int> _workingDayInts;
   final _userId = AuthProvider.user?.userId;
+  Uint8List? _decodedImage;
 
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
@@ -96,8 +98,19 @@ class _BookJobState extends State<BookJob> {
   bool _isWorkingDay(DateTime day) {
     return _workingDayInts.contains(day.weekday);
   }
+  Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
-  _getJobs() async {
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
+
+  Future<void>_getJobs() async {
     var filter = {
       'FreelancerId': widget.freelancer?.freelancerId,
       'JobDate': _currentJobDate,
@@ -190,9 +203,9 @@ class _BookJobState extends State<BookJob> {
                       FormBuilderValidators.required(errorText: 'Obavezno polje'),
                        (value) {
       if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+      final regex = RegExp(r'^[A-Z][a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
       if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova';
+        return 'Dozvoljena su samo slova, prvo velikim';
       }
       return null;
     },
@@ -256,15 +269,10 @@ class _BookJobState extends State<BookJob> {
                   maxLines: 3,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
-
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
+                    FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
+                    FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znakova'),
+                    FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][a-zA-ZčćžđšČĆŽŠĐ\s0-9 .,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                  
                   ]
                    
                 ),
@@ -292,12 +300,12 @@ class _BookJobState extends State<BookJob> {
                 
          
 
-FormBuilderField(
+ FormBuilderField(
   name: "image",
   builder: (field) {
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: "Proslijedite sliku problema",
+        labelText: "Logo",
         border: OutlineInputBorder(),
       ),
       child: Column(
@@ -308,15 +316,17 @@ FormBuilderField(
             leading: const Icon(Icons.image),
             title: _image != null
                 ? Text(_image!.path.split('/').last)
-                : const Text("Nema izabrane slike"),
+                
+                    : const Text("Nema proslijeđene slike"),
             trailing: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
-                textStyle: const TextStyle(color: Colors.white),
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => getImage(field),
+              label: _image == null 
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
             ),
           ),
           const SizedBox(height: 10),
@@ -325,10 +335,19 @@ FormBuilderField(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-               
                 fit: BoxFit.cover,
               ),
-            ),
+            )
+          else if (_decodedImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
     );

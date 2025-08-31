@@ -129,14 +129,7 @@ final end   = _combineDateWithTime(jobDate, pickedEnd);
     }
 
    
-    final freelancer = AuthProvider.user?.freelancer; 
-    if (freelancer == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Nedostaju podaci o freelanceru")),
-      );
-      return;
-    }
-
+    
 
     final workStart = _parseOn(widget.tender!.jobDate, widget.freelancer!.startTime);
     final workEnd   = _parseOn(widget.tender!.jobDate, widget.freelancer!.endTime);
@@ -234,7 +227,12 @@ final end   = _combineDateWithTime(jobDate, pickedEnd);
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
-                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                  FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znaka'),
+                  FormBuilderValidators.maxLength(500, errorText: 'Maksimalno 230 znaka'),
+                  FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][a-zA-ZčćžđšČĆŽŠĐ\s0-9 .,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                ]),
               ),
               const SizedBox(height: 15),
               FormBuilderDateTimePicker(
@@ -248,10 +246,7 @@ final end   = _combineDateWithTime(jobDate, pickedEnd);
                   prefixIcon: Icon(Icons.date_range),
                 ),
                 validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                onChanged: (value) => 
-                {
-                  
-                },
+                
               ),
               const SizedBox(height: 15),
               FormBuilderDateTimePicker(
@@ -264,7 +259,18 @@ final end   = _combineDateWithTime(jobDate, pickedEnd);
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.date_range),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                  (value) {
+    if (value == null) return 'Završetak je obavezan.';
+
+    final start = _formKey.currentState?.fields['startEstimate']?.value;
+    if (start != null && value.isBefore(start)) {
+      return 'Završetak mora biti nakon početka.';
+    }
+    return null;
+  },
+                ]),
               ),
               const SizedBox(height: 15),
 
@@ -277,7 +283,10 @@ final end   = _combineDateWithTime(jobDate, pickedEnd);
                   prefixIcon: Icon(Icons.attach_money),
                 ),
                 valueTransformer: (value) => double.tryParse(value ?? ''),
-                   validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                   validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                    FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
+                   ])
               ),
                
               const SizedBox(height: 15),

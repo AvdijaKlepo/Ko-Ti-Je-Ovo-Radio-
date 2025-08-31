@@ -21,44 +21,23 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   late MessagesProvider messagesProvider;
   late PaginatedFetcher<Messages> messagesPagination;
-  late SearchResult<Messages> result = SearchResult();
-  late final ScrollController _scrollController;
-
   bool _isInitialized = false;
   bool isChecked = false;
   bool isLoading = false;
-  Timer? _debounce;
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 100 &&
-          messagesPagination.hasNextPage &&
-          !messagesPagination.isLoading) {
-        messagesPagination.loadMore();
-      }
-    });
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setState(() => isLoading = true);
       messagesProvider = context.read<MessagesProvider>();
 
       messagesPagination = PaginatedFetcher<Messages>(
         pageSize: 30,
-        initialFilter:  {
-          'CompanyId': AuthProvider.selectedCompanyId,
-          'OrderBy': 'desc',
-        },
+        initialFilter: widget.companyId != null
+            ? {'CompanyId': widget.companyId, 'OrderBy': 'desc'}
+            : widget.storeId != null
+                ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
+                : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
         fetcher: ({
           required int page,
           required int pageSize,
@@ -72,61 +51,49 @@ class _MessagesScreenState extends State<MessagesScreen> {
           return PaginatedResult(result: result.result, count: result.count);
         },
       )..addListener(() => setState(() {}));
-     if(AuthProvider.selectedCompanyId!=null)
+       var filter;
+      if(AuthProvider.selectedCompanyId!=null)
       {
-        await messagesPagination.refresh(newFilter: {
-          'CompanyId': AuthProvider.selectedCompanyId,
-          'OrderBy': 'desc',
-        });
+        filter = {'CompanyId': AuthProvider.selectedCompanyId, 'OrderBy': 'desc'};
       }
       else if(AuthProvider.selectedStoreId!=null)
       {
-        await messagesPagination.refresh(newFilter: {
-          'StoreId': AuthProvider.selectedStoreId,
-          'OrderBy': 'desc',
-        });
+        filter = {'StoreId': AuthProvider.selectedStoreId, 'OrderBy': 'desc'};
       }
       else{
-        await messagesPagination.refresh(newFilter: {
-          'UserId': AuthProvider.user?.userId,
-          'OrderBy': 'desc',
-        });
+        filter = {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'};
       }
-
+      await messagesPagination.refresh(newFilter: filter);
     
 
-      setState(() {
-        _isInitialized = true;
-        isLoading = false;
-      });
+     
+      setState(() => _isInitialized = true);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
+
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: ListView(
+          padding: const EdgeInsets.all(12),
           children: [
-            // Mark all unread as read
+
             if (messagesPagination.items.isNotEmpty &&
                 messagesPagination.items.any((e) => e.isOpened == false))
               Row(
                 children: [
                   Checkbox(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                        borderRadius: BorderRadius.circular(12)),
                     value: isChecked,
                     onChanged: (bool? value) async {
                       setState(() => isChecked = true);
-
+        
                       for (var message in messagesPagination.items
                           .where((e) => e.isOpened == false)
                           .toList()) {
@@ -139,14 +106,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         await messagesProvider.update(
                             message.messageId!, request);
                       }
-
+        
+                      setState(() => isLoading = true);
+                      await messagesPagination.refresh();
                       setState(() {
                         isChecked = false;
-                        isLoading = true;
+                        isLoading = false;
                       });
-
-                      await messagesPagination.refresh();
-                      setState(() => isLoading = false);
                     },
                   ),
                   const Text(
@@ -155,7 +121,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                 ],
               ),
-
+        
             // Delete all read messages
             if (messagesPagination.items.isNotEmpty &&
                 messagesPagination.items
@@ -165,24 +131,22 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 children: [
                   Checkbox(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                        borderRadius: BorderRadius.circular(12)),
                     value: isChecked,
                     onChanged: (bool? value) async {
                       setState(() => isChecked = true);
-
+        
                       for (var message in messagesPagination.items
                           .where((e) => e.isOpened == true)) {
                         await messagesProvider.delete(message.messageId!);
                       }
-
+        
+                      setState(() => isLoading = true);
+                      await messagesPagination.refresh();
                       setState(() {
                         isChecked = false;
-                        isLoading = true;
+                        isLoading = false;
                       });
-
-                      await messagesPagination.refresh();
-                      setState(() => isLoading = false);
                     },
                   ),
                   const Text(
@@ -191,117 +155,88 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                 ],
               ),
-
-            // Message list
-            if (messagesPagination.items.isNotEmpty)
-              ListView.separated(
-                shrinkWrap: true, // important to prevent overflow
-                physics:
-                    const NeverScrollableScrollPhysics(), // drawer handles scrolling
-                separatorBuilder: (context, index) => const Divider(height: 35),
-                controller: _scrollController,
-                itemCount: messagesPagination.items.length + 
-                (messagesPagination.hasNextPage ? 1 : 0),
-                itemBuilder: (context, index) {
-           
-                  final e = messagesPagination.items[index];
-
-                  return Card(
-                    color: e.isOpened == true
-                        ? const Color(0xFF2E2E2E)
-                        : const Color(0xFFFFF3CD),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 12),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        await showDialog(
-                          context: context,
-                          builder: (_) => MessageDetails(messages: e),
-                        );
-                        await messagesPagination.refresh();
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              e.isOpened!
-                                  ? Icons.mark_email_read_outlined
-                                  : Icons.mark_email_unread_outlined,
-                              color: e.isOpened!
-                                  ? Colors.white70
-                                  : Colors.amber.shade800,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    e.message1?.split('.').first ?? '',
-                                    style: TextStyle(
-                                      color: e.isOpened!
-                                          ? Colors.white70
-                                          : Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    DateFormat('dd-MM-yyyy')
-                                        .format(e.createdAt ?? DateTime.now()),
-                                    style: TextStyle(
-                                      color: e.isOpened!
-                                          ? Colors.white54
-                                          : Colors.grey[700],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            e.isOpened!
-                                ? IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: Colors.white54,
-                                    onPressed: () async {
-                                      await messagesProvider.delete(e.messageId!);
-                                      await messagesPagination.refresh();
-                                    },
-                                    tooltip: 'Obriši poruku',
-                                  )
-                                : const SizedBox.shrink(),
-                          ],
+        
+            // Messages list
+            ...messagesPagination.items.map((e) {
+              return Card(
+                color: e.isOpened! ? const Color(0xFF2E2E2E) : const Color(0xFFFFF3CD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (_) => MessageDetails(messages: e),
+                    );
+                    await messagesPagination.refresh();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          e.isOpened!
+                              ? Icons.mark_email_read_outlined
+                              : Icons.mark_email_unread_outlined,
+                          color: e.isOpened! ? Colors.white70 : Colors.amber.shade800,
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                e.message1?.split('.').first ?? '',
+                                style: TextStyle(
+                                  color: e.isOpened! ? Colors.white70 : Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat('dd-MM-yyyy')
+                                    .format(e.createdAt ?? DateTime.now()),
+                                style: TextStyle(
+                                  color: e.isOpened! ? Colors.white54 : Colors.grey[700],
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (e.isOpened!)
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            color: Colors.white54,
+                            onPressed: () async {
+                              await messagesProvider.delete(e.messageId!);
+                              await messagesPagination.refresh();
+                            },
+                            tooltip: 'Obriši poruku',
+                          ),
+                      ],
                     ),
-                  );
-                },
-              ),
-
-            // Show loading or empty state if no messages
+                  ),
+                ),
+              );
+            }).toList(),
+        
+            // Empty state
             if (messagesPagination.items.isEmpty)
               isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : const Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children:[  Center(
-                        child: Text(
-                          'Nemate notifikacija',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                  : const Center(
+                      child: Text(
+                        'Nemate notifikacija',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
-                    ]
-                  ),
+                    ),
           ],
         ),
       ),

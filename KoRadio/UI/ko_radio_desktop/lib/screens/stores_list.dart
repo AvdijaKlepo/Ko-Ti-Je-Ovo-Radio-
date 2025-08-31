@@ -98,10 +98,12 @@ class _StoresListState extends State<StoresList> {
       setState(() {
         isLoading = true;
       });
+      if(mounted) {
       await storesPagination.refresh(newFilter: {
         'isDeleted': showDeleted,
         'IsApplicant': showApplicants,
       });
+      }
       setState(() {
         _isInitialized = true;
         isLoading = false;
@@ -199,6 +201,92 @@ class _StoresListState extends State<StoresList> {
       ),
     );
   }
+  void _openUserApproveDialog({required Store s}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Odobreno?'),
+        content: const Text('Jeste li sigurni da želite odobriti ovu trgovinu?'),
+        actions: [
+          
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+           try {
+                await storesProvider.update(s.storeId, {
+                  "storeName": s.storeName,
+                  "userId": s.user?.userId,
+                  "description": s.description,
+                  "isApplicant": false,
+                  "isDeleted": false,
+                  "roles": [6],
+                  'locationId': s.location?.locationId,
+                  'address': s.address,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Trgovina odobrena!")));
+                     await storesPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              } catch (e) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Greška tokom akcije. Pokušajte ponovo.')));
+                     await storesPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'IsApplicant': showApplicants,
+              });
+              }
+             Navigator.pop(context);
+                                                 
+                                                
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
+  void _openUserRejectDialog({required Store s}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Odbaci?'),
+        content: const Text('Jeste li sigurni da želite odbaciti ovu trgovinu?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+             try {
+  await storesProvider.delete(s.storeId);
+   await storesPagination.refresh(newFilter: {
+     'isDeleted': showDeleted,
+     'IsApplicant': showApplicants,
+   });
+   ScaffoldMessenger.of(context).showSnackBar(
+     const SnackBar(content: Text("Trgovina je uspješno odbačena.")),
+   );
+} on Exception catch (e) {
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Greška tokom akcije. Pokušajte ponovo.")),
+  );
+}
+Navigator.of(context).pop();
+              
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
     
   
   @override
@@ -265,6 +353,8 @@ class _StoresListState extends State<StoresList> {
     ),
   ),
 ),
+    const Expanded(flex: 1, child: Text("Obrtni list", style: TextStyle(fontWeight: FontWeight.bold))),
+
    
    if (!showApplicants && !showDeleted)
                 const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
@@ -320,6 +410,25 @@ class _StoresListState extends State<StoresList> {
                           ),
                         ),
                       ),
+               Expanded(
+  flex: 1,
+  child: GestureDetector(
+    onTap: () {
+      if (s.businessCertificate != null) {
+        showPdfDialog(context, s.businessCertificate!, title: "Obrtni list");
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Nema učitanog dokumenta")),
+        );
+      }
+    },
+    child: const Icon(Icons.document_scanner_outlined, size: 18),
+  ),
+),
+
+
+
+
                                
                                 if (!showApplicants && !showDeleted)
                                   Expanded(
@@ -367,39 +476,12 @@ class _StoresListState extends State<StoresList> {
                                         IconButton(
                                           icon: const Icon(Icons.check, color: Colors.green),
                                           tooltip: 'Odobri',
-                                          onPressed: () async {
-                                           try{
-                                            await storesProvider.update(s.storeId, {
-                                                "storeName": s.storeName,
-                                                "userId": s.user?.userId,
-                                                "description": s.description,
-                                                "isApplicant": false,
-                                                "isDeleted": false,
-                                                "roles":[6],
-                                                'locationId': s.location?.locationId,
-                                                'address': s.address,
-                                              });
-                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Trgovina odobrena!")));
-                                            
-                                           }catch(e){
-                                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-                                           }
-                                          await storesPagination.refresh(newFilter: {
-                                            'isDeleted': showDeleted,
-      'IsApplicant': showApplicants,
-                                          });
-                                          },
+                                          onPressed: () => _openUserApproveDialog(s: s),
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.close, color: Colors.red),
                                           tooltip: 'Odbaci',
-                                          onPressed: () async {
-                                            await  storesProvider.delete(s.storeId);
-                                            await storesPagination.refresh(newFilter: {
-                                              'isDeleted': showDeleted,
-      'IsApplicant': showApplicants,
-                                            });
-                                          },
+                                          onPressed: () => _openUserRejectDialog(s: s),
                                         ),
                                       ],
                                     ),

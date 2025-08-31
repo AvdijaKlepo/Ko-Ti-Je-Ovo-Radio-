@@ -80,6 +80,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _isLoading=false;
 
 
   @override
@@ -98,19 +99,14 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
      
-      body: Center(
+      body:Stack(children: [ Center(
         child: Center(
           child: Container(
             constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
-            child: Card(
-            
-              
-              color: Colors.white,
-              surfaceTintColor: Colors.transparent,
-              child: Column(
+            child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),
+                 Flexible(child: Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),)),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Expanded(
@@ -124,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+              
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Expanded(
@@ -141,11 +137,15 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   ElevatedButton(
+                    clipBehavior: Clip.hardEdge,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-  onPressed: () async {
+  onPressed:_isLoading ? null: () async {
+    setState(() {
+      _isLoading=true;
+    });
     try {
       AuthProvider.username = usernameController.text;
       AuthProvider.password = passwordController.text;
@@ -173,6 +173,7 @@ class _LoginPageState extends State<LoginPage> {
 
           context: context,
           builder: (context) => SimpleDialog(
+
             
 
             title: const Text("Odaberite ulogu:"),
@@ -185,6 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () => Navigator.pop(context, "StoreAdministrator"),
                 child: const Text("Administrator trgovine"),
               ),
+               
             ],
           ),
         );
@@ -254,6 +256,7 @@ class _LoginPageState extends State<LoginPage> {
             await signalRProvider.startConnection();
           }
         }
+       
       } else {
         // --- FALLBACK: only company OR only store logic (your existing one) ---
         if (companyEmployees.length > 1) {
@@ -367,7 +370,16 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    ),
+    
+    if(_isLoading)
+    Container(
+      color: Colors.white,
+      child: const Center(
+      child: CircularProgressIndicator(),
+      ),
+    )
+      ],
+      )
     );
   }
 }

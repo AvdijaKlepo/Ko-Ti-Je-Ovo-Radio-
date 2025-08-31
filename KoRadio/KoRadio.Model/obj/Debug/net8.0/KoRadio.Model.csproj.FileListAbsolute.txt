@@ -10,3 +10,15 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Mo
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\refint\KoRadio.Model.dll
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.pdb
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\ref\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\bin\Debug\net8.0\KoRadio.Model.deps.json
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\bin\Debug\net8.0\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\bin\Debug\net8.0\KoRadio.Model.pdb
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.AssemblyInfoInputs.cache
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.AssemblyInfo.cs
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.csproj.CoreCompileInputs.cache
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.sourcelink.json
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\refint\KoRadio.Model.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\KoRadio.Model.pdb
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.Model\obj\Debug\net8.0\ref\KoRadio.Model.dll

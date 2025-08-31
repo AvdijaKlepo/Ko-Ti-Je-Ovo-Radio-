@@ -1725,6 +1725,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<int>("OrderNumber")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -1743,6 +1746,7 @@ namespace KoRadio.Services.Migrations
                             IsCancelled = false,
                             IsShipped = false,
                             OrderNumber = 20124,
+                            Price = 0m,
                             UserId = 2
                         },
                         new
@@ -1752,6 +1756,7 @@ namespace KoRadio.Services.Migrations
                             IsCancelled = false,
                             IsShipped = false,
                             OrderNumber = 20125,
+                            Price = 0m,
                             UserId = 3
                         },
                         new
@@ -1761,6 +1766,7 @@ namespace KoRadio.Services.Migrations
                             IsCancelled = false,
                             IsShipped = false,
                             OrderNumber = 20126,
+                            Price = 0m,
                             UserId = 2
                         },
                         new
@@ -1770,6 +1776,7 @@ namespace KoRadio.Services.Migrations
                             IsCancelled = false,
                             IsShipped = false,
                             OrderNumber = 20127,
+                            Price = 0m,
                             UserId = 3
                         });
                 });
@@ -1794,6 +1801,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<int?>("StoreId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("OrderItemsId")
                         .HasName("PK__OrderIte__D5BB2555E439B0B6");
 
@@ -1812,7 +1822,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 1,
                             ProductId = 1,
                             Quantity = 2,
-                            StoreId = 1
+                            StoreId = 1,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1820,7 +1831,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 1,
                             ProductId = 4,
                             Quantity = 5,
-                            StoreId = 1
+                            StoreId = 1,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1828,7 +1840,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 2,
                             ProductId = 2,
                             Quantity = 1,
-                            StoreId = 1
+                            StoreId = 1,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1836,7 +1849,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 2,
                             ProductId = 3,
                             Quantity = 3,
-                            StoreId = 1
+                            StoreId = 1,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1844,7 +1858,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 3,
                             ProductId = 5,
                             Quantity = 4,
-                            StoreId = 2
+                            StoreId = 2,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1852,7 +1867,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 3,
                             ProductId = 6,
                             Quantity = 2,
-                            StoreId = 2
+                            StoreId = 2,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1860,7 +1876,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 4,
                             ProductId = 7,
                             Quantity = 1,
-                            StoreId = 2
+                            StoreId = 2,
+                            UnitPrice = 0m
                         },
                         new
                         {
@@ -1868,7 +1885,8 @@ namespace KoRadio.Services.Migrations
                             OrderId = 4,
                             ProductId = 8,
                             Quantity = 3,
-                            StoreId = 2
+                            StoreId = 2,
+                            UnitPrice = 0m
                         });
                 });
 
@@ -1886,6 +1904,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsOnSale")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
@@ -1897,6 +1918,12 @@ namespace KoRadio.Services.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("SalePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("int");
 
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
@@ -1913,144 +1940,176 @@ namespace KoRadio.Services.Migrations
                         {
                             ProductId = 1,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 25.00m,
                             ProductDescription = " Produžni kabl dužine 5 metara, idealan za kućnu i kancelarijsku upotrebu.",
                             ProductName = "Produžni kabl 5m",
+                            StockQuantity = 0,
                             StoreId = 1
                         },
                         new
                         {
                             ProductId = 2,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 45.00m,
                             ProductDescription = "Visokokvalitetni Ethernet kabal dužine 20 metara za pouzdanu mrežnu povezanost.",
                             ProductName = "Ethernet kabal 20m",
+                            StockQuantity = 0,
                             StoreId = 1
                         },
                         new
                         {
                             ProductId = 3,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 15.00m,
                             ProductDescription = "Standardni prekidač naizmenične struje za kućnu i industrijsku upotrebu.",
                             ProductName = "Prekidač naizmenične struje",
+                            StockQuantity = 0,
                             StoreId = 1
                         },
                         new
                         {
                             ProductId = 4,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 10.00m,
                             ProductDescription = "Energetski efikasna LED žarulja snage 9W, pruža jarko svetlo uz nisku potrošnju energije.",
                             ProductName = "LED žarulja 9W",
+                            StockQuantity = 0,
                             StoreId = 1
                         },
                         new
                         {
                             ProductId = 5,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 20.00m,
                             ProductDescription = "Visokokvalitetna ravna keramika dimenzija 30x30cm, idealna za podove i zidove.",
                             ProductName = "Ravna keramika 30x30cm",
+                            StockQuantity = 0,
                             StoreId = 2
                         },
                         new
                         {
                             ProductId = 6,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 15.00m,
                             ProductDescription = "Izdržljive keramičke pločice dimenzija 20x20cm, pogodne za različite površine.",
                             ProductName = "Keramičke pločice 20x20cm",
+                            StockQuantity = 0,
                             StoreId = 2
                         },
                         new
                         {
                             ProductId = 7,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 30.00m,
                             ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg, idealna za popunjavanje spojeva između pločica.",
                             ProductName = "Fug masa 5kg",
+                            StockQuantity = 0,
                             StoreId = 2
                         },
                         new
                         {
                             ProductId = 8,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 50.00m,
                             ProductDescription = "Snažno ljepilo za keramiku u pakovanju od 10kg, pruža čvrsto prizemljivanje pločica na različite površine.",
                             ProductName = "Ljepilo za keramiku 10kg",
+                            StockQuantity = 0,
                             StoreId = 2
                         },
                         new
                         {
                             ProductId = 9,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 8.00m,
                             ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg, pogodan za različite građevinske radove.",
                             ProductName = "Cement 25kg",
+                            StockQuantity = 0,
                             StoreId = 3
                         },
                         new
                         {
                             ProductId = 10,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 5.00m,
                             ProductDescription = "Fini pijesak u pakovanju od 50kg, idealan za malterisanje i druge građevinske primjene.",
                             ProductName = "Pijesak 50kg",
+                            StockQuantity = 0,
                             StoreId = 3
                         },
                         new
                         {
                             ProductId = 11,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 12.00m,
                             ProductDescription = "Kvalitetan malter u pakovanju od 30kg, pogodan za unutrašnje i vanjske zidove.",
                             ProductName = "Malter 30kg",
+                            StockQuantity = 0,
                             StoreId = 3
                         },
                         new
                         {
                             ProductId = 12,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 25.00m,
                             ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L, dostupna u različitim bojama.",
                             ProductName = "Boja za zidove 5L",
+                            StockQuantity = 0,
                             StoreId = 4
                         },
                         new
                         {
                             ProductId = 13,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 15.00m,
                             ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L, pruža zaštitu i sjaj drvenim površinama.",
                             ProductName = "Lak za drvo 1L",
+                            StockQuantity = 0,
                             StoreId = 4
                         },
                         new
                         {
                             ProductId = 14,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 7.00m,
                             ProductDescription = "Kvalitetan valjak za boju, idealan za brzo i ravnomerno nanošenje boje na zidove.",
                             ProductName = "Valjak za boju",
+                            StockQuantity = 0,
                             StoreId = 4
                         },
                         new
                         {
                             ProductId = 15,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 5.00m,
                             ProductDescription = "Izdržljiva četka za boju, pogodna za precizno nanošenje boje na različite površine.",
                             ProductName = "Četka za boju",
+                            StockQuantity = 0,
                             StoreId = 4
                         },
                         new
                         {
                             ProductId = 16,
                             IsDeleted = false,
+                            IsOnSale = false,
                             Price = 40.00m,
                             ProductDescription = "Velika kanta za boju u pakovanju od 10L, idealna za veće projekte farbanja.",
                             ProductName = "Kanta za boju 10L",
+                            StockQuantity = 0,
                             StoreId = 4
                         });
                 });
@@ -2328,12 +2387,19 @@ namespace KoRadio.Services.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StoreId"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte[]>("BusinessCertificate")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
@@ -2347,12 +2413,27 @@ namespace KoRadio.Services.Migrations
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double?>("RatingSum")
+                        .HasColumnType("float");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
                     b.Property<string>("StoreName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("TotalRatings")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkingDays")
                         .HasColumnType("int");
 
                     b.HasKey("StoreId")
@@ -2370,44 +2451,60 @@ namespace KoRadio.Services.Migrations
                             StoreId = 1,
                             Address = "Mostar, b.b.",
                             Description = "Prodaja elektro materijala i alata.",
+                            EndTime = new TimeOnly(0, 0, 0),
                             IsApplicant = false,
                             IsDeleted = false,
                             LocationId = 1,
+                            Rating = 0m,
+                            StartTime = new TimeOnly(0, 0, 0),
                             StoreName = "Elektro Materijal",
-                            UserId = 7
+                            UserId = 7,
+                            WorkingDays = 0
                         },
                         new
                         {
                             StoreId = 2,
                             Address = "Mostar, b.b.",
                             Description = "Prodaja keramike",
+                            EndTime = new TimeOnly(0, 0, 0),
                             IsApplicant = false,
                             IsDeleted = false,
                             LocationId = 1,
+                            Rating = 0m,
+                            StartTime = new TimeOnly(0, 0, 0),
                             StoreName = "Keramik Stop",
-                            UserId = 8
+                            UserId = 8,
+                            WorkingDays = 0
                         },
                         new
                         {
                             StoreId = 3,
                             Address = "Sarajevo, b.b.",
                             Description = "Prodaja građevinskog materijala i alata.",
+                            EndTime = new TimeOnly(0, 0, 0),
                             IsApplicant = false,
                             IsDeleted = false,
                             LocationId = 2,
+                            Rating = 0m,
+                            StartTime = new TimeOnly(0, 0, 0),
                             StoreName = "Građevinski Materijal",
-                            UserId = 3
+                            UserId = 3,
+                            WorkingDays = 0
                         },
                         new
                         {
                             StoreId = 4,
                             Address = "Sarajevo, b.b.",
                             Description = "Prodaja boja i lakova za molerske radove.",
+                            EndTime = new TimeOnly(0, 0, 0),
                             IsApplicant = false,
                             IsDeleted = false,
                             LocationId = 2,
+                            Rating = 0m,
+                            StartTime = new TimeOnly(0, 0, 0),
                             StoreName = "Moleraj Plus",
-                            UserId = 3
+                            UserId = 3,
+                            WorkingDays = 0
                         });
                 });
 
@@ -3561,6 +3658,7 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.Job", "Job")
                         .WithMany("JobsServices")
                         .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__JobsServi__JobId__7849DB76");
 
@@ -3725,6 +3823,7 @@ namespace KoRadio.Services.Migrations
                     b.HasOne("KoRadio.Services.Database.Job", "Job")
                         .WithMany("TenderBids")
                         .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__TenderBid__JobId__6A85CC04");
 

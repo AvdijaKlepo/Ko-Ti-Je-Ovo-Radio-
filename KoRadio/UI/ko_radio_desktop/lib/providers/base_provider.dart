@@ -292,7 +292,7 @@ void _handleErrorResponse(Response response) {
 
 }
 class UserException implements Exception {
-  final String exMessage;
+  String exMessage;
 
   UserException(this.exMessage);
 

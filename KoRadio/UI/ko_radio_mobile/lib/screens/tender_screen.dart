@@ -77,8 +77,15 @@ class _TenderScreenState extends State<TenderScreen> {
       tenderFetcher.addListener(() {
         if (mounted) setState(() {});
       });
+      final filter = <String, dynamic>{
+      'IsTenderFinalized': true,
+      if (AuthProvider.selectedRole != "Freelancer")
+        'UserId': AuthProvider.user?.userId
+      else
+        'IsFreelancer': true,
+    };
 
-      await _refreshWithFilter();
+      await tenderFetcher.refresh(newFilter: filter);
       if (!mounted) return;
 
       setState(() {
@@ -122,28 +129,29 @@ class _TenderScreenState extends State<TenderScreen> {
   }
 
   Future<void> _refreshWithFilter() async {
+    if(!mounted) return;
     setState(() => _isLoading = true);
 
-    // base filter depending on role
+
     final filter = <String, dynamic>{
       'IsTenderFinalized': true,
       if (AuthProvider.selectedRole != "Freelancer")
-        'userId': AuthProvider.user?.userId
+        'UserId': AuthProvider.user?.userId
       else
-        'isFreelancer': true,
+        'IsFreelancer': true,
     };
 
-    // apply job service filter (like your .NET LINQ Any condition)
     if (_selectedServiceId != null) {
       filter['JobService'] = _selectedServiceId;
     }
-
+    
     await tenderFetcher.refresh(newFilter: filter);
+    if(!mounted) return;
     setState(() => _isLoading = false);
   }
 
   Widget _buildServiceDropdown() {
-    if (serviceDropdownItems.isEmpty) return const SizedBox.shrink();
+    if (serviceDropdownItems.isEmpty || AuthProvider.selectedRole!="Freelancer") return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -170,16 +178,23 @@ class _TenderScreenState extends State<TenderScreen> {
   Widget build(BuildContext context) {
     if (!_isInitialized) {
       return const Center(child: CircularProgressIndicator());
-    }
+    }  
+   var filterOutLoggedInFreelancer = AuthProvider.selectedRole == "Freelancer"
+    ? tenderFetcher.items.where((e) => e.user?.userId != AuthProvider.user?.userId).toList()
+    : tenderFetcher.items; 
+
+
+    
 
     final selectedRole = AuthProvider.selectedRole;
 
     return RefreshIndicator(
       onRefresh: tenderFetcher.refresh,
-      child: tenderFetcher.items.isEmpty
+      child: filterOutLoggedInFreelancer.isEmpty
           ? Column(
               
               children: [
+           
                 _buildServiceDropdown(),
                 const SizedBox(height: 10),
                 selectedRole == "User"
@@ -261,7 +276,8 @@ class _TenderScreenState extends State<TenderScreen> {
                     padding: const EdgeInsets.all(12),
                     itemBuilder: (context, index) {
                       if (index < tenderFetcher.items.length) {
-                        final tender = tenderFetcher.items[index];
+                        final tender = filterOutLoggedInFreelancer[index];
+
                         return Card(
                           color: const Color.fromRGBO(27, 76, 125, 25),
                           shape: RoundedRectangleBorder(
@@ -276,19 +292,18 @@ class _TenderScreenState extends State<TenderScreen> {
                                   builder: (_) =>
                                       TenderBidsScreen(tender: tender),
                                 ),
+
                               );
 
-                              if (updated == true) {
-                                await _refreshWithFilter();
-                              } else if (updated == false) {
-                                setState(() {});
-                              }
+
+                             _refreshWithFilter();
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                               
                                   Text('Naslov:  ${tender.jobTitle}',
                                       style: const TextStyle(
                                           fontSize: 16,

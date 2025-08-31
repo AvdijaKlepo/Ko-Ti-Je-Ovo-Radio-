@@ -78,8 +78,8 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     }
 
     Map<String, int> dayMap = {
-      'Nedjelja': 0, 'Ponedjeljak': 1, 'Utorak': 2, 'Srijeda': 3,
-      'Četvrtak': 4, 'Petak': 5, 'Subota': 6,
+      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+      'Thursday': 4, 'Friday': 5, 'Saturday': 6,
     };
 
     if (formData["workingDays"] != null) {
@@ -111,6 +111,8 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Greška prilikom prijave! Pokušajte ponovo.")));
+      Navigator.of(context).pop(false);
+
     }
 
 
@@ -130,137 +132,146 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Promoviši korisnika: ${widget.user?.firstName} ${widget.user?.lastName}",
-                  style: Theme.of(context).textTheme.titleLarge),
-              spacing,
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: [
-                  
-                    spacing,
-                    FormBuilderTextField(name: "firstName", decoration: const InputDecoration(labelText: "First Name"),validator: FormBuilderValidators.compose(
-                      [
-                        FormBuilderValidators.required(errorText: "Obavezno polje"),
-                        (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova';
+              
+             FormBuilderTextField(
+  name: "bio",
+  
+  decoration: const InputDecoration(
+    
+    labelText: "Biografija",
+    border: OutlineInputBorder(),
+  ),
+  maxLines: 5,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Biografija je obavezna."),
+    FormBuilderValidators.minLength(10,
+        errorText: "Biografija mora imati barem 10 karaktera."),
+    FormBuilderValidators.maxLength(500,
+        errorText: "Biografija može imati najviše 500 karaktera."),
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderTextField(
+  name: "experianceYears",
+  decoration: const InputDecoration(
+    labelText: "Godine Iskustva",
+    border: OutlineInputBorder(),
+  ),
+  keyboardType: TextInputType.number,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Unesite godine iskustva."),
+    FormBuilderValidators.integer(errorText: "Dozvoljeni su samo brojevi."),
+    FormBuilderValidators.min(0, errorText: "Godine ne mogu biti negativne."),
+    FormBuilderValidators.max(70, errorText: "Budimo realni."),
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderCheckboxGroup<String>(
+  name: 'workingDays',
+  decoration: const InputDecoration(
+    labelText: "Radni Dani",
+    border: InputBorder.none,
+  ),
+  options: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
+    (value) {
+      if (value != null && value.isEmpty) {
+        return "Morate odabrati barem jedan dan.";
       }
       return null;
-    },
-                      ]
-                    )),
-                    spacing,
-                    FormBuilderTextField(name: "lastName", decoration: const InputDecoration(labelText: "Last Name"),validator: FormBuilderValidators.compose(
-                      [
-                        FormBuilderValidators.required(errorText: "Obavezno polje"),
-                        (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova';
-      }
-      return null;
-    },
-                      ]
-                    )),
-                    spacing,
-                    FormBuilderTextField(name: "email", decoration: const InputDecoration(labelText: "Email"),validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      FormBuilderValidators.email(errorText: "Email nije valjan"),
-                    ])),
-                  ]),
-                ),
-              ),
-              spacing,
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: [
-                    FormBuilderTextField(name: "bio", decoration: const InputDecoration(labelText: "Biografija"),validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                    ]),maxLines: 3,),
-                    spacing,
-                    FormBuilderTextField(
-                        name: "experianceYears", decoration: const InputDecoration(labelText: "Years of Experience"),validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: "Obavezno polje"),
-                          FormBuilderValidators.numeric(errorText: "Dozvoljeni si u samo brojevi."),
-                        ])),
-                    spacing,
-                  
-                    spacing,
-                    FormBuilderDateTimePicker(
-                      name: 'startTime',
-                      decoration: const InputDecoration(labelText: "Početak radnog vremena"),
-                      inputType: InputType.time,
-                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
-                    ),
-                    spacing,
-                    FormBuilderDateTimePicker(
-                      name: 'endTime',
-                      decoration: const InputDecoration(labelText: "Kraj radnog vremena"),
-                      inputType: InputType.time,
-                      validator: FormBuilderValidators.required(errorText: "Obavezno polje")
-                    ),
-                  ]),
-                ),
-              ),
-              spacing,
-                ExpansionTile(
-                  title: const Text("Odaberi usluge"),
-                  initiallyExpanded: false,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: serviceResult?.result.length != null
-                          ? FormBuilderFilterChip(
-                            
-                            
-                              name: "serviceId",
-                              decoration: const InputDecoration(border: InputBorder.none),
-                              options: serviceResult!.result
-                                  .map((s) => FormBuilderChipOption(
-                                      value: s.serviceId, child: Text(s.serviceName ?? "")))
-                                  .toList(),
-                              spacing: 6,
-                              runSpacing: 4,
-                               validator: (value) {
-    if (value == null || value.isEmpty) {
-      return "Odaberite barem jednu uslugu";
     }
-    return null;
-  },
-                              
-                            )
-                          : const Text("Nema dostupnih usluga"),
-                    ),
-                  ],
-                ),
-              spacing,
-             FormBuilderCheckboxGroup<String>(
-              validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      name: 'workingDays',
-                      decoration: const InputDecoration(labelText: "Radni dani"),
-                      options: [
-                        'Ponedjeljak',
-                        'Utorak',
-                        'Srijeda',
-                        'Četvrtak',
-                        'Petak',
-                        'Subota',
-                        'Nedjelja'
-                      ].map((e) => FormBuilderFieldOption(value: e)).toList(),
-                    ),
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'startTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Početak Smjene",
+    border: OutlineInputBorder(),
+  ),
+  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'endTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Kraj Smjene",
+    border: OutlineInputBorder(),
+
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
+    (value) {
+      final start = FormBuilder.of(context)?.fields['startTime']?.value;
+
+      if (start != null && value != null) {
+        if (value.isBefore(start)) {
+          return "Kraj smjene mora biti nakon početka.";
+        }
+
+        final diff = value.difference(start).inHours;
+        if (diff < 3) {
+          return "Smjena mora trajati najmanje 3 sata.";
+        }
+      }
+      return null;
+    }
+  ]),
+),
+
+const SizedBox(height: 12),
+
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+  child: serviceResult?.result != null
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Usluge",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 6),
+            FormBuilderFilterChip<int>(
+              name: "serviceId",
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+              ),
+              options: serviceResult!.result
+                  .map((s) => FormBuilderChipOption(
+                        value: s.serviceId,
+                        child: Text(s.serviceName ?? ""),
+                      ))
+                  .toList(),
+              spacing: 8,
+              runSpacing: 6,
+              validator: FormBuilderValidators.required(
+                errorText: "Odaberite barem jednu uslugu.",
+              ),
+            ),
+          ],
+        )
+      : const Text("Nema dostupnih usluga"),
+),
+
               spacing,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

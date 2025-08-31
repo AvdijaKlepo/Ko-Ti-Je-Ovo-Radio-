@@ -199,9 +199,7 @@ SizedBox(height: 30,),
                             );
                           },
                         ),
-                        onTap: () {
-                          // optionally navigate to product details
-                        },
+                        
                       ),
                     );
                   }).toList(),

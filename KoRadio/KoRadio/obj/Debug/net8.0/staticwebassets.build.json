@@ -1,12 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "A2ztFiFXhtBb2EkHENDypKURKu1KVFuLJbwe5OMifoo=",
-  "Source": "KoRadio.API",
-  "BasePath": "_content/KoRadio.API",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
-}
+{"Version":1,"Hash":"A2ztFiFXhtBb2EkHENDypKURKu1KVFuLJbwe5OMifoo=","Source":"KoRadio.API","BasePath":"_content/KoRadio.API","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

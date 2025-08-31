@@ -43,6 +43,22 @@ public class MapsterConfig
 					 .Where(day => ((WorkingDaysFlags)src.WorkingDays).HasFlag((WorkingDaysFlags)(1 << (int)day)))
 					 .ToList());
 
+		TypeAdapterConfig<StoreInsertRequest, KoRadio.Services.Database.Store>
+			.NewConfig()
+			.Ignore(dest => dest.WorkingDays);
+
+		TypeAdapterConfig<StoreUpdateRequest, KoRadio.Services.Database.Store>
+			.NewConfig()
+			.Ignore(dest => dest.WorkingDays);
+
+
+		TypeAdapterConfig<KoRadio.Services.Database.Store, KoRadio.Model.Store>
+			.NewConfig()
+			.Map(dest => dest.WorkingDays,
+				 src => Enum.GetValues<DayOfWeek>()
+					 .Where(day => ((WorkingDaysFlags)src.WorkingDays).HasFlag((WorkingDaysFlags)(1 << (int)day)))
+					 .ToList());
+
 
 
 		//	TypeAdapterConfig<KoRadio.Services.Database.User, KoRadio.Model.User>

@@ -14,6 +14,11 @@ public partial class Product:ISoftDelete
     public decimal Price { get; set; }
 
     public int StoreId { get; set; }
+    public int StockQuantity { get; set; } = 0;
+    public bool IsOnSale { get; set; }
+    public decimal? SalePrice { get; set; }
+
+
 
     public bool IsDeleted { get; set; }
 

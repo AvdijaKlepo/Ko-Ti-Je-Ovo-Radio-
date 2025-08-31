@@ -192,22 +192,20 @@ class _ApproveJobState extends State<ApproveJob> {
               };
               try{
                 await messagesProvider.insert(messageRequest);
+                await jobProvider.update(widget.job.jobId,
+                jobUpdateRequest
+                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
+         Navigator.pop(context,true);
+
               } on Exception catch (e) {
-                if(!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja notifikacije: ${e.toString()}')));
               }
-              try {
-            await jobProvider.update(widget.job.jobId,
-            jobUpdateRequest
-            );
-            
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
+              
+           
+          
          Navigator.pop(context,true);
-          } on Exception catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-        Navigator.pop(context,true);
-
-          }
+          
             },
             child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
             ),
@@ -442,8 +440,9 @@ class _ApproveJobState extends State<ApproveJob> {
                
                   _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato')) ,
                   const Divider(height: 32),
+
                   _buildDetailRow('Procijena',
-                      jobResult.result.first.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
+                      '${jobResult.result.first.payEstimate?.toStringAsFixed(2)}' ?? 'Nije unesena'),
                   _buildDetailRow('Konačna cijena',
                       jobResult.result.first.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
                        if(jobResult.result.first.jobStatus== JobStatus.cancelled) 
@@ -718,25 +717,13 @@ DateTime normalizeTime(DateTime t) {
             'Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-               outOfWorkHours = false;
-                
-              },
-              child: const Text("Nastavi"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                 setState(() {
-                  outOfWorkHours = true;
-                });
-               
-      
-              },
-              child: const Text("Promijeni"),
-            ),
+           
+           
+          TextButton(onPressed: () {
+            Navigator.of(ctx).pop();
+            
+            
+          },child: const Text("Uredu",style: TextStyle(color: Colors.white),),),
           ],
         ),
       );

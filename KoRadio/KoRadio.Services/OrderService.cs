@@ -117,7 +117,7 @@ namespace KoRadio.Services
 			string notification;
 
 
-			notification = $"Novi narudžba od korisnika {entity.User.FirstName} {entity.User.LastName}.";
+			notification = $"Novi narudžba pristigla.";
 			using var tx = await _context.Database.BeginTransactionAsync(cancellationToken);
 			try
 			{

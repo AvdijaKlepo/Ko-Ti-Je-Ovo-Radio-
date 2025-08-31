@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Services.Database
 {
-    internal interface IJobRollback
+    internal interface IJobDelete
     {
-		public bool IsEdited { get; set; }
+		public bool IsDeleted { get; set; }
 
-		public bool IsApproved { get; set; }
+		public bool IsTenderFinalized { get; set; }
 	}
 }

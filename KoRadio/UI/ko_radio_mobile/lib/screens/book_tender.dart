@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
+import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
@@ -16,8 +18,9 @@ import 'package:ko_radio_mobile/providers/tender_provider.dart';
 import 'package:provider/provider.dart';
 
 class BookTender extends StatefulWidget {
-  const BookTender({this.isFreelancer,super.key});
+  const BookTender({this.isFreelancer,this.tender,super.key});
   final bool? isFreelancer;
+  final Job? tender;
 
   @override
   State<BookTender> createState() => _BookTenderState();
@@ -25,40 +28,77 @@ class BookTender extends StatefulWidget {
 
 class _BookTenderState extends State<BookTender> {
   final _formKey = GlobalKey<FormBuilderState>();
+  Map<String, dynamic> _initialValue = {};
   late JobProvider tenderProvider;
   late ServiceProvider serviceProvider;
   SearchResult<Service>? serviceResult;
   File? _image;
   String? _base64Image;
+  Uint8List? _decodedImage;
  
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      tenderProvider = context.read<JobProvider>();
+       tenderProvider = context.read<JobProvider>();
       serviceProvider = context.read<ServiceProvider>();
-      _getServices();
+      _initialValue={
+        'jobDate': widget.tender?.jobDate,
+        'jobDescription': widget.tender?.jobDescription,
+        'jobTitle': widget.tender?.jobTitle,
+        'isTenderFinalized': true,
+        'serviceId': widget.tender?.jobsServices
+               !.map((e) => e.serviceId)
+    .whereType<int>() 
+    .toList(),
+
+        'userId': widget.tender?.user?.userId,
+        'isFreelancer': widget.isFreelancer,
+        'image':widget.tender?.image,
+      };
+      if (widget.tender?.image != null) {
+    try {
+      _decodedImage = base64Decode(widget.tender!.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
+  }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      
+   
+      await _getServices();
     });
   }
+   Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
 
   Future<void> _getServices() async {
     try {
       final fetched = await serviceProvider.get();
+      if(!mounted) return;
       setState(() {
         serviceResult = fetched;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška pri dohvatu servisa: $e")),
+        const SnackBar(content: Text("Greška pri dohvatu servisa.")),
       );
     }
   }
 
   Future<void> _submit() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final values = _formKey.currentState!.value;
-
+      final values =  Map<String, dynamic>.from(_formKey.currentState!.value);
+     values['serviceId'] = (values['serviceId'] as List).map((e) => int.tryParse(e.toString()) ?? 0).toList();
       final request = {
       "jobDate": (values['jobDate'] as DateTime).toIso8601String(),
       
@@ -68,25 +108,48 @@ class _BookTenderState extends State<BookTender> {
         "isTenderFinalized": true,
         "serviceId": values["serviceId"] ?? [],
         "userId": AuthProvider.user?.userId,
-        "image": _base64Image,
+        'image':_image!=null?_base64Image:widget.tender?.image,
         "jobStatus": JobStatus.unapproved.name,
         "isFreelancer":widget.isFreelancer,
         "isInvoiced": false,
         "isRated": false,
       };
-
-      try {
+      if(widget.tender==null) {
+        try {
         await tenderProvider.insert(request);
-        if (!mounted) return;
+    
         
-        Navigator.pop(context);
+        if(!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Tender je uspešno objavljen")),
+          const SnackBar(content: Text("Tender je uspešno objavljen")),
         );
+           Navigator.pop(context);
+
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška prilikom slanja tendera: $e")),
-        );
+        ); 
+        Navigator.pop(context);
+      }
+      }
+      else{
+        try{
+          await tenderProvider.update(widget.tender!.jobId, request);
+       
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Tender je uspešno izmjenjen")),
+            
+          );
+          Navigator.pop(context);
+        } catch (e) {
+          if(!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Greška prilikom izmjene tendera. Pokušajte ponovo.")),
+          );
+         
+        }
+         Navigator.pop(context);
       }
     }
   }
@@ -116,11 +179,12 @@ class _BookTenderState extends State<BookTender> {
         [];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rezerviši tender')),
+      appBar: AppBar(title: widget.tender==null? const Text('Rezerviši tender'): const Text('Izmjeni tender')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
           key: _formKey,
+          initialValue: _initialValue,
           child: Column(
             children: [
              
@@ -146,7 +210,7 @@ class _BookTenderState extends State<BookTender> {
     },
                 ]),
               ),
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
                FormBuilderTextField(
                 name: "jobDescription",
                 decoration: const InputDecoration(
@@ -170,9 +234,10 @@ class _BookTenderState extends State<BookTender> {
               const SizedBox(height: 20,child: Text("Napomena: Datum tendera mora biti minimalno 5 dana unaprijed.", style: TextStyle(fontSize: 12, color: Color.fromRGBO(27, 76, 125, 25)),),),
               FormBuilderDateTimePicker(
                 name: "jobDate",
-                initialDate: DateTime.now().add(Duration(days: 5)),
-                firstDate: DateTime.now().add(Duration(days: 5)),
+                initialDate: DateTime.now().add(const Duration(days: 5)),
+                firstDate: DateTime.now().add(const Duration(days: 5)),
                 inputType: InputType.date,
+                
 
             
                 decoration: const InputDecoration(
@@ -196,7 +261,7 @@ class _BookTenderState extends State<BookTender> {
   builder: (field) {
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: "Proslijedite sliku problema",
+        labelText: "Logo",
         border: OutlineInputBorder(),
       ),
       child: Column(
@@ -207,15 +272,18 @@ class _BookTenderState extends State<BookTender> {
             leading: const Icon(Icons.image),
             title: _image != null
                 ? Text(_image!.path.split('/').last)
-                : const Text("Nema izabrane slike"),
+                : widget.tender?.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
             trailing: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
-                textStyle: const TextStyle(color: Colors.white),
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => getImage(field),
+              label: _image == null && widget.tender?.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
             ),
           ),
           const SizedBox(height: 10),
@@ -224,11 +292,19 @@ class _BookTenderState extends State<BookTender> {
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-                width: 350,
-                height: 150,
                 fit: BoxFit.cover,
               ),
-            ),
+            )
+          else if (_decodedImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
     );
@@ -238,9 +314,9 @@ class _BookTenderState extends State<BookTender> {
              
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor:Color.fromRGBO(27, 76, 125, 25)),
+                style: ElevatedButton.styleFrom(backgroundColor:const Color.fromRGBO(27, 76, 125, 25)),
                 onPressed: _submit,
-                child: const Text("Objavi tender",style: TextStyle(color: Colors.white),),
+                child: widget.tender==null? const Text("Objavi tender",style: TextStyle(color: Colors.white),):const Text("Izmjeni tender",style: TextStyle(color: Colors.white),),
               ),
             ],
           ),

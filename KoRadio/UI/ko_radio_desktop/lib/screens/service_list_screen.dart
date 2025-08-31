@@ -86,11 +86,12 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
           return PaginatedResult(result: result.result, count: result.count);
         },
       )..addListener(() => setState(() {}));
-
+      if(mounted) {
       await Future.wait([
         servicePagination.refresh(),
         locationPagination.refresh(),
       ]);
+      }
 
       setState(() => _isInitialized = true);
     });

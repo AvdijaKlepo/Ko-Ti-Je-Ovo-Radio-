@@ -286,7 +286,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Job).WithMany(p => p.JobsServices)
                 .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__JobsServi__JobId__7849DB76");
 
             entity.HasOne(d => d.Service).WithMany(p => p.JobsServices)
@@ -475,7 +475,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
             entity.HasOne(d => d.Job).WithMany(p => p.TenderBids)
                 .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__TenderBid__JobId__6A85CC04");
         });
 

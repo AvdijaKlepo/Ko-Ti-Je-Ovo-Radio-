@@ -19,8 +19,9 @@ class CompanyList extends StatefulWidget {
 class _CompanyListState extends State<CompanyList> {
   late CompanyProvider companyProvider;
   late PaginatedFetcher<Company> companyPagination;
-  late ScrollController _scrollController;
+
   SearchResult<Company>? companyResult;
+  int currentPage = 1;
 
   final TextEditingController _companyNameController = TextEditingController();
   bool showApplicants = false;
@@ -35,7 +36,7 @@ class _CompanyListState extends State<CompanyList> {
       isLoading=true;
     });
     companyPagination = PaginatedFetcher<Company>(
-      pageSize: 20,
+      pageSize: 0,
       initialFilter: {},
       fetcher: ({
         required int page,
@@ -48,19 +49,10 @@ class _CompanyListState extends State<CompanyList> {
       },
     );
 
-    _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 100 &&
-          companyPagination.hasNextPage &&
-          !companyPagination.isLoading) {
-        companyPagination.loadMore();
-      }
-    });
     
     companyProvider = context.read<CompanyProvider>();
     companyPagination = PaginatedFetcher<Company>(
-      pageSize: 20,
+      pageSize: 18,
       initialFilter: {},
       fetcher: ({
         required int page,
@@ -77,10 +69,12 @@ class _CompanyListState extends State<CompanyList> {
         isLoading = true;
         
       });
-      await companyPagination.refresh(newFilter: {
+      if(mounted) {
+        await companyPagination.refresh(newFilter: {
         'isDeleted': showDeleted,
         'IsApplicant': showApplicants,
       });
+      }
       setState(() {
         _isInitialized = true;
         isLoading = false;
@@ -99,7 +93,7 @@ class _CompanyListState extends State<CompanyList> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
+    _debounce = Timer(const Duration(milliseconds: 1), _refreshWithFilter);
   }
   Future<void> _refreshWithFilter() async {
     
@@ -224,6 +218,124 @@ class _CompanyListState extends State<CompanyList> {
       ),
     );
   }
+  void _openUserApproveDialog({required Company c}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Odobreno?'),
+        content: const Text('Jeste li sigurni da želite odobriti ovu ?'),
+        actions: [
+          
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+  final dayMap = {
+    'Sunday': 0,
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6
+  };
+  
+  var workingDaysStringList = c.workingDays ?? [];
+  
+  final workingDaysIntList = workingDaysStringList
+      .map((day) => dayMap[day])
+      .whereType<int>()
+      .toList();
+  
+  await companyProvider.update(
+    c.companyId,
+    {
+      "companyName": c.companyName,
+      "bio": c.bio,
+      "email": c.email,
+      "rating": c.rating,
+      "phoneNumber": c.phoneNumber,
+      "experianceYears": c.experianceYears,
+      "image": c.image,
+      "startTime": c.startTime,
+      "endTime": c.endTime,
+      "workingDays": workingDaysIntList,
+      "serviceId":
+          c.companyServices.map((e) => e.serviceId).toList(),
+      "locationId": c.location?.locationId,
+      "roles": [4],
+      "isApplicant": false,
+      "isDeleted": false,
+      "employee": c.companyEmployees.map((e) => e.userId).toList(),
+      'isOwner': true,
+    },
+  );
+  
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Firma odobrena!")),
+    );
+  
+  await companyPagination.refresh(newFilter: {
+    'isDeleted': showDeleted,
+    'IsApplicant': showApplicants,
+  });
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Greška tokom akcije. Pokušajte ponovo.")),
+  );
+}
+              
+                Navigator.of(context).pop();
+              
+                                                 
+                                                
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
+  void _openUserRejectDialog({required Company c}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Odbaci?'),
+        content: const Text('Jeste li sigurni da želite odbaciti ovu firmu?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+  await companyProvider.delete(c.companyId);
+  await companyPagination.refresh(newFilter: {
+    'isDeleted': showDeleted,
+    'IsApplicant': showApplicants,
+  });
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Firma je uspješno odbačena.")),
+  );
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Greška tokom akcije. Pokušajte ponovo.")),
+  );
+}
+             
+                Navigator.of(context).pop();
+              
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     if(!_isInitialized) return const Center(child: CircularProgressIndicator());
@@ -231,24 +343,36 @@ class _CompanyListState extends State<CompanyList> {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _companyNameController,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                     labelText: 'Ime Firme',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.search_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    suffixIcon: _companyNameController.text.isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              _companyNameController.clear();
+                              _onSearchChanged();
+                            },
+                            icon: const Icon(Icons.clear),
+                          )
+                        : null,
                   ),
                   onChanged: (_) => _onSearchChanged(),
                 ),
               ),
               const SizedBox(width: 8),
-              Row(
+              Column(
                 children: [
-                  const Text("Prikaži aplikante"),
+               
                   Switch(
                     value: showApplicants,
                     onChanged: (val) {
@@ -256,11 +380,13 @@ class _CompanyListState extends State<CompanyList> {
                       _onSearchChanged();
                     },
                   ),
+                    const Text("Prikaži aplikante"),
                 ],
               ),
-              Row(
+              const SizedBox(width: 12),
+              Column(
                 children: [
-                  const Text("Prikaži izbrisane"),
+             
                   Switch(
                     value: showDeleted,
                     onChanged: (val) {
@@ -268,262 +394,243 @@ class _CompanyListState extends State<CompanyList> {
                       _onSearchChanged();
                     },
                   ),
+                       const Text("Prikaži izbrisane"),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-         Row(
-  children: [
-    const Expanded(flex: 5, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 4, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 5, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
-   const Expanded(
-  flex: 3,
+         Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+           child: const Row(
+             children: [
+               Expanded(flex: 5, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 4, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 5, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
+               Expanded(flex: 2, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+             flex: 3,
+             child: Center(
+               child: Text(
+                 "Slika",
+                 style: TextStyle(fontWeight: FontWeight.bold),
+               ),
+             ),
+           ),
+               Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
+                   
+                
+             ],
+           ),
+         ),
+         const SizedBox(height: 6),
+
+          Expanded(child:
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: companyPagination.items.isEmpty && !isLoading
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/images/usersNotFound.webp', width: 250, height: 250),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Korisnici nisu pronađeni.',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  )
+                : ListView.separated(
+            itemCount: companyPagination.items.length,
+            separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+            itemBuilder: (context, index) {
+              final c = companyPagination.items[index];
+              return MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Container(
+                  color: index.isEven ? Colors.grey.shade50 : Colors.white,
+                  child: _buildCompanies(c),
+                ),
+              );
+            },
+          ),
+          ),
+          ),
+
+          const SizedBox(height: 12),
+
+           if (_companyNameController.text.isEmpty &&
+           
+            companyPagination.hasNextPage == false)
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            children: List.generate(
+              (companyPagination.count / companyPagination.pageSize).ceil(),
+              (index) {
+                final pageNum = index + 1;
+                final isActive = currentPage == pageNum;
+                return OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isActive ? const Color.fromRGBO(27, 76, 125, 1) : Colors.white,
+                    foregroundColor: isActive ? Colors.white : Colors.black87,
+                    side: BorderSide(color: isActive ? Colors.transparent : Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  onPressed: () async {
+                    if (!mounted) return;
+                    setState(() {
+                      currentPage = pageNum;
+                      isLoading = true;
+                    });
+                    await companyPagination.goToPage(
+                      pageNum,
+                      filter: {
+                        'isDeleted': showDeleted,
+                        'isApplicant': showApplicants,
+                      },
+                    );
+                    if (!mounted) return;
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  child: Text("$pageNum"),
+                );
+              },
+            ),
+          ),
+
+        const SizedBox(height: 8),
+
+        // 📊 Counter
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Prikazano ${(currentPage - 1) * companyPagination.pageSize + 1}"
+              " - ${(currentPage - 1) * companyPagination.pageSize + companyPagination.items.length}"
+              " od ${companyPagination.count}",
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+          
+          
+          
+          
+       
+
+     
+        ],
+      ),
+    );
+  }
+  Widget _buildCompanies(Company company) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      child: Row(
+        children: [
+          Expanded(flex: 5, child: Text(company.companyName ?? '')),
+          Expanded(flex: 4, child: Text(company.email ?? '')),
+          Expanded(flex: 3, child: Text(formatPhoneNumber(company.phoneNumber ?? ''))),
+          Expanded(flex: 3, child: Text(company.location?.locationName ?? '')),
+          Expanded(flex: 5, child: Text(getWorkingDaysShort(company.workingDays).join(', '))),
+          Expanded(flex: 2, child: Text('${company.experianceYears.toString()} godina')),
+          Expanded(flex: 2, child: Text(company.rating>1 ? '${company.rating.toStringAsFixed(1)}/5.0' : 'Nema ocjene')),
+          Expanded(flex: 2, child: Text('${company.companyEmployees.length.toString()} zaposlenih')),
+          Expanded(
+            flex: 3,
+            child: Align(
+              alignment: Alignment.center,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight: 40,
+                  maxWidth: 40,
+                ),
+                child: ClipOval(
+                  child: company.image != null
+                      ? imageFromString(company.image!)
+                      : const Image(
+                          image: AssetImage(
+                              'assets/images/Sample_User_Icon.png'),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+              ),
+            ),
+          ),
+          Expanded( flex: 6, child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: company.companyServices.map((CompanyServices s) {
+                return Text(s.service?.serviceName ?? '', style: const TextStyle(fontSize: 12));
+              }).toList(),
+            ),
+          ),
+          
+!showDeleted?
+         Expanded(child: 
+         Center(
+          child: PopupMenuButton<String>(
+            tooltip: 'Uredi/Izbriši',
+            icon: const Icon(Icons.more_vert),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Text('Uredi'),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Text('Izbriši'),
+              ),
+            ],
+            onSelected: (value) async {
+              if (value == 'edit') {
+                await showDialog(context: context, builder: (_) => CompanyUpdateDialog(company: company));
+                await companyPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'isApplicant': showApplicants,
+            
+                });
+              } else if (value == 'delete') {
+                _openUserDeleteDialog(company: company);
+              }
+            },
+          ),
+         )) : Expanded(
+  flex: 1,
   child: Center(
-    child: Text(
-      "Slika",
-      style: TextStyle(fontWeight: FontWeight.bold),
+    child: IconButton(
+      color: Colors.black,
+         
+      tooltip: 'Reaktiviraj',
+      onPressed: () {
+      
+          _openUserRestoreDialog(company: company);
+        
+      },
+      icon: const Icon(Icons.restore_outlined),
     ),
   ),
 ),
-    const Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-        
-       if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.edit, size: 18)),
-              if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
-              if (showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.restore, size: 18)),
-              if (showApplicants)
-                const Expanded(flex: 2, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
-  ],
-),
-
-          Expanded(
-            child: companyPagination.isLoading && companyPagination.items.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : companyPagination.items.isEmpty
-                    ? const Center(child: Text('No companies found.'))
-                    : ListView.separated(
-                        controller: _scrollController,
-                        itemCount: companyPagination.items.length + 
-                        (companyPagination.hasNextPage ? 1 : 0),
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final c = companyPagination.items[index];
-                          final days = getWorkingDaysShort(c.workingDays);
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                            child: Row(
-                              children: [
-                                Expanded(flex: 5, child: Text(c.companyName ?? '')),
-                                Expanded(flex: 4, child: Text(c.email ?? '')),
-                                Expanded(flex: 3, child: Text(c.phoneNumber ?? '')),
-                                Expanded(flex: 3, child: Text(c.location?.locationName ?? '')),
-                                Expanded(flex: 5, child: Text(days.join(', '))),
-                                Expanded(flex: 2, child: Text(c.experianceYears.toString())),
-                                Expanded(flex: 2, child: Text(c.rating.toStringAsFixed(1) ?? '')),
-                                Expanded(flex: 2, child: Text(c.companyEmployees.length.toString())),
-                                 Expanded(
-                        flex: 3,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxHeight: 40,
-                              maxWidth: 40,
-                            ),
-                            child: ClipOval(
-                              child: c.image != null
-                                  ? imageFromString(c.image!)
-                                  : const Image(
-                                      image: AssetImage(
-                                          'assets/images/Sample_User_Icon.png'),
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
-                             
-                                Expanded(
-                                  flex: 6,
-                                  child: Wrap(
-                                    spacing: 4,
-                                    runSpacing: 4,
-                                    children: c.companyServices.map((CompanyServices s) {
-                                      return Text(s.service?.serviceName ?? '', style: const TextStyle(fontSize: 12));
-                                    }).toList() ?? [],
-                                  ),
-                                ),
-                                 
-                              
-                                if (!showApplicants && !showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      tooltip: 'Uredi',
-                                      onPressed: () async {
-                                        await showDialog(
-                                          context: context,
-                                          builder: (_) => CompanyUpdateDialog(company: c),
-                                        );
-                                        await companyPagination.refresh(newFilter: {
-                                          'isDeleted': showDeleted,
-                                          'IsApplicant': showApplicants,
-                                        });
-                                       
-                                      },
-                                    ),
-                                  ),
-                                if (!showApplicants && !showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      tooltip: 'Izbriši',
-                                      onPressed: () => _openUserDeleteDialog(company: c),
-                                    ),
-                                  ),
-                                if (showDeleted)
-                                  Expanded(
-                                    flex: 2,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.restore),
-                                      tooltip: 'Vrati',
-                                      onPressed: () => _openUserRestoreDialog(company: c),
-                                    ),
-                                  ),
-                                if (showApplicants)
-                                  Expanded(
-                                    flex: 2,
-                                    child: Center(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.check, color: Colors.green),
-                                            tooltip: 'Odobri',
-                                            onPressed: () async {
-                                              final parentContext = context;
-                                            await showDialog(context: parentContext, builder: (dialogContext) =>  AlertDialog(
-                                              title: const Text("Odobreno"),
-                                              content: const Text("Jeste li sigurni da želite odobriti ovu firmu?"), 
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                                                  child: const Text("Ne"),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () async {
-                                                  final dayMap = {
-                                                  'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
-                                                'Thursday': 4, 'Friday': 5, 'Saturday': 6
-                                                };
-
-                                                var workingDaysStringList = c.workingDays ?? [];
-
-                                                final workingDaysIntList = workingDaysStringList
-                                                    .map((day) => dayMap[day])
-                                                    .whereType<int>()
-                                                    .toList();
-
-                                                await companyProvider.update(
-                                                  c.companyId,
-                                                  {
-                                                    "companyName": c.companyName,
-                                                    "bio": c.bio,
-                                                    "email": c.email,
-                                                    "rating": c.rating,
-                                                    "phoneNumber": c.phoneNumber,
-                                                    "experianceYears": c.experianceYears,
-                                                    "image": c.image,
-                                                    "startTime": c.startTime,
-                                                    "endTime": c.endTime,
-                                                    "workingDays": workingDaysIntList,
-                                                    "serviceId": c.companyServices.map((e) => e.serviceId).toList(),
-                                                    "locationId": c.location?.locationId,
-                                                    "roles":[4],
-                                                    "isApplicant": false,
-                                                    "isDeleted": false,
-                                                    "employee": c.companyEmployees.map((e) => e.userId).toList(),
-                                                    'isOwner': true,
-                                                  },
-                                                );
-                                               if (parentContext.mounted) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text("Firma odobrena!")),
-                                                  );
-                                               }
-                                                  await companyPagination.refresh(newFilter: {
-                                                    'isDeleted': showDeleted,
-                                                    'IsApplicant': showApplicants,
-                                                  }); 
-                                                  if(parentContext.mounted)
-                                                  {
-                                                    Navigator.of(context).pop();
-                                                  }
-                                                 
-                                                
-                                                
-                                                 
-                                                  
-                                                },
-                                                child: const Text("Da"),
-                                              )
-                                            ]
-                                          ));
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.close, color: Colors.red),
-                                            tooltip: 'Odbaci',
-                                            onPressed: () async {
-                                              final parentContext = context;
-                                              await showDialog(context: parentContext, builder: (dialogContext) => AlertDialog(
-                                                title: const Text('Odbaci?'),
-                                                content: const Text('Jeste li sigurni da želite odbaciti ovu firmu?'),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                                                    child: const Text('Ne'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      await companyProvider.delete(c.companyId);
-                                                      await companyPagination.refresh(newFilter: {
-                                                        'isDeleted': showDeleted,
-                                                        'IsApplicant': showApplicants,
-                                                      });
-                                                    if(parentContext.mounted)
-                                                    {
-                                                      Navigator.of(context).pop();
-                                                    }
-                                                    },
-                                                    child: const Text('Da'),
-                                                  ),
-                                                ],
-                                              ));
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-          ),
         ],
       ),
     );

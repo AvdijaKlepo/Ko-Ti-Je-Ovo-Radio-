@@ -110,9 +110,10 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
 
         Navigator.of(context).pop(true); // Return success
       } on UserException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.exMessage)),
-        );
+        _formKey.currentState?.invalidateField(
+        name: "locationName",
+        errorText: e.exMessage,
+      );
       }
       
       catch (e) {

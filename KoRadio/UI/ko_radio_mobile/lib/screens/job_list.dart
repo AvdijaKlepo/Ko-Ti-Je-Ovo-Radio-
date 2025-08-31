@@ -34,7 +34,7 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   final isCompanyEmployee= AuthProvider.selectedRole=="CompanyEmployee";
 
   final _userId = AuthProvider.user?.userId;
-  final _freelancerId = AuthProvider.user?.freelancer?.freelancerId;
+  final _freelancerId = AuthProvider.user?.userId;
   final _companyEmployeeId = AuthProvider.selectedCompanyEmployeeId;
   late JobStatus jobStatus;
   final List<JobStatus> jobStatuses = [
@@ -108,7 +108,8 @@ Map<String, dynamic> filterMap(JobStatus status)  {
       setState(() {
         _isLoading=true;
       });
-      if(mounted) await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+      await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+       if(!mounted) return;
       setState(() {
         _isInitialized = true;
         _isLoading=false;

@@ -53,12 +53,18 @@ namespace KoRadio.Services
 
 			query = query.Include(x => x.Stores);
 
-			
+			if(searchObject.UserId!=null)
+			{
+				query = query.Where(x => x.UserId == searchObject.UserId);
+			}
 
+		
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
-				query = query.Where(x => x.FirstName.StartsWith(searchObject.FirstNameGTE));
+				query = query.Where(x => (x.FirstName + " " + x.LastName).StartsWith(searchObject.FirstNameGTE));
 			}
+		
+
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.LastNameGTE))
 			{
@@ -67,13 +73,14 @@ namespace KoRadio.Services
 
 			if (!string.IsNullOrWhiteSpace(searchObject?.Email))
 			{
-				query = query.Where(x => x.Email == searchObject.Email);
+				query = query.Where(x => x.Email.StartsWith( searchObject.Email));
 			}
 
 			if (searchObject.IsUserRolesIncluded == true)
 			{
 				query = query.Include(x => x.UserRoles).ThenInclude(x => x.Role);
 			}
+		
 
 			
 			if (searchObject.isDeleted == true)
@@ -189,8 +196,10 @@ namespace KoRadio.Services
 				.ThenInclude(x => x.Company).Include(x => x.Location)
 				.Include(x => x.Stores)
 				.Include(x => x.Freelancer)
-				.ThenInclude(x=>x.FreelancerServices)
-				.ThenInclude(x=>x.Service)
+				.ThenInclude(x => x.FreelancerServices)
+				.ThenInclude(x => x.Service)
+				.AsSplitQuery()
+				.AsNoTracking()
 				.FirstOrDefault(x => x.Email == username);
 			
 

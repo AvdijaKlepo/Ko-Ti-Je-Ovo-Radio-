@@ -7,6 +7,7 @@ namespace KoRadio.Model.SearchObject
 	public class UserSearchObject:BaseSearchObject
 
 	{
+		public int? UserId { get; set; }
 		public string? FirstNameGTE { get; set; }
 		public string? LastNameGTE { get; set; }
 		public string? Email { get; set; }

@@ -155,7 +155,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
  
 
     return Scaffold(
-      appBar: AppBar(title:  Text("Tipovi proizvoda",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      appBar: AppBar(title:  Text("${widget.store?.storeName}",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
       centerTitle: true,
       ),
       body: SafeArea(

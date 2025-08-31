@@ -20,8 +20,10 @@ namespace KoRadio.Services
 {
 	public class FreelanacerService : BaseCRUDServiceAsync<Model.Freelancer, FreelancerSearchObject, Database.Freelancer, FreelancerInsertRequest, FreelancerUpdateRequest>, IFreelanceService
 	{
+		string signalRMessage = "Nova obavijest je stigla.";
 		private readonly IHubContext<SignalRHubService> _hubContext;
 		private readonly IMessageService _messageService;
+		
 		public FreelanacerService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
 		{
 
@@ -40,16 +42,17 @@ namespace KoRadio.Services
 		//	query = query.Where(x => x.IsApplicant == false);
 
 
+			
 			if (!string.IsNullOrWhiteSpace(searchObject?.FirstNameGTE))
 			{
-				query = query.Where(x => x.FreelancerNavigation.FirstName.StartsWith(searchObject.FirstNameGTE));
+				query = query.Where(x => (x.FreelancerNavigation.FirstName + " " + x.FreelancerNavigation.LastName).StartsWith(searchObject.FirstNameGTE));
+			}
+			if(!string.IsNullOrWhiteSpace(searchObject?.Email))
+			{
+				query = query.Where(x => x.FreelancerNavigation.Email.StartsWith(searchObject.Email));
 			}
 
-			if (!string.IsNullOrWhiteSpace(searchObject?.LastNameGTE))
-			{
-				query = query.Where(x => x.FreelancerNavigation.LastName.StartsWith(searchObject.LastNameGTE));
-			}
-			if(searchObject?.FreelancerId!=null)
+			if (searchObject?.FreelancerId!=null)
 			{
 				query = query.Where(x => x.FreelancerId == searchObject.FreelancerId);
 			}
@@ -126,16 +129,72 @@ namespace KoRadio.Services
 
 
 			entity.FreelancerId = request.FreelancerId;
+			
+			if(request.IsApplicant==true)
+			{
+				string notification;
+				int adminId = 1;
+
+
+				notification = $"Nova prijava za radnika Provjerite aplikante.";
+				await _hubContext.Clients.User(adminId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = adminId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			if(request.IsApplicant==false)
+			{
+				string notification;
+				notification = $"Vaša prijava za radnika je odobrena. Tokom slijedeće prijave možete pristupit radničkom profilu";
+				await _hubContext.Clients.User(entity.FreelancerId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = entity.FreelancerId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			
 
 		
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
-		public override Task BeforeDeleteAsync(Database.Freelancer entity, CancellationToken cancellationToken)
+		public override async Task BeforeDeleteAsync(Database.Freelancer entity, CancellationToken cancellationToken)
 		{
+			string notification;
 		
-			return base.BeforeDeleteAsync(entity, cancellationToken);
+
+
+			notification = $"Vaša prijava radnička prijava je odbijena.";
+			await _hubContext.Clients.User(entity.FreelancerId.ToString())
+			.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+			var insertRequest = new MessageInsertRequest
+			{
+				Message1 = notification,
+				UserId = entity.FreelancerId,
+				CreatedAt = DateTime.Now,
+				IsOpened = false
+			};
+
+			await _messageService.InsertAsync(insertRequest, cancellationToken);
+			await base.BeforeDeleteAsync(entity, cancellationToken);
 		}
 	
 
@@ -160,6 +219,7 @@ namespace KoRadio.Services
 					FreelancerId = entity.FreelancerId,
 					CreatedAt = DateTime.Now,
 				}).ToList();
+
 			}
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
@@ -198,7 +258,7 @@ namespace KoRadio.Services
 						});
 					}
 				}
-				var messageContent = "Freelancer status changed";
+				var messageContent = "Vaša prijava za radnika je odobrena.";
 
 
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())

@@ -43,6 +43,7 @@ class _MasterScreenState extends State<MasterScreen> {
   SearchResult<Messages>? notificationResult;
   SearchResult<Company>? companyResult;
   bool isChecked = false;
+  DrawerController? drawerController;
   @override
   void initState()  {
     super.initState();
@@ -51,7 +52,7 @@ class _MasterScreenState extends State<MasterScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     
      await _getNotifications();
-     await _getNotificationsList();
+
     
      
     });
@@ -61,7 +62,7 @@ signalR.onNotificationReceived = (message) async {
     SnackBar(content: Text(message)),
   );
   await _getNotifications();
-  await _getNotificationsList();
+
 };
 
   }
@@ -85,6 +86,7 @@ signalR.onNotificationReceived = (message) async {
     
     try {
       var fetched = await messagesProvider.get(filter: filter);
+      if(!mounted) return;
       setState(() => result = fetched);
     } catch (e) {
       if(!mounted) return;
@@ -94,32 +96,7 @@ signalR.onNotificationReceived = (message) async {
       );
     }
   }
-  Future<void> _getNotificationsList() async {
-    Map<String, dynamic> filter = {};
-    if(AuthProvider.selectedCompanyId!=null)
-    {
-       filter = {'CompanyId' : AuthProvider.selectedCompanyId};
-    }
-    else if(AuthProvider.selectedStoreId!=null)
-    {
-      filter = {'StoreId' : AuthProvider.selectedStoreId};
-    }
-    else{
-      filter = {'UserId' : AuthProvider.user?.userId};
-    }
 
-    
-    try {
-      var fetched = await messagesProvider.get(filter: filter,orderBy: 'desc');
-      setState(() => notificationResult = fetched);
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Greška: $e')),
-        
-      );
-    }
-  }
   int _selectedIndex = 0;
 
   final List<NavigationRailDestination>destinationsAdmin = const <NavigationRailDestination>[
@@ -270,13 +247,24 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      onDrawerChanged: (isOpened) async {
+        if (isOpened)  {
+        
+        } else {
+          await _getNotifications();
+        }
+      },
       drawer: const Drawer(
+      
+
+        
         backgroundColor: Colors.white,
 
         child: Column(
           children: [
         
             MessagesScreen(),
+
            
           ],
         ),),
@@ -293,7 +281,8 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                 if(AuthProvider.selectedCompanyId!=null &&  AuthProvider.selectedStoreId==null)
                 InkWell(
                   onTap: () async {
-                    print(AuthProvider.selectedCompanyId);
+               
+               
                     showDialog(
                       context: context,
                       builder: (_) => CompanyUpdateScreen(
@@ -438,6 +427,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                                          ),
                                      ],
                                    ),
+                                
                                  
                                    const Text('Notifikacije',style: TextStyle(color: Colors.white),),
                        ],

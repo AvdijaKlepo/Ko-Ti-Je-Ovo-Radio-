@@ -16,6 +16,15 @@ namespace KoRadio.Model.Request
 
 		public string Description { get; set; } = null!;
 		public byte[]? Image { get; set; }
+		public byte[]? BusinessCertificate { get; set; }
+		public decimal Rating { get; set; } = 0;
+
+
+		public List<DayOfWeek> WorkingDays { get; set; }
+
+		public TimeOnly StartTime { get; set; }
+
+		public TimeOnly EndTime { get; set; }
 		public bool IsApplicant { get; set; }
 		public bool IsDeleted { get; set; }
 		public string? Address { get; set; }

@@ -165,19 +165,19 @@ namespace KoRadio.Services
 			string notification;
 			
 			
-			notification = $"Novi zahtjev za posao od korisnika {entity.User.FirstName} {entity.User.LastName}.";
+			
 
-			if(entity.FreelancerId!=null && entity.CompanyId==null)
+			if(entity.FreelancerId!=null && entity.CompanyId==null && request.IsTenderFinalized==false)
 			{
 				await _hubContext.Clients.User(entity.FreelancerId.ToString())
 				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
-
+				notification = $"Novi zahtjev za posao od";
 
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = notification,
 					UserId = entity.FreelancerId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 
@@ -185,17 +185,17 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
 			}
-			if(entity.CompanyId!=null && entity.FreelancerId==null)
+			if(entity.CompanyId!=null && entity.FreelancerId==null && request.IsTenderFinalized==false)
 			{
 				await _hubContext.Clients.User(entity.CompanyId.ToString())
 				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
-
+				notification = $"Novi zahtjev za posao od korisnika";
 
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = notification,
 					CompanyId = entity.CompanyId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 
@@ -212,8 +212,29 @@ namespace KoRadio.Services
 
 		public override async Task BeforeUpdateAsync(JobUpdateRequest request, Database.Job entity, CancellationToken cancellationToken = default)
 		{
+			if (request.ServiceId != null && request.ServiceId.Any())
+			{
+
+				var existingServices = _context.JobsServices
+					.Where(fs => fs.JobId == entity.JobId);
+
+				_context.JobsServices.RemoveRange(existingServices);
+
+				var services = _context.Services
+					.Where(s => request.ServiceId.Contains(s.ServiceId))
+					.ToList();
+
+				entity.JobsServices = services.Select(service => new Database.JobsService
+				{
+					ServiceId = service.ServiceId,
+					JobId = entity.JobId,
+					CreatedAt = DateTime.Now,
+				}).ToList();
+
+			}
+
 			_context.Jobs.Include(x => x.User);
-			IDbContextTransaction? transaction = null;
+		
 
 			string notificationJobApprovedFreelancer = $"Zahtjev za posao od radnika {entity?.Freelancer?.FreelancerNavigation.FirstName}" +
 					$" {entity.Freelancer?.FreelancerNavigation.LastName} je odobren.\nNjegovo trenutno stanje možete pregledati pod sekcijom odobrenih poslova.";
@@ -241,7 +262,7 @@ namespace KoRadio.Services
 				{
 					Message1 = notificationJobApprovedCompany,
 					UserId = entity.UserId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
@@ -271,7 +292,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContent,
 					UserId = entity.UserId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 
@@ -281,33 +302,7 @@ namespace KoRadio.Services
 			}
 
 
-			if (entity?.FreelancerId != null && entity.CompanyId == null && request.JobStatus == "cancelled")
-			{
-				var messageContentCancelled = $"Posao {entity.JobTitle} je otkazan.";
-
-				await _hubContext.Clients.User(entity.UserId.ToString())
-					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
-				await _hubContext.Clients.User(entity.FreelancerId.ToString())
-					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
-				
-
-				
-
-				Console.WriteLine("Notification sent and saved: " + entity.Freelancer?.FreelancerNavigation.FirstName);
-			}
-			if(entity.FreelancerId == null && entity?.CompanyId != null && request.JobStatus == "cancelled")
-			{
-				var messageContentCancelled = $"Posao ${entity.JobTitle} je otkazan.";
-
-				await _hubContext.Clients.User(entity.UserId.ToString())
-					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 			
-				await _hubContext.Clients.User(entity.CompanyId.ToString())
-					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
-
-
-				Console.WriteLine("Notification sent and saved: " + entity?.Company?.CompanyName);
-			}
 
 
 			if (entity.FreelancerId != null && entity.CompanyId == null && request.IsInvoiced == true)
@@ -321,7 +316,7 @@ namespace KoRadio.Services
 				{
 					Message1 = messageContent,
 					UserId = entity.FreelancerId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 
@@ -333,14 +328,14 @@ namespace KoRadio.Services
 			{
 				var messageContent = $"Korisnik {entity.User.FirstName} {entity.User.LastName} je izvršio uplatu.";
 
-				await _hubContext.Clients.User(entity.FreelancerId.ToString())
+				await _hubContext.Clients.User(entity.CompanyId.ToString())
 					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
 
 				var insertRequest = new MessageInsertRequest
 				{
 					Message1 = messageContent,
 					CompanyId = entity.CompanyId,
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.Now,
 					IsOpened = false
 				};
 
@@ -348,8 +343,72 @@ namespace KoRadio.Services
 
 				Console.WriteLine("Notification sent and saved: " + entity.Company?.CompanyName);
 			}
+			if(entity.FreelancerId!=null && entity.CompanyId==null && request.IsEdited==true)
+			{
+				var messageContent = $"Korisnik je uredio posao. Pregledajte promjene.";
+				await _hubContext.Clients.User(entity.FreelancerId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					CompanyId = entity.FreelancerId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
 
-			
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+			}
+			if (entity.FreelancerId == null && entity.CompanyId != null && request.IsEdited == true)
+			{
+				var messageContent = $"Korisnik je uredio posao. Pregledajte promjene.";
+				await _hubContext.Clients.User(entity.CompanyId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+			}
+			if (entity.FreelancerId != null && entity.CompanyId == null && request.IsWorkerEdited == true)
+			{
+				var messageContent = $"Radnik je uredio posao. Pregledajte promjene.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					CompanyId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+			}
+			if (entity.FreelancerId == null && entity.CompanyId != null && request.IsWorkerEdited == true)
+			{
+				var messageContent = $"Firma je uredila posao. Pregledajte promjene.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					CompanyId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
+			}
+
+
 
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}

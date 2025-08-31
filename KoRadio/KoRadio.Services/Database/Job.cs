@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KoRadio.Services.Database;
 
-public partial class Job
+public partial class Job: IJobDelete
 {
     public int JobId { get; set; }
 

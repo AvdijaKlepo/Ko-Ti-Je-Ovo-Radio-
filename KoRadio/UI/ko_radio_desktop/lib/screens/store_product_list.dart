@@ -101,35 +101,42 @@ class _StoreProductListState extends State<StoreProductList> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
   }
-  Future<void> _refreshWithFilter() async {
-    setState(() => isLoading = true);
-    final filter =<String, dynamic> {
-      'isDeleted': showDeleted,
-      'storeId': AuthProvider.selectedStoreId,
-    };
-    if(_productNameController.text.trim().isNotEmpty)
-    {
-      filter['Name'] = _productNameController.text.trim();
-    }
-    if(selectedServiceId!=null)
-    {
-      filter['ServiceId'] = selectedServiceId;
-    }
-    await productPagination.refresh(newFilter: filter);
-    setState(() => isLoading = false);
+Future<void> _refreshWithFilter() async {
+  setState(() => isLoading = true);
+
+  final filter = <String, dynamic>{
+    'isDeleted': showDeleted,
+    'storeId': AuthProvider.selectedStoreId,
+  };
+
+  if (_productNameController.text.trim().isNotEmpty) {
+    filter['Name'] = _productNameController.text.trim();
   }
+  if (selectedServiceId != null) {
+    filter['ServiceId'] = selectedServiceId;
+  }
+
+  await productPagination.refresh(newFilter: filter);
+
+  if (!mounted) return;
+  setState(() => isLoading = false);
+}
+
 
   final storeId = AuthProvider.selectedStoreId;
 
   Future<void> _getServices() async {
-    try {
-      final result = await serviceProvider.get();
-      setState(() => serviceResult = result);
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
+  try {
+    final result = await serviceProvider.get();
+    if (!mounted) return;
+    setState(() => serviceResult = result);
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(e.toString())));
   }
+}
+
   Future<void> _openProductDialog({Product? product}) async {
     final result = await showDialog<bool>(
       context: context,
@@ -144,94 +151,109 @@ class _StoreProductListState extends State<StoreProductList> {
   }
 
   Future<void> _getProducts() async {
-    final filter = {
-      'isDeleted': showDeleted,
-      'storeId': storeId,
-      if (selectedServiceId != null) 'serviceId': selectedServiceId,
-      if (_productNameController.text.trim().isNotEmpty) 'productName': _productNameController.text.trim(),
-    };
+  final filter = {
+    'isDeleted': showDeleted,
+    'storeId': storeId,
+    if (selectedServiceId != null) 'serviceId': selectedServiceId,
+    if (_productNameController.text.trim().isNotEmpty)
+      'productName': _productNameController.text.trim(),
+  };
 
-    try {
-      final result = await productProvider.get(filter: filter);
-      setState(() => productResult = result);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
+  try {
+    final result = await productProvider.get(filter: filter);
+    if (!mounted) return;
+    setState(() => productResult = result);
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(e.toString())));
   }
+}
+
     void _openUserDeleteDialog({required Product product}) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Izbriši?'),
-        content: const Text('Jeste li sigurni da želite izbrisati ovaj proizvod?'),
-        actions: [
-          
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Ne'),
-          ),
-          TextButton(
-            onPressed: () async {
-              try{
-                await productProvider.delete(product.productId);
-                await productPagination.refresh(newFilter: {
-                  'isDeleted': showDeleted,
-                  'storeId': AuthProvider.selectedStoreId,
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Proizvod je uspješno izbrisan.")),
-                );
-              }catch(e){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
-                );
-              }
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
-        ],
-      ),
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Izbriši?'),
+      content: const Text('Jeste li sigurni da želite izbrisati ovaj proizvod?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Ne'),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              await productProvider.delete(product.productId);
+              await productPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'storeId': AuthProvider.selectedStoreId,
+              });
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Proizvod je uspješno izbrisan.")),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        "Greška tokom brisanja podataka. Pokušajte ponovo.")),
+              );
+            }
+            if (!mounted) return;
+            Navigator.of(context).pop(true);
+          },
+          child: const Text('Da'),
+        ),
+      ],
+    ),
+  );
+}
 
-  void _openUserRestoreDialog({required Product product}) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Vrati?'),
-        content: const Text('Jeste li sigurni da želite vratiti ovaj proizvod?'),
-        actions: [
-          
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Ne'),
-          ),
-          TextButton(
-            onPressed: () async {
-              try{
-                await productProvider.delete(product.productId);
-                await productPagination.refresh(newFilter: {
-                  'isDeleted': showDeleted,
-                  'storeId': AuthProvider.selectedStoreId,
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Proizvod je uspješno reaktiviran.")),
-                );
-              }catch(e){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
-                );
-              }
-              
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Da'),
-          ),
-        ],
-      ),
-    );
-  }
+
+void _openUserRestoreDialog({required Product product}) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Vrati?'),
+      content: const Text('Jeste li sigurni da želite vratiti ovaj proizvod?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Ne'),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              await productProvider.delete(product.productId);
+              await productPagination.refresh(newFilter: {
+                'isDeleted': showDeleted,
+                'storeId': AuthProvider.selectedStoreId,
+              });
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text("Proizvod je uspješno reaktiviran.")),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        "Greška tokom brisanja podataka. Pokušajte ponovo.")),
+              );
+            }
+            if (!mounted) return;
+            Navigator.of(context).pop(true);
+          },
+          child: const Text('Da'),
+        ),
+      ],
+    ),
+  );
+}
+
 
 
   @override

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -97,6 +98,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
         width: 500,
@@ -120,7 +122,20 @@ class _UserFormDialogState extends State<UserFormDialog> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Korisnički Podaci", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                       Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                            children: [
+                               const Text("Uredi Korisničke Podatke", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              IconButton(
+                                tooltip: 'Zatvori',
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); 
+                                },
+                              ),
+                            ],
+                          ),
+                  
                       const SizedBox(height: 20),
 
                       FormBuilderTextField(
@@ -195,21 +210,79 @@ class _UserFormDialogState extends State<UserFormDialog> {
         
                         _isLoadingLocations
                             ? const Center(child: CircularProgressIndicator())
-                            : FormBuilderDropdown<int>(
-                                name: 'locationId',
-                                decoration: const InputDecoration(
-                                  labelText: "Lokacija",
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                items: locationResult?.result
-                                        .map((loc) => DropdownMenuItem(
-                                              value: loc.locationId,
-                                              child: Text(loc.locationName ?? ''),
-                                            ))
-                                        .toList() ??
-                                    [],
-                              ),
+                            : FormBuilderField<int>(
+  name: 'locationId',
+  validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+  builder: (FormFieldState<int?> field) {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2<int>(
+        isExpanded: true,
+        hint: const Text("Odaberite lokaciju"),
+        value: field.value,
+        items: locationResult?.result
+                .map((loc) => DropdownMenuItem<int>(
+                      value: loc.locationId,
+                      child: Text(
+                        loc.locationName ?? '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))
+                .toList() ??
+            [],
+        onChanged: (val) {
+          field.didChange(val);
+        },
+        buttonStyleData: const ButtonStyleData(
+          height: 50,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+            border: Border.fromBorderSide(BorderSide(color: Colors.grey)),
+          ),
+        ),
+        dropdownStyleData: const DropdownStyleData(
+          maxHeight: 300,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+          ),
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          height: 48,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+        ),
+        dropdownSearchData: DropdownSearchData(
+          searchController: TextEditingController(),
+          searchInnerWidgetHeight: 50,
+          searchInnerWidget: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              expands: true,
+              maxLines: null,
+              controller: TextEditingController(),
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                hintText: 'Pretraži lokacije...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+          searchMatchFn: (item, searchValue) {
+            final loc = locationResult?.result
+                .firstWhere((l) => l.locationId == item.value);
+            return loc?.locationName
+                    ?.toLowerCase()
+                    .contains(searchValue.toLowerCase()) ??
+                false;
+          },
+        ),
+      ),
+    );
+  },
+),
+
                         const SizedBox(height: 12),
         
                         FormBuilderTextField(
@@ -308,8 +381,11 @@ const SizedBox(height: 20,),
                       Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text("Sačuvaj"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                          ),
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          label: const Text("Sačuvaj", style: TextStyle(color: Colors.white)),
                           onPressed: _save,
                         ),
                       ),

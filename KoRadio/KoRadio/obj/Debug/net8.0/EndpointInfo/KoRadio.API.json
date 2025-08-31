@@ -1503,6 +1503,13 @@
             }
           },
           {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "LocationId",
             "in": "query",
             "schema": {
@@ -4314,6 +4321,14 @@
         ],
         "parameters": [
           {
+            "name": "UserId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "FirstNameGTE",
             "in": "query",
             "schema": {
@@ -6957,6 +6972,46 @@
             "format": "byte",
             "nullable": true
           },
+          "businessCertificate": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "format": "double"
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayOfWeek"
+            },
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "totalRatings": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "ratingSum": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true
+          },
           "isApplicant": {
             "type": "boolean"
           },
@@ -7002,6 +7057,30 @@
             "type": "string",
             "format": "byte",
             "nullable": true
+          },
+          "businessCertificate": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "format": "double"
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayOfWeek"
+            },
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time"
           },
           "isApplicant": {
             "type": "boolean"
@@ -7057,6 +7136,26 @@
             "type": "string",
             "format": "byte",
             "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayOfWeek"
+            },
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time"
           },
           "isApplicant": {
             "type": "boolean"

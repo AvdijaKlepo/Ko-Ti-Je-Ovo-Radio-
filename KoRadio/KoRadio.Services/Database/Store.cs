@@ -21,7 +21,19 @@ public partial class Store:ISoftDelete,IApplicantDelete
 
     public byte[]? Image { get; set; }
 
-    public string? Address { get; set; }
+    public byte[]? BusinessCertificate { get; set; }
+	public int WorkingDays { get; set; }
+
+	public TimeOnly StartTime { get; set; }
+
+	public TimeOnly EndTime { get; set; }
+	public decimal Rating { get; set; }
+	public int? TotalRatings { get; set; }
+
+	public double? RatingSum { get; set; }
+
+	public string Address { get; set; }
+   
 
     public virtual Location Location { get; set; } = null!;
 

@@ -36,6 +36,7 @@ class _SettingsState extends State<Settings> {
   late CompanyEmployeeProvider companyEmployeeProvider;
   late FreelancerProvider freelancerProvider;
   late User user = AuthProvider.user!;
+  final ExpansionTileController _expansionTileController = ExpansionTileController();
   Freelancer? freelancer;
 
   SearchResult<CompanyEmployee>? companyEmployeeResult;
@@ -124,81 +125,71 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            InkWell(
-              child:   ClipRRect(
-              
-              borderRadius: BorderRadius.circular(100),
-              child: user.image!=null ?   
-              imageFromString(user.image!,width: 100,height: 100)
-              :
-              
-               Image.network(
+       Row(
+  children: [
+    InkWell(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: user.image != null
+            ? imageFromString(user.image!, width: 100, height: 100)
+            : Image.network(
                 'https://www.gravatar.com/avatar/${_userId}?s=200&d=identicon',
                 width: 100,
                 height: 100,
               ),
-            ),
-            onTap: () async {
-           final updated =    await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => UserUpdate(user: AuthProvider.user!),
-                ),
-              );
-              if(updated==true){
-                await _getUserById();
-       
-              }
-              else if(updated==false){
-                setState(() {
-                  
-                });
-              }
-
-            },
-            
-            ),
-           const SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${user.firstName} ${user.lastName}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Text(
-                  '${AuthProvider.user?.email}',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                if(user.freelancer?.freelancerId!=null && AuthProvider.selectedRole=="Freelancer" &&
-                freelancer?.rating!=0)
-                 RatingBar.builder(
-                  itemSize: 30,
-          initialRating: freelancer?.rating ?? 0,
-        
-          direction: Axis.horizontal,
-         allowHalfRating: true,
-         
-          ignoreGestures: true,
-          itemCount: 5,
-          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-          itemBuilder: (context, _) => const Icon(
-            Icons.star,
-            color: Colors.amber,
+      ),
+      onTap: () async {
+        final updated = await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => UserUpdate(user: AuthProvider.user!),
           ),
-          onRatingUpdate: (rating) {
-            setState(() {
-            
-            });
-          },
-        ),
-              ],
-            )
-          ],
-        ),
+        );
+        if (updated == true) {
+          await _getUserById();
+        } else if (updated == false) {
+          setState(() {});
+        }
+      },
+    ),
+    const SizedBox(width: 10),
+    // 👇 This ensures text shrinks inside remaining width
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${user.firstName} ${user.lastName}',
+            style: Theme.of(context).textTheme.titleLarge,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            '${AuthProvider.user?.email}',
+            style: Theme.of(context).textTheme.titleSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (user.freelancer?.freelancerId != null &&
+              AuthProvider.selectedRole == "Freelancer" &&
+              freelancer?.rating != 0)
+            RatingBar.builder(
+              itemSize: 30,
+              initialRating: freelancer?.rating ?? 0,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              ignoreGestures: true,
+              itemCount: 5,
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) =>
+                  const Icon(Icons.star, color: Colors.amber),
+              onRatingUpdate: (_) {},
+            ),
+        ],
+      ),
+    ),
+  ],
+),
+
         const SizedBox(height: 10,),
        
        
@@ -232,7 +223,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
         },
       )
      ),
-     if(AuthProvider.user?.freelancer?.freelancerId!=null && AuthProvider.selectedRole=="Freelancer") 
+     if(AuthProvider.selectedRole=="Freelancer") 
        Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
@@ -248,9 +239,10 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
         trailing: const Icon(Icons.arrow_forward, color: Colors.white),
         onTap: () async { 
           final updated = await Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => FreelancerUpdate(freelancer: AuthProvider.user?.freelancer,)),
+          MaterialPageRoute(builder: (_) => FreelancerUpdate(freelancer: AuthProvider.user?.freelancer)),
         );
         if(updated==true){
+          
           await _getUserById();
         }
         else if(updated==false){
@@ -319,7 +311,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
 
      ExpansionTile(title: const Text('Prijave'),
      
-
+      controller: _expansionTileController,
      iconColor: Color.fromRGBO(27, 76, 125, 25),
      textColor: Color.fromRGBO(27, 76, 125, 25),
      collapsedTextColor: Colors.white,
@@ -329,7 +321,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
      children: [
-      if(AuthProvider.user?.freelancer?.freelancerId==null)
+      if(user.freelancer?.freelancerId==null && AuthProvider.selectedRole!="Freelancer")
        Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
@@ -347,9 +339,12 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
           final updated = await Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => UserFreelancerApply(user: user,)),
         );
-        if(updated==true){
-          await _getUserById();
-        }
+       if (updated == true) {
+  _expansionTileController.collapse();
+  await _getUserById();
+  setState(() {}); 
+}
+
         else if(updated==false){
           setState(() {
             

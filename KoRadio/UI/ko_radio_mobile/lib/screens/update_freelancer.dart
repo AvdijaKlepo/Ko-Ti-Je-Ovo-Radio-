@@ -26,7 +26,8 @@ class _FreelancerUpdateState extends State<FreelancerUpdate> {
   Map<String, dynamic> _initialValue = {};
   late FreelancerProvider freelancerProvider;
   late ServiceProvider serviceProvider;
-  late Freelancer freelancer;
+  late SearchResult<Freelancer>? freelancerResult;
+
   SearchResult<Service>? serviceResult;
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
@@ -57,12 +58,15 @@ void initState() {
     return DateFormat('HH:mm').format(dt);
   }
   Future<void> _getFreelancer() async {
+    var filter = {'FreelancerId':AuthProvider.user?.userId};
     try {
-      var fetchedFreelancer = await freelancerProvider.getById(AuthProvider.user!.userId);
+      var fetchedFreelancer = await freelancerProvider.get(filter: filter);
       setState(() {
-        freelancer = fetchedFreelancer;
+        freelancerResult = fetchedFreelancer;
+         final freelancer = freelancerResult!.result.first;
+      
          _startTime = _parseTime(freelancer.startTime);
-  _endTime   = _parseTime(freelancer.endTime);
+          _endTime   = _parseTime(freelancer.endTime);
 
   final now = DateTime.now();
   _initialValue = {
@@ -72,10 +76,10 @@ void initState() {
     "workingDays":     freelancer.workingDays?.map((d) => d.toString()).toList(),
     "startTime":       DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute),
     "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour,   _endTime.minute),
-    "serviceId": widget.freelancer?.freelancerServices
+    "serviceId": freelancer?.freelancerServices
     ?.map((e) => e.serviceId)
     .whereType<int>()
-    .toSet()
+
     .toList(),
 
   };
@@ -86,6 +90,7 @@ void initState() {
       );
     }
   }
+  
   Future<void> _getServices() async {
     try {
       var fetchedServices = await serviceProvider.get();
@@ -123,89 +128,131 @@ void initState() {
                         const SizedBox(height: 20),
                          
                         FormBuilderTextField(
-                          name: "bio",
-                          decoration: const InputDecoration(
-                            labelText: "Biografija",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: FormBuilderValidators.required(),
-                        ),
-                        const SizedBox(height: 12),
-                        FormBuilderTextField(
-                          name: "experianceYears",
-                          decoration: const InputDecoration(
-                            labelText: "Godine Iskustva",
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.integer(),
-                            FormBuilderValidators.min(0),
-                          ]),
-                        ),
-                        const SizedBox(height: 12),
-                        FormBuilderCheckboxGroup<String>(
-                          name: 'workingDays',
-                          decoration: const InputDecoration(
-                            labelText: "Radni Dani",
-                            border: InputBorder.none,
-                          ),
-                          options: [
-                            'Sunday',
-                            'Monday',
-                            'Tuesday',
-                            'Wednesday',
-                            'Thursday',
-                            'Friday',
-                            'Saturday',
-                          ].map((e) => FormBuilderFieldOption(value: e)).toList(),
-                          validator: FormBuilderValidators.required(),
-                        ),
-                        const SizedBox(height: 12),
-                        FormBuilderDateTimePicker(
-                        
-                          name: 'startTime',
-                          inputType: InputType.time,
-                          decoration: const InputDecoration(
-                            labelText: "Početak Smjene",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        FormBuilderDateTimePicker(
-                          name: 'endTime',
-                          inputType: InputType.time,
-                          decoration: const InputDecoration(
-                            labelText: "Kraj Smjene",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                       _isLoadingServices
-                    ? const Center(child: CircularProgressIndicator()) :
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0),
-                              child: serviceResult?.result != null
-                                  ? FormBuilderFilterChip<int>(
+  name: "bio",
+  
+  decoration: const InputDecoration(
+    
+    labelText: "Biografija",
+    border: OutlineInputBorder(),
+  ),
+  maxLines: 5,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Biografija je obavezna."),
+    FormBuilderValidators.minLength(10,
+        errorText: "Biografija mora imati barem 10 karaktera."),
+    FormBuilderValidators.maxLength(500,
+        errorText: "Biografija može imati najviše 500 karaktera."),
+  ]),
+),
+const SizedBox(height: 12),
 
-                               
-                                    
-                                    
-                                    
-                                    
-  name: "serviceId",
-  options: serviceResult!.result.map((s) {
-   
-    return FormBuilderChipOption(
-      
-      value: s.serviceId,
-      child: Text(s.serviceName),
-    );
-  }).toList(),
-)
+FormBuilderTextField(
+  name: "experianceYears",
+  decoration: const InputDecoration(
+    labelText: "Godine Iskustva",
+    border: OutlineInputBorder(),
+  ),
+  keyboardType: TextInputType.number,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Unesite godine iskustva."),
+    FormBuilderValidators.integer(errorText: "Dozvoljeni su samo brojevi."),
+    FormBuilderValidators.min(0, errorText: "Godine ne mogu biti negativne."),
+    FormBuilderValidators.max(70, errorText: "Budimo realni."),
+  ]),
+),
+const SizedBox(height: 12),
 
-                                  : const Text("Nema dostupnih usluga"),
-                            ),
+FormBuilderCheckboxGroup<String>(
+  name: 'workingDays',
+  decoration: const InputDecoration(
+    labelText: "Radni Dani",
+    border: InputBorder.none,
+  ),
+  options: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
+    (value) {
+      if (value != null && value.isEmpty) {
+        return "Morate odabrati barem jedan dan.";
+      }
+      return null;
+    }
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'startTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Početak Smjene",
+    border: OutlineInputBorder(),
+  ),
+  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'endTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Kraj Smjene",
+    border: OutlineInputBorder(),
+
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
+    (value) {
+      final start = FormBuilder.of(context)?.fields['startTime']?.value;
+
+      if (start != null && value != null) {
+        if (value.isBefore(start)) {
+          return "Kraj smjene mora biti nakon početka.";
+        }
+
+        final diff = value.difference(start).inHours;
+        if (diff < 3) {
+          return "Smjena mora trajati najmanje 3 sata.";
+        }
+      }
+      return null;
+    }
+  ]),
+),
+
+const SizedBox(height: 12),
+
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 0),
+  child: serviceResult?.result != null
+      ? FormBuilderFilterChip<int>(
+          name: "serviceId",
+          decoration: const InputDecoration(
+            labelText: "Usluge",
+            border: InputBorder.none,
+          ),
+          options: serviceResult!.result
+              .map((s) => FormBuilderChipOption(
+                  value: s.serviceId,
+                  child: Text(s.serviceName ?? "")))
+              .toList(),
+          spacing: 6,
+          runSpacing: 4,
+          validator: FormBuilderValidators.required(
+              errorText: "Odaberite barem jednu uslugu."),
+        )
+      : const Text("Nema dostupnih usluga"),
+),
+
+                            
                       
                         const SizedBox(height: 30),
                         Align(
@@ -231,14 +278,14 @@ void initState() {
 
       request['isApplicant'] = false;
       request['isDeleted'] = false;
-      request['rating'] = freelancer.rating;
-      request['freelancerId'] = freelancer.freelancerId;
+      request['rating'] = freelancerResult!.result.first.rating;
+      request['freelancerId'] = freelancerResult!.result.first.freelancerId;
 
    
       request['workingDays'] = (request['workingDays'] as List).map((e) => e.toString()).toList();
 
 
-      request['serviceId'] = (request['serviceId'] as List).map((e) => int.tryParse(e.toString()) ?? 0).toList();
+     request['serviceId'] = (request['serviceId'] as List).map((e) => int.tryParse(e.toString()) ?? 0).toList();
 
        if (request["startTime"] is DateTime) {
       request["startTime"] = (request["startTime"] as DateTime).toIso8601String().substring(11, 19);
@@ -248,7 +295,7 @@ void initState() {
     }
 
       try {
-        await freelancerProvider.update(freelancer.freelancerId, request);
+        await freelancerProvider.update(freelancerResult!.result.first.freelancerId, request);
         Navigator.pop(context, true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

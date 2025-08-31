@@ -218,38 +218,7 @@ if(!mounted) return;
 ScaffoldMessenger.of(context).hideCurrentSnackBar();
 ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
-  bool _isDialogOpen = false;
-  Future<void> _showDialog(String message, BuildContext context) async {
-  if (_isDialogOpen) return; // prevent multiple dialogs
-  _isDialogOpen = true;
 
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Van okvira radnog vremena'),
-      content: Text(
-        'Napomena: Izabrano vrijeme završetka posla, $message je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text("Nazad"),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: const Text("Da"),
-        ),
-      ],
-    ),
-  );
-
-  _isDialogOpen = false;
-
-  if (result == true) {
-    setState(() => outOfWorkHours = true);
-  }
-}
-   
   
 
   @override
@@ -411,19 +380,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
   final end   = start.add(duration);
 
 
-  final shiftEnd = _parseOn(_currentJobDate!, freelancerShiftEndTimeString);
-  if (end.isAfter(shiftEnd)) {
-   if (!outOfWorkHours) {
-      await _showDialog('${end.hour}:${end.minute}', context);
-    }
-
-    if (outOfWorkHours) {
-      patchStartEnd(value, duration: duration);
-    } else {
-      patchStartEnd(jobStartTime, duration: duration);
-    }
-    return;
-  }
+  
 
   if (_overlapsAny(start, end)) {
     _showSnackBar('Termin zauzet. Odaberite drugo vrijeme.', context);
@@ -447,7 +404,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                    if(widget.job.jobStatus == JobStatus.approved)
                     FormBuilderDateTimePicker(
                       name: "endEstimate",
-                    
+                      enabled:false,
                       
                       inputType: InputType.time,
                       format: DateFormat('HH:mm a'),

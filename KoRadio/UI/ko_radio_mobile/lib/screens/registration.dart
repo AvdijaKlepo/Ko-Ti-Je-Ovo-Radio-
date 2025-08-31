@@ -78,7 +78,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text("Registracija",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
+      appBar: AppBar(title:  Text("Registracija",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -131,9 +131,9 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
     ),
               _buildTextField('phoneNumber', 'Broj Telefona*',  validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: "Obavezno polje."),
-                FormBuilderValidators.match(r'^\+\d{7,15}$',
+                FormBuilderValidators.match(r'^\+387\d{7,15}$',
                     errorText:
-                        "Telefon mora imati od 7 do 15 cifara \ni počinjati znakom +."),
+                        "Telefon mora imati 11 cifara \ni počinjati sa +387."),
               ]),),
               _buildTextField('password', 'Lozinka*',
                   obscureText: true,
@@ -162,7 +162,15 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                           [],
                     ),
               const SizedBox(height: 16),
-              _buildTextField('address', 'Adresa*',validator: FormBuilderValidators.required(errorText: 'Obavezno polje')),
+              _buildTextField('address', 'Adresa*',validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.minLength(5, errorText: 'Minimalna dužina adrese je 5 znaka.'),
+                            FormBuilderValidators.match(
+      r'^(?:[A-Za-zĆČĐŠŽćčđšž0-9\s,.\-]{5,100}|[bB]\.?[bB]\.?)$',
+      errorText: 'Adresa mora sadržavati slova/brojeve i , . - (dozvoljeno i "bb"/"b.b.").',
+    ),
+FormBuilderValidators.maxLength(40, errorText: 'Maksimalno dozvoljeno je 40 znakova'),
+                          ]),),
               const SizedBox(height: 16),
 
              FormBuilderField(
@@ -170,8 +178,8 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
 
   builder: (field) {
     return InputDecorator(
-      decoration:  InputDecoration(
-        labelText: "Proslijedite sliku problema",
+      decoration:  const InputDecoration(
+        labelText: "Proslijedite profilnu sliku.",
         border: OutlineInputBorder(),
       ),
       child: Column(

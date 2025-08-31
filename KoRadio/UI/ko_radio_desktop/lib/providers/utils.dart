@@ -1,10 +1,16 @@
 
 
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
 
 
 String formatNumber(dynamic) {
@@ -23,6 +29,71 @@ String formatDate(String date) {
 Image imageFromString(String input, {double? width, double? height, BoxFit? fit = BoxFit.cover, }) {
   return Image.memory(base64Decode(input), width: width, height: height,fit:fit,);
 }
+Future<void> openPdfFromString(String base64Pdf, {String fileName = "document.pdf"}) async {
+  try {
+    // Decode base64 to bytes
+    final bytes = base64Decode(base64Pdf);
+
+    // Save temporarily to device
+    final dir = await getTemporaryDirectory();
+    final file = File("${dir.path}/$fileName");
+    await file.writeAsBytes(bytes);
+
+    // Open with system default PDF viewer
+    await OpenFilex.open(file.path);
+  } catch (e) {
+    debugPrint("Error opening PDF: $e");
+  }
+}
+
+
+void showPdfDialog(BuildContext context, String base64Pdf, {String title = "Dokument"}) {
+  final Uint8List pdfBytes = base64Decode(base64Pdf);
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        insetPadding: const EdgeInsets.all(16),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.4,
+          height: MediaQuery.of(context).size.height * 0.9,
+          child: Column(
+            children: [
+              // Custom title bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                color: const Color.fromRGBO(27, 76, 125, 1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+
+              // PDF Viewer
+              Expanded(
+
+                child: SfPdfViewer.memory(
+  pdfBytes,
+  initialZoomLevel: 0.5, // try between 0.5 - 0.8 for a good fit
+)
+,
+
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
 
 typedef PaginatedDataFetcher<T> = Future<PaginatedResult<T>> Function({
@@ -47,6 +118,7 @@ class PaginatedFetcher<T> extends ChangeNotifier {
   int _page = 1;
   bool isLoading = false;
   bool hasNextPage = true;
+  int count = 0;
 
   Map<String, dynamic>? _activeFilter; 
 
@@ -73,7 +145,7 @@ class PaginatedFetcher<T> extends ChangeNotifier {
     await _fetchPage(filter: _activeFilter); 
   }
 
-  Future<void> _fetchPage({Map<String, dynamic>? filter}) async {
+  Future<void> _fetchPage({Map<String, dynamic>? filter, bool replace=false}) async {
     isLoading = true;
     notifyListeners();
     try {
@@ -82,14 +154,30 @@ class PaginatedFetcher<T> extends ChangeNotifier {
         pageSize: pageSize,
         filter: _activeFilter,
       );
-      items.addAll(result.result);
-      if (items.length >= result.count) {
-        hasNextPage = false;
+      if(replace)
+      {
+        items = result.result;
       }
+      else
+      {
+        items.addAll(result.result);
+      }
+      count = result.count;
+    
+        hasNextPage = false;
+      
     } finally {
       isLoading = false;
       notifyListeners();
     }
+  }
+  Future<void> goToPage(int page, {Map<String, dynamic>? filter}) async {
+    if(isLoading) return;
+    _page = page;
+    hasNextPage = true;
+    items.clear();
+    _activeFilter = filter;
+    await _fetchPage(filter: filter,replace:true);
   }
 }
 
@@ -128,3 +216,20 @@ class PhoneNumberFormatter extends TextInputFormatter {
   }
 }
 
+String formatPhoneNumber(String phone) {
+  // Step 1: Replace +387 at the start with 0
+  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+
+  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+
+  // Step 3: Ensure we only format if we have at least 9 digits
+  if (normalized.length < 9) return normalized;
+
+  // Step 4: Insert dashes in 3-3-3 format
+  String part1 = normalized.substring(0, 3);
+  String part2 = normalized.substring(3, 6);
+  String part3 = normalized.substring(6, 9);
+
+  return "$part1-$part2-$part3";
+}

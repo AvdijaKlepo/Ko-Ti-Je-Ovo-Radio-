@@ -18,6 +18,7 @@ namespace KoRadio.Services
 {
     public class CompanyService: BaseCRUDServiceAsync<Model.Company, CompanySearchObject,Database.Company, CompanyInsertRequest, CompanyUpdateRequest>, ICompanyService
 	{
+		string signalRMessage = "Nova obavijest je stigla.";
 		private readonly IHubContext<SignalRHubService> _hubContext;
 		private readonly IMessageService _messageService;
 		public CompanyService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
@@ -104,15 +105,67 @@ namespace KoRadio.Services
 			var normalizedEmail = request.Email.ToLower();
 			var existingEmail = await _context.Companies
 				.AnyAsync(x => x.Email.ToLower() == normalizedEmail, cancellationToken);
+			var existingUserEmail = await _context.Users.
+				AnyAsync(x => x.Email.ToLower() == normalizedEmail);
 
-			if (existingEmail)
+			if (existingEmail || existingUserEmail)
 			{
-				throw new UserException("Već postoji firma sa navedenim emailom. Unesite drugi.");
+				throw new UserException("Email se koristi. Odaberite drugi.");
 			}
+
+			if(request.IsApplicant==true)
+			{
+				string notification;
+				int adminId = 1;
+
+
+				notification = $"Nova prijava za firmu Provjerite aplikante.";
+				await _hubContext.Clients.User(adminId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = adminId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
+		public override async Task BeforeDeleteAsync(Database.Company entity, CancellationToken cancellationToken)
+		{
+			await _context.Entry(entity)
+		.Collection(c => c.CompanyEmployees)
+		.LoadAsync(cancellationToken);
 
+			// Now you can safely access entity.CompanyEmployees.First()
+			var employee = entity.CompanyEmployees.FirstOrDefault();
+			if (employee != null)
+			{
+				var notification = "Vaša prijava za firmu je odbijena.";
+
+				await _hubContext.Clients.User(employee.UserId.ToString())
+					.SendAsync("ReceiveNotification", notification, cancellationToken);
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = employee.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+
+			await base.BeforeDeleteAsync(entity, cancellationToken);
+		}
 		public override async Task BeforeUpdateAsync(CompanyUpdateRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{
 			if (request.ServiceId != null && request.ServiceId.Any())
@@ -184,7 +237,7 @@ namespace KoRadio.Services
 							}
 						}
 					}
-					var messageContent = "Freelancer status changed";
+					var messageContent = "Vaša prijava za firmu je odobrena, preuzmite desktop aplikaciju.";
 
 
 					await _hubContext.Clients.User(companyAdminIds.ToString())

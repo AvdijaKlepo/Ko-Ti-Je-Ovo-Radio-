@@ -31,6 +31,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   String? serviceErrorMessage;
   Uint8List? _decodedImage;
 
+
   @override
   void initState() {
     super.initState();
@@ -87,19 +88,23 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FormBuilderTextField(
-                        name: "serviceName",
-                        decoration:  InputDecoration(
-                          labelText: "Naziv Servisa*",
-                          border: OutlineInputBorder(),
-                          errorText: serviceErrorMessage,
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                          FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 15 znakova'),
-                          FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
-                          FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
-                        ])
-                      ),
+  name: "serviceName",
+  decoration: InputDecoration(
+    labelText: "Naziv Servisa*",
+    border: OutlineInputBorder(),
+    // will show backend error here
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+    FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 15 znakova'),
+    FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+    FormBuilderValidators.match(
+      r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$',
+      errorText: 'Dozvoljena su samo slova sa prvim velikim.',
+    ),
+  ]),
+),
+
                       const SizedBox(height: 20),
                      FormBuilderField(
   name: "image",
@@ -175,7 +180,9 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
     );
   }
 
-  Future<void> _save() async {
+Future<void> _save() async {
+  // clear old backend error before revalidating
+
   if (_formKey.currentState?.saveAndValidate() ?? false) {
     final request = Map<String, dynamic>.from(_formKey.currentState!.value);
     if (_image != null) {
@@ -198,19 +205,24 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
       }
 
       Navigator.of(context).pop(true);
+
     } on UserException catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(e.exMessage)),
-  );
-    }
- catch (e) {
-      // Fallback for unknown errors
+      // 👇 put backend error into state
+   
+
+      // optional: also mark the field invalid in form builder
+      _formKey.currentState?.invalidateField(
+        name: "serviceName",
+        errorText: e.exMessage,
+      );
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Greška: ${e.toString()}")),
       );
     }
   }
 }
+
 
 
   void getImage(FormFieldState field) async {

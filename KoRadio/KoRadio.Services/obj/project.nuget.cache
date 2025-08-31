@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9ZVfSbv0+gs=",
+  "dgSpecHash": "wenWpGhodXg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Avdija\\Documents\\Razvoj Softvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\KoRadio.Services.csproj",
+  "projectFilePath": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\KoRadio.Services.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Avdija\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Avdija\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

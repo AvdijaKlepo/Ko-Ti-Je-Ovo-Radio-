@@ -16,6 +16,7 @@ class Store{
   Location? location;
   String? address;
   String? image;
+  String? businessCertificate;
 
   Store({
     required this.storeId,
