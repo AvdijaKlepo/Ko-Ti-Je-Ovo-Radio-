@@ -1,8 +1,11 @@
+using DotNetEnv;
 using KoRadio.API;
+using KoRadio.Model;
 using KoRadio.Services;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using KoRadio.Services.RabbitMQ;
+using KoRadio.Services.Recommender;
 using KoRadio.Services.Recommender;
 using KoRadio.Services.SignalRService;
 using Mapster;
@@ -13,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using KoRadio.Services.Recommender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +54,10 @@ builder.Services.AddControllers(options =>
 {
 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 	options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+	
 });
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -77,7 +82,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-var connectionString = builder.Configuration.GetConnectionString("KoRadio");
+Env.Load();
+
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
 builder.Services.AddDbContext<KoTiJeOvoRadioContext>(options =>
 	options.UseSqlServer(connectionString));
 
@@ -125,5 +132,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+using (var scope = app.Services.CreateScope())
+{
+	var dataContext = scope.ServiceProvider.GetRequiredService<KoTiJeOvoRadioContext>();
+	dataContext.Database.Migrate();
+}
 
 app.Run();

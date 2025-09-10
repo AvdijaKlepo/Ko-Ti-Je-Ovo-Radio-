@@ -33,7 +33,9 @@ public partial class Store:ISoftDelete,IApplicantDelete
 	public double? RatingSum { get; set; }
 
 	public string Address { get; set; }
-   
+    public byte[]? StoreCatalogue { get; set; }
+    public DateTime? StoreCataloguePublish { get; set; }
+
 
     public virtual Location Location { get; set; } = null!;
 

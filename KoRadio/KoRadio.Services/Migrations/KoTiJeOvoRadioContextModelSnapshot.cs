@@ -36,6 +36,9 @@ namespace KoRadio.Services.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<byte[]>("BusinessCertificate")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -736,6 +739,9 @@ namespace KoRadio.Services.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<byte[]>("CV")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
@@ -1078,7 +1084,7 @@ namespace KoRadio.Services.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JobDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("JobDescription")
                         .IsRequired()
@@ -1131,7 +1137,6 @@ namespace KoRadio.Services.Migrations
                         new
                         {
                             JobId = 1,
-                            EndEstimate = new TimeOnly(18, 0, 0),
                             FreelancerId = 4,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1142,17 +1147,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
-                            StartEstimate = new TimeOnly(10, 0, 0),
                             UserId = 2
                         },
                         new
                         {
                             JobId = 2,
-                            EndEstimate = new TimeOnly(18, 0, 0),
                             FreelancerId = 9,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1163,17 +1166,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebno postavljanje keramike na balkonu",
                             JobStatus = "finished",
                             JobTitle = "Postavljanje keramike",
-                            StartEstimate = new TimeOnly(10, 0, 0),
                             UserId = 2
                         },
                         new
                         {
                             JobId = 3,
-                            EndEstimate = new TimeOnly(18, 0, 0),
                             FreelancerId = 10,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1184,17 +1185,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
-                            StartEstimate = new TimeOnly(10, 0, 0),
                             UserId = 2
                         },
                         new
                         {
                             JobId = 4,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FreelancerId = 4,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1205,7 +1204,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebno postavljanje keramike na balkonu",
                             JobStatus = "finished",
                             JobTitle = "Postavljanje keramike",
@@ -1214,7 +1213,6 @@ namespace KoRadio.Services.Migrations
                         new
                         {
                             JobId = 5,
-                            EndEstimate = new TimeOnly(18, 0, 0),
                             FreelancerId = 11,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1225,17 +1223,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
-                            StartEstimate = new TimeOnly(10, 0, 0),
                             UserId = 3
                         },
                         new
                         {
                             JobId = 6,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FreelancerId = 12,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1246,7 +1242,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebno postavljanje keramike na balkonu",
                             JobStatus = "finished",
                             JobTitle = "Postavljanje keramike",
@@ -1255,7 +1251,6 @@ namespace KoRadio.Services.Migrations
                         new
                         {
                             JobId = 7,
-                            EndEstimate = new TimeOnly(17, 0, 0),
                             FreelancerId = 9,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1266,17 +1261,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebno krečenje i farbanje zidova u kući, uključujući pripremu površina i završne radove.",
                             JobStatus = "finished",
                             JobTitle = "Molerski radovi u kući",
-                            StartEstimate = new TimeOnly(9, 0, 0),
                             UserId = 21
                         },
                         new
                         {
                             JobId = 8,
-                            EndEstimate = new TimeOnly(16, 0, 0),
                             FreelancerId = 11,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1287,17 +1280,15 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna hitna popravka krova zbog curenja vode, uključujući zamjenu oštećenih delova i hidroizolaciju.",
                             JobStatus = "finished",
                             JobTitle = "Popravka krova",
-                            StartEstimate = new TimeOnly(8, 0, 0),
                             UserId = 21
                         },
                         new
                         {
                             JobId = 9,
-                            EndEstimate = new TimeOnly(15, 0, 0),
                             FreelancerId = 13,
                             IsApproved = false,
                             IsDeleted = false,
@@ -1308,18 +1299,16 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna instalacija solarnih panela na krovu kuće, uključujući montažu i povezivanje sa električnim sistemom.",
                             JobStatus = "finished",
                             JobTitle = "Instalacija solarnih panela",
-                            StartEstimate = new TimeOnly(7, 0, 0),
                             UserId = 21
                         },
                         new
                         {
                             JobId = 10,
                             CompanyId = 1,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1329,7 +1318,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1339,7 +1328,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 11,
                             CompanyId = 2,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1349,7 +1337,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1359,7 +1347,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 12,
                             CompanyId = 4,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1369,7 +1356,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1379,7 +1366,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 13,
                             CompanyId = 1,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1389,7 +1375,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1399,7 +1385,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 14,
                             CompanyId = 5,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1409,7 +1394,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1419,7 +1404,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 15,
                             CompanyId = 7,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1429,7 +1413,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1439,7 +1423,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 16,
                             CompanyId = 1,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1449,7 +1432,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1459,7 +1442,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 17,
                             CompanyId = 2,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1469,7 +1451,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1479,7 +1461,6 @@ namespace KoRadio.Services.Migrations
                         {
                             JobId = 18,
                             CompanyId = 4,
-                            DateFinished = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsApproved = false,
                             IsDeleted = false,
                             IsDeletedWorker = false,
@@ -1489,7 +1470,7 @@ namespace KoRadio.Services.Migrations
                             IsRated = true,
                             IsTenderFinalized = false,
                             IsWorkerEdited = false,
-                            JobDate = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            JobDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                             JobStatus = "finished",
                             JobTitle = "Popravka elektroinstalacija",
@@ -1795,6 +1776,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("ProductPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -1821,6 +1805,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 1,
                             OrderId = 1,
                             ProductId = 1,
+                            ProductPrice = 0m,
                             Quantity = 2,
                             StoreId = 1,
                             UnitPrice = 0m
@@ -1830,6 +1815,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 2,
                             OrderId = 1,
                             ProductId = 4,
+                            ProductPrice = 0m,
                             Quantity = 5,
                             StoreId = 1,
                             UnitPrice = 0m
@@ -1839,6 +1825,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 3,
                             OrderId = 2,
                             ProductId = 2,
+                            ProductPrice = 0m,
                             Quantity = 1,
                             StoreId = 1,
                             UnitPrice = 0m
@@ -1848,6 +1835,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 4,
                             OrderId = 2,
                             ProductId = 3,
+                            ProductPrice = 0m,
                             Quantity = 3,
                             StoreId = 1,
                             UnitPrice = 0m
@@ -1857,6 +1845,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 5,
                             OrderId = 3,
                             ProductId = 5,
+                            ProductPrice = 0m,
                             Quantity = 4,
                             StoreId = 2,
                             UnitPrice = 0m
@@ -1866,6 +1855,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 6,
                             OrderId = 3,
                             ProductId = 6,
+                            ProductPrice = 0m,
                             Quantity = 2,
                             StoreId = 2,
                             UnitPrice = 0m
@@ -1875,6 +1865,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 7,
                             OrderId = 4,
                             ProductId = 7,
+                            ProductPrice = 0m,
                             Quantity = 1,
                             StoreId = 2,
                             UnitPrice = 0m
@@ -1884,6 +1875,7 @@ namespace KoRadio.Services.Migrations
                             OrderItemsId = 8,
                             OrderId = 4,
                             ProductId = 8,
+                            ProductPrice = 0m,
                             Quantity = 3,
                             StoreId = 2,
                             UnitPrice = 0m
@@ -1907,6 +1899,9 @@ namespace KoRadio.Services.Migrations
                     b.Property<bool>("IsOnSale")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsOutOfStock")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
@@ -1918,6 +1913,9 @@ namespace KoRadio.Services.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("SaleExpires")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("SalePrice")
                         .HasColumnType("decimal(18,2)");
@@ -1941,6 +1939,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 1,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 25.00m,
                             ProductDescription = " Produžni kabl dužine 5 metara, idealan za kućnu i kancelarijsku upotrebu.",
                             ProductName = "Produžni kabl 5m",
@@ -1952,6 +1951,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 2,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 45.00m,
                             ProductDescription = "Visokokvalitetni Ethernet kabal dužine 20 metara za pouzdanu mrežnu povezanost.",
                             ProductName = "Ethernet kabal 20m",
@@ -1963,6 +1963,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 3,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 15.00m,
                             ProductDescription = "Standardni prekidač naizmenične struje za kućnu i industrijsku upotrebu.",
                             ProductName = "Prekidač naizmenične struje",
@@ -1974,6 +1975,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 4,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 10.00m,
                             ProductDescription = "Energetski efikasna LED žarulja snage 9W, pruža jarko svetlo uz nisku potrošnju energije.",
                             ProductName = "LED žarulja 9W",
@@ -1985,6 +1987,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 5,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 20.00m,
                             ProductDescription = "Visokokvalitetna ravna keramika dimenzija 30x30cm, idealna za podove i zidove.",
                             ProductName = "Ravna keramika 30x30cm",
@@ -1996,6 +1999,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 6,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 15.00m,
                             ProductDescription = "Izdržljive keramičke pločice dimenzija 20x20cm, pogodne za različite površine.",
                             ProductName = "Keramičke pločice 20x20cm",
@@ -2007,6 +2011,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 7,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 30.00m,
                             ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg, idealna za popunjavanje spojeva između pločica.",
                             ProductName = "Fug masa 5kg",
@@ -2018,6 +2023,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 8,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 50.00m,
                             ProductDescription = "Snažno ljepilo za keramiku u pakovanju od 10kg, pruža čvrsto prizemljivanje pločica na različite površine.",
                             ProductName = "Ljepilo za keramiku 10kg",
@@ -2029,6 +2035,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 9,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 8.00m,
                             ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg, pogodan za različite građevinske radove.",
                             ProductName = "Cement 25kg",
@@ -2040,6 +2047,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 10,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 5.00m,
                             ProductDescription = "Fini pijesak u pakovanju od 50kg, idealan za malterisanje i druge građevinske primjene.",
                             ProductName = "Pijesak 50kg",
@@ -2051,6 +2059,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 11,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 12.00m,
                             ProductDescription = "Kvalitetan malter u pakovanju od 30kg, pogodan za unutrašnje i vanjske zidove.",
                             ProductName = "Malter 30kg",
@@ -2062,6 +2071,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 12,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 25.00m,
                             ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L, dostupna u različitim bojama.",
                             ProductName = "Boja za zidove 5L",
@@ -2073,6 +2083,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 13,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 15.00m,
                             ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L, pruža zaštitu i sjaj drvenim površinama.",
                             ProductName = "Lak za drvo 1L",
@@ -2084,6 +2095,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 14,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 7.00m,
                             ProductDescription = "Kvalitetan valjak za boju, idealan za brzo i ravnomerno nanošenje boje na zidove.",
                             ProductName = "Valjak za boju",
@@ -2095,6 +2107,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 15,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 5.00m,
                             ProductDescription = "Izdržljiva četka za boju, pogodna za precizno nanošenje boje na različite površine.",
                             ProductName = "Četka za boju",
@@ -2106,6 +2119,7 @@ namespace KoRadio.Services.Migrations
                             ProductId = 16,
                             IsDeleted = false,
                             IsOnSale = false,
+                            IsOutOfStock = false,
                             Price = 40.00m,
                             ProductDescription = "Velika kanta za boju u pakovanju od 10L, idealna za veće projekte farbanja.",
                             ProductName = "Kanta za boju 10L",
@@ -2421,6 +2435,12 @@ namespace KoRadio.Services.Migrations
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<byte[]>("StoreCatalogue")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime?>("StoreCataloguePublish")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("StoreName")
                         .IsRequired()

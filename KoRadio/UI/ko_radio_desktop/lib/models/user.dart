@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/store.dart';
@@ -7,7 +8,7 @@ import 'package:ko_radio_desktop/models/user_role.dart';
 part 'user.g.dart';
 @JsonSerializable()
 class User{
-  int userId;
+ int userId;
   String? firstName;
   String? lastName;
   String? email;

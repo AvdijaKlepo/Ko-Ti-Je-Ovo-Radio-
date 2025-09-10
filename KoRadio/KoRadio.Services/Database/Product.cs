@@ -17,6 +17,9 @@ public partial class Product:ISoftDelete
     public int StockQuantity { get; set; } = 0;
     public bool IsOnSale { get; set; }
     public decimal? SalePrice { get; set; }
+	public bool IsOutOfStock { get; set; }
+
+    public DateTime? SaleExpires { get; set; }
 
 
 

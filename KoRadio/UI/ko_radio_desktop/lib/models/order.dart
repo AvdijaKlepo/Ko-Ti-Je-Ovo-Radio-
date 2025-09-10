@@ -12,6 +12,7 @@ class Order {
   User? user;
   bool? isCancelled;
   bool? isShipped;
+  double? price;
   DateTime? createdAt;
   List<OrderItems>? orderItems;
 

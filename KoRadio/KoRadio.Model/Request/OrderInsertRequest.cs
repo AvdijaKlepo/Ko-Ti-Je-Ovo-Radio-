@@ -14,8 +14,10 @@ namespace KoRadio.Model.Request
 		public bool IsCancelled { get; set; }
 
 		public bool IsShipped { get; set; }
+		public decimal Price { get; set; }
 
 		public DateTime CreatedAt { get; set; }
+
 
 
 		public List<OrderItemInsertRequest> OrderItems { get; set; }
@@ -30,6 +32,7 @@ namespace KoRadio.Model.Request
 		public int ProductId { get; set; }
 
 		public int Quantity { get; set; }
+		public decimal ProductPrice { get; set; }
 		public int StoreId { get; set; }
 
 	

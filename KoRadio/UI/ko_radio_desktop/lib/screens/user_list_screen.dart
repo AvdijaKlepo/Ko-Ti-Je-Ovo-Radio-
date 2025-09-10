@@ -16,30 +16,19 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
-  late UserProvider provider;
+ late UserProvider provider;
   late PaginatedFetcher<User> usersPagination;
-  int currentPage = 1;
-  SearchResult<User>? result;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool showDeleted = false;
   bool _isInitialized = false;
   bool isLoading = false;
   Timer? _debounce;
+  int currentPage = 1;
+
   @override
   void initState() {
     super.initState();
-    usersPagination = PaginatedFetcher<User>(
-      pageSize: 0,
-      initialFilter: {},
-      fetcher: ({
-        required int page,
-        required int pageSize,
-        Map<String, dynamic>? filter,
-      }) async {
-        return PaginatedResult(result: [], count: 0);
-      },
-    );
     provider = context.read<UserProvider>();
     usersPagination = PaginatedFetcher<User>(
       pageSize: 18,
@@ -61,6 +50,11 @@ class _UserListScreenState extends State<UserListScreen> {
       if (!mounted) return;
       setState(() {});
     });
+
+    // Initialize listeners to controllers
+    _firstNameController.addListener(_onSearchChanged);
+    _emailController.addListener(_onSearchChanged);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() => isLoading = true);
       await usersPagination.refresh(newFilter: {
@@ -76,6 +70,7 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   Future<void> _refreshWithFilter() async {
+    if (isLoading) return;
     setState(() => isLoading = true);
     final filter = <String, dynamic>{
       'isDeleted': showDeleted,
@@ -87,54 +82,26 @@ class _UserListScreenState extends State<UserListScreen> {
     if (_emailController.text.trim().isNotEmpty) {
       filter['Email'] = _emailController.text.trim();
     }
-    if (filter.isNotEmpty) {
-      filter['isNameIncluded'] = true;
-    }
     await usersPagination.refresh(newFilter: filter);
     if (!mounted) return;
     setState(() => isLoading = false);
   }
 
-  Future<void> _loadUsers({String? firstName, String? email}) async {
-    Map<String, dynamic> filter = {
-      'isDeleted': showDeleted,
-      'IsFreelancerIncluded': false,
-    };
-    if ((firstName ?? '').trim().isNotEmpty) {
-      filter['FirstNameGTE'] = firstName!.trim();
-    }
-    if ((email ?? '').trim().isNotEmpty) {
-      filter['Email'] = email!.trim();
-    }
-    if (filter.isNotEmpty) {
-      filter['isNameIncluded'] = true;
-    }
-    try {
-      final fetchedUsers =
-          await provider.get(filter: filter.isEmpty ? null : filter);
-      if (!mounted) return;
-      setState(() {
-        result = fetchedUsers;
-      });
-    } on Exception catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
-
-  void _onSearchChanged() async {
+  void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 1), () async {
-      await _refreshWithFilter();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _refreshWithFilter();
     });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _firstNameController.removeListener(_onSearchChanged);
     _firstNameController.dispose();
+    _emailController.removeListener(_onSearchChanged);
     _emailController.dispose();
+    usersPagination.dispose();
     super.dispose();
   }
 
@@ -145,53 +112,60 @@ class _UserListScreenState extends State<UserListScreen> {
     );
     if (result == true) {
       if (!mounted) return;
-      await _loadUsers(
-          firstName: _firstNameController.text,
-          email: _emailController.text);
+      setState(() => isLoading = true);
+      await usersPagination.refresh(newFilter: {
+        'isDeleted': showDeleted,
+        'IsFreelancerIncluded': true,
+      });
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   @override
-Widget build(BuildContext context) {
-  var filterOutLoggedInUser = usersPagination.items
-      .where((element) => element.userId != AuthProvider.user?.userId)
-      .toList();
+  Widget build(BuildContext context) {
+    var filterOutLoggedInUser = usersPagination.items
+        .where((element) => element.userId != AuthProvider.user?.userId)
+        .toList();
 
-  if (!_isInitialized) {
-    return const Center(child: CircularProgressIndicator());
-  }
+    if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  return Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 🔎 Search & filters
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextField(
-                controller: _firstNameController,
-                decoration: InputDecoration(
-                  labelText: 'Ime i prezime',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 🔎 Search & filters
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: TextField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Ime i prezime',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    suffixIcon: _firstNameController.text.isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              _firstNameController.clear();
+                              _refreshWithFilter();
+                            },
+                            icon: const Icon(Icons.clear),
+                          )
+                        : null,
                   ),
-                  suffixIcon: _firstNameController.text.isNotEmpty
-                      ? IconButton(
-                          onPressed: () {
-                            _firstNameController.clear();
-                            _onSearchChanged();
-                          },
-                          icon: const Icon(Icons.clear),
-                        )
-                      : null,
+                  onChanged: (_) => _onSearchChanged(),
                 ),
-                onChanged: (_) => _onSearchChanged(),
               ),
-            ),
+            
             const SizedBox(width: 12),
             Expanded(
               flex: 3,
@@ -251,6 +225,7 @@ Widget build(BuildContext context) {
               Expanded(flex: 3, child: Text("Broj Telefona", style: TextStyle(fontWeight: FontWeight.bold))),
               Expanded(flex: 1, child: Text("Račun kreiran", style: TextStyle(fontWeight: FontWeight.bold))),
               Expanded(flex: 3,child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold)))),
+              
               Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
             ],
           ),
@@ -419,10 +394,11 @@ Widget build(BuildContext context) {
       ],
       onSelected: (value) async {
         if (value == 'edit') {
-          showDialog(context: context, builder: (_) => UserFormDialog(user: user));
+          _openUserDialog(user: user);
         } else if (value == 'delete') {
           _openUserDeleteDialog(user: user);
         }
+      
       },
     ),
   ),

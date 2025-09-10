@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Model
 {
-   public class Job
-    {
+	public class Job
+	{
 		public int JobId { get; set; }
 
 		public int UserId { get; set; }

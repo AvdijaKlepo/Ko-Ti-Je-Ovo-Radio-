@@ -1,12 +1,15 @@
-﻿using KoRadio.Model.Enums;
+﻿using KoRadio.Model;
+using KoRadio.Model.Enums;
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
+using KoRadio.Services.RabbitMQ;
 using KoRadio.Services.SignalRService;
 using MapsterMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Subscriber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +23,16 @@ namespace KoRadio.Services
 		string signalRMessage = "Nova obavijest je stigla.";
 		private readonly IHubContext<SignalRHubService> _hubContext;
 		private readonly IMessageService _messageService;
-		public StoreService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
+		private readonly IRabbitMQService _rabbitMQService;
+		public StoreService(KoTiJeOvoRadioContext context, IMapper mapper, IHubContext<SignalRHubService> hubContext, IMessageService messageService, IRabbitMQService rabbitMQService) : base(context, mapper)
 		{
 			_hubContext = hubContext;
 			_messageService = messageService;
+			_rabbitMQService = rabbitMQService;
 
 		}
 
-		public override IQueryable<Store> AddFilter(StoreSearchObject search, IQueryable<Store> query)
+		public override IQueryable<Database.Store> AddFilter(StoreSearchObject search, IQueryable<Database.Store> query)
 		{
 			query = query.Include(x => x.User);
 			query = query.Include(x => x.Location);
@@ -35,6 +40,10 @@ namespace KoRadio.Services
 			if (!string.IsNullOrWhiteSpace(search?.Name))
 			{
 				query = query.Where(x => x.StoreName.StartsWith(search.Name));
+			}
+			if(!string.IsNullOrWhiteSpace(search?.OwnerName))
+			{
+				query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).StartsWith(search.OwnerName));
 			}
 			if (search.IsApplicant==true)
 			{
@@ -64,7 +73,7 @@ namespace KoRadio.Services
 			}
 			return base.AddFilter(search, query);
 		}
-		public override async Task BeforeUpdateAsync(StoreUpdateRequest request, Store entity, CancellationToken cancellationToken = default)
+		public override async Task BeforeUpdateAsync(StoreUpdateRequest request, Database.Store entity, CancellationToken cancellationToken = default)
 		{
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
@@ -120,11 +129,39 @@ namespace KoRadio.Services
 				request.Rating = entity.Rating;
 			}
 
+
+			if (request.StoreCatalogue != null)
+			{
+			
+				if (entity.StoreCataloguePublish != null && entity.StoreCataloguePublish.Value.AddDays(5) > DateTime.Now)
+				{
+					throw new UserException("Novi katalog se može objaviti tek nakon 5 dana od posljednjeg objavljenog kataloga.");
+				}
+
+			
+				entity.StoreCataloguePublish = DateTime.Now;
+
+				var users = _context.Users.ToList();
+
+				foreach (var user in users)
+				{
+					await _rabbitMQService.SendEmail(new Email
+					{
+						EmailTo = user.Email,
+						ReceiverName = $"{user.FirstName} {user.LastName}",
+						Subject = "Novi katalog",
+						Message = $"Poštovani, u prilogu se nalazi najnoviji katalog od {entity.StoreName}.",
+						PdfBytes = request.StoreCatalogue
+					});
+				}
+			}
+
+
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
-		public override async Task BeforeInsertAsync(StoreInsertRequest request, Store entity, CancellationToken cancellationToken = default)
+		public override async Task BeforeInsertAsync(StoreInsertRequest request, Database.Store entity, CancellationToken cancellationToken = default)
 		{
 			
 
@@ -178,7 +215,7 @@ namespace KoRadio.Services
 			}
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
-		public override async Task BeforeDeleteAsync(Store entity, CancellationToken cancellationToken)
+		public override async Task BeforeDeleteAsync(Database.Store entity, CancellationToken cancellationToken)
 		{
 			string notification;
 
@@ -201,7 +238,7 @@ namespace KoRadio.Services
 			await base.BeforeDeleteAsync(entity, cancellationToken);
 		}
 
-		public override async Task BeforeGetAsync(Model.Store request, Store entity)
+		public override async Task BeforeGetAsync(Model.Store request, Database.Store entity)
 		{
 			var flags = (WorkingDaysFlags)entity.WorkingDays;
 

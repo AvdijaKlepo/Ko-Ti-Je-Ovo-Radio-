@@ -24,7 +24,7 @@ Freelancer _$FreelancerFromJson(Map<String, dynamic> json) => Freelancer(
       startTime: json['startTime'] as String,
       endTime: json['endTime'] as String,
       freelancerId: (json['freelancerId'] as num).toInt(),
-    );
+    )..cv = json['cv'] as String?;
 
 Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
     <String, dynamic>{
@@ -39,4 +39,5 @@ Map<String, dynamic> _$FreelancerToJson(Freelancer instance) =>
       'freelancerNavigation': instance.freelancerNavigation,
       'isApplicant': instance.isApplicant,
       'isDeleted': instance.isDeleted,
+      'cv': instance.cv,
     };

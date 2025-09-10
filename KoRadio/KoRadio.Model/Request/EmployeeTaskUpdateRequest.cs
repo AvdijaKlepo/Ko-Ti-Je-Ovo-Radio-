@@ -10,15 +10,15 @@ namespace KoRadio.Model.Request
 	{
 
 
-		public string Task { get; set; } = null!;
+		public string? Task { get; set; } = null!;
 
-		public bool IsFinished { get; set; }
+		public bool? IsFinished { get; set; }
 
 		public int? CompanyEmployeeId { get; set; }
-		public DateTime CreatedAt { get; set; }
-		public int JobId { get; set; }
+		public DateTime? CreatedAt { get; set; }
+		public int? JobId { get; set; }
 
-		public int CompanyId { get; set; }
+		public int? CompanyId { get; set; }
 
 
 

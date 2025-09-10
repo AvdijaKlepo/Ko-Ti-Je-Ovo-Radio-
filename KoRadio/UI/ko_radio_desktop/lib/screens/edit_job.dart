@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class _EditJobState extends State<EditJob> {
   DateTime? _currentJobDate;
   late Set<int> _workingDayInts;
   bool _isLoading = false;
+  Uint8List? _decodedImage;
 
   final _userId = AuthProvider.user?.userId;
 
@@ -97,13 +99,30 @@ void initState() {
           .toSet()
           .toList(),
     };
+     if (widget.job?.image != null) {
+    try {
+      _decodedImage = base64Decode(widget.job!.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
+  }
 
     setState(() {
       _isLoading = false;
     });
   });
 }
+  Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
 
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
   bool _isWorkingDay(DateTime day) {
     return _workingDayInts.contains(day.weekday);
   }
@@ -162,304 +181,327 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
 
 
   
-   return Dialog(
-      
-      insetPadding: const EdgeInsets.all(24),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: 
-      
-      
-       SingleChildScrollView(
-   
-        child: FormBuilder(
-          key: _formKey,
-          initialValue: _initialValue,
-          
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-  
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text('Rezervacije za ${widget.job.jobDate.toIso8601String().split('T')[0]}'),
-              )
-          ,
-              const SizedBox(height: 6),
-               FormBuilderTextField(
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: "Obavezno polje"),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova';
-      }
-      return null;
-    },
-                  ]),
-                      name: "jobTitle",
-                      enabled: false,
-                      decoration: const InputDecoration(
-                        labelText: 'Naslov posla',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
-                   
-                    ),  
-                    const SizedBox(height: 15,),
-                    const ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
-                    children: [
-  Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
-                    style: TextStyle(fontSize: 12),),
-                    ]
-                  
-                    )
-                    ,
-                    const SizedBox(height: 15,),
-                FormBuilderDateTimePicker(
-                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      decoration: const InputDecoration(
-                        labelText: 'Datum rezervacije',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
-                      ),
-                      name: "jobDate",
-
-                      format: DateFormat('dd-MM-yyyy'),
-                      inputType: InputType.date,
-                      firstDate: DateTime.now(),
-                      selectableDayPredicate: _isWorkingDay,
-                      onChanged: (value) async {
-                        setState(() {
-                          _currentJobDate = value;
-                          print(jobDate);
-                          print(jobEnd);
-                          print(jobDifference);
-                          
-                         if (jobDifference != null) {
-  var newDateFinished = DateTime(
-    value!.year,
-    value.month,
-    value.day + jobDifference,
-  );
-
-                             if(!_isWorkingDay(newDateFinished))
-                          {
-                            
-                           while (!_isWorkingDay(newDateFinished)) {
-                              newDateFinished = newDateFinished.add(const Duration(days: 1));
-                            }
-                            _formKey.currentState?.patchValue({
-                              'dateFinished': newDateFinished,
-                            });
-                          }
-                          else{
-                          _formKey.currentState?.patchValue({
-                            'dateFinished': newDateFinished,
-                          });
-                          }
-                     
-                       
-                         
-                      }});
-
-                       
-
-
-                        
-                      },
-                    ),
-                    const SizedBox(height: 15,),
-                    FormBuilderDateTimePicker(
-                    
-                      format: DateFormat('dd-MM-yyyy'),
-                  validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      decoration: const InputDecoration(
-                        labelText: 'Kraj radova',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
-                      ),
-                      name: "dateFinished",
-                      
-                      inputType: InputType.date,
-                      firstDate: widget.job.jobDate,
-                       initialDate: widget.job.jobDate.isAfter(DateTime.now())
-      ? widget.job.jobDate
-      : DateTime.now(),
-                      selectableDayPredicate: _isWorkingDay,
-                     
-                    ),
-                    const SizedBox(height: 15,),
-                      if(widget.job.jobStatus==JobStatus.approved)
-                FormBuilderTextField(name: 'rescheduleNote',
-                
-                  decoration: const InputDecoration(
-              
-                    labelText: 'Razlog promjene',
-                    
-                    
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                  maxLines: 3,
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
-
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                  ]
-                   
-                ),
-                ),
-                  const SizedBox(height: 15,),
-               FormBuilderTextField(
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: "Obavezno polje"),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
-
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                  ]),
-                      name: "jobDescription",
-                      enabled: false,
-                      decoration: const InputDecoration(
-                        labelText: 'Opis problema',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
-                      maxLines: 3,
-                    ),
-                      const SizedBox(height: 15),
-                    FormBuilderCheckboxGroup<int>(
-                      name: "serviceId",
-                      enabled: widget.job.jobStatus==JobStatus.unapproved ? true:false,
-                      validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
-                      decoration: const InputDecoration(
-                        labelText: "Servis",
-                        border: InputBorder.none,
-
-                      ),
-                      options: widget.job.company?.companyServices
-                              .map(
-                                (item) => FormBuilderFieldOption<int>(
-                                  value: item.service!.serviceId,
-                                  child: Text(item.service?.serviceName ?? ""),
-                                ),
-                              )
-                              .toList() ??
-                          [],
-                    ),
-                    const SizedBox(height: 15),
-                    
-                                
-                    const SizedBox(height: 15),
-
-                      FormBuilderTextField(
-                      name: "payEstimate",
-                      enabled: false,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(
-                        labelText: 'Moguća Cijena',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.attach_money),
-                      ),
-                      validator: FormBuilderValidators.compose(
-                        [FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
-                        ]
-                      ),
-                      valueTransformer: (value) => double.tryParse(value ?? ''),
-                    ),
-                    const SizedBox(height: 15),
-                    
-                   FormBuilderField(
-  name: "image",
-  enabled: false ,
-
-  builder: (field) {
-    return InputDecorator(
-      decoration:  const InputDecoration(
-        enabled: false ,
-        labelText: "Proslijedite sliku problema",
-        border: OutlineInputBorder(),
-      ),
+  return Dialog(
+    insetPadding: const EdgeInsets.all(16),
+    child: SizedBox(
+      width: MediaQuery.of(context).size.width * 0.3,
+      height: MediaQuery.of(context).size.height * 0.95,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: 
-            
-             _image != null
-                ? Text(_image!.path.split('/').last)
-                :  widget.job.image!= null ?
-            const Text('Proslijeđena slika') :
-                
-                 const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-
-              style: ElevatedButton.styleFrom(
-                
-                backgroundColor:  Colors.grey,
-                textStyle:   const TextStyle(color: Colors.grey),
-
-
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label:widget.job.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => 
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sliku može promijeniti samo korisnik."))),
+          // Header with title and close button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Rezervacije za ${DateFormat('dd-MM-yyyy').format(widget.job.jobDate)}',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
             ),
           ),
-          const SizedBox(height: 10),
-          _image != null ?
+      
+      
+       Expanded(
+         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+           
+         child: FormBuilder(
+           key: _formKey,
+           initialValue: _initialValue,
+           
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.end,
+          
+             children: [
+               Align(
+                 alignment: Alignment.topLeft,
+                 child: Text('Rezervacije za ${widget.job.jobDate.toIso8601String().split('T')[0]}'),
+               )
+           ,
+               const SizedBox(height: 6),
+                FormBuilderTextField(
+                   validator: FormBuilderValidators.compose([
+                     FormBuilderValidators.required(errorText: "Obavezno polje"),
+                    (value) {
+              if (value == null || value.isEmpty) return null;
+              final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
+              if (!regex.hasMatch(value)) {
+         return 'Dozvoljena su samo slova';
+              }
+              return null;
+            },
+                   ]),
+                       name: "jobTitle",
+                       enabled: false,
+                       decoration: const InputDecoration(
+                         labelText: 'Naslov posla',
+                         border: OutlineInputBorder(),
+                         prefixIcon: Icon(Icons.description),
+                       ),
+                    
+                     ),  
+                     const SizedBox(height: 15,),
+                     const ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
+                     children: [
+          Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
+                     style: TextStyle(fontSize: 12),),
+                     ]
+                   
+                     )
+                     ,
+                     const SizedBox(height: 15,),
+                 FormBuilderDateTimePicker(
+                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                       decoration: const InputDecoration(
+                         labelText: 'Datum rezervacije',
+                         border: OutlineInputBorder(),
+                         prefixIcon: Icon(Icons.calendar_today),
+                       ),
+                       name: "jobDate",
+               
+                       format: DateFormat('dd-MM-yyyy'),
+                       inputType: InputType.date,
+                       firstDate: DateTime.now(),
+                       selectableDayPredicate: _isWorkingDay,
+                       onChanged: (value) async {
+                         setState(() {
+                           _currentJobDate = value;
+                           print(jobDate);
+                           print(jobEnd);
+                           print(jobDifference);
+                           
+                          if (jobDifference != null) {
+          var newDateFinished = DateTime(
+            value!.year,
+            value.month,
+            value.day + jobDifference,
+          );
+               
+                              if(!_isWorkingDay(newDateFinished))
+                           {
+                             
+                            while (!_isWorkingDay(newDateFinished)) {
+                               newDateFinished = newDateFinished.add(const Duration(days: 1));
+                             }
+                             _formKey.currentState?.patchValue({
+                               'dateFinished': newDateFinished,
+                             });
+                           }
+                           else{
+                           _formKey.currentState?.patchValue({
+                             'dateFinished': newDateFinished,
+                           });
+                           }
+                      
+                        
+                          
+                       }});
+               
+                        
+               
+               
+                         
+                       },
+                     ),
+                     const SizedBox(height: 15,),
+                     FormBuilderDateTimePicker(
+                     
+                       format: DateFormat('dd-MM-yyyy'),
+                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                       decoration: const InputDecoration(
+                         labelText: 'Kraj radova',
+                         border: OutlineInputBorder(),
+                         prefixIcon: Icon(Icons.calendar_today),
+                       ),
+                       name: "dateFinished",
+                       
+                       inputType: InputType.date,
+                       firstDate: widget.job.jobDate,
+                        initialDate: widget.job.jobDate.isAfter(DateTime.now())
+              ? widget.job.jobDate
+              : DateTime.now(),
+                       selectableDayPredicate: _isWorkingDay,
+                      
+                     ),
+                     const SizedBox(height: 15,),
+                       if(widget.job.jobStatus==JobStatus.approved)
+                 FormBuilderTextField(name: 'rescheduleNote',
+                 
+                   decoration: const InputDecoration(
+               
+                     labelText: 'Razlog promjene',
+                     
+                     
+                     border: OutlineInputBorder(),
+                     prefixIcon: Icon(Icons.description),
+                   ),
+                   maxLines: 3,
+                   validator: FormBuilderValidators.compose([
+                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                    (value) {
+              if (value == null || value.isEmpty) return null;
+           final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+               
+              if (!regex.hasMatch(value)) {
+         return 'Dozvoljena su samo slova i brojevi';
+              }
+              return null;
+            },
+                   ]
+                    
+                 ),
+                 ),
+                   const SizedBox(height: 15,),
+                FormBuilderTextField(
+                   validator: FormBuilderValidators.compose([
+                     FormBuilderValidators.required(errorText: "Obavezno polje"),
+                    (value) {
+              if (value == null || value.isEmpty) return null;
+               final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+               
+              if (!regex.hasMatch(value)) {
+         return 'Dozvoljena su samo slova i brojevi';
+              }
+              return null;
+            },
+                   ]),
+                       name: "jobDescription",
+                       enabled: false,
+                       decoration: const InputDecoration(
+                         labelText: 'Opis problema',
+                         border: OutlineInputBorder(),
+                         prefixIcon: Icon(Icons.description),
+                       ),
+                       maxLines: 3,
+                     ),
+                       const SizedBox(height: 15),
+                     FormBuilderCheckboxGroup<int>(
+                       name: "serviceId",
+                       enabled: widget.job.jobStatus==JobStatus.unapproved ? true:false,
+                       validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
+                       decoration: const InputDecoration(
+                         labelText: "Servis",
+                         border: InputBorder.none,
+               
+                       ),
+                       options: widget.job.company?.companyServices
+                               .map(
+                                 (item) => FormBuilderFieldOption<int>(
+                                   value: item.service!.serviceId,
+                                   child: Text(item.service?.serviceName ?? ""),
+                                 ),
+                               )
+                               .toList() ??
+                           [],
+                     ),
+                     const SizedBox(height: 15),
+                     
+                                 
+                     const SizedBox(height: 15),
+               
+                       FormBuilderTextField(
+                       name: "payEstimate",
+                       enabled: false,
+                       keyboardType:
+                           const TextInputType.numberWithOptions(decimal: true),
+                       decoration: const InputDecoration(
+                         labelText: 'Moguća Cijena',
+                         border: OutlineInputBorder(),
+                         prefixIcon: Icon(Icons.attach_money),
+                       ),
+                       validator: FormBuilderValidators.compose(
+                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                         FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                         ]
+                       ),
+                       valueTransformer: (value) => double.tryParse(value ?? ''),
+                     ),
+                     const SizedBox(height: 15),
+                     
+                    FormBuilderField(
+          name: "image",
+          enabled: false ,
+               
+          builder: (field) {
+            return InputDecorator(
+              decoration:  const InputDecoration(
+         enabled: false ,
+         labelText: "Proslijedite sliku problema",
+         border: OutlineInputBorder(),
+              ),
+              child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           ListTile(
+             
+             contentPadding: EdgeInsets.zero,
+             leading: const Icon(Icons.image),
+             title: 
+             
+              _image != null
+                 ? Text(_image!.path.split('/').last)
+                 :  widget.job.image!= null ?
+             const Text('Proslijeđena slika') :
+                 
+                  const Text("Nema proslijeđene slike"),
+             trailing: ElevatedButton.icon(
+               
+               style: ElevatedButton.styleFrom(
+                 
+                 backgroundColor:  Colors.grey,
+                 textStyle:   const TextStyle(color: Colors.grey),
+               
+               
+               ),
+               icon: const Icon(Icons.file_upload, color: Colors.white),
+               label:widget.job.image!= null ? const Text('Promijeni sliku',style: TextStyle(color: Colors.white)): _image==null? const Text("Odaberi", style: TextStyle(color: Colors.white)): const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+               onPressed: () => 
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sliku može promijeniti samo korisnik."))),
+             ),
+           ),
+           const SizedBox(height: 10),
+         if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
                 _image!,
-               
                 fit: BoxFit.cover,
               ),
-            ) :
-            widget.job.image!=null ?
+            )
+          else if (_decodedImage != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child : imageFromString(widget.job.image ?? '',
-              fit: BoxFit.cover
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
               ),
-            ) : const SizedBox.shrink()
-           
-            ,
-        
+            )
+          else
+            const SizedBox.shrink(),
+         
+         ],
+              ),
+            );
+          },
+               ),
+               const SizedBox(height: 15,),
+                   ElevatedButton(onPressed: _save,style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),child: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),),
+             ],
+           ),
+         ),
+              ),
+       )
+      
         ],
       ),
-    );
-  },
-),
-const SizedBox(height: 15,),
-                  ElevatedButton(onPressed: _save,style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),child: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),),
-            ],
-          ),
-        ),
-      ),
-      )
-
-      
+    ),
     );
   }
   File? _image;
@@ -488,10 +530,17 @@ const SizedBox(height: 15,),
   
     return;
   }
+  
            
             
                 var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
+
+                    if(formData['jobDate']==widget.job.jobDate && formData['dateFinished']==widget.job.dateFinished)
+                  {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Niste izmjenili polja.")));
+                    return;
+                    }
 
         
 
@@ -546,7 +595,7 @@ const SizedBox(height: 15,),
                 if(!mounted) return;
                  Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Zahtjev proslijeđen firmi!")));
+                    content: Text("Zahtjev proslijeđen korisniku!")));
               }
               catch(e){
                 print(e);

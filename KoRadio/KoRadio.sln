@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.API", "KoRadio\KoRadio.API.csproj", "{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF} = {F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Model", "KoRadio.Model\KoRadio.Model.csproj", "{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Services", "KoRadio.Services\KoRadio.Services.csproj", "{7F723CC6-467F-4AAA-92DF-BB65F04511C9}"
@@ -18,16 +13,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.Services", "KoRadio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subscriber", "Subscriber\Subscriber.csproj", "{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoRadio.API", "KoRadio.API\KoRadio.API.csproj", "{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{508E4033-3EC1-4C8B-8F99-AC3BCBB3BB42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3A2A5F2-E81E-4F86-B4E3-45E236197FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -40,6 +33,10 @@ Global
 		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51473C42-D78F-46B1-B6A2-A1FE31EA4E4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

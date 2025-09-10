@@ -23,7 +23,10 @@ CompanyEmployee _$CompanyEmployeeFromJson(Map<String, dynamic> json) =>
       ..companyRoleName = json['companyRoleName'] as String?
       ..dateJoined = json['dateJoined'] == null
           ? null
-          : DateTime.parse(json['dateJoined'] as String);
+          : DateTime.parse(json['dateJoined'] as String)
+      ..company = json['company'] == null
+          ? null
+          : CompanyDto.fromJson(json['company'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$CompanyEmployeeToJson(CompanyEmployee instance) =>
     <String, dynamic>{
@@ -38,4 +41,5 @@ Map<String, dynamic> _$CompanyEmployeeToJson(CompanyEmployee instance) =>
       'companyRoleName': instance.companyRoleName,
       'dateJoined': instance.dateJoined?.toIso8601String(),
       'user': instance.user,
+      'company': instance.company,
     };

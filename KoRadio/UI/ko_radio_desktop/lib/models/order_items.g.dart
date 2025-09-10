@@ -13,6 +13,7 @@ OrderItems _$OrderItemsFromJson(Map<String, dynamic> json) => OrderItems(
           ? null
           : Order.fromJson(json['order'] as Map<String, dynamic>)
       ..quantity = (json['quantity'] as num?)?.toInt()
+      ..productPrice = (json['productPrice'] as num?)?.toDouble()
       ..product = json['product'] == null
           ? null
           : Product.fromJson(json['product'] as Map<String, dynamic>)
@@ -25,6 +26,7 @@ Map<String, dynamic> _$OrderItemsToJson(OrderItems instance) =>
       'orderItemsId': instance.orderItemsId,
       'order': instance.order,
       'quantity': instance.quantity,
+      'productPrice': instance.productPrice,
       'product': instance.product,
       'store': instance.store,
     };

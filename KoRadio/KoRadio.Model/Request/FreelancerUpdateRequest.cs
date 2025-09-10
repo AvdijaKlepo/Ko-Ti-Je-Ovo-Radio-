@@ -32,6 +32,7 @@ namespace KoRadio.Model.Request
 		public List<int>? Roles { get; set; }
 		public bool? IsApplicant { get; set; }
 		public bool? isDeleted { get; set; }
+		public byte[]? CV { get; set; }
 
 
 

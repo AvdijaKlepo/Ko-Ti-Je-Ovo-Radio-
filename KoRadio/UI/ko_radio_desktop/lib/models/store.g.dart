@@ -21,7 +21,16 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
           : Location.fromJson(json['location'] as Map<String, dynamic>)
       ..address = json['address'] as String?
       ..image = json['image'] as String?
-      ..businessCertificate = json['businessCertificate'] as String?;
+      ..businessCertificate = json['businessCertificate'] as String?
+      ..rating = (json['rating'] as num?)?.toDouble()
+      ..workingDays = (json['workingDays'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList()
+      ..startTime = json['startTime'] as String?
+      ..endTime = json['endTime'] as String?
+      ..storeCataloguePublish = json['storeCataloguePublish'] == null
+          ? null
+          : DateTime.parse(json['storeCataloguePublish'] as String);
 
 Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'storeId': instance.storeId,
@@ -34,4 +43,10 @@ Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'address': instance.address,
       'image': instance.image,
       'businessCertificate': instance.businessCertificate,
+      'rating': instance.rating,
+      'workingDays': instance.workingDays,
+      'startTime': instance.startTime,
+      'endTime': instance.endTime,
+      'storeCataloguePublish':
+          instance.storeCataloguePublish?.toIso8601String(),
     };

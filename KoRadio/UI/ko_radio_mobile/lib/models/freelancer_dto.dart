@@ -7,6 +7,8 @@ part 'freelancer_dto.g.dart';
 class FreelancerDto{
   int? freelancerId;
   List<FreelancerService>? freelancerServices;
+  bool? isDeleted;
+  bool? isApplicant;
   
 
   FreelancerDto({this.freelancerId});

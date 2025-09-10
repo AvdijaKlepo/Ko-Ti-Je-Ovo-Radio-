@@ -410,6 +410,11 @@ const SizedBox(height: 20,),
                   request['image'] = widget.user?.image;
                 }
       request['roles']= [11];
+      if(request['password']!=request['confirmPassword'])
+      {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lozinke se ne poklapaju")));
+        return;
+      }
   
 
     

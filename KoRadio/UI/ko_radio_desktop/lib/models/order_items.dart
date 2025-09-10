@@ -11,7 +11,7 @@ class OrderItems {
   int orderItemsId;
   Order? order;
   int? quantity;
-
+  double? productPrice;
   Product? product;
   Store? store;
 

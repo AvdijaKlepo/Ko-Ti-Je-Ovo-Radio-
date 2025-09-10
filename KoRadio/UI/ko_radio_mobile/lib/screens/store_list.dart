@@ -44,6 +44,7 @@ class _StoreListState extends State<StoreList> {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if(!mounted || _isLoading) return;
       setState(() {
         _isLoading=true;
       });
@@ -75,6 +76,7 @@ class _StoreListState extends State<StoreList> {
         if (mounted) setState(() {});
       });
       await storePagination.refresh();
+      if(!mounted) return;
       setState(() {
         _isInitialized = true;
         _isLoading=false;
@@ -114,6 +116,7 @@ class _StoreListState extends State<StoreList> {
     }
   }
   Future<void> _refreshWithFilter() async {
+    if(_isLoading) return;
     setState(() {
       _isLoading=true;
     });
@@ -125,7 +128,9 @@ class _StoreListState extends State<StoreList> {
     if (_selectedLocationId != null) {
       filter['LocationId'] = _selectedLocationId;
     }
+
     await storePagination.refresh(newFilter: filter);
+    if(!mounted) return;
     setState(() {
       _isLoading=false;
     });

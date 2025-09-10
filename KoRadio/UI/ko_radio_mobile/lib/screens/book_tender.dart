@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
@@ -15,6 +16,7 @@ import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/tender_provider.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class BookTender extends StatefulWidget {
@@ -103,7 +105,7 @@ class _BookTenderState extends State<BookTender> {
       "jobDate": (values['jobDate'] as DateTime).toIso8601String(),
       
 
-        "jobDescription": values['jobDescription'],
+        "jobDescription": capitalize( values['jobDescription']),
         "jobTitle":values['jobTitle'],
         "isTenderFinalized": true,
         "serviceId": values["serviceId"] ?? [],
@@ -179,7 +181,12 @@ class _BookTenderState extends State<BookTender> {
         [];
 
     return Scaffold(
-      appBar: AppBar(title: widget.tender==null? const Text('Rezerviši tender'): const Text('Izmjeni tender')),
+      appBar: AppBar(title: widget.tender==null?  Text('Kreiraj tender',
+      style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),): Text('Izmjeni tender',
+      style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      scrolledUnderElevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: FormBuilder(
@@ -231,7 +238,7 @@ class _BookTenderState extends State<BookTender> {
     },
                 ]),
               ),
-              const SizedBox(height: 20,child: Text("Napomena: Datum tendera mora biti minimalno 5 dana unaprijed.", style: TextStyle(fontSize: 12, color: Color.fromRGBO(27, 76, 125, 25)),),),
+             SizedBox(height: 20,),
               FormBuilderDateTimePicker(
                 name: "jobDate",
                 initialDate: DateTime.now().add(const Duration(days: 5)),
@@ -261,7 +268,7 @@ class _BookTenderState extends State<BookTender> {
   builder: (field) {
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: "Logo",
+        labelText: "Slika",
         border: OutlineInputBorder(),
       ),
       child: Column(
@@ -313,10 +320,13 @@ class _BookTenderState extends State<BookTender> {
              
              
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor:const Color.fromRGBO(27, 76, 125, 25)),
-                onPressed: _submit,
-                child: widget.tender==null? const Text("Objavi tender",style: TextStyle(color: Colors.white),):const Text("Izmjeni tender",style: TextStyle(color: Colors.white),),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor:const Color.fromRGBO(27, 76, 125, 25)),
+                  onPressed: _submit,
+                  child: widget.tender==null? const Text("Objavi tender",style: TextStyle(color: Colors.white),):const Text("Izmjeni tender",style: TextStyle(color: Colors.white),),
+                ),
               ),
             ],
           ),

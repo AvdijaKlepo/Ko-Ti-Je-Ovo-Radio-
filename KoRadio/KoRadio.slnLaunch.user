@@ -3,11 +3,11 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "KoRadio\\KoRadio.API.csproj",
+        "Path": "Subscriber\\Subscriber.csproj",
         "Action": "Start"
       },
       {
-        "Path": "Subscriber\\Subscriber.csproj",
+        "Path": "KoRadio.API\\KoRadio.API.csproj",
         "Action": "Start"
       }
     ]

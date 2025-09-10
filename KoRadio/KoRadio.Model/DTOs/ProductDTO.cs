@@ -15,6 +15,8 @@ namespace KoRadio.Model.DTOs
 		public string ProductDescription { get; set; } = null!;
 
 		public decimal Price { get; set; }
+		public bool? IsOnSale { get; set; }
+		public decimal? SalePrice { get; set; }
 
 		public int StoreId { get; set; }
 

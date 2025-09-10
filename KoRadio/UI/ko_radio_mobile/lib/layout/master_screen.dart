@@ -6,7 +6,6 @@ import 'package:ko_radio_mobile/main.dart';
 import 'package:ko_radio_mobile/models/messages.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
-import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
@@ -122,7 +121,6 @@ signalR.onNotificationReceived = (message) async {
 
   @override
   Widget build(BuildContext context) {
-    final navProvider = context.watch<BottomNavProvider>();
     final cart = context.watch<CartProvider>();
 
     return Scaffold(
@@ -133,6 +131,7 @@ signalR.onNotificationReceived = (message) async {
     
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
 
           children: [
               Stack(
@@ -194,6 +193,7 @@ signalR.onNotificationReceived = (message) async {
             ),
                Stack(
             alignment: Alignment.topRight,
+ 
             children: [
               IconButton(
                 icon: const Icon(Icons.shopping_cart),
@@ -228,13 +228,11 @@ signalR.onNotificationReceived = (message) async {
           ],
         ),
       ),
-  body: pages[navProvider.selectedIndex.clamp(0, pages.length - 1)],
-
+  body: pages[selectedIndex.clamp(0, pages.length - 1)],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-     currentIndex: navProvider.selectedIndex.clamp(0, bottomNavItems.length - 1),
-
-        onTap: navProvider.setIndex,
+        currentIndex: selectedIndex.clamp(0, bottomNavItems.length - 1),
+        onTap: (index) => setState(() => selectedIndex = index),
         items: bottomNavItems,
       ),
     );

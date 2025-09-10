@@ -14,6 +14,10 @@ class Store{
   bool? isApplicant;
   Location? location;
   String? address;
+  double? rating;
+  List<String>? workingDays;
+  String? startTime;
+  String? endTime;
 
   Store({
     required this.storeId,

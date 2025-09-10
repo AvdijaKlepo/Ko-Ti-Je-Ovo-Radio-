@@ -65,11 +65,16 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=IB190091;TrustServerCertificate=true;Trusted_Connection=true;");
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+		if (!optionsBuilder.IsConfigured)
+		{
+			
+		}
+	}
+
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>(entity =>
         {
@@ -249,7 +254,7 @@ public partial class KoTiJeOvoRadioContext : DbContext
             entity.Property(e => e.FreelancerId).HasColumnName("FreelancerID");
             entity.Property(e => e.IsFreelancer).HasColumnName("isFreelancer");
             entity.Property(e => e.IsTenderFinalized).HasColumnName("isTenderFinalized");
-            entity.Property(e => e.JobDate).HasColumnType("datetime");
+          
             entity.Property(e => e.JobDescription).HasMaxLength(255);
             entity.Property(e => e.JobStatus)
                 .HasMaxLength(20)
@@ -2479,8 +2484,7 @@ public static class ModelBuilderExtensions
                 JobDescription="Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
                 FreelancerId = 4,
                 UserId=2,
-                EndEstimate=new TimeOnly(18,0),
-                StartEstimate=new TimeOnly(10,0),
+      
                 IsDeleted=false,
                 IsDeletedWorker=false,
                 Image=null,
@@ -2489,7 +2493,7 @@ public static class ModelBuilderExtensions
                 IsRated=true,
                 IsInvoiced=true,
                 IsTenderFinalized=false,
-                JobDate= new DateTime(2025,05,21),
+       
                 JobStatus="finished"
                 
                 
@@ -2502,8 +2506,7 @@ public static class ModelBuilderExtensions
 				JobDescription = "Potrebno postavljanje keramike na balkonu",
 				FreelancerId= 9,
 				UserId = 2,
-				EndEstimate = new TimeOnly(18, 0),
-				StartEstimate = new TimeOnly(10, 0),
+		
 				IsDeleted = false,
 				IsDeletedWorker = false,
 				Image = null,
@@ -2512,7 +2515,7 @@ public static class ModelBuilderExtensions
 				IsRated = true,
 				IsInvoiced = true,
 				IsTenderFinalized = false,
-				JobDate = new DateTime(2025,05,21),
+			
 				JobStatus = "finished"
 
 
@@ -2525,8 +2528,7 @@ public static class ModelBuilderExtensions
 				JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 				FreelancerId = 10,
 				UserId = 2,
-				EndEstimate = new TimeOnly(18, 0),
-				StartEstimate = new TimeOnly(10, 0),
+		
 				IsDeleted = false,
 				IsDeletedWorker = false,
 				Image = null,
@@ -2535,7 +2537,7 @@ public static class ModelBuilderExtensions
 				IsRated = true,
 				IsInvoiced = true,
 				IsTenderFinalized = false,
-				JobDate = new DateTime(2025,05,21),
+		
 				JobStatus = "finished"
 
 
@@ -2548,7 +2550,7 @@ public static class ModelBuilderExtensions
 				JobDescription = "Potrebno postavljanje keramike na balkonu",
 				FreelancerId = 4,
 				UserId = 3,
-				DateFinished = new DateTime(2025, 8, 24),
+		
 				IsDeleted = false,
 				IsDeletedWorker = false,
 				Image = null,
@@ -2557,7 +2559,7 @@ public static class ModelBuilderExtensions
 				IsRated = true,
 				IsInvoiced = true,
 				IsTenderFinalized = false,
-				JobDate = new DateTime(2025,05,21),
+		
 				JobStatus = "finished"
 
 
@@ -2570,8 +2572,7 @@ public static class ModelBuilderExtensions
 				JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 				FreelancerId = 11,
 				UserId = 3,
-				EndEstimate = new TimeOnly(18, 0),
-				StartEstimate = new TimeOnly(10, 0),
+		
 				IsDeleted = false,
 				IsDeletedWorker = false,
 				Image = null,
@@ -2580,7 +2581,7 @@ public static class ModelBuilderExtensions
 				IsRated = true,
 				IsInvoiced = true,
 				IsTenderFinalized = false,
-				JobDate = new DateTime(2025,05,21),
+			
 				JobStatus = "finished"
 
 
@@ -2593,7 +2594,7 @@ public static class ModelBuilderExtensions
 				JobDescription = "Potrebno postavljanje keramike na balkonu",
 				FreelancerId = 12,
 				UserId = 3,
-				DateFinished = new DateTime(2025, 8, 24),
+	
 				IsDeleted = false,
 				IsDeletedWorker = false,
 				Image = null,
@@ -2602,7 +2603,7 @@ public static class ModelBuilderExtensions
 				IsRated = true,
 				IsInvoiced = true,
 				IsTenderFinalized = false,
-				JobDate = new DateTime(2025,05,21),
+			
 				JobStatus = "finished"
 
 
@@ -2615,8 +2616,8 @@ public static class ModelBuilderExtensions
                 JobDescription = "Potrebno krečenje i farbanje zidova u kući, uključujući pripremu površina i završne radove.",
                 FreelancerId = 9,
                 UserId = 21,
-                EndEstimate = new TimeOnly(17, 0),
-                StartEstimate = new TimeOnly(9, 0),
+         
+     
                 IsDeleted = false,
                 IsDeletedWorker = false,
                 Image = null,
@@ -2625,7 +2626,7 @@ public static class ModelBuilderExtensions
                 IsRated = true,
                 IsInvoiced = true,
                 IsTenderFinalized = false,
-                JobDate = new DateTime(2025,05,21),
+
                 JobStatus = "finished"
 			},
             new Database.Job
@@ -2635,8 +2636,8 @@ public static class ModelBuilderExtensions
                 JobDescription = "Potrebna hitna popravka krova zbog curenja vode, uključujući zamjenu oštećenih delova i hidroizolaciju.",
                 FreelancerId = 11,
                 UserId = 21,
-                EndEstimate = new TimeOnly(16, 0),
-                StartEstimate = new TimeOnly(8, 0),
+
+
                 IsDeleted = false,
                 IsDeletedWorker = false,
                 Image = null,
@@ -2645,7 +2646,7 @@ public static class ModelBuilderExtensions
                 IsRated = true,
                 IsInvoiced = true,
                 IsTenderFinalized = false,
-                JobDate = new DateTime(2025,05,21),
+ 
                 JobStatus = "finished"
 			},
             new Database.Job
@@ -2655,8 +2656,7 @@ public static class ModelBuilderExtensions
                 JobDescription = "Potrebna instalacija solarnih panela na krovu kuće, uključujući montažu i povezivanje sa električnim sistemom.",
                 FreelancerId = 13,
                 UserId = 21,
-                EndEstimate = new TimeOnly(15, 0),
-                StartEstimate = new TimeOnly(7, 0),
+
                 IsDeleted = false,
                 IsDeletedWorker = false,
                 Image = null,
@@ -2665,7 +2665,7 @@ public static class ModelBuilderExtensions
                 IsRated = true,
                 IsInvoiced = true,
                 IsTenderFinalized = false,
-                JobDate = new DateTime(2025,05,21),
+       
                 JobStatus = "finished"
 			},
 			 new Database.Job
@@ -2675,7 +2675,7 @@ public static class ModelBuilderExtensions
 				 JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 				 CompanyId = 1,
 				 UserId = 2,
-				 DateFinished= new DateTime(2025, 8, 24),
+
 				 IsDeleted = false,
 				 IsDeletedWorker = false,
 				 Image = null,
@@ -2684,7 +2684,7 @@ public static class ModelBuilderExtensions
 				 IsRated = true,
 				 IsInvoiced = true,
 				 IsTenderFinalized = false,
-				 JobDate = new DateTime(2025,05,21),
+		
 				 JobStatus = "finished"
 
 
@@ -2697,7 +2697,7 @@ public static class ModelBuilderExtensions
 				  JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 				  CompanyId = 2,
 				  UserId = 2,
-				  DateFinished = new DateTime(2025, 8, 24),
+	
 				  IsDeleted = false,
 				  IsDeletedWorker = false,
 				  Image = null,
@@ -2706,7 +2706,7 @@ public static class ModelBuilderExtensions
 				  IsRated = true,
 				  IsInvoiced = true,
 				  IsTenderFinalized = false,
-				  JobDate = new DateTime(2025,05,21),
+			
 				  JobStatus = "finished"
 
 
@@ -2719,7 +2719,7 @@ public static class ModelBuilderExtensions
 				   JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 				   CompanyId = 4,
 				   UserId = 2,
-				   DateFinished = new DateTime(2025, 8, 24),
+		
 				   IsDeleted = false,
 				   IsDeletedWorker = false,
 				   Image = null,
@@ -2728,7 +2728,7 @@ public static class ModelBuilderExtensions
 				   IsRated = true,
 				   IsInvoiced = true,
 				   IsTenderFinalized = false,
-				   JobDate = new DateTime(2025,05,21),
+		
 				   JobStatus = "finished"
 
 
@@ -2741,7 +2741,7 @@ public static class ModelBuilderExtensions
 					JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 					CompanyId = 1,
 					UserId = 3,
-					DateFinished = new DateTime(2025, 8, 24),
+		
 					IsDeleted = false,
 					IsDeletedWorker = false,
 					Image = null,
@@ -2750,7 +2750,7 @@ public static class ModelBuilderExtensions
 					IsRated = true,
 					IsInvoiced = true,
 					IsTenderFinalized = false,
-					JobDate = new DateTime(2025,05,21),
+			
 					JobStatus = "finished"
 
 
@@ -2763,7 +2763,7 @@ public static class ModelBuilderExtensions
 					JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 					CompanyId = 5,
 					UserId = 3,
-					DateFinished = new DateTime(2025, 8, 24),
+				
 					IsDeleted = false,
 					IsDeletedWorker = false,
 					Image = null,
@@ -2772,7 +2772,7 @@ public static class ModelBuilderExtensions
 					IsRated = true,
 					IsInvoiced = true,
 					IsTenderFinalized = false,
-					JobDate = new DateTime(2025,05,21),
+			
 					JobStatus = "finished"
 
 
@@ -2785,7 +2785,7 @@ public static class ModelBuilderExtensions
 					JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 					CompanyId = 7,
 					UserId = 3,
-					DateFinished = new DateTime(2025, 8, 24),
+			
 					IsDeleted = false,
 					IsDeletedWorker = false,
 					Image = null,
@@ -2794,7 +2794,7 @@ public static class ModelBuilderExtensions
 					IsRated = true,
 					IsInvoiced = true,
 					IsTenderFinalized = false,
-					JobDate = new DateTime(2025,05,21),
+				
 					JobStatus = "finished"
 
 
@@ -2807,7 +2807,7 @@ public static class ModelBuilderExtensions
 						JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 						CompanyId = 1,
 						UserId = 21,
-						DateFinished = new DateTime(2025, 8, 24),
+			
 						IsDeleted = false,
 						IsDeletedWorker = false,
 						Image = null,
@@ -2816,7 +2816,7 @@ public static class ModelBuilderExtensions
 						IsRated = true,
 						IsInvoiced = true,
 						IsTenderFinalized = false,
-						JobDate = new DateTime(2025,05,21),
+				
 						JobStatus = "finished"
 
 
@@ -2829,7 +2829,7 @@ public static class ModelBuilderExtensions
 						JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 						CompanyId = 2,
 						UserId = 21,
-						DateFinished = new DateTime(2025, 8, 24),
+			
 						IsDeleted = false,
 						IsDeletedWorker = false,
 						Image = null,
@@ -2838,7 +2838,7 @@ public static class ModelBuilderExtensions
 						IsRated = true,
 						IsInvoiced = true,
 						IsTenderFinalized = false,
-						JobDate = new DateTime(2025,05,21),
+				
 						JobStatus = "finished"
 
 
@@ -2851,7 +2851,7 @@ public static class ModelBuilderExtensions
 						JobDescription = "Potrebna popravka elektroinstalacija u stanu, uključujući zamjenu prekidača i utičnica.",
 						CompanyId = 4,
 						UserId = 21,
-						DateFinished = new DateTime(2025, 8, 24),
+				
 						IsDeleted = false,
 						IsDeletedWorker = false,
 						Image = null,
@@ -2860,7 +2860,6 @@ public static class ModelBuilderExtensions
 						IsRated = true,
 						IsInvoiced = true,
 						IsTenderFinalized = false,
-						JobDate = new DateTime(2025,05,21),
 						JobStatus = "finished"
 					}
 

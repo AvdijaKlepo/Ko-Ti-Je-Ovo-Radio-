@@ -50,7 +50,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         ?.map((e) => e.product)
         .where((p) => p != null)
         .toSet() ?? {};
-var total =  order.orderItems?.map((e) => e.product!.price! * e.quantity!).toList().reduce((value, element) => value + element);
+var total =  order.orderItems?.map((e) => e.productPrice! * e.quantity!).toList().reduce((value, element) => value + element);
     return Dialog(
 
       insetPadding: const EdgeInsets.all(24),
@@ -109,7 +109,7 @@ var total =  order.orderItems?.map((e) => e.product!.price! * e.quantity!).toLis
 ...uniqueProducts.map((product) {
   return _buildRow(
     product!.productName ?? '-',
-    product.price?.toString() ?? '-',
+    widget.order.orderItems?.where((element) => element.product?.productId==product.productId).map((e) => e.productPrice??0).reduce((value, element) => value + element).toString() ?? '-',
   );
 }),
 
@@ -139,7 +139,7 @@ var total =  order.orderItems?.map((e) => e.product!.price! * e.quantity!).toLis
                               children: [
                                 Expanded(
                                     flex: 2,
-                                    child: Text(product?.productName ?? "-",
+                                    child: Text(item.productPrice?.toString() ?? "-",
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w500))),
                                 Expanded(
@@ -148,7 +148,7 @@ var total =  order.orderItems?.map((e) => e.product!.price! * e.quantity!).toLis
                                 Expanded(
                                     child: Text(
                                         _currencyFormat.format(
-                                            (product?.price ?? 0) *
+                                            (item.productPrice?? 0) *
                                                 (item.quantity ?? 0)),
                                         textAlign: TextAlign.end,
                                         style: const TextStyle(

@@ -22,7 +22,6 @@ class _StoreOrdersState extends State<StoreOrders> {
   late OrderProvider orderProvider;
   late MessagesProvider messagesProvider;
   late PaginatedFetcher<Order> orderPagination;
-  late ScrollController _scrollController;
   SearchResult<Order>? orderResult;
 
    final TextEditingController _userNameController = TextEditingController();
@@ -31,6 +30,7 @@ class _StoreOrdersState extends State<StoreOrders> {
    bool _isInitialized = false;
    bool isLoading = false;
    Timer? _debounce;
+   int currentPage=1;
    final Set<int> _selectedOrders = {};
   
    
@@ -50,15 +50,7 @@ class _StoreOrdersState extends State<StoreOrders> {
           return PaginatedResult(result: result.result, count: result.count);
         },
       );
-      _scrollController = ScrollController();
-      _scrollController.addListener(() {
-        if (_scrollController.position.pixels >=
-                _scrollController.position.maxScrollExtent - 100 &&
-            orderPagination.hasNextPage &&
-            !orderPagination.isLoading) {
-          orderPagination.loadMore();
-        }
-      });
+     
       orderProvider = context.read<OrderProvider>();
       messagesProvider = context.read<MessagesProvider>();
       orderPagination = PaginatedFetcher<Order>(
@@ -95,6 +87,7 @@ class _StoreOrdersState extends State<StoreOrders> {
     _debounce = Timer(const Duration(milliseconds: 300), _refreshWithFilter);
   }
   Future<void> _refreshWithFilter() async {
+    if(isLoading) return;
     setState(() => isLoading = true);
     final filter =<String, dynamic> {
       'StoreId': AuthProvider.selectedStoreId,
@@ -181,10 +174,21 @@ class _StoreOrdersState extends State<StoreOrders> {
               Expanded(
                 child: TextField(
                   controller: _userNameController,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                     labelText: 'Ime Korisnika narudžbe',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.search_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                     suffixIcon: _userNameController.text.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            _userNameController.clear();
+                            _onSearchChanged();
+                          },
+                          icon: const Icon(Icons.clear),
+                        )
+                      : null,
                   ),
                   onChanged: (_) => _onSearchChanged(),
                 ),
@@ -217,29 +221,36 @@ class _StoreOrdersState extends State<StoreOrders> {
             ],
           ),
           const SizedBox(height: 16),
-         Row(
-  children: [
-    const Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
- 
-    const Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
- const Expanded(flex: 1, child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Icon(Icons.receipt_long, size: 18),
-    )),
-      if(!showShipped && !showCancelled)
-      const Expanded(flex: 1, child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Icon(Icons.local_shipping, size: 18),
-    )),
-    if(!showShipped && !showCancelled)
-    const Expanded(flex: 1, child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Icon(Icons.delete, size: 18),
-    )),
-      ],
-),
+         Container(
+           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+           decoration: BoxDecoration(
+             color: Colors.grey.shade100,
+             borderRadius: BorderRadius.circular(8),
+           ),
+                     child: Row(
+             children: [
+               const Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
+            
+               const Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
+            const Expanded(flex: 1, child: Padding(
+                 padding: EdgeInsets.symmetric(horizontal: 4),
+                 child: Icon(Icons.receipt_long, size: 18),
+               )),
+                 if(!showShipped && !showCancelled)
+                 const Expanded(flex: 1, child: Padding(
+                 padding: EdgeInsets.symmetric(horizontal: 4),
+                 child: Icon(Icons.local_shipping, size: 18),
+               )),
+               if(!showShipped && !showCancelled)
+               const Expanded(flex: 1, child: Padding(
+                 padding: EdgeInsets.symmetric(horizontal: 4),
+                 child: Icon(Icons.delete, size: 18),
+               )),
+                 ],
+           ),
+         ),
 
 
         Expanded(
@@ -248,13 +259,128 @@ class _StoreOrdersState extends State<StoreOrders> {
                 : orderPagination.items.isEmpty
                     ? const Center(child: Text('Nisu pronađene narudžbe.'))
                     : ListView.separated(
-                        controller: _scrollController,
+                    
                         itemCount: orderPagination.items.length,
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final order = orderPagination.items[index];
+                          return MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Container(
+                              color: index.isEven ? Colors.grey.shade50 : Colors.white,
+                              child: _buildOrders(order),
+                            ),
+                          );
 
-                          return Padding(
+                         
+                        },
+                      ),
+          ),
+
+          Align(
+            alignment: Alignment.topCenter,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: _selectedOrders.isEmpty
+                  ? null
+                  : () async {
+                      try {
+                        for (var order in orderPagination.items.where((o) => _selectedOrders.contains(o.orderId))) {
+                          await orderProvider.update(order.orderId, {
+                            'orderNumber': order.orderNumber,
+                            'userId': order.user?.userId,
+                            'isCancelled': order.isCancelled,
+                            'isShipped': true, 
+                          });
+                        }
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Odabrane narudžbe su označene kao poslane.")),
+                        );
+
+             
+                        await orderPagination.refresh(newFilter: {
+                          'StoreId': AuthProvider.selectedStoreId,
+                          'IsShipped': showShipped,
+                        });
+
+                        setState(() => _selectedOrders.clear());
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Greška pri ažuriranju: $e")),
+                        );
+                      }
+                    },
+              child: const Text("Označi odabrane kao poslane", style: TextStyle(color: Colors.white)),
+            ),
+          ),
+            if (_userNameController.text.isEmpty && orderPagination.hasNextPage == false)
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            children: List.generate(
+              (orderPagination.count / orderPagination.pageSize).ceil(),
+              (index) {
+                final pageNum = index + 1;
+                final isActive = currentPage == pageNum;
+                return OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isActive ? const Color.fromRGBO(27, 76, 125, 1) : Colors.white,
+                    foregroundColor: isActive ? Colors.white : Colors.black87,
+                    side: BorderSide(color: isActive ? Colors.transparent : Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  onPressed: () async {
+                    if (!mounted) return;
+                    setState(() {
+                      currentPage = pageNum;
+                      isLoading = true;
+                    });
+                    await orderPagination.goToPage(
+                      pageNum,
+                      filter: {
+                        'isShipped': showShipped,
+                        'isCancelled': showCancelled,
+                      },
+                    );
+                    if (!mounted) return;
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  child: Text("$pageNum"),
+                );
+              },
+            ),
+          ),
+
+        const SizedBox(height: 8),
+
+                if (_userNameController.text.isEmpty && orderPagination.hasNextPage == false)
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Prikazano ${(currentPage - 1) * orderPagination.pageSize + 1}"
+              " - ${(currentPage - 1) * orderPagination.pageSize + orderPagination.items.length}"
+              " od ${orderPagination.count}",
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+          
+        ],
+      ),
+    );
+  }
+  Widget _buildOrders(Order order) {
+     return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,54 +442,6 @@ class _StoreOrdersState extends State<StoreOrders> {
                               ],
                             ),
                           );
-                        },
-                      ),
-          ),
 
-          Align(
-            alignment: Alignment.topCenter,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: _selectedOrders.isEmpty
-                  ? null
-                  : () async {
-                      try {
-                        for (var order in orderPagination.items.where((o) => _selectedOrders.contains(o.orderId))) {
-                          await orderProvider.update(order.orderId, {
-                            'orderNumber': order.orderNumber,
-                            'userId': order.user?.userId,
-                            'isCancelled': order.isCancelled,
-                            'isShipped': true, 
-                          });
-                        }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Odabrane narudžbe su označene kao poslane.")),
-                        );
-
-             
-                        await orderPagination.refresh(newFilter: {
-                          'StoreId': AuthProvider.selectedStoreId,
-                          'IsShipped': showShipped,
-                        });
-
-                        setState(() => _selectedOrders.clear());
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Greška pri ažuriranju: $e")),
-                        );
-                      }
-                    },
-              child: const Text("Označi odabrane kao poslane", style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -36,8 +36,9 @@ public partial class Company:ISoftDelete,IApplicantDelete
     public int TotalRatings { get; set; }
 
     public decimal RatingSum { get; set; }
+	public byte[]? BusinessCertificate { get; set; }
 
-    public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
+	public virtual ICollection<CompanyEmployee> CompanyEmployees { get; set; } = new List<CompanyEmployee>();
 
     public virtual ICollection<CompanyRole> CompanyRoles { get; set; } = new List<CompanyRole>();
 

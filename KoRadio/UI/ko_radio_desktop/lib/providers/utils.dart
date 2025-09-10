@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:ko_radio_desktop/models/user.dart';
+import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -29,6 +31,45 @@ String formatDate(String date) {
 Image imageFromString(String input, {double? width, double? height, BoxFit? fit = BoxFit.cover, }) {
   return Image.memory(base64Decode(input), width: width, height: height,fit:fit,);
 }
+ DateTime parseTime(String timeStr) {
+      final parts = timeStr.split(':');
+      return DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      );
+    }
+    List<String> localizeWorkingDays(List<dynamic>? days) {
+  if (days == null) return [];
+
+  const dayNamesHR = [
+    "Nedjelja",
+    "Ponedjeljak",
+    "Utorak",
+    "Srijeda",
+    "Četvrtak",
+    "Petak",
+    "Subota"
+  ];
+
+  const mapping = {
+    "Sunday": "Nedjelja",
+    "Monday": "Ponedjeljak",
+    "Tuesday": "Utorak",
+    "Wednesday": "Srijeda",
+    "Thursday": "Četvrtak",
+    "Friday": "Petak",
+    "Saturday": "Subota"
+  };
+
+  return days.map((d) {
+    if (d is int && d >= 0 && d <= 6) return dayNamesHR[d];
+    if (d is String) return mapping[d] ?? d;
+    return d.toString();
+  }).toList();
+}
 Future<void> openPdfFromString(String base64Pdf, {String fileName = "document.pdf"}) async {
   try {
     // Decode base64 to bytes
@@ -45,29 +86,106 @@ Future<void> openPdfFromString(String base64Pdf, {String fileName = "document.pd
     debugPrint("Error opening PDF: $e");
   }
 }
+final dayNamesMap = {
+    0: 'Nedjelja',
+    1: 'Ponedjeljak',
+    2: 'Utorak',
+    3: 'Srijeda',
+    4: 'Četvrtak',
+    5: 'Petak',
+    6: 'Subota',
+  };
+
+  final shortDayNamesMap = {
+    0: 'Ned',
+    1: 'Pon',
+    2: 'Uto',
+    3: 'Sri',
+    4: 'Čet',
+    5: 'Pet',
+    6: 'Sub',
+  };
+
+  List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
+  final localized = localizeWorkingDays(workingDays);
+
+  return localized.map((day) {
+    return shortDayNamesMap[day] ?? 
+           (day.length > 3 ? day.substring(0, 3) : day);
+  }).toList();
+}
+bool validateAccountStatus(User user) {
+  if (user.isDeleted == true) {
+    return false;
+  }
+
+  // --- STORES ---
+  final stores = user.stores ?? [];
+  if (AuthProvider.selectedStoreId != null) {
+    final selectedStore = stores.firstWhere(
+      (s) => s.storeId == AuthProvider.selectedStoreId,
+     
+    );
+    if (selectedStore != null) {
+      if (selectedStore.isDeleted == true || selectedStore.isApplicant == true) {
+        return false;
+      }
+    }
+  }
+
+  // --- COMPANIES ---
+  final companies = user.companyEmployees ?? [];
+  if (AuthProvider.selectedCompanyId != null) {
+    final selectedCompany = companies.firstWhere(
+      (c) => c.companyId == AuthProvider.selectedCompanyId,
+      
+    );
+    if (selectedCompany != null) {
+      if (selectedCompany.isDeleted == true ||
+          selectedCompany.isApplicant == true ||
+          (selectedCompany.company?.isDeleted == true)) {
+        return false;
+      }
+    }
+  }
+
+  return true; 
+}
 
 
-void showPdfDialog(BuildContext context, String base64Pdf, {String title = "Dokument"}) {
+
+
+
+void showPdfDialog(BuildContext context, String base64Pdf, String title) {
   final Uint8List pdfBytes = base64Decode(base64Pdf);
+  final PdfViewerController pdfController = PdfViewerController();
 
   showDialog(
     context: context,
     builder: (context) {
+      final size = MediaQuery.of(context).size;
+
       return Dialog(
-        insetPadding: const EdgeInsets.all(16),
+        insetPadding: const EdgeInsets.all(12),
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.4,
-          height: MediaQuery.of(context).size.height * 0.9,
+          width: size.width * 0.7,
+          height: size.height * 0.85,
           child: Column(
             children: [
-              // Custom title bar
+              // Title bar
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 color: const Color.fromRGBO(27, 76, 125, 1),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
@@ -78,13 +196,15 @@ void showPdfDialog(BuildContext context, String base64Pdf, {String title = "Doku
 
               // PDF Viewer
               Expanded(
-
                 child: SfPdfViewer.memory(
-  pdfBytes,
-  initialZoomLevel: 0.5, // try between 0.5 - 0.8 for a good fit
-)
-,
-
+                  pdfBytes,
+                  controller: pdfController,
+                  pageLayoutMode: PdfPageLayoutMode.single, // center each page
+                  canShowScrollHead: true,
+                  canShowPaginationDialog: true,
+                  enableDoubleTapZooming: true,
+                  initialZoomLevel: 1.0, // start at 100%
+                ),
               ),
             ],
           ),
@@ -93,6 +213,8 @@ void showPdfDialog(BuildContext context, String base64Pdf, {String title = "Doku
     },
   );
 }
+
+
 
 
 

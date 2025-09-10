@@ -167,9 +167,16 @@ namespace KoRadio.Services
 
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
 			}
-			
+			var existingApplication = await _context.Freelancers
+			.Where(f => f.FreelancerId == request.FreelancerId)
+			.FirstOrDefaultAsync(cancellationToken);
 
-		
+			if (existingApplication != null)
+			{
+				throw new UserException("Već ste poslali prijavu za radnika.");
+			}
+
+
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}

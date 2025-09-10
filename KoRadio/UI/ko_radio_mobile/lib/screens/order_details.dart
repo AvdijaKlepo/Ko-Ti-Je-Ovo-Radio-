@@ -56,11 +56,11 @@ class _OrderDetailsState extends State<OrderDetails> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             title: Text(product?.productName ?? "Proizvod",style: TextStyle(color: Colors.white),),
-                            subtitle: Text('Količina: ${item.quantity}\nUkupno plaćeno: ${item.quantity!*price} KM',style: TextStyle(color: Colors.white),),
+                            subtitle: Text('Količina: ${item.quantity}\nUkupno plaćeno: ${item.quantity!*item.productPrice!} KM',style: TextStyle(color: Colors.white),),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('${price.toStringAsFixed(2)} KM',style: TextStyle(color: Colors.white),),
+                                Text('${item.productPrice!.toStringAsFixed(2)} KM',style: TextStyle(color: Colors.white),),
                                
                                 
                               ],
@@ -78,7 +78,7 @@ class _OrderDetailsState extends State<OrderDetails> {
               children: [
                 Text('Unikatnih proizvoda: ${items.length}',
                     style: Theme.of(context).textTheme.bodyMedium),
-                    Text('Ukupno: ${items.fold(0.0, (sum, item) => sum + (item.quantity! * item.product!.price!))} KM',
+                    Text('Ukupno: ${widget.order!.price} KM',
                     style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),

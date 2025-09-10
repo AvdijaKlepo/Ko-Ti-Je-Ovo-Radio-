@@ -383,161 +383,151 @@ Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () => _d
     );
   }
 
-  Widget _buildBidCard(TenderBid tenderBid) {
-    return Card(
-      
-      surfaceTintColor: const Color.fromRGBO(27, 76, 125, 25),
-      color: const Color.fromRGBO(27, 76, 125, 25),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${tenderBid.bidAmount} KM',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 6),
-            tenderBid.freelancer!=null ?
-            Text('Radnik: ${tenderBid.freelancer?.freelancerNavigation?.firstName} ${tenderBid.freelancer?.freelancerNavigation?.lastName}' ,  
-                style: const TextStyle(fontSize: 15, color: Colors.white)):
-                 Text('Firma: ${tenderBid.company?.companyName}' ,  
-                style: const TextStyle(fontSize: 15, color: Colors.white)),
-            
-                Text('Potrebno: ${tenderBid.bidDescription}' ,  
-                style: const TextStyle(fontSize: 15, color: Colors.white)),
-            const SizedBox(height: 6),
-            tenderBid.freelancer!=null ?
-            Text('Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} - ${tenderBid.endEstimate?.substring(0, 5)}',
-                style: const TextStyle(fontSize: 13, color: Colors.white70)):
-                 Text('Trajanje: ${DateFormat('dd‑MM‑yyyy').format(widget.tender!.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
-                style: const TextStyle(fontSize: 13, color: Colors.white70)),
-
-       const SizedBox(height: 10,),
-                if(AuthProvider.selectedRole=="User" && AuthProvider.user?.userId!=tenderBid.job?.user?.userId)
-               Center(
-  child: ElevatedButton(
-    onPressed: () {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Prihvati ponudu?'),
-          content: const Text('Jeste li sigurni da želite da prihvatite ovu ponudu?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                "Nazad",
-                style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  var requestFreelancer = {
-                    'jobStatus': JobStatus.approved.name,
-                    'endEstimate': tenderBid.endEstimate,
-                    'payEstimate': tenderBid.bidAmount,
-                    'freelancerId': tenderBid.freelancer?.freelancerId,
-                    'startEstimate': tenderBid.startEstimate,
-                    'userId': tenderBid.job?.user?.userId,
-                    'serviceId': tenderBid.job?.jobsServices
-                        ?.map((e) => e.service?.serviceId)
-                        .toList(),
-                    'jobDescription': tenderBid.bidDescription,
-                    'image': tenderBid.job?.image,
-                    'jobDate': tenderBid.job?.jobDate.toIso8601String(),
-                    'isTenderFinalized': false,
-                    'isInvoiced': false,
-                    'isRated': false,
-                    'jobTitle': tenderBid.job?.jobTitle,
-                  };
-
-                  await jobProvider.update(tenderBid.jobId!, requestFreelancer);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Posao potvrđen!")),
-                  );
-                  Navigator.of(context).pop(true);
-                  Navigator.of(context).pop(true);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Greška: ${e.toString()}")),
-                  );
-                  Navigator.of(context).pop(false);
-                  Navigator.of(context).pop(false);
-                }
-              },
-              child: const Text(
-                "Potvrdi",
-                style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-    child: const Text(
-      "Prihvati ponudu",
-      style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
+Widget _buildBidCard(TenderBid tenderBid) {
+  return Card(
+    surfaceTintColor: const Color.fromRGBO(27, 76, 125, 25),
+    color: const Color.fromRGBO(27, 76, 125, 25),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: _buildBidCardContent(tenderBid),
     ),
-  ),
-),
+  );
+}
 
-              if(AuthProvider.user?.userId==tenderBid.job?.user?.userId && tenderBid.company!=null)
-                Center(child:  IconButton(alignment: Alignment.bottomRight, onPressed: (){
-                  try{
-                     var requestCompany = {
+// Function to build the content of the card
+Widget _buildBidCardContent(TenderBid tenderBid) {
+  final isFreelancerBid = tenderBid.freelancer != null;
+  final bidderName = isFreelancerBid
+      ? '${tenderBid.freelancer?.freelancerNavigation?.firstName} ${tenderBid.freelancer?.freelancerNavigation?.lastName}'
+      : tenderBid.company?.companyName;
+  final durationText = isFreelancerBid
+      ? 'Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} - ${tenderBid.endEstimate?.substring(0, 5)}'
+      : 'Trajanje: ${DateFormat('dd-MM-yyyy').format(widget.tender!.jobDate)} do ${DateFormat('dd-MM-yyyy').format(tenderBid.dateFinished ?? DateTime.now())}';
 
-                       'jobStatus': JobStatus.approved.name,
-                       
-                    'endEstimate': null,
-                    'payEstimate': tenderBid.bidAmount,
-                    'freelancerId': null,
-                    'companyId': tenderBid.company?.companyId,
-                    'startEstimate': null,
-                    'userId':tenderBid.job?.user?.userId,
-                    
-                    'serviceId': tenderBid.job?.jobsServices
-                        ?.map((e) => e.service?.serviceId)
-                        .toList(),
-                    'jobDescription': tenderBid.bidDescription,
-                    'image': tenderBid.job?.image,
-                    'jobDate': tenderBid.job?.jobDate.toIso8601String(),
-                    'dateFinished': tenderBid.dateFinished?.toIso8601String(),
-                    'isTenderFinalized': false,
-                    'isInvoiced': false,
-                    'isRated': false,
-                    'jobTitle': tenderBid.job?.jobTitle,
-                    };
-                  
-                 
-                      jobProvider.update(tenderBid.jobId!,
-                    requestCompany);
-                    
-                  
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Posao potvrđen kompanija!")));
-                  Navigator.of(context).pop(true);
-                  } catch(e){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Greška: ${e.toString()}")),
-                        
-                    );
-                    Navigator.of(context).pop(false);
-                  }
-             
-            }, icon: const Icon(Icons.check),color: Colors.black,),)
-           ,
-          
-          ],
-        ),
-      ),
-      
-    );
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('${tenderBid.bidAmount} KM',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+      const SizedBox(height: 6),
+      Text(isFreelancerBid ? 'Radnik: $bidderName' : 'Firma: $bidderName',
+          style: const TextStyle(fontSize: 15, color: Colors.white)),
+      Text('Potrebno: ${tenderBid.bidDescription}',
+          style: const TextStyle(fontSize: 15, color: Colors.white)),
+      const SizedBox(height: 6),
+      Text(durationText, style: const TextStyle(fontSize: 13, color: Colors.white70)),
+      const SizedBox(height: 10),
+      // Use a single, unified function to build the button
+      _buildAcceptButton(tenderBid),
+    ],
+  );
+}
+
+// Function to conditionally build the accept button
+Widget _buildAcceptButton(TenderBid tenderBid) {
+  final canAccept = AuthProvider.selectedRole == "User" &&
+      AuthProvider.user?.userId != tenderBid.job?.user?.userId;
+
+  if (!canAccept) {
+    return const SizedBox.shrink(); // Hide the button if not applicable
   }
+
+  // Use a single button with conditional logic for freelancer vs company
+  return Center(
+    child: ElevatedButton(
+      onPressed: () => _showAcceptDialog(tenderBid),
+      child: const Text(
+        "Prihvati ponudu",
+        style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1)),
+      ),
+    ),
+  );
+}
+
+// Unified function to show the accept dialog and handle the logic
+Future<void> _showAcceptDialog(TenderBid tenderBid) async {
+  return showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Prihvati ponudu?'),
+      content: const Text('Jeste li sigurni da želite da prihvatite ovu ponudu?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Nazad", style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1))),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              final isFreelancerBid = tenderBid.freelancer != null;
+              final requestData = isFreelancerBid
+                  ? _buildFreelancerRequest(tenderBid)
+                  : _buildCompanyRequest(tenderBid);
+
+              await jobProvider.update(tenderBid.jobId!, requestData);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Posao potvrđen!")),
+              );
+              Navigator.of(context).pop(true);
+              Navigator.of(context).pop(true);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Greška: ${e.toString()}")),
+              );
+              Navigator.of(context).pop(false);
+              Navigator.of(context).pop(false);
+            }
+          },
+          child: const Text("Potvrdi", style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1))),
+        ),
+      ],
+    ),
+  );
+}
+Map<String, dynamic> _buildFreelancerRequest(TenderBid tenderBid) {
+  return {
+    'jobStatus': JobStatus.approved.name,
+    'endEstimate': tenderBid.endEstimate,
+    'payEstimate': tenderBid.bidAmount,
+    'freelancerId': tenderBid.freelancer?.freelancerId,
+    'startEstimate': tenderBid.startEstimate,
+    'userId': tenderBid.job?.user?.userId,
+    'serviceId': tenderBid.job?.jobsServices?.map((e) => e.service?.serviceId).toList(),
+    'jobDescription': tenderBid.bidDescription,
+    'image': tenderBid.job?.image,
+    'jobDate': tenderBid.job?.jobDate.toIso8601String(),
+    'isTenderFinalized': false,
+    'isInvoiced': false,
+    'isRated': false,
+    'jobTitle': tenderBid.job?.jobTitle,
+  };
+}
+
+// Helper function for building company request data
+Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
+  return {
+    'jobStatus': JobStatus.approved.name,
+    'endEstimate': null,
+    'payEstimate': tenderBid.bidAmount,
+    'freelancerId': null,
+    'companyId': tenderBid.company?.companyId,
+    'startEstimate': null,
+    'userId': tenderBid.job?.user?.userId,
+    'serviceId': tenderBid.job?.jobsServices?.map((e) => e.service?.serviceId).toList(),
+    'jobDescription': tenderBid.bidDescription,
+    'image': tenderBid.job?.image,
+    'jobDate': tenderBid.job?.jobDate.toIso8601String(),
+    'dateFinished': tenderBid.dateFinished?.toIso8601String(),
+    'isTenderFinalized': false,
+    'isInvoiced': false,
+    'isRated': false,
+    'jobTitle': tenderBid.job?.jobTitle,
+  };
+}
 
   void _navigateToBidScreen()  async{
     if(!_isWorkingDay(widget.tender!.jobDate))

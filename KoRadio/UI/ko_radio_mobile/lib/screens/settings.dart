@@ -36,6 +36,7 @@ class _SettingsState extends State<Settings> {
   late CompanyEmployeeProvider companyEmployeeProvider;
   late FreelancerProvider freelancerProvider;
   late User user = AuthProvider.user!;
+  SearchResult<User>? userResult;
   final ExpansionTileController _expansionTileController = ExpansionTileController();
   Freelancer? freelancer;
 
@@ -49,6 +50,7 @@ class _SettingsState extends State<Settings> {
      freelancerProvider = context.read<FreelancerProvider>();
 
       await _getUserById();
+      await _getUser();
       await _getEmployee();
       if(AuthProvider.user?.freelancer?.freelancerId!=null)
       {
@@ -66,7 +68,22 @@ class _SettingsState extends State<Settings> {
         setState(() {
       user = fetchedUser;
     });
-    AuthProvider.user = fetchedUser;
+  
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  }
+}
+ Future<void> _getUser() async {
+  var filter = {'UserId': AuthProvider.user?.userId ?? 0};
+  try {
+    var fetchedUser = await userProvider.get(filter: filter);
+    if(!mounted) return;
+        setState(() {
+      userResult = fetchedUser;
+    });
+  
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Greška: ${e.toString()}")),
@@ -141,7 +158,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
       onTap: () async {
         final updated = await Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => UserUpdate(user: AuthProvider.user!),
+            builder: (context) => UserUpdate(user: AuthProvider.user!,locationId: userResult?.result.first.location?.locationId ?? 0,),
           ),
         );
         if (updated == true) {
@@ -196,7 +213,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
        const SizedBox(height: 10,),
 
      Card(
-      color: Color.fromRGBO(27, 76, 125, 25),
+      color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
       margin: const EdgeInsets.all(5),
 
@@ -210,7 +227,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
         trailing: const Icon(Icons.arrow_forward, color: Colors.white),
         onTap: () async { 
           final updated = await Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => UserUpdate(user: user,)),
+          MaterialPageRoute(builder: (_) => UserUpdate(user: user,locationId: userResult?.result.first.location?.locationId ?? 0,)),
         );
         if(updated==true){
           await _getUserById();
@@ -256,7 +273,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
 
      
       Card(
-      color: Color.fromRGBO(27, 76, 125, 25),
+      color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
       margin: const EdgeInsets.all(5),
 
@@ -284,12 +301,12 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
                
          
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => LoginPage()),
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
                 );
         },
       )
      ),
-     SizedBox(height: 10,),
+     const SizedBox(height: 10,),
 
     Container(
   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -298,10 +315,10 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
     color: const Color.fromRGBO(27, 76, 125, 0.05), 
     borderRadius: BorderRadius.circular(8),
   ),
-  child: Text(
+  child: const Text(
     'Želite se prijaviti kao radnik? Imate svoju firmu?\nImate svoju trgovinu? Neka korisnici tačno saznaju Ko Im Je Ovo Radio.',
     style: TextStyle(
-      color: const Color.fromRGBO(27, 76, 125, 1), 
+      color: Color.fromRGBO(27, 76, 125, 1), 
       fontSize: 14,
       fontWeight: FontWeight.w500,
     ),
@@ -309,50 +326,61 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
 ),
 
 
-     ExpansionTile(title: const Text('Prijave'),
-     
-      controller: _expansionTileController,
-     iconColor: Color.fromRGBO(27, 76, 125, 25),
-     textColor: Color.fromRGBO(27, 76, 125, 25),
-     collapsedTextColor: Colors.white,
+     ExpansionTile(
+  title: const Text('Prijave'),
+  controller: _expansionTileController,
+  iconColor: const Color.fromRGBO(27, 76, 125, 25),
+  textColor: const Color.fromRGBO(27, 76, 125, 25),
+  collapsedTextColor: Colors.white,
+  collapsedIconColor: Colors.white,
+  collapsedBackgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+  collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  children: [
+    // Only show the "Apply as Freelancer" tile if the user is not already a freelancer
+    if (user.freelancer?.freelancerId == null && AuthProvider.selectedRole != "Freelancer")
+      Card(
+        color: const Color.fromRGBO(27, 76, 125, 25),
+        elevation: 2,
+        margin: const EdgeInsets.all(5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          leading: const Icon(Icons.work, color: Colors.white),
+          title: const Text(
+            'Prijava Radnika',
+            style: TextStyle(color: Colors.white),
+          ),
+          trailing: const Icon(Icons.arrow_forward, color: Colors.white),
+          onTap: () async {
+            final message = ScaffoldMessenger.of(context);
 
-     collapsedIconColor: Colors.white,
-     collapsedBackgroundColor: Color.fromRGBO(27, 76, 125, 25),
-     collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-     children: [
-      if(user.freelancer?.freelancerId==null && AuthProvider.selectedRole!="Freelancer")
-       Card(
-      color: const Color.fromRGBO(27, 76, 125, 25),
-      elevation: 2,
-      margin: const EdgeInsets.all(5),
+            // Double-check just before navigation
+            if (user.freelancer?.freelancerId != null) {
+              message.showSnackBar(
+                const SnackBar(content: Text("Već ste freelancer!")),
+              );
+              return;
+            }
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+            final updated = await Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => UserFreelancerApply(user: user)),
+            );
+
+            if (updated == true) {
+              _expansionTileController.collapse();
+              await _getUserById();
+              setState(() {});
+            } else if (updated == false) {
+              setState(() {});
+            } 
+          },
+        ),
       ),
-    
-      child: ListTile(
-        leading: const Icon(Icons.work, color: Colors.white),
-        title: const Text('Prijava Radnika',style: TextStyle(color: Colors.white),),
-        trailing: const Icon(Icons.arrow_forward, color: Colors.white),
-        onTap: () async { 
-          final updated = await Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => UserFreelancerApply(user: user,)),
-        );
-       if (updated == true) {
-  _expansionTileController.collapse();
-  await _getUserById();
-  setState(() {}); 
-}
+  
 
-        else if(updated==false){
-          setState(() {
-            
-          });
-        }
-        },
-      )
-     ),
+
 
       Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
@@ -419,7 +447,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
     
 
 
-        SizedBox(height: 30,),
+        const SizedBox(height: 30,),
         if (companyEmployeeResult == null)
           const Center(child: CircularProgressIndicator())
         else if (companyEmployeeResult!.result.isEmpty)
@@ -463,9 +491,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
                                       "dateJoined": DateTime.now().toIso8601String(),
                                   }
                               );
-                              print(_companyEmployeeId);
-                              print(_userId);
-                              print(_companyId);
+                            
                                ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Zapošljenje uspješno!")),
           
@@ -483,6 +509,19 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
                           icon: const Icon(Icons.close, color: Colors.red),
                           tooltip: 'Odbaci',
                           onPressed: () async {
+                            try{
+                              await companyEmployeeProvider.delete(_companyEmployeeId);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Zahtjev odbijen.")),
+                              );
+                              await _getEmployee();
+                            }
+                            catch(e){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Greška. Molimo pokušajte ponovo.")),
+                              );
+                            }
+                           
                          
                           },
                         ),

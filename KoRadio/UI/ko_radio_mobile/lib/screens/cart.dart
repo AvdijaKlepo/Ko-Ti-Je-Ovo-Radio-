@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/order_provider.dart';
+import 'package:ko_radio_mobile/providers/product_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/order_list.dart';
 import 'package:provider/provider.dart';
@@ -19,17 +20,20 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
   late OrderProvider orderProvider;
+  late ProductProvider productProvider;
 
   @override
   void initState() {
     super.initState();
     orderProvider = context.read<OrderProvider>();
+    productProvider = context.read<ProductProvider>();
   }
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
     final theme = Theme.of(context);
+    
 
     return Scaffold(
       appBar: AppBar(title:  Text('Vaša korpa',style: TextStyle(color:const Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
@@ -46,6 +50,7 @@ class _CartState extends State<Cart> {
               itemBuilder: (_, i) {
                 final item = cart.items[i];
                 final p = item.product;
+                var stock = p.stockQuantity;
 
                 return Card(
                   color: Colors.white,
@@ -69,11 +74,23 @@ class _CartState extends State<Cart> {
                             children: [
                               Text(p.productName ?? '', style: theme.textTheme.titleMedium),
                               const SizedBox(height: 4),
+                              p.isOnSale==false?
                               Text('${p.price?.toStringAsFixed(2)} KM',
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: Color.fromRGBO(27, 76, 125, 25),
+                                  )):
+                                   Text('${p.salePrice?.toStringAsFixed(2)} KM',
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: Color.fromRGBO(27, 76, 125, 25),
+                                  ))
+                                  ,
+                              const SizedBox(height: 6),
+                              Text('${stock} komada na lageru',
                                   style: theme.textTheme.bodyLarge?.copyWith(
                                     color: Color.fromRGBO(27, 76, 125, 25),
                                   )),
                               const SizedBox(height: 6),
+
                              
                               Row(
                               
@@ -83,6 +100,8 @@ class _CartState extends State<Cart> {
                                     onPressed: () {
                                       if (item.quantity > 1) {
                                         cart.update(p, item.quantity - 1);
+                                   
+                               
                                       }
                                     },
                                   ),
@@ -90,7 +109,17 @@ class _CartState extends State<Cart> {
                                   IconButton(
                                     icon: const Icon(Icons.add),
                                     onPressed: () {
+                                      if(p.stockQuantity!<item.quantity || p.stockQuantity!=item.quantity){
                                       cart.update(p, item.quantity + 1);
+                                      }
+                                      else{
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          
+                                          SnackBar(content: Text('Nema više proizvoda na lageru.'),duration: Duration(seconds: 1),),
+                                        );
+                                      }
+                              
+                                    
                                     },
                                   ),
                                 ],
@@ -162,7 +191,8 @@ class _CartState extends State<Cart> {
                                         .map((item) => {
                                               "name": item.product.productName ?? "Proizvod",
                                               "quantity": item.quantity,
-                                              "price": item.product.price!.toStringAsFixed(2),
+
+                                              "price": item.product.isOnSale==false ? item.product.price!.toStringAsFixed(2) : item.product.salePrice!.toStringAsFixed(2),
                                               "currency": "USD"
                                             })
                                         .toList(),
@@ -189,17 +219,41 @@ for (var item in cart.items) {
                                     "orderNumber": Random().nextInt(100000),
                                     'isCancelled': false,
                                     'isShipped': false,
+                                    'price': cart.total.toStringAsFixed(2),
                                     'createdAt': now.toIso8601String().split('T')[0],
     "orderItems": storeItems.map((item) => {
       "productId": item.product.productId,
       "quantity": item.quantity,
+      "productPrice": item.product.isOnSale==false ? item.product.price! : item.product.salePrice!,
       "storeId": storeId,
     }).toList(),
     
   };
+  print(orderRequest);
 
   await orderProvider.insert(orderRequest); 
+  for(var item in cart.items)
+  {
+    var leftoverStock = item.product.stockQuantity! - item.quantity;
+    final Map<String, Object> productUpdateRequest;
+    if(leftoverStock<1){
+     productUpdateRequest={
+      'stockQuantity': leftoverStock,
+      'isOutOfStock': true,
+      'isOnSale': false,
+    };
+    }
+    else{
+  productUpdateRequest={
+      'stockQuantity': leftoverStock,
+      'isOutOfStock': false,
+    };
+    }
+    await productProvider.update(item.product.productId, productUpdateRequest);
+  }
+  
 }
+
 
                                     
                 

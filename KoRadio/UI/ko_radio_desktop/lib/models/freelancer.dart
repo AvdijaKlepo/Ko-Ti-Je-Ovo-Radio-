@@ -18,6 +18,7 @@ class Freelancer{
   User? freelancerNavigation;
   bool isApplicant;
   bool isDeleted;
+  String? cv;
 
 
 

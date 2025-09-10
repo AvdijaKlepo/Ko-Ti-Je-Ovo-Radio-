@@ -1,6 +1,7 @@
 ﻿using DotNetEnv;
 using MailKit.Net.Smtp;
 using MimeKit;
+using MimeKit.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Subscriber.MailSenderService
 				Env.Load();
 
 				string fromAddress = Environment.GetEnvironmentVariable("_fromAddress") ?? "ko.radio.servis@gmail.com";
-				string password = Environment.GetEnvironmentVariable("_password") ?? "lykq wibl oibp foyi";
+				string password = Environment.GetEnvironmentVariable("_password") ?? "";
 				string host = Environment.GetEnvironmentVariable("_host") ?? "smtp.gmail.com";
 				int port = int.Parse(Environment.GetEnvironmentVariable("_port") ?? "465");
 				bool enableSSL = bool.Parse(Environment.GetEnvironmentVariable("_enableSSL") ?? "true");
@@ -32,18 +33,40 @@ namespace Subscriber.MailSenderService
 					return;
 				}
 
-				var email = new MimeMessage();
+			var email = new MimeMessage();
+			email.From.Add(new MailboxAddress("no-reply", "ko.radio.servis@gmail.com"));
+			email.To.Add(new MailboxAddress(emailObj.ReceiverName, emailObj.EmailTo));
+			email.Subject = emailObj.Subject;
 
-				email.From.Add(new MailboxAddress(displayName, fromAddress));
-				email.To.Add(new MailboxAddress(emailObj.ReceiverName, emailObj.EmailTo));
+			// Create builder for attachments + body
+			var builder = new BodyBuilder
+			{
+				HtmlBody = emailObj.Message
+			};
 
-				email.Subject = emailObj.Subject;
-				email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-				{
-					Text = emailObj.Message
-				};
+			// Attach PDF if present
+			if (emailObj.PdfBytes != null && emailObj.PdfBytes.Length > 0)
+			{
+				builder.Attachments.Add(emailObj.AttachmentFileName,
+										emailObj.PdfBytes,
+										new ContentType("application", "pdf"));
+			}
 
-				try
+			// Embed inline preview if present
+			if (emailObj.InlineImageBytes != null && emailObj.InlineImageBytes.Length > 0)
+			{
+				var image = builder.LinkedResources.Add("preview.png", emailObj.PdfBytes);
+				image.ContentId = MimeUtils.GenerateMessageId();
+
+				builder.HtmlBody += $"<br/><p>Pregled novog kataloga:</p>" +
+									$"<img src=\"cid:{image.ContentId}\" style='max-width:500px;' />";
+			}
+
+			//email.Body = builder.ToMessageBody();
+
+			email.Body = builder.ToMessageBody();
+
+			try
 				{
 					Console.WriteLine("Spajanje na SMTP server...");
 

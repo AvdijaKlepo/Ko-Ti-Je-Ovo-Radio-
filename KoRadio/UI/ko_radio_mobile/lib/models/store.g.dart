@@ -20,7 +20,13 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
       ..location = json['location'] == null
           ? null
           : Location.fromJson(json['location'] as Map<String, dynamic>)
-      ..address = json['address'] as String?;
+      ..address = json['address'] as String?
+      ..rating = (json['rating'] as num?)?.toDouble()
+      ..workingDays = (json['workingDays'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList()
+      ..startTime = json['startTime'] as String?
+      ..endTime = json['endTime'] as String?;
 
 Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'storeId': instance.storeId,
@@ -32,4 +38,8 @@ Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
       'isApplicant': instance.isApplicant,
       'location': instance.location,
       'address': instance.address,
+      'rating': instance.rating,
+      'workingDays': instance.workingDays,
+      'startTime': instance.startTime,
+      'endTime': instance.endTime,
     };

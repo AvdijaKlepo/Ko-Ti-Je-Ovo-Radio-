@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 
 import 'package:ko_radio_mobile/screens/book_job.dart';
@@ -28,7 +29,9 @@ class FreelancerDaySchedule extends StatefulWidget {
 class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   late JobProvider jobProvider;
   SearchResult<Job>? result;
+  SearchResult<Job>? jobResult;
   bool _isLoading = false;
+  bool _userMadeJobs = false;
  
   @override
   void initState() {
@@ -38,11 +41,22 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
     });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       jobProvider = context.read<JobProvider>();
+        await _getJobs();
       await _getServices();
+    
       setState(() {
         _isLoading=false;
       });
+        if(jobResult?.result.any((element) => element.user?.userId == AuthProvider.user?.userId)==true
+                      || result?.result.any((element) => element.user?.userId==AuthProvider.user?.userId)==true)
+                      {
+                        setState(() {
+                          _userMadeJobs=true;
+                        });
+                     
+                      }
     });
+   
   }
 
   @override
@@ -52,11 +66,12 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
     jobProvider = context.read<JobProvider>();
   }
 
+
  Future<void> _getServices() async {
     setState(() {
       _isLoading=true;
     });
-    var filter={'FreelancerId':widget.freelancerId?.freelancerId,'JobDate':widget.selectedDay.toIso8601String().split('T')[0],
+    var filter={'FreelancerId':widget.freelancerId?.freelancerId,'DateRange':widget.selectedDay.toIso8601String().split('T')[0],
     'JobStatus':JobStatus.approved.name
     
     };
@@ -69,13 +84,32 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
       _isLoading=false;
     });
   }
+   Future<void> _getJobs() async {
+    setState(() {
+      _isLoading=true;
+    });
+    var filter={'FreelancerId':widget.freelancerId?.freelancerId,'DateRange':widget.selectedDay.toIso8601String().split('T')[0],
+    'JobStatus':JobStatus.unapproved.name
+    
+    };
+
+   
+    var freelancer = await jobProvider.get(filter: filter);
+  
+    setState(() {
+      jobResult = freelancer;
+      _isLoading=false;
+    });
+  }
+  
   @override 
   void dispose() {
     super.dispose();
   }
-
+  
   @override
 Widget build(BuildContext context) { 
+
 
   return Scaffold(appBar: AppBar(
     scrolledUnderElevation: 0,
@@ -91,12 +125,24 @@ Widget build(BuildContext context) {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [ 
-                       Text('Nema termina za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily),),
+                     _userMadeJobs==true ?
+                     Padding(
+                       padding: const EdgeInsets.all(8.0),
+                       child: Padding(
+                         padding: const EdgeInsets.all(15.0),
+                         child: Center(child: Text('Već ste napravili zahtjev za posao sa ovim radnikom. Ako trebate nove usluge, molimo uredite već postojeći posao.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),)),
+                       ),
+                     ):
+                
+                     
+                     
+                       Text('Radnik nema termina za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
-                        onPressed: () => 
                         
+                        style: ElevatedButton.styleFrom(backgroundColor: _userMadeJobs==false ? Color.fromRGBO(27, 76, 125, 1): Colors.grey,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+                        onPressed: () => 
+                        _userMadeJobs==false ?
                         
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -106,7 +152,7 @@ Widget build(BuildContext context) {
                        
                             ),
                           ),
-                        ),
+                        ) : null,
                         icon: const Icon(Icons.add,color: Colors.white,),
                         label: const Text('Rezerviši',style: TextStyle(color: Colors.white),),
                       )
@@ -172,6 +218,9 @@ Widget build(BuildContext context) {
                         ),
                       
                       const SizedBox(height: 10),
+                      
+             
+                     
                       Center(
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 1),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
@@ -190,6 +239,19 @@ Widget build(BuildContext context) {
                           label: const Text('Rezerviši termin',style:TextStyle( color: Colors.white),),
                         ),
                       ),
+                      
+             
+
+
+
+
+
+
+
+
+
+
+
                     ],
                   ),
               ),

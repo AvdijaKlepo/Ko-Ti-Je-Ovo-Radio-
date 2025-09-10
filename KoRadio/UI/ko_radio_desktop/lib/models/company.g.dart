@@ -29,7 +29,7 @@ Company _$CompanyFromJson(Map<String, dynamic> json) => Company(
           .map((e) => CompanyServices.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['email'] as String,
-    );
+    )..businessCertificate = json['businessCertificate'] as String?;
 
 Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'companyId': instance.companyId,
@@ -46,6 +46,7 @@ Map<String, dynamic> _$CompanyToJson(Company instance) => <String, dynamic>{
       'location': instance.location,
       'isDeleted': instance.isDeleted,
       'isApplicant': instance.isApplicant,
+      'businessCertificate': instance.businessCertificate,
       'companyEmployees': instance.companyEmployees,
       'companyServices': instance.companyServices,
     };

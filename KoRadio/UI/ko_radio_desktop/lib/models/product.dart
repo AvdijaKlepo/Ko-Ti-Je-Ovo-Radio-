@@ -10,6 +10,11 @@ class Product {
   String? productName;
   String? productDescription;
   double? price;
+  int? stockQuantity;
+  bool? isOnSale;
+  double? salePrice;
+  bool? isOutOfStock;
+  DateTime? saleExpires;
   bool? isDeleted;
   String? image;
   Store? store;

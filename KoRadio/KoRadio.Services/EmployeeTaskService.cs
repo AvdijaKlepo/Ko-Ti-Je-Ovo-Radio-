@@ -20,7 +20,7 @@ namespace KoRadio.Services
 		}
 		public override IQueryable<EmployeeTask> AddFilter(EmployeeTaskSearchObject search, IQueryable<EmployeeTask> query)
 		{
-			query = query.Include(x => x.CompanyEmployee);
+			query = query.Include(x => x.CompanyEmployee).ThenInclude(x => x.User);
 			if(search.CompanyId!=null)
 			{
 				query = query.Where(x => x.CompanyId == search.CompanyId);
@@ -32,6 +32,10 @@ namespace KoRadio.Services
 			if(search.CompanyEmployeeId!=null)
 			{
 				query = query.Where(x => x.CompanyEmployeeId == search.CompanyEmployeeId);
+			}
+			if(search.IsFinished!=null)
+			{
+				query = query.Where(x => x.IsFinished == search.IsFinished);
 			}
 			return base.AddFilter(search, query);
 		}

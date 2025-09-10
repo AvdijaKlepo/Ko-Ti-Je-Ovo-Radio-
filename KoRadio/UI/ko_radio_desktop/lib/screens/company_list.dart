@@ -96,7 +96,8 @@ class _CompanyListState extends State<CompanyList> {
     _debounce = Timer(const Duration(milliseconds: 1), _refreshWithFilter);
   }
   Future<void> _refreshWithFilter() async {
-    
+    if(isLoading) return;
+  
     final filter =<String, dynamic> {
       'isDeleted': showDeleted,
       'IsApplicant': showApplicants,
@@ -106,6 +107,8 @@ class _CompanyListState extends State<CompanyList> {
       filter['CompanyName'] = _companyNameController.text.trim();
     }
     await companyPagination.refresh(newFilter: filter);
+    if(!mounted) return;
+ 
 
   }
     
@@ -133,17 +136,14 @@ class _CompanyListState extends State<CompanyList> {
     6: 'Sub',
   };
 
-  List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
-    if (workingDays == null) return [];
-    return workingDays.map((day) {
-      if (day is int) {
-        return shortDayNamesMap[day] ?? '';
-      } else if (day is String) {
-        return day.length > 3 ? day.substring(0, 3) : day;
-      }
-      return '';
-    }).where((e) => e.isNotEmpty).toList();
-  }
+List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
+  final localized = localizeWorkingDays(workingDays);
+
+  return localized.map((day) {
+    return shortDayNamesMap[day] ?? 
+           (day.length > 3 ? day.substring(0, 3) : day);
+  }).toList();
+}
 
   void _openUserDeleteDialog({required Company company}) {
     showDialog(
@@ -406,17 +406,17 @@ class _CompanyListState extends State<CompanyList> {
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
           ),
-           child: const Row(
+           child:  Row(
              children: [
-               Expanded(flex: 5, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 4, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 5, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 2, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(
+               const Expanded(flex: 5, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 4, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Rating", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Broj Zaposlenika", style: TextStyle(fontWeight: FontWeight.bold))),
+              const Expanded(
              flex: 3,
              child: Center(
                child: Text(
@@ -425,8 +425,10 @@ class _CompanyListState extends State<CompanyList> {
                ),
              ),
            ),
-               Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
+
+               const Expanded(flex: 3, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
+                showApplicants ? const Expanded(flex: 1, child: Center(child: Text("Obrtni list", style: TextStyle(fontWeight: FontWeight.bold)))) : const SizedBox(width: 0),
+              const Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
                    
                 
              ],
@@ -448,7 +450,7 @@ class _CompanyListState extends State<CompanyList> {
                       Image.asset('assets/images/usersNotFound.webp', width: 250, height: 250),
                       const SizedBox(height: 16),
                       const Text(
-                        'Korisnici nisu pronađeni.',
+                        'Firme nisu pronađene.',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -548,7 +550,7 @@ class _CompanyListState extends State<CompanyList> {
           Expanded(flex: 4, child: Text(company.email ?? '')),
           Expanded(flex: 3, child: Text(formatPhoneNumber(company.phoneNumber ?? ''))),
           Expanded(flex: 3, child: Text(company.location?.locationName ?? '')),
-          Expanded(flex: 5, child: Text(getWorkingDaysShort(company.workingDays).join(', '))),
+          Expanded(flex: 3, child: Text(getWorkingDaysShort(company.workingDays).join(', '))),
           Expanded(flex: 2, child: Text('${company.experianceYears.toString()} godina')),
           Expanded(flex: 2, child: Text(company.rating>1 ? '${company.rating.toStringAsFixed(1)}/5.0' : 'Nema ocjene')),
           Expanded(flex: 2, child: Text('${company.companyEmployees.length.toString()} zaposlenih')),
@@ -573,7 +575,7 @@ class _CompanyListState extends State<CompanyList> {
               ),
             ),
           ),
-          Expanded( flex: 6, child: Wrap(
+          Expanded( flex: 3, child: Wrap(
               spacing: 4,
               runSpacing: 4,
               children: company.companyServices.map((CompanyServices s) {
@@ -581,58 +583,118 @@ class _CompanyListState extends State<CompanyList> {
               }).toList(),
             ),
           ),
+           showApplicants ?
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            onTap: () {
+              if (company.businessCertificate != null) {
+                showPdfDialog(context, company.businessCertificate!,"Obrtni list");
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Nema učitanog dokumenta")),
+                );
+              }
+            },
+            child: const Icon(Icons.document_scanner_outlined, size: 18),
+          ),
+        ): const SizedBox(width: 0),
           
-!showDeleted?
-         Expanded(child: 
-         Center(
-          child: PopupMenuButton<String>(
+Expanded(
+  flex:1,
+  child: Center(
+    child: Builder(
+            builder: (context) {
+        if (showApplicants) {
+  return PopupMenuButton<String>(
+    tooltip: 'Akcije',
+    icon: const Icon(Icons.more_vert),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    onSelected: (value) async {
+      if (value == 'approve') {
+        _openUserApproveDialog(c: company);
+        await companyPagination.refresh(newFilter: {
+          'isDeleted': showDeleted,
+          'isApplicant': showApplicants,
+          'FirstNameGTE': _companyNameController.text,
+        });
+      } else if (value == 'reject') {
+        _openUserRejectDialog(c: company);
+        await companyPagination.refresh(newFilter: {
+          'isDeleted': showDeleted,
+          'isApplicant': showApplicants,
+          'FirstNameGTE': _companyNameController.text,
+        });
+      }
+    },
+    itemBuilder: (context) => [
+      const PopupMenuItem(
+        value: 'approve',
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 18),
+            SizedBox(width: 8),
+            Text('Prihvati'),
+          ],
+        ),
+      ),
+      const PopupMenuItem(
+        value: 'reject',
+        child: Row(
+          children: [
+            Icon(Icons.cancel, color: Colors.red, size: 18),
+            SizedBox(width: 8),
+            Text('Odbij'),
+          ],
+        ),
+      ),
+    ],
+  );
+        } else if (showDeleted) {
+          // Restore
+          return IconButton(
+            color: Colors.black,
+            tooltip: 'Reaktiviraj',
+            onPressed: () => _openUserRestoreDialog(company: company),
+            icon: const Icon(Icons.restore_outlined),
+          );
+        } else {
+          // Edit/Delete menu
+          return PopupMenuButton<String>(
             tooltip: 'Uredi/Izbriši',
             icon: const Icon(Icons.more_vert),
             color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Text('Uredi'),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('Izbriši'),
-              ),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'edit', child: Text('Uredi')),
+              PopupMenuItem(value: 'delete', child: Text('Izbriši')),
             ],
             onSelected: (value) async {
               if (value == 'edit') {
-                await showDialog(context: context, builder: (_) => CompanyUpdateDialog(company: company));
+                await showDialog(
+                  context: context,
+                  builder: (_) => CompanyUpdateDialog(company: company),
+                );
                 await companyPagination.refresh(newFilter: {
                   'isDeleted': showDeleted,
                   'isApplicant': showApplicants,
-            
+                  'FirstNameGTE': _companyNameController.text,
+          
                 });
               } else if (value == 'delete') {
                 _openUserDeleteDialog(company: company);
               }
             },
-          ),
-         )) : Expanded(
-  flex: 1,
-  child: Center(
-    child: IconButton(
-      color: Colors.black,
-         
-      tooltip: 'Reaktiviraj',
-      onPressed: () {
-      
-          _openUserRestoreDialog(company: company);
-        
+          );
+        }
       },
-      icon: const Icon(Icons.restore_outlined),
     ),
   ),
 ),
         ],
-      ),
+      )
     );
   }
 }

@@ -31,7 +31,6 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
   late CompanyRoleProvider companyRoleProvider;
   late PaginatedFetcher<CompanyEmployee> companyEmployeePagination;
-  late final ScrollController _scrollController;
   SearchResult<Company>? companyResult;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
@@ -44,7 +43,8 @@ class _CompanyEmployeeListState extends State<CompanyEmployeeList> {
   bool _isInitialized = false;
   bool isLoading = false;
   int companyEmployeeId = 0;
-    List<DropdownMenuItem<int>> roleDropdownItems = [];
+  int currentPage=1;
+  List<DropdownMenuItem<int>> roleDropdownItems = [];
 
   Timer? _debounce;
   final int _selectedCompanyId = AuthProvider.selectedCompanyId ?? 0;
@@ -65,18 +65,7 @@ void initState() {
     },
   );
 
-  _scrollController = ScrollController();
-  _scrollController.addListener(() {
-    if (!_isInitialized) return; 
-
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
-        companyEmployeePagination.hasNextPage &&
-        !companyEmployeePagination.isLoading) {
-      companyEmployeePagination.loadMore();
-    }
-  });
-
+  
   companyProvider = context.read<CompanyProvider>();
   companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
   companyRoleProvider = context.read<CompanyRoleProvider>();
@@ -205,6 +194,7 @@ void initState() {
     _refreshWithFilter();
   }
    Future<void> _refreshWithFilter() async {
+    if(isLoading) return;
   setState(() => isLoading = true);
 
   final filter = <String, dynamic>{
@@ -372,10 +362,21 @@ void initState() {
               Expanded(
                 child: TextField(
                   controller: _companyNameController,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                     labelText: 'Ime Zaposlenika',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.search_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                     suffixIcon: _companyNameController.text.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            _companyNameController.clear();
+                            _onSearchChanged();
+                          },
+                          icon: const Icon(Icons.clear),
+                        )
+                      : null,
                   ),
                   onChanged: (_) => _onSearchChanged(),
                 ),
@@ -384,12 +385,14 @@ void initState() {
             Expanded(
   child: DropdownButtonFormField<int>(
    value: _selectedCompanyRoleId,
-    decoration: const InputDecoration(
+    decoration:  InputDecoration(
       
    
       labelText: 'Uloge',
-                    prefixIcon: Icon(Icons.content_paste_search_rounded),
-                    border: OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.content_paste_search_rounded),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
     ),
     items: roleDropdownItems,
     onChanged: (val) {
@@ -398,6 +401,7 @@ void initState() {
     },
   ),
 ),
+
 
 
               const SizedBox(width: 8),
@@ -433,30 +437,46 @@ void initState() {
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),child: const Text("Uloge",style: TextStyle(color: Colors.white),),)
                 ],
               ),
+              const SizedBox(width: 16),
+               ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          onPressed: () {
+                            _openAddEmployeeDialog(companyId: _selectedCompanyId);
+                          },
+                          child: const Text("Dodaj zaposlenika",style: TextStyle(color: Colors.white),),
+                        ),
             ],
           ),
+          
           const SizedBox(height: 16),
     
     
-         Row(
-  children: [
-    const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Uloga", style: TextStyle(fontWeight: FontWeight.bold))),
-    const Expanded(flex: 3, child: Text("Broj Angažmana", style: TextStyle(fontWeight: FontWeight.bold))),
-
-   if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.switch_account, size: 18)),
+         Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+           child: Row(
+             children: [
+               const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Telefonski broj", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Uloga", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 3, child: Text("Broj Angažmana", style: TextStyle(fontWeight: FontWeight.bold))),
+           
               if (!showApplicants && !showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
-              if (showDeleted)
-                const Expanded(flex: 2, child: Icon(Icons.restore, size: 18)),
-              if (showApplicants)
-                const Expanded(flex: 2, child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold))),
-  ],
-),
+                  const Expanded(flex: 2, child: Icon(Icons.switch_account, size: 18)),
+                if (!showApplicants && !showDeleted)
+                  const Expanded(flex: 2, child: Icon(Icons.delete, size: 18)),
+                if (showDeleted)
+                  const Expanded(flex: 2, child: Icon(Icons.restore, size: 18)),
+                if (showApplicants)
+                  const Expanded(flex: 2, child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold))),
+             ],
+           ),
+         ),
 
       Expanded(
   child: companyEmployeePagination.isLoading && companyEmployeePagination.items.isEmpty
@@ -464,32 +484,107 @@ void initState() {
       : companyEmployeePagination.items.isEmpty
           ? const Center(child: Text('Nema zaposlenika.'))
           : ListView.separated(
-              controller: _scrollController,
-              itemCount: filterOutLoggedInUser.length + 1,
+              
+              itemCount: filterOutLoggedInUser.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                if (index == filterOutLoggedInUser.length) {
-              
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if(!showApplicants && !showDeleted)
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          onPressed: () {
-                            _openAddEmployeeDialog(companyId: _selectedCompanyId);
-                          },
-                          child: const Text("Dodaj zaposlenika",style: TextStyle(color: Colors.white),),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                
 
                 final c = filterOutLoggedInUser[index];
-                return Padding(
+               return MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    color: index.isEven ? Colors.grey.shade50 : Colors.white,
+                    child: _buildEmployee(c),
+                  ),
+                );
+               
+              },
+            ),
+),
+
+if (_companyNameController.text.isEmpty && companyEmployeePagination.hasNextPage == false)
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            children: List.generate(
+              (companyEmployeePagination.count / companyEmployeePagination.pageSize).ceil(),
+              (index) {
+                final pageNum = index + 1;
+                final totalPages = (companyEmployeePagination.count / companyEmployeePagination.pageSize).ceil();
+                final isActive = currentPage == pageNum;
+
+                // Determine if there is only one page
+                final bool isSinglePage = totalPages <= 1;
+
+                return OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isActive 
+                        ? const Color.fromRGBO(27, 76, 125, 1) 
+                        : isSinglePage ? Colors.grey : Colors.white, // Grey if single page
+                    foregroundColor: isActive 
+                        ? Colors.white 
+                        : Colors.black87,
+                    side: BorderSide(
+                      color: isActive 
+                        ? Colors.transparent 
+                        : isSinglePage ? Colors.grey.shade400 : Colors.grey.shade300, // Border color for single page
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  onPressed: isSinglePage // Conditionally set onPressed to null
+                      ? null
+                      : () async {
+                          if (!mounted) return;
+                          setState(() {
+                            currentPage = pageNum;
+                            isLoading = true;
+                          });
+                          await companyEmployeePagination.goToPage(
+                            pageNum,
+                            filter: {
+                              'isDeleted': showDeleted,
+                              'isApplicant': showApplicants,
+                            },
+                          );
+                          if (!mounted) return;
+                          setState(() {
+                            isLoading = false;
+                          });
+                        },
+                  child: Text("$pageNum",style: TextStyle(color: isActive ? Colors.white : Colors.black87),),
+                );
+              },
+            ),
+          ),
+
+
+        const SizedBox(height: 8),
+
+                if (_companyNameController.text.isEmpty && companyEmployeePagination.hasNextPage == false)
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Prikazano ${(currentPage - 1) * companyEmployeePagination.pageSize + 1}"
+              " - ${(currentPage - 1) * companyEmployeePagination.pageSize + companyEmployeePagination.items.length}"
+              " od ${companyEmployeePagination.count}",
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+  
+
+
+          
+        
+        ],
+      ),
+    );
+  }
+  Widget _buildEmployee(CompanyEmployee c) {
+     return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Row(
                     children: [
@@ -583,16 +678,6 @@ void initState() {
                     ],
                   ),
                 );
-              },
-            ),
-)
 
-
-
-          
-        
-        ],
-      ),
-    );
   }
 }

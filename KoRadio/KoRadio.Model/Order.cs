@@ -15,8 +15,10 @@ namespace KoRadio.Model
 
 		public int UserId { get; set; }
 		public bool IsCancelled { get; set; }
+		public decimal ProductPrice { get; set; }
 
 		public bool IsShipped { get; set; }
+		public decimal Price { get; set; }
 
 		public DateTime CreatedAt { get; set; }
 

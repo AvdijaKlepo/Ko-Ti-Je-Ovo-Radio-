@@ -89,14 +89,14 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                     children: [
                       FormBuilderTextField(
   name: "serviceName",
-  decoration: InputDecoration(
+  decoration: const InputDecoration(
     labelText: "Naziv Servisa*",
     border: OutlineInputBorder(),
     // will show backend error here
   ),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: 'Obavezno polje'),
-    FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 15 znakova'),
+    FormBuilderValidators.maxLength(15, errorText: 'Maksimalno 15 znakova'),
     FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
     FormBuilderValidators.match(
       r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$',

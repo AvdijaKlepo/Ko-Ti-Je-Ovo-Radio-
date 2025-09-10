@@ -30,6 +30,7 @@ namespace KoRadio.Model.Request
 		public TimeOnly EndTime { get; set; }
 
 		public int? LocationId { get; set; }
+		public byte[]? BusinessCertificate { get; set; }
 
 		public ICollection<int> ServiceId { get; set; } = new List<int>();
 		public List<int>? Employee { get; set; }

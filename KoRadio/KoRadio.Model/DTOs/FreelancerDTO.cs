@@ -23,6 +23,8 @@ namespace KoRadio.Model.DTOs
 		public TimeOnly? StartTime { get; set; }
 
 		public TimeOnly? EndTime { get; set; }
+		public bool IsDeleted { get; set; }
+		public bool IsApplicant { get; set; }
 
 
 		public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();

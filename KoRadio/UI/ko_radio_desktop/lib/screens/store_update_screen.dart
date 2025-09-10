@@ -52,6 +52,9 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
         "address":     store.address,
         "image":       store.image,
         "locationId":  store.location?.locationId,
+        "workingDays":  localizeWorkingDays(store.workingDays?.map((d) => d.toString()).toList())  ,
+        "startTime": parseTime(store.startTime!),
+        "endTime": parseTime(store.endTime!),
       };
       if (store.image != null) {
     try {
@@ -137,7 +140,7 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
                       FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 50 znakova'),
+                        FormBuilderValidators.maxLength(20, errorText: 'Maksimalno 20 znakova'),
                         FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
                         FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž .]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
                       ])
@@ -177,6 +180,74 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
                             [],
                       ),
                       const SizedBox(height: 20),
+                      FormBuilderCheckboxGroup<String>(
+  name: 'workingDays',
+  decoration: const InputDecoration(
+    labelText: "Radni Dani",
+    border: InputBorder.none,
+  ),
+  options: [
+   
+    'Nedjelja',
+    'Ponedjeljak',
+    'Utorak',
+    'Srijeda',
+    'Četvrtak',
+    'Petak',
+    'Subota',
+
+  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
+    (value) {
+      if (value != null && value.isEmpty) {
+        return "Morate odabrati barem jedan dan.";
+      }
+      return null;
+    }
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'startTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Početak Smjene",
+    border: OutlineInputBorder(),
+  ),
+  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'endTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Kraj Smjene",
+    border: OutlineInputBorder(),
+
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
+    (value) {
+      final start = FormBuilder.of(context)?.fields['startTime']?.value;
+
+      if (start != null && value != null) {
+        if (value.isBefore(start)) {
+          return "Kraj smjene mora biti nakon početka.";
+        }
+
+        final diff = value.difference(start).inHours;
+        if (diff < 3) {
+          return "Smjena mora trajati najmanje 3 sata.";
+        }
+      }
+      return null;
+    }
+  ]),
+),
+const SizedBox(height: 10,),
                        FormBuilderField(
   name: "image",
   builder: (field) {
@@ -321,32 +392,54 @@ class _StoreUpdateScreenState extends State<StoreUpdateScreen> {
   }
 
   Future<void> _save() async {
-    final store = storeResult?.result.first;
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final request = Map<String, dynamic>.from(_formKey.currentState!.value);
-      request['isApplicant'] = false;
-      request['isDeleted'] = false;
-      request['roles'] = [10, 1011];
-      request['userId'] = store?.user?.userId;
+  final store = storeResult?.result.first;
+  if (_formKey.currentState?.saveAndValidate() ?? false) {
+    final request = Map<String, dynamic>.from(_formKey.currentState!.value);
+    request['isApplicant'] = false;
+    request['isDeleted'] = false;
+    request['userId'] = store?.user?.userId;
 
-      if (_image != null) {
-        request['image'] = _base64Image;
-      } else {
-        request['image'] = store?.image;
-      }
+    // Define a map for converting Croatian day names to English.
+    // The keys are the Croatian names and the values are the .NET compatible English names.
+    const Map<String, String> dayOfWeekMapping = {
+      'Ponedjeljak': 'Monday',
+      'Utorak': 'Tuesday',
+      'Srijeda': 'Wednesday',
+      'Četvrtak': 'Thursday',
+      'Petak': 'Friday',
+      'Subota': 'Saturday',
+      'Nedjelja': 'Sunday',
+    };
 
-      try {
-        await storesProvider.update(store!.storeId, request);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Podaci uspješno uređeni!")),
-        );
-        Navigator.pop(context, true);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Greška: ${e.toString()}")),
-        );
-      }
+    // Convert the localized working day strings to English using the map.
+    request['workingDays'] = (request['workingDays'] as List<dynamic>)
+        .map((localizedDay) {
+          return dayOfWeekMapping[localizedDay.toString()];
+        })
+        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .toList();
+
+    request['startTime'] = (request['startTime'] as DateTime).toIso8601String().substring(11, 19);
+    request['endTime'] = (request['endTime'] as DateTime).toIso8601String().substring(11, 19);
+
+    if (_image != null) {
+      request['image'] = _base64Image;
+    } else {
+      request['image'] = store?.image;
     }
+
+    try {
+      await storesProvider.update(store!.storeId, request);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Podaci uspješno uređeni!")),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
   }
 }

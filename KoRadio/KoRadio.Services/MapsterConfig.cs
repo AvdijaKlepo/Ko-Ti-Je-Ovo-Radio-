@@ -9,7 +9,10 @@ public class MapsterConfig
 {
 	public static void RegisterMappings()
 	{
-	
+
+		TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+
+
 		TypeAdapterConfig<FreelancerInsertRequest, KoRadio.Services.Database.Freelancer>
 			.NewConfig()
 			.Ignore(dest => dest.WorkingDays);

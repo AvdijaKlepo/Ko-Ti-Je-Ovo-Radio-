@@ -1,3 +1,4 @@
+// book_company_job_page.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -22,915 +23,709 @@ import 'package:ko_radio_desktop/screens/add_employee_task.dart';
 import 'package:ko_radio_desktop/screens/edit_job.dart';
 import 'package:provider/provider.dart';
 
-class BookCompanyJob extends StatefulWidget {
-  const BookCompanyJob(this.job,{super.key});
+class BookCompanyJobPage extends StatefulWidget {
+  const BookCompanyJobPage({required this.job, Key? key}) : super(key: key);
+
   final Job job;
 
-
   @override
-  State<BookCompanyJob> createState() => _BookCompanyJobState();
+  State<BookCompanyJobPage> createState() => _BookCompanyJobPageState();
 }
 
-class _BookCompanyJobState extends State<BookCompanyJob> with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormBuilderState>();
-  final _formKeyEmployee = GlobalKey<FormBuilderState>();
-  Map<String, dynamic> _initialValue = {};
-  final ExpansionTileController _expansionTileController = ExpansionTileController();
+class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProviderStateMixin {
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+  final GlobalKey<FormBuilderState> _employeeFormKey = GlobalKey<FormBuilderState>();
 
+  // Providers
+  late CompanyProvider _companyProvider;
+  late JobProvider _jobProvider;
+  late CompanyEmployeeProvider _companyEmployeeProvider;
+  late CompanyJobAssignmentProvider _companyJobAssignmentProvider;
 
-  late Set<int> _workingDayInts;
-  final Map<String, int> _dayStringToInt = {
-    'Monday': 1,
-    'Tuesday': 2,
-    'Wednesday': 3,
-    'Thursday': 4,
-    'Friday': 5,
-    'Saturday': 6,
-    'Sunday': 7,
-  };
+  // Results
+  SearchResult<Job>? _jobResult;
+  SearchResult<CompanyEmployee>? _companyEmployeeResult;
+  SearchResult<CompanyJobAssignment>? _companyJobAssignmentResult;
 
-  late CompanyProvider companyProvider;
-  late JobProvider jobProvider;
-  late CompanyEmployeeProvider companyEmployeeProvider;
-  late CompanyJobAssignmentProvider companyJobAssignmentProvider;
-  SearchResult<Service>? serviceResult;
-  SearchResult<Company>? companyResult;
-  SearchResult<CompanyEmployee>? companyEmployeeResult;
-  SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
-  SearchResult<Job>? jobResult;
-  bool _isLoading = false;
-  bool _checkBoxSubmit = false;
-   bool _showEditPanel = false;
+  // UI state
+  bool _loading = true;
+  bool _assignCheckboxTouched = false;
+  bool _showEditPanel = false;
   bool _showTaskPanel = false;
+  bool _expansionOpen = false;
 
-  double _getDialogWidth() {
-    if (_showEditPanel && _showTaskPanel) return 1200;
-    if (_showEditPanel || _showTaskPanel) return 1000;
-    return 500;
-  }
+  // Form initial values
+  Map<String, dynamic> _initialForm = {};
 
+  // Image handling
+  File? _image;
+  String? _base64Image;
 
+  // Working days mapping
+  late final Set<int> _workingDayInts;
+  final Map<String, int> _dayStringToInt = {
+    'Monday': DateTime.monday,
+    'Tuesday': DateTime.tuesday,
+    'Wednesday': DateTime.wednesday,
+    'Thursday': DateTime.thursday,
+    'Friday': DateTime.friday,
+    'Saturday': DateTime.saturday,
+    'Sunday': DateTime.sunday,
+  };
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _isLoading = true;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
-      companyProvider = context.read<CompanyProvider>();
-      jobProvider = context.read<JobProvider>();
-      companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
-      companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
-     await _getEmployees();
-     await _getAssignments();
-     await _getJob();
-     _initialValue = {
-      'companyEmployeeId': companyJobAssignmentResult?.result
-              .map((e) => e.companyEmployee?.companyEmployeeId)
-              .whereType<int>()
-              .toSet()
-              .toList(),
+    _companyProvider = context.read<CompanyProvider>();
+    _jobProvider = context.read<JobProvider>();
+    _companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
+    _companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
 
-     };
-     
-    
-    });
- 
-   _workingDayInts = widget.job.company?.workingDays
+    _workingDayInts = widget.job.company?.workingDays
             ?.map((day) => _dayStringToInt[day] ?? -1)
-            .where((dayInt) => dayInt != -1)
+            .where((d) => d != -1)
             .toSet() ??
         {};
-       
-    _initialValue = {
-  
+
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+
+    try {
+      // Parallel fetch
+      final futures = await Future.wait([
+        _jobProvider.get(filter: {'JobId': widget.job.jobId}),
+        _companyEmployeeProvider.get(filter: {'companyId': widget.job.company?.companyId}),
+        _companyJobAssignmentProvider.get(filter: {'JobId': widget.job.jobId}),
+      ]);
+
+      if (!mounted) return;
+
+      _jobResult = futures[0] as SearchResult<Job>?;
+      _companyEmployeeResult = futures[1] as SearchResult<CompanyEmployee>?;
+      _companyJobAssignmentResult = futures[2] as SearchResult<CompanyJobAssignment>?; // assignments
+
+      _prepareInitialForm();
+
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri dohvaćanju podataka: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  void _prepareInitialForm() {
+    // Build initial selected employee IDs from assignments
+    final assignedIds = _companyJobAssignmentResult?.result
+            .map((a) => a.companyEmployee?.companyEmployeeId)
+            .whereType<int>()
+            .toSet()
+            .toList() ??
+        [];
+
+    _initialForm = {
+      'companyEmployeeId': assignedIds,
+      // add other default fields if needed
     };
-    setState(() {
-      _isLoading = false;
-    });
-  }
-  Future<void> _getJob() async {
-    var filter = {'JobId': widget.job.jobId};
-    try {
-      var fetchedJob = await jobProvider.get(filter:  filter);
-      setState(() {
-        jobResult = fetchedJob;
-      });
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
   }
 
+  // Helper: format phone
+  String _formatPhoneNumber(String phone) {
+    if (phone.isEmpty) return phone;
+    String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
+    normalized = normalized.replaceAll(RegExp(r'\D'), '');
+    if (normalized.length < 9) return normalized;
+    String part1 = normalized.substring(0, 3);
+    String part2 = normalized.substring(3, 6);
+    String part3 = normalized.substring(6, 9);
+    return '$part1-$part2-$part3';
+  }
 
-  Future<void> _getAssignments() async {
-    try {
-      var filter = {'JobId': widget.job.jobId};
-      var fetchedCompanyJobAssignments = await companyJobAssignmentProvider.get(filter: filter);
-      setState(() {
-        companyJobAssignmentResult = fetchedCompanyJobAssignments;
-      });
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
-  Future<void> _getEmployees() async {
-    try {
-      var filter = {'companyId': widget.job.company?.companyId};
-      var fetchedCompanyEmployees = await companyEmployeeProvider.get(filter: filter);
-      setState(() {
-        companyEmployeeResult = fetchedCompanyEmployees;
-      });
-    } catch (e) {
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
-    }
-  }
   bool _isWorkingDay(DateTime day) {
     return _workingDayInts.contains(day.weekday);
   }
-  String formatPhoneNumber(String phone) {
-  // Step 1: Replace +387 at the start with 0
-  String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
 
-  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
-  normalized = normalized.replaceAll(RegExp(r'\D'), '');
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.single.path != null) {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      setState(() {});
+    }
+  }
 
-  // Step 3: Ensure we only format if we have at least 9 digits
-  if (normalized.length < 9) return normalized;
-
-  // Step 4: Insert dashes in 3-3-3 format
-  String part1 = normalized.substring(0, 3);
-  String part2 = normalized.substring(3, 6);
-  String part3 = normalized.substring(6, 9);
-
-  return "$part1-$part2-$part3";
-}
-  @override
-  Widget build(BuildContext context) {
-   
-   final filterLoggedInUser = companyEmployeeResult?.result
-        .where((element) => element.userId != AuthProvider.user?.userId)
-        .toList();
-    
-   bool _showEditPanel = false;
-   bool _showTaskPanel = false;
-
- 
-
-return StatefulBuilder(
-  builder: (context, setState) {
-    return Dialog(
-
-      
-      insetPadding: const EdgeInsets.all(24),
-      child: AnimatedContainer(
-
-        duration: const Duration(milliseconds: 300),
-        width: 500 +
-        (_showTaskPanel ? 500 : 0) +
-        (_showEditPanel ? 500 : 0),
-        height: 1250,
-        child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                if(_showTaskPanel==true)
-                Expanded(
-                  flex: 2,
-                  child: AddEmployeeTask(job: widget.job,),
-                ),
-                // --- LEFT MAIN PANEL ---
-                Expanded(
-                  flex: 2,
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                          child: Column(
-                            
-
-                            children: [
-                              Card(
-
-                                color: const Color.fromRGBO(27, 76, 125, 25),
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(24),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
-  Container(
-    padding: const EdgeInsets.all(12),
-    margin: const EdgeInsets.only(bottom: 16),
-    decoration: BoxDecoration(
-      color: Colors.amber.shade100,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        const Icon(Icons.info, color: Colors.black87),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: Text(
-            "Ovaj posao je ažuriran.",
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ),
-        if(jobResult?.result.first.isEdited==true)
-        ElevatedButton(
-          onPressed: () async {
-            final jobUpdateRequest = {
-              "userId": widget.job.user?.userId,
-              "freelancerId": null,
-              "companyId": widget.job.company?.companyId,
-              "jobTitle": widget.job.jobTitle,
-              "isTenderFinalized": false,
-              "isFreelancer": false,
-              "isInvoiced": false,
-              "isRated": false,
-              "startEstimate": null,
-              "endEstimate": null,
-              "payEstimate": widget.job.payEstimate,
-              "payInvoice": null,
-              "jobDate": widget.job.jobDate.toIso8601String(),
-              "dateFinished": widget.job.dateFinished?.toIso8601String(),
-              "jobDescription": widget.job.jobDescription,
-              "image": widget.job.image,
-              "jobStatus": widget.job.jobStatus.name,
-              "serviceId": widget.job.jobsServices
-                  ?.map((e) => e.service?.serviceId)
-                  .toList(),
-              "isEdited": false,
-            };
-
-            try {
-              await jobProvider.update(widget.job.jobId, jobUpdateRequest);
-              await _getJob(); // refresh so banner disappears
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Posao označen kao pregledan.")),
-                );
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Greška: $e")),
-                );
-              }
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text("Označi kao pregledano"),
-        ),
-      ],
-    ),
-  ),
-],
-
-                                      _sectionTitle('Radne specifikacije'),
-                                _buildDetailRow('Posao', jobResult?.result.first.jobTitle ?? 'Nije dostupan'),
-                                _buildDetailRow(
-                                  'Servis',
-                                  jobResult?.result.first.jobsServices
-                                          ?.map((e) => e.service?.serviceName)
-                                          .where((e) => e != null)
-                                          .join(', ') ??
-                                      'N/A',
-                                ),
-                                _buildDetailRow('Datum', DateFormat('dd-MM-yyyy').format(jobResult?.result.first.jobDate ?? DateTime.now())),
-                                  _buildDetailRow(
-                                  'Datum završetka',
-                                  jobResult?.result.first.dateFinished != null
-                                      ? DateFormat('dd-MM-yyyy').format(jobResult!.result.first.dateFinished!)
-                                      : 'Nije dostupan',
-                                ),
-                                _buildDetailRow('Opis posla', jobResult?.result.first.jobDescription ?? 'Nije dostupan'),
-                                 jobResult?.result.first.image!=null ?
-                                 _buildImageRow(
-                                  'Slika',
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(context: context, builder: (context) => _openImageDialog());
-                                    
-                                    
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ),
-                                    child:  const Text(
-                                      'Otvori sliku',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(27, 76, 125, 25)),
-                                    ),
-                                  ))
-                              : _buildDetailRow('Slika','Nije unesena'),
-                              
-if(jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
-
-                             const Divider(height: 32),
-if(jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
-_sectionTitle('Preuzeli dužnost'),
-
-if (jobResult?.result.first.jobStatus == JobStatus.approved || jobResult?.result.first.jobStatus == JobStatus.finished)
-FormBuilder(
-  key: _formKeyEmployee,
-  initialValue: _initialValue,
-  child:
-  Theme(
-    data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-     
+  Future<void> _openImagePreview(String base64) async {
+    if (base64.isEmpty) return;
+    final bytes = base64Decode(base64);
+    await showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+        title: const Text('Proslijeđena slika', style: TextStyle(color: Colors.white)),
+        content: Image.memory(bytes, fit: BoxFit.contain),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c),
+            child: const Text('Nazad'),
+          )
+        ],
       ),
-    child: ExpansionTile(
-      enabled: jobResult?.result.first.jobStatus == JobStatus.approved,
-    
-      
-      shape: const Border(),
-      controller: _expansionTileController,
-      
-      title: _buildDetailRow(
-        'Radnici',
-        companyJobAssignmentResult?.result
-                .map((e) =>
-                    '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}')
-                .toList()
-                .join(', ') ??
-            'Nema zaposlenika',
-      ),
-      collapsedIconColor: Colors.white,
-      iconColor:  Colors.white,
-      backgroundColor: Colors.transparent,
-      tilePadding: EdgeInsets.zero,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-    checkboxTheme: CheckboxThemeData(
-      side: const BorderSide(color: Colors.white, width: 2), 
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), 
-    ),
-  ),
-            child: FormBuilderCheckboxGroup<int>(
-              onChanged: (value) {
-                setState(() {
-                  _checkBoxSubmit = true;
-                });
-              },
-              checkColor: Color.fromRGBO(27, 76, 125, 25),
-              activeColor: Colors.white,
-              
-              
-              name: 'companyEmployeeId',
-              validator: FormBuilderValidators.required(
-                  errorText: 'Obavezno polje'),
-              decoration: const InputDecoration(
-                
-                  
-                labelStyle: TextStyle(color: Colors.white),
-                border: InputBorder.none,
-              ),
-              options: filterLoggedInUser
-                      ?.map((e) => FormBuilderFieldOption<int>(
-            
-                            value: e.companyEmployeeId,
-                            child: Text(
-                              '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ))
-                      .toList() ??
-                  [],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        if(_checkBoxSubmit)
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            onPressed: () async {
-               final isValid = _formKeyEmployee.currentState?.saveAndValidate() ?? false;
-    
-    if (!isValid) {
-    
+    );
+  }
+
+  Future<void> _assignSelectedEmployees() async {
+    final isValid = _employeeFormKey.currentState?.saveAndValidate() ?? false;
+    if (!isValid) return;
+
+    final form = Map<String, dynamic>.from(_employeeFormKey.currentState?.value ?? {});
+    final List<dynamic>? selected = form['companyEmployeeId'] as List<dynamic>? ?? [];
+
+    if (selected!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Niste odabrali radnike.')));
       return;
     }
-             
-              
-                  var formData = Map<String, dynamic>.from(
-                      _formKeyEmployee.currentState?.value ?? {});
-                      
-    
-              try {
-                for (var workerId in formData["companyEmployeeId"]) {
-                  await companyJobAssignmentProvider.insert({
-                    "jobId": widget.job.jobId,
-                    "companyEmployeeId": workerId,
-                    "assignedAt": DateTime.now().toIso8601String(),
-                    "isFinished":false
-                  });
-                }
-    
-                if (context.mounted) {
-                  if(!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Zaposlenici uspješno dodani.")),
-                  );
-                }
-              } catch (e) {
-                if(!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Greška tokom dodavanja radnika: $e")),
-                );
-              } 
-              _expansionTileController.collapse();
-              await _getEmployees();
-              await _getAssignments();
-              setState(() {
-                _checkBoxSubmit = false;
-              });
-    
-     
-    
-    
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text(
-              'Uredi radnike',
-              style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ElevatedButton(onPressed: (){
-        
-         setState(() => _showTaskPanel = !_showTaskPanel);
-        }, child: Text('Dodaj zadatak'),),
-      ],
-    ),
-  )),
 
-const Divider(height: 32),
+    setState(() => _loading = true);
 
+    try {
+      for (final id in selected!) {
+        await _companyJobAssignmentProvider.insert({
+          'jobId': widget.job.jobId,
+          'companyEmployeeId': id,
+          'assignedAt': DateTime.now().toIso8601String(),
+          'isFinished': false,
+        });
+      }
+      await _loadData(); // refresh assignments & job
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Zaposlenici uspješno dodani.')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri dodavanju zaposlenika: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
 
-                                _sectionTitle('Korisnički podaci'),
-                               _buildDetailRow(
-                    'Ime i prezime',
-                    jobResult?.result.first.user != null
-                        ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
-                        : 'Nepoznato',
-                  ),
-                   _buildDetailRow('Broj Telefona',formatPhoneNumber(widget.job.user?.phoneNumber??'Nepoznato')),
-                   _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
-                  _buildDetailRow(
-                    'Adresa',
-                    widget.job.user != null
-                        ? '${widget.job.user?.address}'
-                        : 'Nepoznato',
-                  ),
-                                const Divider(height: 32),
+  Future<void> _submitForm(JobStatus resultingStatus) async {
+    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+    if (!isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Molimo popunite obavezna polja.')));
+      return;
+    }
 
-                                _sectionTitle('Podaci Firme'),
-                                _buildDetailRow('Naziv Firme', widget.job.company?.companyName ?? 'Nepoznato'),
-                                _buildDetailRow('E-mail', widget.job.company?.email ?? 'Nepoznato'),
-                                _buildDetailRow('Telefonski broj', formatPhoneNumber( widget.job.company?.phoneNumber ?? 'Nepoznato')),
-                                const Divider(height: 32),
+    setState(() => _loading = true);
+    try {
+      final values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
 
-                                _sectionTitle('Račun'),
-                                _buildDetailRow('Procijena', jobResult?.result.first.payEstimate?.toStringAsFixed(2) ?? 'Nije unesena'),
-                                _buildDetailRow('Konačna cijena', jobResult?.result.first.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                                _buildDetailRow('Plaćen', jobResult?.result.first.isInvoiced == true ? 'Da' : 'Ne'),
-                                if (jobResult?.result.first.jobStatus == JobStatus.cancelled)
-                                  _buildDetailRow('Otkazan', 'Da'),
+      // Normalize values
+      if (values['dateFinished'] is DateTime) {
+        values['dateFinished'] = (values['dateFinished'] as DateTime).toIso8601String();
+      }
 
-                                    ],
+      final jobUpdateRequest = {
+        'userId': widget.job.user?.userId,
+        'freelancerId': null,
+        'companyId': widget.job.company?.companyId,
+        'jobTitle': widget.job.jobTitle,
+        'isTenderFinalized': false,
+        'isFreelancer': false,
+        'isInvoiced': false,
+        'isRated': false,
+        'startEstimate': null,
+        'endEstimate': null,
+        'payEstimate': values.containsKey('payEstimate') ? values['payEstimate'] : widget.job.payEstimate,
+        'payInvoice': values.containsKey('payInvoice') ? values['payInvoice'] : widget.job.payInvoice,
+        'jobDate': widget.job.jobDate.toIso8601String(),
+        'dateFinished': values['dateFinished'],
+        'jobDescription': widget.job.jobDescription,
+        'image': widget.job.image ?? _base64Image,
+        'jobStatus': _jobResult?.result.first.jobStatus==JobStatus.unapproved ? JobStatus.approved.name : JobStatus.finished.name,
+        'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),
+      };
+
+      await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
+
+      // Assign employees if provided
+      final selectedEmployeeIds = values['companyEmployeeId'] as List<dynamic>?;
+      if (selectedEmployeeIds != null && selectedEmployeeIds.isNotEmpty) {
+        for (final employeeId in selectedEmployeeIds) {
+          await _companyJobAssignmentProvider.insert({
+            'jobId': widget.job.jobId,
+            'companyEmployeeId': employeeId,
+            'assignedAt': DateTime.now().toIso8601String(),
+          });
+        }
+      }
+
+      // If finishing a job, mark assignments finished
+      if (resultingStatus == JobStatus.finished) {
+        final assignments = _companyJobAssignmentResult?.result ?? [];
+        for (final a in assignments) {
+          if (a.companyJobId != null) {
+            await _companyJobAssignmentProvider.update(a.companyJobId!, {'isFinished': true});
+          }
+        }
+      }
+
+      await _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resultingStatus == JobStatus.approved ? 'Posao prihvaćen.' : 'Posao označen kao završen.')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri slanju: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+  Future<void> _editJob() async {
+    final job = await showDialog<Job>(
+      context: context,
+      builder: (c) => EditJob(job: widget.job),
+    );
+    if (job != null) {
+      await _loadData();
+    }
+  }
+
+  Future<void> _cancelJob() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Odbaci posao'),
+        content: const Text('Jeste li sigurni da želite otkazati ovaj posao?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Ne')),
+          TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Da')),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _loading = true);
+    try {
+      final jobUpdateRequest = {
+        'userId': widget.job.user?.userId,
+        'freelancerId': null,
+        'companyId': widget.job.company?.companyId,
+        'jobTitle': widget.job.jobTitle,
+        'isTenderFinalized': false,
+        'isFreelancer': false,
+        'isInvoiced': false,
+        'isRated': false,
+        'startEstimate': null,
+        'endEstimate': null,
+        'payEstimate': null,
+        'payInvoice': null,
+        'jobDate': widget.job.jobDate.toIso8601String(),
+        'dateFinished': widget.job.dateFinished?.toIso8601String(),
+        'jobDescription': widget.job.jobDescription,
+        'image': widget.job.image,
+        'jobStatus': JobStatus.cancelled.name,
+        'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),
+      };
+
+      await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
+      await _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao otkazan.')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  // Build helpers
+  Widget _sectionTitle(String title, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color ?? Colors.black)),
+    );
+  }
+
+  Widget _detailRow(String label, String value, {bool whiteText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 2, child: Text('$label:', style: TextStyle(fontWeight: FontWeight.bold, color: whiteText ? Colors.white : Colors.black))),
+          Expanded(flex: 3, child: Text(value, style: TextStyle(color: whiteText ? Colors.white : Colors.black87))),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final assignedNames = _companyJobAssignmentResult?.result
+            .map((a) => '${a.companyEmployee?.user?.firstName ?? ''} ${a.companyEmployee?.user?.lastName ?? ''}')
+            .where((s) => s.trim().isNotEmpty)
+            .toList() ??
+        [];
+
+    final availableEmployees = _companyEmployeeResult?.result?.where((e) => e.userId != AuthProvider.user?.userId).toList() ?? [];
+
+    final job = _jobResult?.result.first ?? widget.job;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Posao: ${job.jobTitle ?? ''}'),
+       
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 1100;
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Flex(
+                    direction: isWide ? Axis.horizontal : Axis.vertical,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left/main panel
+                      Flexible(
+                        flex: 3,
+                        child: Card(
+                          
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Alert banner if edited
+                                if (job.isEdited == true || job.isWorkerEdited == true)
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(8)),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.info),
+                                        const SizedBox(width: 8),
+                                        const Expanded(child: Text('Ovaj posao je ažuriran.')),
+                                        if (job.isEdited == true)
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              final messenger = ScaffoldMessenger.of(context);
+                                              try {
+                                                final payload = {
+                                                  'userId': job.user?.userId,
+                                                  'freelancerId': null,
+                                                  'companyId': job.company?.companyId,
+                                                  'jobTitle': job.jobTitle,
+                                                  'isTenderFinalized': false,
+                                                  'isFreelancer': false,
+                                                  'isInvoiced': false,
+                                                  'isRated': false,
+                                                  'startEstimate': null,
+                                                  'endEstimate': null,
+                                                  'payEstimate': job.payEstimate,
+                                                  'payInvoice': null,
+                                                  'jobDate': job.jobDate.toIso8601String(),
+                                                  'dateFinished': job.dateFinished?.toIso8601String(),
+                                                  'jobDescription': job.jobDescription,
+                                                  'image': job.image,
+                                                  'jobStatus': job.jobStatus.name,
+                                                  'serviceId': job.jobsServices?.map((e) => e.service?.serviceId).toList(),
+                                                  'isEdited': false,
+                                                };
+                                 
+                                                await _jobProvider.update(job.jobId, payload);
+                                                await _loadData();
+                                    
+                                               
+                                                messenger.showSnackBar(
+  const SnackBar(content: Text('Posao označen kao pregledan.')),
+);
+                                                
+                                                 
+                                              } catch (e) {
+                                               
+                                                messenger.showSnackBar(
+  const SnackBar(content: Text('Greška. Pokušajte ponovo.')),
+);
+                                                
+                                              } 
+                                              
+                                            
+                                          
+                                            },
+                                            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                                            child: const Text('Označi kao pregledano'),
+                                          )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ),
 
-                              SingleChildScrollView(
-                                child: FormBuilder(
+                                _sectionTitle('Radne specifikacije', color: Colors.black),
+                                _detailRow('Posao', job.jobTitle ?? 'Nije dostupan'),
+                                _detailRow('Servis', job.jobsServices?.map((e) => e.service?.serviceName).whereType<String>().join(', ') ?? 'N/A'),
+                                _detailRow('Datum', DateFormat('dd-MM-yyyy').format(job.jobDate)),
+                                _detailRow('Datum završetka', job.dateFinished != null ? DateFormat('dd-MM-yyyy').format(job.dateFinished!) : 'Nije dostupan'),
+                                _detailRow('Opis posla', job.jobDescription ?? 'Nije dostupan'),
+
+                                if (job.image != null) const SizedBox(height: 8),
+                                if (job.image != null)
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: ElevatedButton(
+                                      onPressed: () => _openImagePreview(job.image!),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color.fromRGBO(27, 76, 125, 25)),
+                                      child: const Text('Otvori sliku'),
+                                    ),
+                                  ),
+
+                                const Divider(height: 24),
+
+                                if (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished)
+                                  _sectionTitle('Preuzeli dužnost', color: Colors.black),
+
+                                // Assignments view and selection
+                                if (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished)
+                                  Card(
+                                    color: Colors.grey.shade100,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Radnici: ${assignedNames.isNotEmpty ? assignedNames.join(', ') : 'Nema zaposlenika'}'),
+                                          const SizedBox(height: 8),
+                                          ExpansionTile(
+                                            title: const Text('Dodaj / Uredi radnike'),
+                                            initiallyExpanded: false,
+                                            onExpansionChanged: (open) => setState(() => _expansionOpen = open),
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: FormBuilder(
+                                                  key: _employeeFormKey,
+                                                  initialValue: _initialForm,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      FormBuilderCheckboxGroup<int>(
+                                                        name: 'companyEmployeeId',
+                                                        decoration: const InputDecoration(border: InputBorder.none),
+                                                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                                        options: availableEmployees.map((e) {
+                                                          final name = '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}';
+                                                          return FormBuilderFieldOption(value: e.companyEmployeeId!, child: Text(name));
+                                                        }).toList(),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                        children: [
+                                                          ElevatedButton(
+                                                            onPressed: _assignSelectedEmployees,
+                                                            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color.fromRGBO(27, 76, 125, 25)),
+                                                            child: const Text('Uredi radnike'),
+                                                          ),
+                                                          const SizedBox(width: 8),
+                                                          ElevatedButton(
+                                                            onPressed: () => setState(() => _showTaskPanel = !_showTaskPanel),
+                                                            child: const Text('Dodaj zadatak'),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                const SizedBox(height: 12),
+                                const Divider(height: 24),
+
+                                _sectionTitle('Korisnički podaci', color: Colors.black),
+                                _detailRow('Ime i prezime', job.user != null ? '${job.user?.firstName ?? ''} ${job.user?.lastName ?? ''}' : 'Nepoznato'),
+                                _detailRow('Broj telefona', _formatPhoneNumber(job.user?.phoneNumber ?? 'Nepoznato')),
+                                _detailRow('Lokacija', job.user?.location?.locationName ?? 'Nepoznato'),
+                                _detailRow('Adresa', job.user?.address ?? 'Nepoznato'),
+
+                                const SizedBox(height: 12),
+                                _sectionTitle('Podaci Firme', color: Colors.black),
+                                _detailRow('Naziv Firme', job.company?.companyName ?? 'Nepoznato'),
+                                _detailRow('E-mail', job.company?.email ?? 'Nepoznato'),
+                                _detailRow('Telefonski broj', _formatPhoneNumber(job.company?.phoneNumber ?? 'Nepoznato')),
+
+                                const SizedBox(height: 12),
+                                _sectionTitle('Račun', color: Colors.black),
+                                _detailRow('Procijena', (job.payEstimate != null) ? job.payEstimate!.toStringAsFixed(2) : 'Nije unesena'),
+                                _detailRow('Konačna cijena', (job.payInvoice != null) ? job.payInvoice!.toStringAsFixed(2) : 'Nije unesena'),
+                                _detailRow('Plaćen', job.isInvoiced == true ? 'Da' : 'Ne'),
+                                if (job.jobStatus == JobStatus.cancelled) _detailRow('Otkazan', 'Da'),
+
+                                const SizedBox(height: 12),
+
+                                // Form for approving / finishing etc.
+                                FormBuilder(
                                   key: _formKey,
-                                  initialValue: _initialValue,
+                                  initialValue: _initialForm,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                        if (jobResult?.result.first.jobStatus == JobStatus.unapproved) ...[
-                                  const Divider(height: 32,thickness: 1,color: Colors.black, ),
-                                   Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        'Potrebni podaci',
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
-      ),
-    ),
-                                  const SizedBox(height: 12),
-                                  FormBuilderDateTimePicker(
-                                    enabled: _showEditPanel==true ? false : true,
-                                    validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                                    decoration: const InputDecoration(
-                                      labelText: 'Kraj radova',
-                                      border: OutlineInputBorder(),
-                                      prefixIcon: Icon(Icons.calendar_today),
-                                    ),
-                                    name: "dateFinished",
-                                    inputType: InputType.date,
-                                    firstDate: widget.job.jobDate,
-                                    initialDate: widget.job.jobDate.isAfter(DateTime.now()) ? widget.job.jobDate : DateTime.now(),
-                                    selectableDayPredicate: _isWorkingDay,
-                                  ),
-                                  const SizedBox(height: 15),
-            
-                                  FormBuilderTextField(
-                                       enabled: _showEditPanel==true ? false : true,
-                                    name: "payEstimate",
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                    decoration: const InputDecoration(
-                                      labelText: 'Moguća Cijena',
-                                      border: OutlineInputBorder(),
-                                      prefixIcon: Icon(Icons.attach_money),
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                      FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
-                                    ]),
-                                    valueTransformer: (value) => double.tryParse(value ?? ''),
-                                  ),
-                                   FormBuilderCheckboxGroup<int>(
-                                             enabled: _showEditPanel==true ? false : true,
+                                      if (job.jobStatus == JobStatus.unapproved) ...[
+                                        const Divider(),
+                                        _sectionTitle('Potrebni podaci', color: Colors.black),
+                                        const SizedBox(height: 8),
+                                        FormBuilderDateTimePicker(
+                                          name: 'dateFinished',
+                                          inputType: InputType.date,
+                                          decoration: const InputDecoration(labelText: 'Kraj radova', border: OutlineInputBorder(), prefixIcon: Icon(Icons.calendar_today)),
+                                          firstDate: job.jobDate,
+                                          initialDate: job.jobDate.isAfter(DateTime.now()) ? job.jobDate : DateTime.now(),
                                           validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                          name: 'companyEmployeeId',
-                                          decoration: const InputDecoration(labelText: "Zaduženi radnici"),
-                                          options: filterLoggedInUser
-                                                  ?.map((e) => FormBuilderFieldOption(
-                                                        value: e.companyEmployeeId,
-                                                        child: Text('${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}'),
-                                                      ))
-                                                  .toList() ??
-                                              [],
+                                          selectableDayPredicate: _isWorkingDay,
                                         ),
-                                ],
+                                        const SizedBox(height: 12),
+                                        FormBuilderTextField(
+                                          name: 'payEstimate',
+                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                          decoration: const InputDecoration(labelText: 'Moguća Cijena', border: OutlineInputBorder(), prefixIcon: Icon(Icons.attach_money)),
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                            FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                                          ]),
+                                          valueTransformer: (value) => double.tryParse(value ?? ''),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        FormBuilderCheckboxGroup<int>(
+                                          name: 'companyEmployeeId',
+                                          decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
+                                          options: availableEmployees.map((e) {
+                                            final name = '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}';
+                                            return FormBuilderFieldOption(value: e.companyEmployeeId!, child: Text(name));
+                                          }).toList(),
+                                        ),
+                                      ],
 
-                                // --- Extra Fields for Approved Jobs ---
-                                if (jobResult?.result.first.jobStatus == JobStatus.approved) ...[
-                                  const Divider(height: 32),
-                                  FormBuilderTextField(
-                                       enabled: _showEditPanel==true || (widget.job.isWorkerEdited==true || widget.job.isEdited==true) ? false : true,
-                                    name: "payInvoice",
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                    decoration: const InputDecoration(
-                                      labelText: 'Finalna cijena',
-                                      border: OutlineInputBorder(),
-                                      prefixIcon: Icon(Icons.attach_money),
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                      FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
-                                    ]),
-                                    valueTransformer: (value) => double.tryParse(value ?? ''),
-                                  ),
-                                ],
-
-                                // --- Employee Assignment ---
-                                
+                                      if (job.jobStatus == JobStatus.approved) ...[
+                                        const Divider(),
+                                        FormBuilderTextField(
+                                          name: 'payInvoice',
+                                          enabled: _jobResult?.result.first.isEdited==true ||  _jobResult?.result.first.isWorkerEdited==true  ? false : true,
+                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                          decoration: const InputDecoration(labelText: 'Finalna cijena', border: OutlineInputBorder(), prefixIcon: Icon(Icons.attach_money)),
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                            FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                                          ]),
+                                          valueTransformer: (value) => double.tryParse(value ?? ''),
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
                                     ],
                                   ),
-                                )
-                              ),
-                               const Divider(height: 32),
-                                if (widget.job.jobStatus != JobStatus.cancelled && widget.job.jobStatus != JobStatus.finished)
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Actions
+                                if (job.jobStatus != JobStatus.cancelled && job.jobStatus != JobStatus.finished)
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       TextButton.icon(
                                         icon: const Icon(Icons.cancel, color: Colors.red),
-                                        label: const Text("Otkaži", style: TextStyle(color: Colors.red)),
-                                        onPressed: () => showDialog(context: context, builder: (_) => _openCancelDialog()),
+                                        label: const Text('Otkaži', style: TextStyle(color: Colors.red)),
+                                        onPressed: _cancelJob,
                                       ),
                                       const SizedBox(width: 12),
-                                                            if(jobResult?.result.first.jobStatus == JobStatus.approved)
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.amber,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        icon: const Icon(Icons.edit),
-                                        label: const Text("Uredi"),
-                                        onPressed: () => setState(() => _showEditPanel = !_showEditPanel),
+                                        TextButton.icon(
+                                        icon: const Icon(Icons.edit, color: Colors.amber),
+                                        label: const Text('Uredi', style: TextStyle(color: Colors.amber)),
+                                        onPressed: _editJob,
                                       ),
                                       const SizedBox(width: 12),
+
                                       ElevatedButton.icon(
                                         icon: const Icon(Icons.check_circle),
-                                        label: const Text("Odobri"),
-                                        onPressed: () => _submit(JobStatus.approved),
+                                        label: const Text('Odobri'),
+                                        onPressed: () => _submitForm(JobStatus.approved),
                                       ),
+                                      const SizedBox(width: 12),
                                     ],
                                   ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
 
-
-                              
-
+                      // Right side panels (Edit / Task)
+                      const SizedBox(width: 16, height: 16),
+                      if (isWide)
+                        Flexible(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              // Task panel
+                              if (_jobResult?.result.first.jobStatus==JobStatus.approved)
+                                Card(
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  child: SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.75,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: AddEmployeeTask(job: widget.job),
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: 12),
+                              // Edit panel
+                              if (_showEditPanel)
+                                Card(
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  child: SizedBox(
+                                    height: 600,
+                                    child: EditJob(job: widget.job),
+                                  ),
+                                ),
                             ],
-                          )
-      ),
-                ),
-                
-       if (_showEditPanel) ...[
-        SizedBox(width: 50,),
-                  const VerticalDivider(width: 1),
-            
-             
-                  Expanded(
-                    flex: 3,
-                    child:  EditJob(job: widget.job),
-                    
-                  ),
-                  
-       ]
-              ],
-            ),
-          ),
-        )
-
-    );
-  },
-);
-
-
-    
-  }
-   
-  _openCancelDialog() {
-    return AlertDialog(
-      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-      title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
-      content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
-          ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
-            TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
-          ),
-            onPressed: () async {
-                var jobUpdateRequest = {
-                "userId": widget.job.user?.userId,
-                "freelancerId": null,
-                "companyId": widget.job.company?.companyId,
-                "jobTitle": widget.job.jobTitle,
-                "isTenderFinalized": false,
-                "isFreelancer": false,
-                "isInvoiced": false,
-                "isRated": false,
-                "startEstimate": null,
-                "endEstimate": null,  
-                "payEstimate": null,
-                "payInvoice": null,
-                "jobDate": widget.job.jobDate.toIso8601String(),
-                "dateFinished": widget.job.dateFinished?.toIso8601String(),
-                "jobDescription": widget.job.jobDescription,
-                "image": widget.job.image,
-                "jobStatus": JobStatus.cancelled.name,
-                "serviceId": widget.job.jobsServices
-                        ?.map((e) => e.service?.serviceId)
-                        .toList(),
-          };
-              try {
-            jobProvider.update(widget.job.jobId,
-            jobUpdateRequest
-            );
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
-               Navigator.of(context).pop();
-              
-          } on Exception catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-               Navigator.of(context).pop();
-               
-
-          }
-            },
-            child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
-            ),
-      ],
-    );
-  }
-  
-
- Future<void> _submit(JobStatus status) async {
-    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
-
-    if (!isValid) {
-      return;
-    }
-    var values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
-    if (values["dateFinished"] is DateTime) {
-      values['dateFinished'] =
-          (values['dateFinished'] as DateTime).toIso8601String();
-    }
-
-    if (values["endEstimate"] is DateTime) {
-      final dateTime = values["endEstimate"] as DateTime;
-      final formattedTime =
-          "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
-      values["endEstimate"] = formattedTime;
-    }
-
-    var jobUpdateRequest = {
-      "userId": widget.job.user?.userId,
-      "freelancerId": null,
-      "companyId": widget.job.company?.companyId,
-      "jobTitle": widget.job.jobTitle,
-      "isTenderFinalized": false,
-      "isFreelancer": false,
-      "isInvoiced": false,
-      "isRated": false,
-      "startEstimate": null,
-      "endEstimate": null,
-      "payEstimate": widget.job.jobStatus == JobStatus.unapproved
-          ? values["payEstimate"]
-          : widget.job.payEstimate,
-      "payInvoice": widget.job.jobStatus == JobStatus.unapproved
-          ? null
-          : values["payInvoice"],
-      "jobDate": widget.job.jobDate.toIso8601String(),
-      "dateFinished": values["dateFinished"],
-      "jobDescription": widget.job.jobDescription,
-      "image": widget.job.image,
-      "jobStatus": widget.job.jobStatus == JobStatus.unapproved
-          ? JobStatus.approved.name
-          : JobStatus.finished.name,
-      "serviceId":
-          widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),
-    };
-
-    try {
-      jobProvider.update(widget.job.jobId, jobUpdateRequest);
-      final selectedEmployeeIds = values["companyEmployeeId"] as List<dynamic>?;
-
-      if (selectedEmployeeIds != null && selectedEmployeeIds.isNotEmpty) {
-        for (final employeeId in selectedEmployeeIds) {
-          await companyJobAssignmentProvider.insert({
-            "jobId": widget.job.jobId,
-            "companyEmployeeId": employeeId,
-            "assignedAt": DateTime.now().toIso8601String(),
-          });
-        }
-      }
-      if(widget.job.jobStatus == JobStatus.approved){
-        for (var workerId in companyJobAssignmentResult!.result.map((e) => e.companyEmployee?.companyEmployeeId).whereType<int>().toSet().toList()) { 
-          await companyJobAssignmentProvider.update(companyJobAssignmentResult!.result.firstWhere((element) => element.companyEmployee?.companyEmployeeId == workerId).companyJobId!,{
-            "jobId": widget.job.jobId,
-            "isFinished": true,
-            "companyEmployeeId": workerId,
-            "assignedAt": DateTime.now().toIso8601String(),
+                          ),
+                        )
+                      else
           
-          });
-        }
-      }
-      
-      
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: widget.job.jobStatus == JobStatus.unapproved
-              ? const Text('Posao prihvaćen.')
-              : const Text('Faktura poslana korisniku.')));
-      Navigator.pop(context, true);
-    } on Exception catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Greška u slanju posla: ${e.toString()}')));
-      Navigator.pop(context, false);
-    }
-   
-  }
-
-  File? _image;
-  String? _base64Image;
-
-  void getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
-
-    if (result != null && result.files.single.path != null) {
-      _image = File(result.files.single.path!);
-      _base64Image = base64Encode(_image!.readAsBytesSync());
-    }
-  }
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white), 
-      ),
-    );
-  }
-    _openImageDialog() {
-    return AlertDialog(
-    
-      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
-      title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
-      insetPadding: EdgeInsets.symmetric(horizontal: 500),
-      content: imageFromString(widget.job.image!,fit: BoxFit.contain),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
-          ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),))
-      ],
-    );
-  }
-  Widget _buildImageRow(String label, Widget value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-
-      child: Row(
-
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                        Column(
+                          children: [
+                            if (_showTaskPanel) ...[
+                              const SizedBox(height: 16),
+                              Card(
+                                child: Padding(padding: const EdgeInsets.all(8.0), child: AddEmployeeTask(job: widget.job)),
+                              ),
+                            ],
+                            if (_showEditPanel) ...[
+                              const SizedBox(height: 16),
+                              Card(child: Padding(padding: const EdgeInsets.all(8.0), child: EditJob(job: widget.job))),
+                            ]
+                          ],
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: value,
-          ),
-        ],
-      ),
     );
   }
- 
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-
-      child: Row(
-
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors. white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  
-
 }
-

@@ -21,9 +21,12 @@ import 'package:ko_radio_mobile/providers/tender_bid_provider.dart';
 import 'package:ko_radio_mobile/providers/tender_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/user_ratings.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/registration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -69,6 +72,17 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Flutter Demo',
+      supportedLocales: const[
+        Locale('en', 'Latn'),
+        Locale('bs', 'Latn'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+      ],
+     
       theme: ThemeData(
        
         colorScheme: ColorScheme.fromSeed(
@@ -79,7 +93,7 @@ class MyApp extends StatelessWidget {
         fontFamily: GoogleFonts.robotoCondensed().fontFamily,
         
       ),
-      home: Center(
+      home: const Center(
         child: LoginPage(),
       ),
     );
@@ -128,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: Color.fromRGBO(27, 76, 125, 25)),),
+                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
@@ -136,8 +150,8 @@ class _LoginPageState extends State<LoginPage> {
                      
                       decoration:  InputDecoration(
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          labelStyle: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                          labelText: "Email adresa", prefixIcon: Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
+                          labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                          labelText: "Email adresa", prefixIcon: const Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -149,14 +163,14 @@ class _LoginPageState extends State<LoginPage> {
                       controller: passwordController,
                       decoration:  InputDecoration(
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          labelStyle: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
+                          labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
                           labelText: "Lozinka",
-                          prefixIcon: Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
+                          prefixIcon: const Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
                     ),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                    onPressed: () async {
@@ -181,7 +195,9 @@ class _LoginPageState extends State<LoginPage> {
     
 
     AuthProvider.user = user;
+    
     final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
+    final flag=false;
     AuthProvider.isSignedIn = true;
 
     if (user.userRoles == null || user.userRoles!.isEmpty) {
@@ -222,10 +238,27 @@ class _LoginPageState extends State<LoginPage> {
               // Set selected role
               AuthProvider.selectedRole = userRole.role?.roleName ?? "";
 
+             if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; // 🚫 stop here
+}
+
               // Start SignalR connection
               final signalrProvider = context.read<SignalRProvider>();
               await signalrProvider.startConnection();
-              print(AuthProvider.selectedRole);
+           
 
           
               Navigator.pop(context);
@@ -248,11 +281,10 @@ if (AuthProvider.selectedRole == "CompanyEmployee" &&
         children: nonOwnerEmployees.map((ce) {
           return SimpleDialogOption(
             onPressed: () {
-              // assign selected companyId from the CompanyEmployee
+          
               AuthProvider.selectedCompanyId = ce.companyId;
               AuthProvider.selectedCompanyEmployeeId = ce.companyEmployeeId;
-              print(AuthProvider.selectedCompanyId);
-              print(AuthProvider.selectedCompanyEmployeeId);
+          
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
@@ -292,6 +324,22 @@ else {
       final selected = filteredRoles.first;
       AuthProvider.selectedRole = selected.role?.roleName ?? "";
       AuthProvider.userRoles = selected;
+      if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
      
        final signalrProvider = context.read<SignalRProvider>();
                 await signalrProvider.startConnection();
@@ -311,7 +359,7 @@ else {
       builder: (context) => AlertDialog(
         
         title: const Text("Greška"),
-        content: Text(e.toString()),
+        content: const Text('Pogrešan email ili password.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
@@ -326,7 +374,7 @@ else {
                       child: const Text("Login",style: TextStyle(color: Colors.white),)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+                      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                       onPressed: () {

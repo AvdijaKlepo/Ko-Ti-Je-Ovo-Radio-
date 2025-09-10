@@ -32,6 +32,8 @@ namespace KoRadio.Model
 		public bool IsApplicant { get; set; }
 		public bool IsDeleted { get; set; }
 		public string? Address { get; set; }
+		public byte[]? StoreCatalogue { get; set; }
+		public DateTime? StoreCataloguePublish { get; set; }
 		public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 		public virtual Location Location { get; set; } = null!;
 

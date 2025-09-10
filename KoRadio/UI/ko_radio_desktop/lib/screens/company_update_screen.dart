@@ -16,6 +16,7 @@ import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class CompanyUpdateScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _CompanyUpdateScreenState extends State<CompanyUpdateScreen> {
     "bio":             company.bio,
     "phoneNumber":     company.phoneNumber,
     "experianceYears": company.experianceYears.toString(),
-    "workingDays":     company.workingDays?.map((d) => d.toString()).toList(),
+    "workingDays":      localizeWorkingDays(company.workingDays?.map((d) => d.toString()).toList()),
     "startTime":       DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute),
     "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute),
     "serviceId": company.companyServices
@@ -290,7 +291,7 @@ FormBuilderCheckboxGroup<String>(
   name: 'workingDays',
   decoration: const InputDecoration(labelText: "Radni dani",border: OutlineInputBorder()),
   options: [
-    'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday',
+    'Ponedjeljak','Utorak','Srijeda','Četvrtak','Petak','Subota','Nedjelja',
   ].map((e) => FormBuilderFieldOption(value: e)).toList(),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.minLength(1, errorText: "Odaberite bar jedan dan."),
@@ -397,7 +398,23 @@ FormBuilderDropdown<int>(
     request['rating'] = company.rating;
     request['companyId'] = company.companyId;
 
-    request['workingDays'] = (request['workingDays'] as List).map((e) => e.toString()).toList();
+const Map<String, String> dayOfWeekMapping = {
+      'Ponedjeljak': 'Monday',
+      'Utorak': 'Tuesday',
+      'Srijeda': 'Wednesday',
+      'Četvrtak': 'Thursday',
+      'Petak': 'Friday',
+      'Subota': 'Saturday',
+      'Nedjelja': 'Sunday',
+    };
+
+    // Convert the localized working day strings to English using the map.
+    request['workingDays'] = (request['workingDays'] as List<dynamic>)
+        .map((localizedDay) {
+          return dayOfWeekMapping[localizedDay.toString()];
+        })
+        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .toList();
     request['serviceId'] = (request['serviceId'] as List)
         .map((e) => int.tryParse(e.toString()) ?? 0)
         .toList();

@@ -323,7 +323,8 @@ Future<void> _loadRecommendedCompanies() async {
             const SizedBox(height: 12),
 if (view == Options.radnici) _buildRecommendedFreelancers(),
 if  (view == Options.firme) _buildRecommendedCompanies(),
-const SizedBox(height: 12),
+const Divider(height: 12,thickness: 2,),
+Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
            Expanded(
   child: RefreshIndicator(
     onRefresh: _refreshWithFilter,

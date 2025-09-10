@@ -33,6 +33,7 @@ namespace KoRadio.Model
 
 		public bool IsDeleted { get; set; }
 		public bool IsApplicant { get; set; }
+		public byte[]? BusinessCertificate { get; set; }
 
 
 		public virtual ICollection<CompanyService> CompanyServices { get; set; } = new List<CompanyService>();

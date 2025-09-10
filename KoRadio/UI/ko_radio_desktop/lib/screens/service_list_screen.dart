@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/service.dart';
+import 'package:ko_radio_desktop/models/user.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
@@ -206,20 +208,73 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 if (index < servicePagination.items.length) {
                                   final service = servicePagination.items[index];
                                   return ListTile(
-                                    title: Text(service.serviceName ?? ""),
-                                    leading: service.image != null
-                                        ? SizedBox(
-                                            width: 50,
-                                            height: 50,
-                                            child: imageFromString(service.image!),
-                                          )
-                                        : const Icon(Icons.miscellaneous_services),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () => _openServiceDialog(service: service),
-                                    ),
-                                    onTap: () => _openServiceDialog(service: service),
-                                  );
+  title: Text(service.serviceName ?? ""),
+  leading: service.image != null
+      ? SizedBox(
+          width: 50,
+          height: 50,
+          child: imageFromString(service.image!),
+        )
+      : const Icon(Icons.miscellaneous_services, size: 30),
+  trailing: Row(
+
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: const Icon(Icons.edit, size: 24),
+        tooltip: 'Uredi',
+        onPressed: () => _openServiceDialog(service: service),
+      ),
+      // Use SizedBox for consistent spacing between icons.
+      const SizedBox(width: 8), 
+      IconButton(
+        icon: const Icon(Icons.delete, size: 24),
+        tooltip: 'Obriši',
+        onPressed: () async {
+          showDialog(context: context, builder: (_) => AlertDialog(
+            title: const Text('Obriši?'),
+            content: const Text('Jeste li sigurni da želite obrisati ovu uslugu?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Ne'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final message = ScaffoldMessenger.of(context);
+                  final back = Navigator.of(context);
+                  try {
+                    await serviceProvider.delete(service.serviceId);
+                    await servicePagination.refresh(newFilter: {
+                  
+                    });
+                   message.showSnackBar(
+                      const SnackBar(content: Text("Usluga je uspješno obrisana.")),
+                    );
+                  } on UserException catch (e) {
+                    message.showSnackBar(
+                       SnackBar(content: Text(e.exMessage)),
+                    );
+                  }
+                  
+                   on Exception catch (e) {
+                    message.showSnackBar(
+                      const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                    );
+                  }
+                  back.pop();
+                },
+                child: const Text('Da'),
+              ),
+            ],
+          ));
+          
+        },
+      ),
+    ],
+  ),
+  onTap: () => _openServiceDialog(service: service),
+);
                                 } else {
                                   // loader for pagination
                                   servicePagination.loadMore();
@@ -237,7 +292,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
 
           const SizedBox(width: 24),
 
-          // LOCATIONS COLUMN
+      
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,13 +340,67 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 if (index < locationPagination.items.length) {
                                   final location = locationPagination.items[index];
                                   return ListTile(
-                                    title: Text(location.locationName ?? ""),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () => _openLocationDialog(location: location),
-                                    ),
-                                    onTap: () => _openLocationDialog(location: location),
-                                  );
+  title: Text(location.locationName ?? ""),
+  
+  trailing: Row(
+
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: const Icon(Icons.edit, size: 24),
+        tooltip: 'Uredi',
+        onPressed: () => _openLocationDialog(location: location),
+      ),
+      // Use SizedBox for consistent spacing between icons.
+      const SizedBox(width: 8), 
+      IconButton(
+        icon: const Icon(Icons.delete, size: 24),
+        tooltip: 'Obriši',
+        onPressed: () async {
+          showDialog(context: context, builder: (_) => AlertDialog(
+            title: const Text('Obriši?'),
+            content: const Text('Jeste li sigurni da želite obrisati ovu lokaciju?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Ne'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final message = ScaffoldMessenger.of(context);
+                  final back = Navigator.of(context);
+                  try {
+                    await locationProvider.delete(location.locationId!);
+                    await locationPagination.refresh(newFilter: {
+                  
+                    });
+                   message.showSnackBar(
+                      const SnackBar(content: Text("Lokacija je uspješno obrisana.")),
+                    );
+                  } on UserException catch (e) {
+                    message.showSnackBar(
+                       SnackBar(content: Text(e.exMessage)),
+                    );
+                  }
+                  
+                   on Exception catch (e) {
+                    message.showSnackBar(
+                      const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                    );
+                  }
+                  back.pop();
+                },
+                child: const Text('Da'),
+              ),
+            ],
+          ));
+          
+        },
+      ),
+    ],
+  ),
+  onTap: () => _openLocationDialog(location: location),
+);
                                 } else {
                                   locationPagination.loadMore();
                                   return const Padding(

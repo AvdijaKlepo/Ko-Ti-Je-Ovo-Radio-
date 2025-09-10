@@ -49,6 +49,33 @@ namespace KoRadio.Services
 				throw new UserException("Servis već postoji");
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
+		public override async Task BeforeDeleteAsync(Database.Service entity, CancellationToken cancellationToken)
+		{
+			var isUsedByFreelancer = await _context.FreelancerServices
+		   .AnyAsync(fs => fs.ServiceId == entity.ServiceId, cancellationToken);
+
+			var isUsedByCompany = await _context.CompanyServices
+				.AnyAsync(c => c.ServiceId == entity.ServiceId, cancellationToken);
+
+			var isUsedByJob = await _context.JobsServices
+				.AnyAsync(c => c.ServiceId == entity.ServiceId, cancellationToken);
+
+			var isUsedByProduct = await _context.ProductsServices
+				.AnyAsync(c => c.ServiceId == entity.ServiceId, cancellationToken);
+
+			// Check for usage by jobs
+
+
+			// Check for usage by companies (assuming you have a CompanyService table)
+			// var isUsedByCompany = await _context.CompanyServices
+			//     .AnyAsync(cs => cs.ServiceId == entity.ServiceId, cancellationToken);
+
+			if (isUsedByFreelancer ||  isUsedByCompany || isUsedByJob || isUsedByProduct)
+			{
+				throw new UserException("Ne možete izbrisati servisi koji se aktivno koristi od strane radnika ili firme, ili je dodijeljen poslu ili proizvodu.");
+			}
+			await  base.BeforeDeleteAsync(entity, cancellationToken);
+		}
 
 	
 	}

@@ -401,7 +401,10 @@ if (jobEnd != null) {
                 var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
 
-        
+        if(formData["jobDate"]==widget.job.jobDate && formData["dateFinished"]==widget.job.dateFinished){
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Niste napravili promjene.")));
+          return;
+        }
 
                 if (formData["jobDate"] is DateTime) {
                   formData["jobDate"] =
@@ -490,6 +493,7 @@ var jobInsertRequestApproved = {
                   "jobStatus": widget.job.jobStatus.name,
                   "serviceId": formData["serviceId"],
                   'isEdited':true,
+                  'isWorkerEdited':false
                 };
 
        

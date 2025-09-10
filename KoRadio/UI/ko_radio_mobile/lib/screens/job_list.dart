@@ -13,6 +13,7 @@ import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class JobList extends StatefulWidget {
   const JobList({super.key});
@@ -29,6 +30,12 @@ class _JobListState extends State<JobList> with TickerProviderStateMixin {
   int selectedIndex = 0;
   bool _isInitialized = false;
   bool _isLoading = false;
+  DateTime _focusedDay = DateTime.now();
+DateTime? _selectedDay;
+Map<DateTime, List<Job>> jobsByDate = {};
+ExpansionTileController _expansionTileController = ExpansionTileController();
+
+
   final isUser = AuthProvider.selectedRole=="User";
   final isFreelancer = AuthProvider.selectedRole=="Freelancer";
   final isCompanyEmployee= AuthProvider.selectedRole=="CompanyEmployee";
@@ -65,6 +72,18 @@ Map<String, dynamic> filterMap(JobStatus status)  {
 
     jobStatus = jobStatuses[selectedIndex];
     jobProvider = context.read<JobProvider>();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100 &&
+          jobsPagination.hasNextPage &&
+          !jobsPagination.isLoading) {
+        jobsPagination.loadMore();
+      }
+    });
+     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading=true;
+      });
 
     jobsPagination = PaginatedFetcher<Job>(
       pageSize: 5,
@@ -91,29 +110,22 @@ Map<String, dynamic> filterMap(JobStatus status)  {
         );
         return PaginatedResult(result: result.result, count: result.count);
       },
-    )..addListener(() =>setState(() {
-     if(mounted) setState(() {});
-    }));
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100 &&
-          jobsPagination.hasNextPage &&
-          !jobsPagination.isLoading) {
-        jobsPagination.loadMore();
-      }
+    );
+    jobsPagination.addListener(() {
+      if (mounted) setState(() {});
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setState(() {
-        _isLoading=true;
-      });
+
+
+
       await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
        if(!mounted) return;
       setState(() {
         _isInitialized = true;
         _isLoading=false;
       });
+      await _loadJobs();
+      
     });
    }
 
@@ -125,7 +137,25 @@ Map<String, dynamic> filterMap(JobStatus status)  {
   }
      
   
-   
+   Future<void> _loadJobs() async {
+  final result = await jobProvider.get(filter: filterMap(jobStatuses[selectedIndex]));
+  
+  if (!mounted) return;
+
+  setState(() {
+    jobsPagination.items = result.result;
+    jobsByDate.clear();
+
+    for (var job in result.result) {
+      final day = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
+      jobsByDate.putIfAbsent(day, () => []).add(job);
+    }
+
+    _isInitialized = true;
+    _isLoading = false;
+  });
+}
+
 
   
 
@@ -182,6 +212,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                     selectedIndex = index;
                     jobStatus = jobStatuses[index];
                     _isLoading=true;
+                    _expansionTileController.collapse();
                     
                   });
 
@@ -214,6 +245,95 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
+            ExpansionTile(
+              controller: _expansionTileController,
+              title: const Text('Kalendar'),
+              children:[ Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TableCalendar(
+                    locale: 'bs',
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    calendarFormat: CalendarFormat.week,
+                    startingDayOfWeek: StartingDayOfWeek.monday,
+                    headerStyle: const HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                    ),
+                    calendarStyle: const CalendarStyle(
+                      todayDecoration: BoxDecoration(
+                        color: Color.fromRGBO(27, 76, 125, 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: Color.fromRGBO(27, 76, 125, 1),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedTextStyle: TextStyle(color: Colors.white),
+                    ),
+                    eventLoader: (day) {
+                      final normalized = DateTime(day.year, day.month, day.day);
+                      return jobsByDate[normalized] ?? [];
+                    },
+                    onDaySelected: (selectedDay, focusedDay) async {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                        _isLoading = true;
+                      });
+              
+                      // fetch all jobs for the active tab
+                      final result = await jobProvider.get(
+                        filter: filterMap(jobStatuses[selectedIndex]),
+                      );
+              
+                      if (!mounted) return;
+                      setState(() {
+                        jobsPagination.items = result.result
+                .where((job) => isSameDay(job.jobDate, selectedDay))
+                .toList();
+                        _isLoading = false;
+                      });
+                    },
+                    onPageChanged: (focusedDay) => _focusedDay = focusedDay,
+                    calendarBuilders: CalendarBuilders(
+                      markerBuilder: (context, day, events) {
+                        if (events.isNotEmpty) {
+              return Positioned(
+                bottom: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${events.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              );
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              ]
+            ),
+
+const SizedBox(height: 16),
+
               Expanded(
                 child: TabBarView(
                   physics: const NeverScrollableScrollPhysics(), 
@@ -331,9 +451,11 @@ Map<String, dynamic> filterMap(JobStatus status)  {
               await Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => destination));
 
+              if(!mounted) return;
               setState(() => _isLoading = true);
               await jobsPagination
                   .refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+              if(!mounted) return;
               setState(() => _isLoading = false);
             },
             leading: CircleAvatar(
@@ -367,7 +489,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                       "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}",
                       style: TextStyle(color: textColor),
                     ),
-                  if (isFreelancerJob)
+                  if (isFreelancerJob && AuthProvider.selectedRole == "User")
                     Text(
                       "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
                       style: TextStyle(color: textColor),
@@ -378,6 +500,23 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                       style: TextStyle(color: textColor),
                     ),
                   const SizedBox(height: 4),
+                  if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                  Row(
+                    children: [
+                      Icon(
+                        job.jobStatus==JobStatus.approved ?? false ?Icons.check_circle : Icons.cancel,
+                        size: 16,
+                        color: job.jobStatus==JobStatus.approved ?? false ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        job.jobStatus==JobStatus.approved ?? false ? "Odobren" : "Nije odobren",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, color: textColor),
+                      ),
+                    ],
+                  ),
+                  if(job.jobStatus==JobStatus.finished)
                   Row(
                     children: [
                       Icon(

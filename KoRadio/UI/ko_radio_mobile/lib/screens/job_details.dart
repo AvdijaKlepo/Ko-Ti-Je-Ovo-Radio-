@@ -148,7 +148,7 @@ class _JobDetailsState extends State<JobDetails> {
     return AlertDialog(
       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
-      content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
+      content: const Text('Jeste li sigurni da želite da otkažete ovaj posao?',style: TextStyle(color: Colors.white),),
       actions: [
         TextButton(
           style: TextButton.styleFrom(
@@ -165,54 +165,41 @@ class _JobDetailsState extends State<JobDetails> {
                 borderRadius: BorderRadius.circular(12)),
           ),
             onPressed: () async {
+              final message = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
                 var jobUpdateRequest = {
-                "userId": widget.job.user?.userId,
-                "freelancerId": widget.job.freelancer?.freelancerId,
-                "companyId": widget.job.company?.companyId,
-                "jobTitle": widget.job.jobTitle,
-                "isTenderFinalized": false,
-                "isFreelancer": true,
-                "isInvoiced": false,
-                "isRated": false,
-                "startEstimate": widget.job.startEstimate,
-                "endEstimate": widget.job.endEstimate,  
-                "payEstimate": widget.job.payEstimate,
-                "payInvoice": widget.job.payInvoice,
-                "jobDate": widget.job.jobDate.toIso8601String(),
-                "dateFinished": widget.job.dateFinished,
-                "jobDescription": widget.job.jobDescription,
-                "image": widget.job.image,
-                "jobStatus": JobStatus.cancelled.name,
-                "serviceId": widget.job.jobsServices
-                        ?.map((e) => e.service?.serviceId)
-                        .toList(),
+               
+               
+                "jobStatus": JobStatus.cancelled.name
+                
           };
           var messageRequest = {
-                'message1': "Posao ${widget.job.jobTitle} zakazan za  ${DateFormat('dd-MM-yyyy').format(widget.job.jobDate)} je oktazan od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
-                'userId': widget.job.freelancer?.freelancerId,
-                'createdAt': DateTime.now().toIso8601String(),
-                'isOpened': false,
-              };
-              try{
-                await messagesProvider.insert(messageRequest);
-              } on Exception catch (e) {
-                if(!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja notifikacije: ${e.toString()}')));
-              }
+            'message1': "Korisnik ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName} je otkazao posao ${widget.job.jobTitle}",
+            'userId': AuthProvider.user?.userId,
+            'createdAt': DateTime.now().toIso8601String(),
+            'isOpened': false,
+          };
+          
+         
+            
               try {
-            jobProvider.update(widget.job.jobId,
+                
+            await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
-            Navigator.pop(context,true);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
+            await messagesProvider.insert(messageRequest);
             
+            message.showSnackBar(const SnackBar(content: Text('Posao otkazan.')));
+        
             
           } on Exception catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
+            message.showSnackBar(const SnackBar(content: Text('Greška tokom otkazivanja. Pokušajte ponovo.')));
                
-         Navigator.pop(context,true);
+      
 
           }
+          navigator.pop();
+          navigator.pop();
             },
             child: const Text("Otkaži",style: TextStyle(color: Colors.white),),
             ),
@@ -220,16 +207,16 @@ class _JobDetailsState extends State<JobDetails> {
     );
   }
   String formatPhoneNumber(String phone) {
-  // Step 1: Replace +387 at the start with 0
+
   String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
 
-  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+
   normalized = normalized.replaceAll(RegExp(r'\D'), '');
 
-  // Step 3: Ensure we only format if we have at least 9 digits
+
   if (normalized.length < 9) return normalized;
 
-  // Step 4: Insert dashes in 3-3-3 format
+
   String part1 = normalized.substring(0, 3);
   String part2 = normalized.substring(3, 6);
   String part3 = normalized.substring(6, 9);
@@ -238,9 +225,17 @@ class _JobDetailsState extends State<JobDetails> {
 }
 
 
+
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd-MM-yyyy');
+    final dateFormat = DateFormat('dd.MM.yyyy');
+    final job = jobResult.result.first;
+
+final daysInRange = getWorkingDaysInRange(
+  jobDate: job.jobDate,
+  dateFinished: job.dateFinished!,
+  workingDays:  job.freelancer?.workingDays ?? [],
+);
   
 
     return Scaffold(
@@ -339,17 +334,21 @@ class _JobDetailsState extends State<JobDetails> {
 ],
                     
                   
-                  _sectionTitle('Radne specifikacije'),
+                 _sectionTitle('Radne specifikacije'),
                   _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
-                  _buildDetailRow('Servis', jobResult.result.first.jobsServices
+                  _buildDetailRow('Servis', widget.job.jobsServices
                           ?.map((e) => e.service?.serviceName)
                           .where((e) => e != null)
                           .join(', ') ??
                       'N/A'),
+                 
                   _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
-                  jobResult.result.first.freelancer?.freelancerId!=null ?
-                  _buildDetailRow('Vrijeme početka', jobResult.result.first.startEstimate.toString().substring(0,5) ?? ''):
-                  _buildDetailRow('Datum završetka radova', jobResult.result.first.dateFinished!=null ? dateFormat.format(jobResult.result.first.dateFinished!) : 'Nije unesen'),
+                  if(jobResult.result.first.dateFinished!=null)
+                  _buildDetailRow('Datum završetka', dateFormat.format(jobResult.result.first.dateFinished!)),
+                  if(jobResult.result.first.dateFinished!=null)
+                 _buildDetailRow('Radni dani',  daysInRange.join(', ')),
+                  _buildDetailRow('Vrijeme početka', jobResult.result.first.startEstimate.toString().substring(0,5) ?? ''),
+                 
                   if(jobResult.result.first.freelancer?.freelancerId!=null)
                   _buildDetailRow('Vrijeme završetka',
                  jobResult.result.first.endEstimate!=null ?
@@ -474,6 +473,7 @@ class _JobDetailsState extends State<JobDetails> {
                             .toList(),
                     'isEdited':false,
                     'rescheduleNote': null,
+                    'isWorkerEdited':false
                    
                   };
                     
@@ -512,8 +512,9 @@ class _JobDetailsState extends State<JobDetails> {
                   "serviceId": widget.job.jobsServices
                           ?.map((e) => e.service?.serviceId)
                           .toList(),
-                  'isEdited':false,
-                  'rescheduleNote': null,
+                    'isEdited':false,
+                    'rescheduleNote': null,
+                    'isWorkerEdited':false
                  
                 };
                   await jobProvider.update(widget.job.jobId,jobInsertCompanyRequestApproved);
@@ -615,12 +616,13 @@ class _JobDetailsState extends State<JobDetails> {
                     '${userRatingsResult?.result.first.rating}'),
 
                   const SizedBox(height: 30),
-                  
+                    if(AuthProvider.selectedRole!="CompanyEmployee")
                     Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if(widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved)
+                      if(widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved
+                      )
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -790,9 +792,9 @@ class _JobDetailsState extends State<JobDetails> {
                   'jobDate': widget.job.jobDate.toIso8601String(),
                   'IsTenderFinalized':false,
                   'payInvoice': widget.job.payInvoice,
-                  'isinvoiced':true,
+                  'isInvoiced':true,
                   'isRated':false,
-                  'dateFinished': widget.job.dateFinished,
+                  'dateFinished': widget.job.dateFinished?.toIso8601String(),
                 
            
                   'jobStatus': JobStatus.finished.name,
@@ -822,7 +824,7 @@ ScaffoldMessenger.of(context).showSnackBar(
                                     catch(e){
                                
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text("Greška tokom plaćanja")),
+                                         SnackBar(content: Text("Greška tokom plaćanja.${e.toString()}")),
                                       );
                                       
                                       Navigator.of(context).pop();
@@ -940,6 +942,7 @@ ScaffoldMessenger.of(context).showSnackBar(
               "rating": _rating,
               "companyId": widget.job.company?.companyId,
             });
+            await _getUserRatings();
 
             var request = {
               'jobTitle': widget.job.jobTitle,
@@ -947,7 +950,7 @@ ScaffoldMessenger.of(context).showSnackBar(
               'payEstimate': widget.job.payEstimate,
               'freelancerId': widget.job.freelancer?.freelancerId,
               'companyId': widget.job.company?.companyId,
-              'dateFinished': widget.job.dateFinished,
+              'dateFinished': widget.job.dateFinished?.toIso8601String(),
               'startEstimate': widget.job.startEstimate,
               'userId': widget.job.user?.userId,
               'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class _EditJobState extends State<EditJob> {
   List<Job>? _currentBookedJobs;
   late Set<int> _workingDayInts;
   bool isLoading = false;
+  Uint8List? _decodedImage;
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
     'Tuesday': 2,
@@ -102,6 +104,18 @@ void patchStartEnd(TimeOfDay? startTod, {required Duration duration}) {
     _formKey.currentState?.patchValue({'startEstimate': startTod, 'endEstimate': end});
   });
 }
+Future<void> _pickImage() async {
+  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+      _decodedImage = null; 
+    });
+  }
+}
+
 
 
   Map<String, dynamic> _buildInitialValues(Job job) {
@@ -146,6 +160,13 @@ void patchStartEnd(TimeOfDay? startTod, {required Duration duration}) {
     serviceProvider = context.read<ServiceProvider>();
     messagesProvider = context.read<MessagesProvider>(); 
     freelancerProvider = context.read<FreelancerProvider>();
+     if (widget.job.image != null) {
+    try {
+      _decodedImage = base64Decode(widget.job.image!);
+    } catch (_) {
+      _decodedImage = null;
+    }
+  }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       setState(() {
         isLoading = true;
@@ -469,7 +490,7 @@ if (jobStartTime != null && jobEndTime != null) {
                 ),
                 const SizedBox(height: 15),
                 FormBuilderCheckboxGroup<int>(
-                  enabled: widget.job.jobStatus == JobStatus.approved ? false: true,
+               
                   name: "serviceId",
                   decoration: const InputDecoration(
                     labelText: "Servis",
@@ -510,88 +531,60 @@ if (jobStartTime != null && jobEndTime != null) {
                 const SizedBox(
                   height: 15,
                 ),
-                FormBuilderField(
-                  name: "image",
-                  enabled: AuthProvider.user?.freelancer?.freelancerId != null
-                      ? false
-                      : true,
-                  builder: (field) {
-                    return InputDecorator(
-                      decoration: InputDecoration(
-                        enabled:
-                            AuthProvider.user?.freelancer?.freelancerId != null
-                                ? false
-                                : true,
-                        labelText: "Proslijedite sliku problema",
-                        border: const OutlineInputBorder(),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.image),
-                            title: _image != null
-                                ? Text(_image!.path.split('/').last)
-                                : widget.job.image != null
-                                    ? const Text('Proslijeđena slika')
-                                    : const Text("Nema proslijeđene slike"),
-                            trailing: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AuthProvider
-                                            .user?.freelancer?.freelancerId ==
-                                        null
-                                    ? const Color.fromRGBO(27, 76, 125, 1)
-                                    : Colors.grey,
-                                textStyle: AuthProvider
-                                            .user?.freelancer?.freelancerId ==
-                                        null
-                                    ? const TextStyle(color: Colors.white)
-                                    : const TextStyle(color: Colors.grey),
-                              ),
-                              icon: const Icon(Icons.file_upload,
-                                  color: Colors.white),
-                              label: widget.job.image != null
-                                  ? const Text('Promijeni sliku',
-                                      style: TextStyle(color: Colors.white))
-                                  : _image == null
-                                      ? const Text("Odaberi",
-                                          style: TextStyle(color: Colors.white))
-                                      : const Text("Promijeni sliku",
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                              onPressed: () => AuthProvider
-                                          .user?.freelancer?.freelancerId ==
-                                      null
-                                  ? getImage(field)
-                                  : ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "Sliku može promijeniti samo korisnik."))),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          _image != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.file(
-                                    _image!,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : widget.job.image != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: imageFromString(
-                                          widget.job.image ?? '',
-                                          fit: BoxFit.cover),
-                                    )
-                                  : const SizedBox.shrink(),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+               FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Proslijedite sliku problema",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image),
+            title: _image != null
+                ? Text(_image!.path.split('/').last)
+                : widget.job.image != null
+                    ? const Text('Proslijeđena slika')
+                    : const Text("Nema proslijeđene slike"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _image == null && widget.job.image == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickImage(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _image!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else if (_decodedImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                _decodedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
+        ],
+      ),
+    );
+  },
+),
                 const SizedBox(height: 20),
               ],
             )),
@@ -674,11 +667,11 @@ if (jobStartTime != null && jobEndTime != null) {
                 String? formattedEndEstimate;
 
                 if (endEstimateValue is DateTime) {
-                  // Convert DateTime to HH:mm:ss
+            
                   formattedEndEstimate =
                       "${endEstimateValue.hour.toString().padLeft(2, '0')}:${endEstimateValue.minute.toString().padLeft(2, '0')}:${endEstimateValue.second.toString().padLeft(2, '0')}";
                 } else if (endEstimateValue is String) {
-                  // Already formatted string
+           
                   formattedEndEstimate = endEstimateValue;
                 }
 
@@ -686,7 +679,7 @@ if (jobStartTime != null && jobEndTime != null) {
                   var jobInsertRequest = {
                     "userId": widget.job.user?.userId,
                     "freelancerId": widget.job.freelancer?.freelancerId,
-                    "companyId": widget.job.company?.companyId,
+                    "companyId": null,
                     "jobTitle": values["jobTitle"],
                     "isTenderFinalized": false,
                     "isFreelancer": true,
@@ -707,18 +700,12 @@ if (jobStartTime != null && jobEndTime != null) {
                   try {
                     await jobProvider.update(
                         widget.job.jobId, jobInsertRequest);
-                    await messagesProvider.insert({
-                      'message1':
-                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
-                      'userId': widget.job.freelancer?.freelancerId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
+                  
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Posao uređen i radnik obaviješten.')));
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Greška tokom slanja: ${e.toString()}')));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
                   }
 
                   if (!mounted) return;
@@ -729,7 +716,7 @@ if (jobStartTime != null && jobEndTime != null) {
                   var jobInsertRequestEdited = {
                     "userId": widget.job.user?.userId,
                     "freelancerId": widget.job.freelancer?.freelancerId,
-                    "companyId": widget.job.company?.companyId,
+                    "companyId": null,
                     "jobTitle": values["jobTitle"],
                     "isTenderFinalized": false,
                     "isFreelancer": true,
@@ -746,24 +733,19 @@ if (jobStartTime != null && jobEndTime != null) {
                     "jobStatus": JobStatus.approved.name,
                     "serviceId": values["serviceId"],
                     'isEdited':true,
+                    'isWorkerEdited':false
                   };
                   try {
                     await jobProvider.update(
                         widget.job.jobId, jobInsertRequestEdited);
-                    print(jobInsertRequestEdited);
-                    await messagesProvider.insert({
-                      'message1':
-                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
-                      'userId': widget.job.freelancer?.freelancerId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
+                 
+                    
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Posao uređen i radnik obaviješten.')));
                     Navigator.pop(context, true);
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Greška tokom slanja: ${e.toString()}')));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
                   }
                   if (!mounted) return;
                   Navigator.of(context).pop();

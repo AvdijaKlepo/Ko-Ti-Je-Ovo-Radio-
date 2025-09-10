@@ -12,6 +12,13 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       ..productName = json['productName'] as String?
       ..productDescription = json['productDescription'] as String?
       ..price = (json['price'] as num?)?.toDouble()
+      ..stockQuantity = (json['stockQuantity'] as num?)?.toInt()
+      ..isOnSale = json['isOnSale'] as bool?
+      ..salePrice = (json['salePrice'] as num?)?.toDouble()
+      ..isOutOfStock = json['isOutOfStock'] as bool?
+      ..saleExpires = json['saleExpires'] == null
+          ? null
+          : DateTime.parse(json['saleExpires'] as String)
       ..isDeleted = json['isDeleted'] as bool?
       ..image = json['image'] as String?
       ..store = json['store'] == null
@@ -29,6 +36,11 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'productName': instance.productName,
       'productDescription': instance.productDescription,
       'price': instance.price,
+      'stockQuantity': instance.stockQuantity,
+      'isOnSale': instance.isOnSale,
+      'salePrice': instance.salePrice,
+      'isOutOfStock': instance.isOutOfStock,
+      'saleExpires': instance.saleExpires?.toIso8601String(),
       'isDeleted': instance.isDeleted,
       'image': instance.image,
       'store': instance.store,

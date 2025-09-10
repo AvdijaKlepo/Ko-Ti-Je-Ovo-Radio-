@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -32,6 +36,8 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
 
   SearchResult<Service>? serviceResult;
   SearchResult<Location>? locationResult;
+    File? _pdfFile;
+String? _base64Pdf;
 
   @override
   void initState() {
@@ -60,8 +66,30 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
       serviceResult = services;
     });
   }
+  Future<void> _pickPdf() async {
+  var result = await FilePicker.platform.pickFiles(
+  type: FileType.custom,
+  allowedExtensions: ['pdf'],
+  withData: true,
+);
+final message = ScaffoldMessenger.of(context);
+if (result != null && result.files.single.path != null) {
+  final filePath = result.files.single.path!;
+  if (!filePath.toLowerCase().endsWith('.pdf')) {
+    message.showSnackBar(
+      const SnackBar(content: Text("Dozvoljen je samo PDF dokument")),
+    );
+    return;
+  }
 
-  void _onSave() {
+  setState(() {
+    _pdfFile = File(filePath);
+    _base64Pdf = base64Encode(_pdfFile!.readAsBytesSync());
+  });
+}
+  }
+
+  void _onSave() async {
     final isValid = _formKey.currentState?.saveAndValidate() ?? false;
 
   if (!isValid) {
@@ -76,18 +104,27 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
     if (formData["endTime"] is DateTime) {
       formData["endTime"] = (formData["endTime"] as DateTime).toIso8601String().substring(11, 19);
     }
+     if (_base64Pdf != null) {
+    formData['cv'] = _base64Pdf; 
+  }
 
-    Map<String, int> dayMap = {
-      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
-      'Thursday': 4, 'Friday': 5, 'Saturday': 6,
+   const Map<String, String> dayOfWeekMapping = {
+      'Ponedjeljak': 'Monday',
+      'Utorak': 'Tuesday',
+      'Srijeda': 'Wednesday',
+      'Četvrtak': 'Thursday',
+      'Petak': 'Friday',
+      'Subota': 'Saturday',
+      'Nedjelja': 'Sunday',
     };
 
-    if (formData["workingDays"] != null) {
-      formData["workingDays"] = (formData["workingDays"] as List<String>)
-          .map((day) => dayMap[day])
-          .whereType<int>()
-          .toList();
-    }
+    // Convert the localized working day strings to English using the map.
+    formData['workingDays'] = (formData['workingDays'] as List<dynamic>)
+        .map((localizedDay) {
+          return dayOfWeekMapping[localizedDay.toString()];
+        })
+        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .toList();
 
     formData['freelancerId'] = AuthProvider.user?.userId ?? 0;
 
@@ -102,16 +139,23 @@ class _UserFreelancerApplyState extends State<UserFreelancerApply> {
         : (selectedServices != null
             ? [int.tryParse(selectedServices.toString()) ?? 0]
             : []);
-
+  final message = ScaffoldMessenger.of(context);
+  final navigator = Navigator.of(context);
     try {
-      freelancerProvider.insert(formData);
-      Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      await freelancerProvider.insert(formData);
+      navigator.pop(true);
+      message.showSnackBar(const SnackBar(
           content: Text("Prijava poslana!")));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Greška prilikom prijave! Pokušajte ponovo.")));
-      Navigator.of(context).pop(false);
+    } on UserException catch (e) {
+      message.showSnackBar(SnackBar(content: Text(e.exMessage)));
+      navigator.pop(false);
+      
+    }
+    
+    on Exception catch (e) {
+      message.showSnackBar(const SnackBar(
+          content: Text("Več ste poslali prijavu za radnika!")));
+    
 
     }
 
@@ -175,13 +219,13 @@ FormBuilderCheckboxGroup<String>(
     border: InputBorder.none,
   ),
   options: [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    'Nedjelja',
+    'Ponedjeljak',
+    'Utorak',
+    'Srijeda',
+    'Četvrtak',
+    'Petak',
+    'Subota',
   ].map((e) => FormBuilderFieldOption(value: e)).toList(),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
@@ -273,6 +317,47 @@ Padding(
 ),
 
               spacing,
+     
+FormBuilderField(
+  
+  name: "cv",
+  validator: (val) {
+    if (_pdfFile == null) {
+      return "Obavezno je učitati PDF dokument";
+    }
+    return null;
+  },
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "CV (PDF)",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+            title: _pdfFile != null
+                ? Text(_pdfFile!.path.split('/').last)
+                : const Text("Nema učitanog PDF dokumenta"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _pdfFile == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickPdf(),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -17,6 +17,12 @@ class Store{
   String? address;
   String? image;
   String? businessCertificate;
+  double? rating;
+  List<String>? workingDays;
+  String? startTime;
+  String? endTime;
+  DateTime? storeCataloguePublish;
+
 
   Store({
     required this.storeId,

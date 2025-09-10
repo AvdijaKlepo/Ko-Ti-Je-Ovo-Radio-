@@ -11,6 +11,8 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/approve_job.dart';
 import 'package:ko_radio_mobile/screens/job_details.dart';
 import 'package:provider/provider.dart';
+import 'package:date_picker_timeline/date_picker_timeline.dart';
+
 
 enum JobViewOption { unapproved, approved }
 
@@ -37,6 +39,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
 
         _jobProvider = context.read<JobProvider>();
         _selectedOption = JobViewOption.unapproved;
+      
 
         jobPagination = PaginatedFetcher<Job>(
           pageSize: 5,
@@ -44,13 +47,13 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           
            {
             'FreelancerId': AuthProvider.freelancer?.freelancerId,
-            'JobDate': _now.toIso8601String().split('T')[0],
+            'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
             'OrderBy': 'desc',
             'isDeleted': false,
           } : {
-            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
             'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
@@ -65,7 +68,7 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
             final result = await _jobProvider.get(
               page: page,
               pageSize: pageSize,
-              filter: filter,
+              filter: filter
             );
             return PaginatedResult(result: result.result, count: result.count);
           },
@@ -92,7 +95,23 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
       setState(() {
         _isLoading=true;
       });
-      await jobPagination.refresh();
+      await jobPagination.refresh(newFilter:AuthProvider.selectedRole == "Freelancer" ?
+          
+           {
+            'FreelancerId': AuthProvider.freelancer?.freelancerId,
+            'DateRange': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          } : {
+            'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+            'DateRange': _now.toIso8601String().split('T')[0],
+            'JobStatus': _selectedOption.name,
+            'isTenderFinalized': false,
+            'OrderBy': 'desc',
+            'isDeleted': false,
+          },);
       setState(() {
         _isInitialized = true;
         _isLoading=false;
@@ -140,13 +159,13 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           
            {
             'FreelancerId': AuthProvider.freelancer?.freelancerId,
-            'JobDate': _now.toIso8601String().split('T')[0],
+            'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
             'OrderBy': 'desc',
             'isDeleted': false,
           } : {
-            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
             'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
@@ -170,100 +189,45 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child:
-               
-                  
-                   Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-                     children: [
-                       Text(
-                        'Raspored za ${DateFormat('dd-MM-yyyy').format(_now)}',   ),
-                        
+                SizedBox(
+  width: double.infinity, // take full width
+  height: 100,            // prevent vertical overflow
+  child: DatePicker(
+    locale: 'bs',
+    DateTime.now().subtract(const Duration(days: 2)),
+    initialSelectedDate: _now,
+    selectionColor: const Color.fromRGBO(27, 76, 125, 1),
+    selectedTextColor: Colors.white,
+    daysCount: 30,
+    onDateChange: (date) async {
+      setState(() {
+        _now = date;
+        _isLoading = true;
+      });
 
-                       IconButton(
-                        iconSize: 20,
-      icon: const Icon(Icons.edit_calendar,color: Color.fromRGBO(27, 76, 125, 25),),
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 0),
+      await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer"
+          ? {
+              'FreelancerId': AuthProvider.freelancer?.freelancerId,
+              'DateRange': _now.toIso8601String().split('T')[0],
+              'JobStatus': _selectedOption.name,
+              'isTenderFinalized': false,
+              'OrderBy': 'desc',
+              'isDeleted': false,
+            }
+          : {
+              'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+              'DateRange': _now.toIso8601String().split('T')[0],
+              'JobStatus': _selectedOption.name,
+              'isTenderFinalized': false,
+              'OrderBy': 'desc',
+              'isDeleted': false,
+            });
 
-      tooltip: 'Promijeni datum',
-  onPressed: () {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Izaberi datum', style: TextStyle(fontWeight: FontWeight.bold)),
-              FormBuilderDateTimePicker(
-                name: 'jobDate',
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: 365)),
-                inputType: InputType.date,
-                initialValue: _now,
-                onChanged: (value) async {
-                  if (value != null) {
-                    setState(() {
-                      _now = value;
-                      _isLoading = true;
-                    });
-
-                    await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer" ?
-          
-           {
-            'FreelancerId': AuthProvider.freelancer?.freelancerId,
-            'JobDate': _now.toIso8601String().split('T')[0],
-            'JobStatus': _selectedOption.name,
-            'isTenderFinalized': false,
-            'OrderBy': 'desc',
-            'isDeleted': false,
-          } : {
-            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
-            'DateRange': _now.toIso8601String().split('T')[0],
-            'JobStatus': _selectedOption.name,
-            'isTenderFinalized': false,
-            'OrderBy': 'desc',
-            'isDeleted': false,
-          },);
-
-                    setState(() {
-                      _isLoading = false;
-                    });
-
-                    Navigator.of(context).pop(); // Close sheet after applying
-                  }
-                },
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Nazad'),
-              )
-            ],
-          ),
-        );
-      },
-    );
-  },
-  
-  style: IconButton.styleFrom(
-    backgroundColor:  Colors.white,
-    shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(3)),
-    
-
+      setState(() => _isLoading = false);
+    },
   ),
 ),
 
-                     ],
-                   ),
-                  
-                ),
                 SizedBox(height: 10,), 
                 Center(
                   child: SegmentedButton<JobViewOption>(
@@ -321,9 +285,22 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
                     controller: _scrollController,
                     itemCount: jobPagination.items.length + (jobPagination.hasNextPage ? 1 : 0),
                     itemBuilder: (context, index) {
+                      
     
                      
                       final job = jobPagination.items[index];
+                     
+
+      final isCompanyJob = job.company?.companyId != null;
+      final isFreelancerJob = job.freelancer?.freelancerId != null;
+      final isUserJob = job.user != null;
+
+      final isDark = job.isEdited == false && job.isWorkerEdited == false;
+
+      final cardColor = isDark
+          ? const Color.fromRGBO(27, 76, 125, 1)
+          : Colors.white;
+      final textColor = isDark ? Colors.white : Colors.black87;
                       return Card(
       color: const Color.fromRGBO(27, 76, 125, 25),
       elevation: 2,
@@ -374,13 +351,13 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           
            {
             'FreelancerId': AuthProvider.freelancer?.freelancerId,
-            'JobDate': _now.toIso8601String().split('T')[0],
+            'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
             'OrderBy': 'desc',
             'isDeleted': false,
           } : {
-            'CompanyEmployeeId': AuthProvider.user?.companyEmployees?.first.companyEmployeeId,
+            'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
             'DateRange': _now.toIso8601String().split('T')[0],
             'JobStatus': _selectedOption.name,
             'isTenderFinalized': false,
@@ -389,22 +366,93 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           },);
            
           },
-          leading: const Icon(Icons.info_outline, color: Colors.white),
-          title: Text(
-            "Datum: ${DateFormat('dd-MM-yyyy').format(job.jobDate)}",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          leading: CircleAvatar(
+              backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
+              child: Icon(
+                isCompanyJob
+                    ? Icons.business_outlined
+                    : Icons.construction_outlined,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            title: Text(
+              job.jobTitle!,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: textColor,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                    style: TextStyle(color: textColor),
+                  ),
+                  if (isUserJob && AuthProvider.selectedRole == "Freelancer")
+                    Text(
+                      "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}",
+                      style: TextStyle(color: textColor),
+                    ),
+                  if (isFreelancerJob && AuthProvider.selectedRole == "User")
+                    Text(
+                      "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                      style: TextStyle(color: textColor),
+                    ),
+                  if (isCompanyJob)
+                    Text(
+                      "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                      style: TextStyle(color: textColor),
+                    ),
+                  const SizedBox(height: 4),
+                  if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                  Row(
+                    children: [
+                      Icon(
+                        job.jobStatus==JobStatus.approved ?? false ?Icons.check_circle : Icons.cancel,
+                        size: 16,
+                        color: job.jobStatus==JobStatus.approved ?? false ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        job.jobStatus==JobStatus.approved ?? false ? "Odobren" : "Nije odobren",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, color: textColor),
+                      ),
+                    ],
+                  ),
+                  if(job.jobStatus==JobStatus.finished)
+                  Row(
+                    children: [
+                      Icon(
+                        job.isInvoiced ?? false ? Icons.check_circle : Icons.cancel,
+                        size: 16,
+                        color: job.isInvoiced ?? false ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        job.isInvoiced ?? false ? "Plaćen" : "Nije plaćen",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, color: textColor),
+                      ),
+                      if (job.isEdited == true || job.isWorkerEdited == true) ...[
+                        const SizedBox(width: 8),
+                        Chip(
+                          label: const Text("Uređen"),
+                          backgroundColor: Colors.orange.shade100,
+                          labelStyle: const TextStyle(color: Colors.black87),
+                          visualDensity: VisualDensity.compact,
+                        )
+                      ]
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          subtitle: job.user != null
-              ? Text(
-                  "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}\n${job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen'}",
-                  style: const TextStyle(color: Colors.white),
-                )
-              : null,
-          trailing: const Icon(Icons.construction_outlined, color: Colors.white),
-        ),
       ),
     );;
                     },

@@ -29,10 +29,6 @@ C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\Avdija\Documents\Razvoj Softvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\Subscriber.csproj.Up2Date
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.exe
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.deps.json
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.runtimeconfig.json
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.dll
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.pdb
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\DotNetEnv.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\EasyNetQ.dll
@@ -56,5 +52,9 @@ C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\Subscriber.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\refint\Subscriber.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\Subscriber.pdb
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.deps.json
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.runtimeconfig.json
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\bin\Debug\net8.0\Subscriber.pdb
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\Subscriber.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\Subscriber\obj\Debug\net8.0\ref\Subscriber.dll

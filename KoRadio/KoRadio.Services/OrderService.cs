@@ -88,21 +88,29 @@ namespace KoRadio.Services
 		}
 		public override async Task BeforeUpdateAsync(OrderUpdateRequest request, Order entity, CancellationToken cancellationToken = default)
 		{
-			
+			string notification;
+
 			var order = await _context.Orders
 				.Include(x => x.User)
 				.FirstOrDefaultAsync(x => x.OrderId == entity.OrderId, cancellationToken);
 
 			if (request.IsShipped == true && entity.IsShipped == false)
 			{
-				await _rabbitMQService.SendEmail(new Email
+				notification = $"Vaša narudžba broj #{order.OrderNumber} je poslana.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
 				{
-					EmailTo = order.User.Email,
-					Message = $"Poštovani, vaša narudžba broja {entity.OrderNumber} je poslana na vašu adresu." +
-					"Očekujte je u slijedećih par dana. Lijep pozdrav",
-					ReceiverName = $"{order.User.FirstName} {order.User.LastName}",
-					Subject = "Stanje narudžbe"
-				});
+					Message1 = notification,
+					UserId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+
 			}
 			
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
@@ -129,7 +137,8 @@ namespace KoRadio.Services
 						{
 							g.Key.ProductId,
 							g.Key.StoreId,
-							TotalQty = g.Sum(x => x.Quantity)
+							TotalQty = g.Sum(x => x.Quantity),
+							ProductPrice = g.First().ProductPrice
 						});
 
 					foreach (var g in grouped)
@@ -139,7 +148,8 @@ namespace KoRadio.Services
 							OrderId = entity.OrderId,
 							ProductId = g.ProductId,
 							StoreId = g.StoreId,
-							Quantity = g.TotalQty
+							Quantity = g.TotalQty,
+							ProductPrice=g.ProductPrice
 						});
 						await _hubContext.Clients.User(g.StoreId.ToString())
 				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);

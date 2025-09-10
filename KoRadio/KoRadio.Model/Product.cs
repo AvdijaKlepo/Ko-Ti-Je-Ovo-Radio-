@@ -15,8 +15,12 @@ namespace KoRadio.Model
 		public string ProductDescription { get; set; } = null!;
 
 		public decimal Price { get; set; }
-
+		public int StockQuantity { get; set; } = 0;
+		public bool IsOnSale { get; set; }
+		public decimal? SalePrice { get; set; }
+		public bool IsOutOfStock { get; set; }
 		public int StoreId { get; set; }
+		public DateTime? SaleExpires { get; set; }
 
 
 		public bool IsDeleted { get; set; }

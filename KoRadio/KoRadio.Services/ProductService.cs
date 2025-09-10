@@ -41,6 +41,20 @@ namespace KoRadio.Services
 			{
 				query = query.Where(product => product.ProductsServices.Any(ps => ps.ServiceId == search.ServiceId));
 			}
+			if(search.SortDirection!=null)
+			{
+				query = query.OrderByDescending(x=>x.IsOnSale);
+			}
+			if(search.OutOfStock!=null)
+			{
+				query = query.Where(x => x.IsOutOfStock == search.OutOfStock);
+			}
+			if (search.OnSale == true)
+			{
+				query = query.Where(x => x.IsOnSale);
+			}
+
+
 
 
 			return base.AddFilter(search, query);
@@ -81,6 +95,12 @@ namespace KoRadio.Services
 					CreatedAt = DateTime.UtcNow
 				}).ToList();
 			}
+			if(request.IsOnSale==false)
+			{
+				entity.SalePrice = null;
+				entity.SaleExpires = null;
+			}
+			
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 	}

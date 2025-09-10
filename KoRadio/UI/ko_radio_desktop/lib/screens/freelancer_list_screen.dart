@@ -86,9 +86,16 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
+   _firstNameController.removeListener(_onSearchChanged);
+
     _firstNameController.dispose();
+       _emailController.removeListener(_onSearchChanged);
+    _emailController.dispose();
+    freelancerPagination.removeListener(_onSearchChanged);
+    freelancerPagination.dispose();
     super.dispose();
   }
+  
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -97,6 +104,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
     );
   }
   Future<void> _refreshWithFilter() async {
+    if(isLoading) return;
     setState(() => isLoading = true);
     final filter =<String, dynamic> {
       'IsServiceIncluded': true,
@@ -151,18 +159,14 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
     6: 'Sub',
   };
 
-  List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
-    if (workingDays == null) return [];
-    return workingDays.map((day) {
-      if (day is int) {
-        return shortDayNamesMap[day] ?? '';
-      } else if (day is String) {
-        return day.length > 3 ? day.substring(0, 3) : day;
-      }
-      return '';
-    }).where((e) => e.isNotEmpty).toList();
-  }
+List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
+  final localized = localizeWorkingDays(workingDays);
 
+  return localized.map((day) {
+    return shortDayNamesMap[day] ?? 
+           (day.length > 3 ? day.substring(0, 3) : day);
+  }).toList();
+}
   void _openUserDeleteDialog({required Freelancer user}) {
     showDialog(
       context: context,
@@ -281,6 +285,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                   "isApplicant": false,
                   "isDeleted": false,
                   'freelancerNavigation': user.freelancerNavigation,
+                  'cv':null
                   
                   
                 });
@@ -440,16 +445,16 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
           ),
-            child: const Row(
+            child:  Row(
               children: [
-                Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold))),
-                 Expanded(
+                const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 2, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold))),
+                 const Expanded(
                     flex: 3,
                     child: Center(
                       child: Text(
@@ -458,8 +463,10 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                       ),
                     ),
                   ),
-                Expanded(flex: 6, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-               Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
+                const Expanded(flex: 4, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
+      showApplicants ? const Expanded(flex: 1, child: Center(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold)))) : const SizedBox(width: 0),
+
+               const Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
                
               
               ],
@@ -574,7 +581,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
           Expanded(flex: 2, child: Text(freelancer.freelancerNavigation?.lastName ?? '')),
           Expanded(flex: 3, child: Text(freelancer.freelancerNavigation?.email ?? '')),
           Expanded(flex: 3, child: Text(freelancer.freelancerNavigation?.location?.locationName ?? '')),
-          Expanded(flex: 3, child: Text(getWorkingDaysShort(freelancer.workingDays).join(', '))),
+          Expanded(flex: 3, child: Text( getWorkingDaysShort(freelancer.workingDays).join(', '))),
           Expanded(flex: 2, child: Text('${freelancer.experianceYears.toString()} godina')),
           Expanded(flex: 2, child: Text(freelancer.rating>1? '${freelancer.rating.toStringAsFixed(1)}/5.0' : 'Nema ocjene')),
           Expanded(
@@ -598,7 +605,7 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
               ),
             ),
           ),
-          Expanded( flex: 6, child: Wrap(
+          Expanded( flex: 4, child: Wrap(
               spacing: 4,
               runSpacing: 4,
               children: freelancer.freelancerServices.map((FreelancerService s) {
@@ -606,29 +613,106 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
               }).toList(),
             ),
           ),
- !showDeleted?
-         Expanded(child: 
-         Center(
-          child: PopupMenuButton<String>(
+          showApplicants ?
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            onTap: () {
+              if (freelancer.cv != null) {
+                showPdfDialog(context, freelancer.cv!, "CV");
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Nema učitanog dokumenta")),
+                );
+              }
+            },
+            child: const Icon(Icons.document_scanner_outlined, size: 18),
+          ),
+        ): const SizedBox(width: 0),
+
+          
+Expanded(
+  flex:1,
+  child: Center(
+    child: Builder(
+            builder: (context) {
+        if (showApplicants) {
+          // Accept / Reject buttons
+          return PopupMenuButton<String>(
+            tooltip: 'Akcije',
+            icon: const Icon(Icons.more_vert),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            onSelected: (value) async {
+              if (value == 'approve') {
+                _openUserApproveDialog(user: freelancer);
+                await freelancerPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'isApplicant': showApplicants,
+                  'FirstNameGTE': _firstNameController.text,
+                  'Email': _emailController.text,
+                });
+              } else if (value == 'reject') {
+                _openUserRejectDialog(user: freelancer);
+                await freelancerPagination.refresh(newFilter: {
+                  'isDeleted': showDeleted,
+                  'isApplicant': showApplicants,
+                  'FirstNameGTE': _firstNameController.text,
+                  'Email': _emailController.text,
+                });
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'approve',
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green, size: 18),
+                    SizedBox(width: 8),
+                    Text('Prihvati'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'reject',
+                child: Row(
+                  children: [
+                    Icon(Icons.cancel, color: Colors.red, size: 18),
+                    SizedBox(width: 8),
+                    Text('Odbij'),
+                  ],
+                ),
+              ),
+            ],
+            
+         
+          );
+        } else if (showDeleted) {
+          // Restore
+          return IconButton(
+            color: Colors.black,
+            tooltip: 'Reaktiviraj',
+            onPressed: () => _openUserRestoreDialog(user: freelancer),
+            icon: const Icon(Icons.restore_outlined),
+          );
+        } else {
+          // Edit/Delete menu
+          return PopupMenuButton<String>(
             tooltip: 'Uredi/Izbriši',
             icon: const Icon(Icons.more_vert),
             color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Text('Uredi'),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('Izbriši'),
-              ),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'edit', child: Text('Uredi')),
+              PopupMenuItem(value: 'delete', child: Text('Izbriši')),
             ],
             onSelected: (value) async {
               if (value == 'edit') {
-                await showDialog(context: context, builder: (_) => FreelancerUpdateDialog(freelancer: freelancer));
+                await showDialog(
+                  context: context,
+                  builder: (_) => FreelancerUpdateDialog(freelancer: freelancer),
+                );
                 await freelancerPagination.refresh(newFilter: {
                   'isDeleted': showDeleted,
                   'isApplicant': showApplicants,
@@ -639,23 +723,13 @@ class _FreelancerListScreenState extends State<FreelancerListScreen> {
                 _openUserDeleteDialog(user: freelancer);
               }
             },
-          ),
-         )) : Expanded(
-  flex: 1,
-  child: Center(
-    child: IconButton(
-      color: Colors.black,
-         
-      tooltip: 'Reaktiviraj',
-      onPressed: () {
-      
-          _openUserRestoreDialog(user: freelancer);
-        
+          );
+        }
       },
-      icon: const Icon(Icons.restore_outlined),
     ),
   ),
-),
+)
+
         ],
       ),
     );

@@ -9,6 +9,7 @@ part 'order_items.g.dart';
 class OrderItems {
   int orderItemsId;
   int? quantity;
+  double? productPrice;
   Order? order;
   Product? product;
   Store? store;

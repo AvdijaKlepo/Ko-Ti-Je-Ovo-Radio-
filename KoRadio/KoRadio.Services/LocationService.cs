@@ -67,5 +67,26 @@ namespace KoRadio.Services
 			response.Count = count;
 			return response;
 		}
+		public override async Task BeforeDeleteAsync(Database.Location entity, CancellationToken cancellationToken)
+		{
+			var isUsedByFreelancer = await _context.Users
+		   .AnyAsync(fs => fs.LocationId == entity.LocationId, cancellationToken);
+
+			var isUsedByCompany = await _context.Companies
+				.AnyAsync(c => c.LocationId == entity.LocationId, cancellationToken);
+
+			var isUsedByJob = await _context.Stores
+				.AnyAsync(c => c.LocationId == entity.LocationId, cancellationToken);
+
+			
+
+	
+
+			if (isUsedByFreelancer || isUsedByCompany || isUsedByJob)
+			{
+				throw new UserException("Ne možete izbrisati lokaciju koji se aktivno koristi od strane korisnika radnika ili firme.");
+			}
+			await base.BeforeDeleteAsync(entity, cancellationToken);
+		}
 	}
 }

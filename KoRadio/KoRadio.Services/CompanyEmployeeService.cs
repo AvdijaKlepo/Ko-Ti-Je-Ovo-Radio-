@@ -62,6 +62,7 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.IsDeleted == false);
 			}
+		
 
 
 

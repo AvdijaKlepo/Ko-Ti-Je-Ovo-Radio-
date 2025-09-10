@@ -36,7 +36,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
     
   
-
+     serviceProvider = context.read<ServiceProvider>();
 
     
 
@@ -54,8 +54,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
  
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-   
-      serviceProvider = context.read<ServiceProvider>();
+      if(!mounted) return;
+ 
 
       servicePagination = PaginatedFetcher<Service>(
         fetcher: ({
@@ -83,6 +83,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
 
       await servicePagination.refresh();
+      if(!mounted) return;
       setState(() {
         _isInitialized = true;
        
@@ -121,6 +122,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   }
 
   Future<void> _refreshWithFilter() async {
+
     final filter = <String, dynamic>{};
     if (_searchQuery.isNotEmpty) {
       filter['ServiceName'] = _searchQuery;
@@ -212,12 +214,12 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                 children: [
                                   
                                   Text(
-                                    'Radnika : ${service.freelancerCount}',
+                                    'Radnika: ${service.freelancerCount}',
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Firma : ${service.companyCount}',
+                                    'Firma: ${service.companyCount}',
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                 ],

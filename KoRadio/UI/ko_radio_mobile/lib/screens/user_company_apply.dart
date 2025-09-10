@@ -41,7 +41,10 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
   String? _backendEmailError;
   File? _image;
   String? _base64Image;
-  Uint8List? _decodedImage;
+  Uint8List? _decodedImage; File? _pdfFile;
+String? _base64Pdf;
+
+
 
   @override
   void initState() {
@@ -61,7 +64,19 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
     });
   
   }
+Future<void> _pickPdf() async {
+  var result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+  );
 
+  if (result != null && result.files.single.path != null) {
+    setState(() {
+      _pdfFile = File(result.files.single.path!);
+      _base64Pdf = base64Encode(_pdfFile!.readAsBytesSync());
+    });
+  }
+}
   Future<void> _fetchData() async {
     final services = await serviceProvider.get();
     final locations = await locationProvider.get();
@@ -97,18 +112,28 @@ class _UserCompanyApplyState extends State<UserCompanyApply> {
     if (formData["endTime"] is DateTime) {
       formData["endTime"] = (formData["endTime"] as DateTime).toIso8601String().substring(11, 19);
     }
+     if (_base64Pdf != null) {
+    formData['businessCertificate'] = _base64Pdf;
+  }
 
-    Map<String, int> dayMap = {
-      'Nedjelja': 0, 'Ponedjeljak': 1, 'Utorak': 2, 'Srijeda': 3,
-      'Četvrtak': 4, 'Petak': 5, 'Subota': 6,
+
+    const Map<String, String> dayOfWeekMapping = {
+      'Ponedjeljak': 'Monday',
+      'Utorak': 'Tuesday',
+      'Srijeda': 'Wednesday',
+      'Četvrtak': 'Thursday',
+      'Petak': 'Friday',
+      'Subota': 'Saturday',
+      'Nedjelja': 'Sunday',
     };
 
-    if (formData["workingDays"] != null) {
-      formData["workingDays"] = (formData["workingDays"] as List<String>)
-          .map((day) => dayMap[day])
-          .whereType<int>()
-          .toList();
-    }
+    // Convert the localized working day strings to English using the map.
+    formData['workingDays'] = (formData['workingDays'] as List<dynamic>)
+        .map((localizedDay) {
+          return dayOfWeekMapping[localizedDay.toString()];
+        })
+        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .toList();
     if(_image!=null)
     {
       formData['image'] = _base64Image;
@@ -168,131 +193,155 @@ _formKey.currentState?.invalidateField(
              
              
           
-            
-                     FormBuilderTextField(
+            FormBuilderTextField(
   name: "companyName",
-  decoration: const InputDecoration(labelText: "Ime Firme:",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Ime Firme",
+    border: OutlineInputBorder(),
+  ),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Ime firme je obavezno."),
-    FormBuilderValidators.minLength(2, errorText: "Minimalno 2 znaka."),
-    FormBuilderValidators.maxLength(50, errorText: "Maksimalno 50 znakova."),
-    FormBuilderValidators.match(r'^[A-Z][A-Za-zĆČĐŠŽćčđšž. ]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim'),
+    FormBuilderValidators.minLength(2, errorText: "Ime mora imati barem 2 karaktera."),
+    FormBuilderValidators.maxLength(50, errorText: "Ime može imati najviše 50 karaktera."),
+    FormBuilderValidators.match(r'^[A-Z][A-Za-zĆČĐŠŽćčđšž. ]+$', errorText: "Ime mora početi velikim slovom."),
   ]),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderTextField(
   name: "bio",
   maxLines: 5,
-  decoration: const InputDecoration(labelText: "Opis",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Opis",
+    border: OutlineInputBorder(),
+  ),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Opis je obavezan."),
-    FormBuilderValidators.minLength(10, errorText: "Minimalno 10 znakova."),
-    FormBuilderValidators.maxLength(300, errorText: "Maksimalno 300 znakova."),
-    FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim i brojevi'),
+    FormBuilderValidators.minLength(10, errorText: "Opis mora imati barem 10 karaktera."),
+    FormBuilderValidators.maxLength(300, errorText: "Opis može imati najviše 300 karaktera."),
+    FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: "Opis mora početi velikim slovom."),
   ]),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderTextField(
   name: "email",
-  decoration: const InputDecoration(labelText: "Email",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Email",
+    border: OutlineInputBorder(),
+  ),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Email je obavezan."),
     FormBuilderValidators.email(errorText: "Unesite ispravan email."),
   ]),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderTextField(
   name: "experianceYears",
-  decoration: const InputDecoration(labelText: "Godine iskustva",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Godine iskustva",
+    border: OutlineInputBorder(),
+  ),
+  keyboardType: TextInputType.number,
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Godine iskustva su obavezne."),
-    FormBuilderValidators.integer(errorText: "Mora biti broj."),
-    FormBuilderValidators.min(0, errorText: "Ne može biti negativno."),
-    FormBuilderValidators.max(100, errorText: "Unesite realan broj godina. Max 100"),
+    FormBuilderValidators.integer(errorText: "Dozvoljeni su samo brojevi."),
+    FormBuilderValidators.min(0, errorText: "Godine ne mogu biti negativne."),
+    FormBuilderValidators.max(70, errorText: "Unesite realan broj godina."),
   ]),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderTextField(
   name: "phoneNumber",
-  decoration: const InputDecoration(labelText: "Telefonski broj",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Telefonski broj",
+    border: OutlineInputBorder(),
+  ),
   validator: FormBuilderValidators.compose([
     FormBuilderValidators.required(errorText: "Telefon je obavezan."),
     FormBuilderValidators.match(
-      r'^\+?\d{11}$',
-      errorText: "Potrebno je 11 cifara sa početkom od +387",
+      r'^\+387\d{8,9}$',
+      errorText: "Format: +387XXXXXXXX",
     ),
   ]),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderDateTimePicker(
   name: 'startTime',
-  decoration: const InputDecoration(labelText: "Početak radnog vremena",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Početak radnog vremena",
+    border: OutlineInputBorder(),
+  ),
   inputType: InputType.time,
-  validator: FormBuilderValidators.required(errorText: "Početak je obavezan."),
+  validator: FormBuilderValidators.required(errorText: "Početak radnog vremena je obavezan."),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderDateTimePicker(
   name: 'endTime',
-  decoration: const InputDecoration(labelText: "Kraj radnog vremena",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Kraj radnog vremena",
+    border: OutlineInputBorder(),
+  ),
   inputType: InputType.time,
   validator: (value) {
-    final form = FormBuilder.of(context);
-    final start = form?.fields['startTime']?.value;
-    if (value == null) return "Kraj je obavezan.";
+    final start = FormBuilder.of(context)?.fields['startTime']?.value;
+    if (value == null) return "Kraj radnog vremena je obavezan.";
     if (start != null) {
       if (value.isBefore(start)) {
         return "Kraj mora biti nakon početka.";
       }
       if (value.difference(start).inHours < 3) {
-        return "Smjena mora trajati barem 3 sata.";
+        return "Smjena mora trajati najmanje 3 sata.";
       }
     }
     return null;
   },
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 0),
+  padding: const EdgeInsets.symmetric(vertical: 8.0),
   child: serviceResult?.result.isNotEmpty == true
-      ? FormBuilderFilterChip<int>(
-          name: "serviceId",
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-          options: serviceResult!.result
-              .map((s) => FormBuilderChipOption(
-                  value: s.serviceId, child: Text(s.serviceName ?? "")))
-              .toList(),
-          spacing: 6,
-          runSpacing: 4,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: "Odaberite bar jednu uslugu."),
-          ]),
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Usluge",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            const SizedBox(height: 6),
+            FormBuilderFilterChip<int>(
+              name: "serviceId",
+              decoration: const InputDecoration(border: InputBorder.none),
+              options: serviceResult!.result
+                  .map((s) => FormBuilderChipOption(
+                      value: s.serviceId, child: Text(s.serviceName ?? "")))
+                  .toList(),
+              spacing: 8,
+              runSpacing: 6,
+              validator: FormBuilderValidators.required(
+                  errorText: "Odaberite barem jednu uslugu."),
+            ),
+          ],
         )
       : const Text("Nema dostupnih usluga"),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderCheckboxGroup<String>(
   name: 'workingDays',
-  decoration: const InputDecoration(labelText: "Radni dani",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Radni dani",
+    border: InputBorder.none,
+  ),
   options: [
-    'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday',
+    'Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja',
   ].map((e) => FormBuilderFieldOption(value: e)).toList(),
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.minLength(1, errorText: "Odaberite bar jedan dan."),
-  ]),
+  validator: FormBuilderValidators.required(errorText: "Odaberite barem jedan radni dan."),
 ),
-const SizedBox(height: 20),
-
+const SizedBox(height: 12),
 FormBuilderDropdown<int>(
   name: 'locationId',
-  decoration: const InputDecoration(labelText: "Lokacija*",border: OutlineInputBorder()),
+  decoration: const InputDecoration(
+    labelText: "Lokacija",
+    border: OutlineInputBorder(),
+  ),
   validator: FormBuilderValidators.required(errorText: 'Lokacija je obavezna.'),
   items: locationResult?.result
           .map((loc) => DropdownMenuItem(
@@ -302,9 +351,8 @@ FormBuilderDropdown<int>(
           .toList() ??
       [],
 ),
-
-                    const SizedBox(height: 20,),
-                      FormBuilderField(
+const SizedBox(height: 12),
+FormBuilderField(
   name: "image",
   builder: (field) {
     return InputDecorator(
@@ -320,16 +368,15 @@ FormBuilderDropdown<int>(
             leading: const Icon(Icons.image),
             title: _image != null
                 ? Text(_image!.path.split('/').last)
-                
-                    : const Text("Nema proslijeđene slike"),
+                : const Text("Nema odabrane slike"),
             trailing: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null 
+              label: _image == null
                   ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+                  : const Text("Promijeni", style: TextStyle(color: Colors.white)),
               onPressed: () => _pickImage(),
             ),
           ),
@@ -337,21 +384,55 @@ FormBuilderDropdown<int>(
           if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
+              child: Image.file(_image!, fit: BoxFit.cover),
             )
           else if (_decodedImage != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
+              child: Image.memory(_decodedImage!, fit: BoxFit.cover),
             )
           else
             const SizedBox.shrink(),
+        ],
+      ),
+    );
+  },
+),
+const SizedBox(height: 12),
+FormBuilderField(
+  name: "businessCertificate",
+  validator: (val) {
+    if (_pdfFile == null) {
+      return "Obavezno je učitati obrtni list.";
+    }
+    return null;
+  },
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Obrtni list (PDF)",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+            title: _pdfFile != null
+                ? Text(_pdfFile!.path.split('/').last)
+                : const Text("Nema učitanog PDF dokumenta"),
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              ),
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: _pdfFile == null
+                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                  : const Text("Promijeni", style: TextStyle(color: Colors.white)),
+              onPressed: () => _pickPdf(),
+            ),
+          ),
         ],
       ),
     );

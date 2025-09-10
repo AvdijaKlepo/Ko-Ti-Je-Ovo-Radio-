@@ -53,6 +53,7 @@ class _TenderScreenState extends State<TenderScreen> {
     serviceProvider = context.read<ServiceProvider>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if(!mounted) return;
       await _getServices();
 
       tenderFetcher = PaginatedFetcher<Job>(
@@ -95,8 +96,10 @@ class _TenderScreenState extends State<TenderScreen> {
   }
 
   Future<void> _getServices() async {
+  
     try {
       var fetchedServices = await serviceProvider.get();
+      if(!mounted) return;
       setState(() {
         serviceResult = fetchedServices;
         serviceDropdownItems = [
@@ -110,6 +113,7 @@ class _TenderScreenState extends State<TenderScreen> {
         ];
       });
     } catch (e) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Greška: ${e.toString()}")),
       );
@@ -195,7 +199,7 @@ class _TenderScreenState extends State<TenderScreen> {
               
               children: [
            
-                _buildServiceDropdown(),
+                
                 const SizedBox(height: 10),
                 selectedRole == "User"
                     ? const Center(

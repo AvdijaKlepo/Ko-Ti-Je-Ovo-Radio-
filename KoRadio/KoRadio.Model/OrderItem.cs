@@ -14,6 +14,7 @@ namespace KoRadio.Model
 		public int OrderId { get; set; }
 
 		public int ProductId { get; set; }
+		public decimal ProductPrice { get; set; }
 
 		public int Quantity { get; set; }
 		public int StoreId { get; set; }
@@ -21,6 +22,6 @@ namespace KoRadio.Model
 	
 
 		public virtual ProductDTO Product { get; set; } = null!;
-		public virtual Store Store { get; set; }
+		public virtual StoresDTO Store { get; set; }
 	}
 }

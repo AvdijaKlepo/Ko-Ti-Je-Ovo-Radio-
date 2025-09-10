@@ -12,6 +12,7 @@ import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
+import 'package:ko_radio_mobile/screens/approve_job_edit.dart';
 import 'package:ko_radio_mobile/screens/edit_job_freelancer.dart';
 import 'package:provider/provider.dart';
 
@@ -28,7 +29,19 @@ class _ApproveJobState extends State<ApproveJob> {
   late JobProvider jobProvider;
   late MessagesProvider messagesProvider;
   late SearchResult<Job> jobResult;
+  late SearchResult<Job> jobFreelancerResult;
   bool _isLoading = false;
+  bool multiDateJob=false;
+  late Set<int> _workingDayInts;
+  final Map<String, int> _dayStringToInt = {
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6,
+    'Sunday': 7,
+  };
  
   @override
   void initState() {
@@ -38,25 +51,59 @@ class _ApproveJobState extends State<ApproveJob> {
     });
       jobProvider = context.read<JobProvider>();
       messagesProvider = context.read<MessagesProvider>();
+        _workingDayInts = widget.job.freelancer?.workingDays
+            ?.map((day) => _dayStringToInt[day] ?? -1)
+            .where((dayInt) => dayInt != -1)
+            .toSet() ??
+        {};
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
     
       await _getJob();
+      await _getOtherFreelancersJobs();
       setState(() {
         _isLoading=false;
       });
   
     });
+   
+
+  }
+  bool _isWorkingDay(DateTime day) {
+    return  _workingDayInts.contains(day.weekday);
   }
   Future<void> _getJob() async {
+    if(!mounted) return;
     setState(() {
       _isLoading=true;
     });
 
     try {
       var fetchedJob = await jobProvider.get(filter: {'JobId': widget.job.jobId});
+      if(!mounted) return;
       setState(() {
         jobResult = fetchedJob;
+        _isLoading=false;
+      });
+    } on Exception catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
+    Future<void> _getOtherFreelancersJobs() async {
+    setState(() {
+      _isLoading=true;
+    });
+
+    try {
+      var fetchedJob = await jobProvider.get(filter: {'FreelancerId': widget.job.freelancer?.freelancerId,
+      'DateRange': widget.job.jobDate,
+      'JobStatus': JobStatus.approved.name
+      });
+      setState(() {
+        jobFreelancerResult = fetchedJob;
         _isLoading=false;
       });
     } on Exception catch (e) {
@@ -126,7 +173,7 @@ class _ApproveJobState extends State<ApproveJob> {
   }
   _openImageDialog() {
     return AlertDialog(
-      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
+      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
       title: const Text('Proslijeđena slika',style: TextStyle(color: Colors.white),),
       content: imageFromString(widget.job.image!),
       actions: [
@@ -143,9 +190,9 @@ class _ApproveJobState extends State<ApproveJob> {
   }
   _openCancelDialog() {
     return AlertDialog(
-      backgroundColor: Color.fromRGBO(27, 76, 125, 25),
-      title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
-      content: const Text('Jeste li sigurni da želite da otkažete ili odbijete ovaj posao?',style: TextStyle(color: Colors.white),),
+      backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+      title:  Text( widget.job.jobStatus==JobStatus.unapproved ? 'Odbaci posao' : 'Otkaži posao',style: TextStyle(color: Colors.white),),
+      content: const Text('Jeste li sigurni da želite da otkažete ovaj posao?',style: TextStyle(color: Colors.white),),
       actions: [
         TextButton(
           style: TextButton.styleFrom(
@@ -162,6 +209,8 @@ class _ApproveJobState extends State<ApproveJob> {
                 borderRadius: BorderRadius.circular(12)),
           ),
             onPressed: () async {
+              final navigator = Navigator.of(context);
+                final message = ScaffoldMessenger.of(context);
                 var jobUpdateRequest = {
                 "userId": widget.job.user?.userId,
                 "freelancerId": widget.job.freelancer?.freelancerId,
@@ -191,23 +240,25 @@ class _ApproveJobState extends State<ApproveJob> {
                 'isOpened': false,
               };
               try{
+                
                 await messagesProvider.insert(messageRequest);
                 await jobProvider.update(widget.job.jobId,
                 jobUpdateRequest
                 );
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao odbijen.')));
-         Navigator.pop(context,true);
+                message.showSnackBar( SnackBar(content: Text( widget.job.jobStatus==JobStatus.unapproved ? 'Posao odbijen.' : 'Posao otkazan.')));
+                navigator.pop(true);
+                navigator.pop(true);
 
               } on Exception catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja notifikacije: ${e.toString()}')));
+                message.showSnackBar(const SnackBar(content: Text('Greška tokom otkazivanja posla. Pokušajte ponovo.')));
               }
               
            
           
-         Navigator.pop(context,true);
+     
           
             },
-            child: const Text("Odbaci",style: TextStyle(color: Colors.white),),
+            child:  Text(widget.job.jobStatus==JobStatus.unapproved ? "Odbaci" : "Otkaži",style: TextStyle(color: Colors.white),),
             ),
       ],
     );
@@ -230,6 +281,7 @@ class _ApproveJobState extends State<ApproveJob> {
   return "$part1-$part2-$part3";
 }
 
+
   
 
   @override
@@ -244,6 +296,13 @@ class _ApproveJobState extends State<ApproveJob> {
   
     final dateFormat = DateFormat('dd.MM.yyyy');
     final _formKey = GlobalKey<FormBuilderState>();
+    final job = jobResult.result.first;
+
+final daysInRange = getWorkingDaysInRange(
+  jobDate: job.jobDate,
+  dateFinished: job.dateFinished!,
+  workingDays:  job.freelancer?.workingDays ?? [],
+);
     return Scaffold(
 
       
@@ -251,7 +310,7 @@ class _ApproveJobState extends State<ApproveJob> {
       fontWeight: FontWeight.normal,
       letterSpacing: 1.2,
       fontFamily: GoogleFonts.lobster().fontFamily,
-      color: Color.fromRGBO(27, 76, 125, 25),
+      color: const Color.fromRGBO(27, 76, 125, 25),
 
 
     )),
@@ -366,8 +425,15 @@ class _ApproveJobState extends State<ApproveJob> {
                           .where((e) => e != null)
                           .join(', ') ??
                       'N/A'),
-
+                 
                   _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
+                  if(jobResult.result.first.dateFinished!=null)
+                  _buildDetailRow('Datum završetka', dateFormat.format(jobResult.result.first.dateFinished!)),
+                  if(jobResult.result.first.dateFinished!=null)
+                 _buildDetailRow('Radni dani',  daysInRange.join(', ')),
+             
+
+                  
                
                   _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5)),
                  
@@ -427,43 +493,15 @@ class _ApproveJobState extends State<ApproveJob> {
 
                   const Divider(height: 32),
                   
-                  _sectionTitle('Podaci radnika'),
-                 
-                  _buildDetailRow(
-                    'Ime i prezime',
-                    widget.job.user != null
-                        ? '${widget.job.freelancer?.freelancerNavigation?.firstName ?? ''} ${widget.job.freelancer?.freelancerNavigation?.lastName ?? ''}'
-                        : 'Nepoznato',
-                  ) ,
-               
-                  _buildDetailRow('E-mail', widget.job.freelancer?.freelancerNavigation?.email ?? 'Nepoznato'),
-               
-                  _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato')) ,
-                  const Divider(height: 32),
-
+                
+                   jobResult.result.first.payEstimate!=null ?
                   _buildDetailRow('Procijena',
-                      '${jobResult.result.first.payEstimate?.toStringAsFixed(2)}' ?? 'Nije unesena'),
-                  _buildDetailRow('Konačna cijena',
-                      jobResult.result.first.payInvoice?.toStringAsFixed(2) ?? 'Nije unesena'),
-                       if(jobResult.result.first.jobStatus== JobStatus.cancelled) 
-                       _buildDetailRow('Otkazan',
-                      'Da'), 
-                      if(jobResult.result.first.jobStatus== JobStatus.finished)
-                      _buildDetailRow('Završen','Da'),
-                      if(jobResult.result.first.isInvoiced==true)
-                  _buildDetailRow('Plaćen',
-                      'Da')
-                      else
-                        _buildDetailRow('Plaćen',
-                        'Ne')
-                      , 
-                       if(jobResult.result.first.isRated==true)
-                  _buildDetailRow('Ocijenjen',
-                      'Da')
-                      else
-                      _buildDetailRow('Ocijenjen',
-                        'Ne')
-                      ,
+                      '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM'):
+                      _buildDetailRow('Procijena','Nije unesena'),
+                  
+                     
+                  
+                 
                  
 
                       
@@ -486,20 +524,22 @@ class _ApproveJobState extends State<ApproveJob> {
 
 
              
-          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Odbaci',style: TextStyle(color: Colors.white),),),
+          },style: ElevatedButton.styleFrom(backgroundColor:  Colors.red,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:   Text(widget.job.jobStatus==JobStatus.unapproved ? 'Odbaci' : 'Otkaži',style: TextStyle(color: Colors.white),),),
           const SizedBox(width: 15,),
           if((jobResult.result.first.isEdited==false && jobResult.result.first.isWorkerEdited==false) && jobResult.result.first.jobStatus==JobStatus.approved)
           ElevatedButton(onPressed: () async{
             await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJobFreelancer(job: jobResult.result.first)));
             await _getJob();
-          },child: Text('Uredi',style: TextStyle(color: Colors.black),),
-          style: ElevatedButton.styleFrom(backgroundColor:  Colors.amber,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+          },
+          style: ElevatedButton.styleFrom(backgroundColor:  Colors.amber,elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),child: const Text('Uredi',style: TextStyle(color: Colors.black),),
           ),
           const SizedBox(width: 15,),
 
              ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
             onPressed: () async {
+              final message = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
                final isValid =
                         _formKey.currentState?.saveAndValidate() ?? false;
           
@@ -515,6 +555,11 @@ class _ApproveJobState extends State<ApproveJob> {
             final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
             values["endEstimate"] = formattedTime;
           }
+            if (values["dateFinished"] is DateTime) {
+                  values["dateFinished"] =
+                      (values["dateFinished"] as DateTime).toIso8601String().split('T')[0];
+                }
+
           
               var jobUpdateRequest = {
                 "userId": widget.job.user?.userId,
@@ -530,7 +575,7 @@ class _ApproveJobState extends State<ApproveJob> {
                 "payEstimate": widget.job.jobStatus== JobStatus.unapproved ? values["payEstimate"] : widget.job.payEstimate,
                 "payInvoice": widget.job.jobStatus== JobStatus.unapproved ? null : values["payInvoice"],
                 "jobDate": widget.job.jobDate.toIso8601String(),
-                "dateFinished": null,
+                "dateFinished": values["dateFinished"],
                 "jobDescription": widget.job.jobDescription,
                 "image": widget.job.image,
                 "jobStatus": widget.job.jobStatus== JobStatus.unapproved ? JobStatus.approved.name : JobStatus.finished.name,
@@ -538,7 +583,7 @@ class _ApproveJobState extends State<ApproveJob> {
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
           };
-              try {
+           try {
            await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
@@ -546,18 +591,29 @@ class _ApproveJobState extends State<ApproveJob> {
              
               
              
-            ScaffoldMessenger.of(context).showSnackBar( SnackBar(content:  widget.job.jobStatus == JobStatus.unapproved ? const Text('Posao odobren.') : const Text('Faktura poslana korisniku.')));
-            Navigator.pop(context,true);
-            if(!mounted) return;
+            message.showSnackBar( SnackBar(content:  widget.job.jobStatus == JobStatus.unapproved ? const Text('Posao odobren.') : const Text('Faktura poslana korisniku.')));
+            
+            navigator.pop(true);
+        
 
           } on Exception catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška u slanju posla: ${e.toString()}')));
-            Navigator.pop(context, false);
+            message.showSnackBar(const SnackBar(content: Text('Greška tokom odobravanja posla. Molimo pokušajte ponoovo.')));
+            
+            
 
           }
+              
+           
             },
             child: const Text('Prihvati',style: TextStyle(color: Colors.white),),
           ),
+          const SizedBox(width: 15,),
+          if(jobResult.result.first.jobStatus== JobStatus.unapproved)
+ElevatedButton(onPressed: () async{
+  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ApproveJobEdit(job: jobResult.result.first)));
+
+},style: ElevatedButton.styleFrom(backgroundColor: Colors.amber,elevation: 0,shape:
+ RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),), child:  const Text('Uredi',style: TextStyle(color: Colors.black),),),
           
         
                   ],
@@ -576,46 +632,55 @@ class _ApproveJobState extends State<ApproveJob> {
   Widget _buildFreelancerJobView() {
     final job;
    _isLoading==true ? job = null : job = jobResult.result.first;
+
   
     bool outOfWorkHours = false;
     String? selectedJobTime = widget.job.startEstimate;
 
     final parts = selectedJobTime!.split(":");
-final parsedTime = DateTime(
-  DateTime.now().year,
-  DateTime.now().month,
-  DateTime.now().day,
+    final parsedTime = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
 
-  int.parse(parts[0]),
-  int.parse(parts[1]),
-);
-DateTime normalizeTime(DateTime t) {
-  final now = DateTime.now();
-  return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
-}
- final startTimeString = widget.job.freelancer?.startTime ?? "08:00";
- final endTimeString = widget.job.freelancer?.endTime ?? "17:00";
- final estimatedStartTime = widget.job.startEstimate;
-
-
-    DateTime parseTime(String timeStr) {
-      final parts = timeStr.split(':');
-      return DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        int.parse(parts[0]),
-        int.parse(parts[1]),
-      );
+    int.parse(parts[0]),
+    int.parse(parts[1]),);
+    DateTime normalizeTime(DateTime t) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
     }
-     parseTimeString(String s) {
-    final parts = s.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-  }
+    final startTimeString = widget.job.freelancer?.startTime ?? "08:00";
+    final endTimeString = widget.job.freelancer?.endTime ?? "17:00";
+    final estimatedStartTime = widget.job.startEstimate;
+  final listOfOtherStartTimes = jobFreelancerResult.result
+    .where((e) => e.jobId != widget.job.jobId)
+    .map((e) => e.startEstimate)
+    .toList();
 
-    final startTime = parseTime(startTimeString);
-    final endTime = parseTime(endTimeString);
-     final parsedEstimatedStartTime = parseTimeString(estimatedStartTime??'');
+final listOfOtherEndTimes = jobFreelancerResult.result
+    .where((e) => e.jobId != widget.job.jobId)
+    .map((e) => e.endEstimate)
+    .toList();
+
+
+List<DateTime> parsedList = [];
+List<DateTime> parsedEndList = [];
+
+final startTime = parseTime(startTimeString);
+final endTime = parseTime(endTimeString);
+final parsedEstimatedStartTime = parseTimeString(estimatedStartTime ?? '');
+
+if (listOfOtherStartTimes.isNotEmpty) {
+  for (var i in listOfOtherStartTimes) {
+    parsedList.add(parseTime(i!));
+  }
+}
+
+if (listOfOtherEndTimes.isNotEmpty) {
+  for (var i in listOfOtherEndTimes) {
+    parsedEndList.add(parseTime(i!));
+  }
+}
 
 
    
@@ -625,13 +690,25 @@ DateTime normalizeTime(DateTime t) {
       children: [
        
      
-         Padding(
-      padding: const EdgeInsets.all(  12),
-      child: Text(
-        'Potrebni podaci',
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
-      ),
-    ),
+         Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children: [
+             Padding(
+                   padding: const EdgeInsets.all(  12),
+                   child: Text(
+                     'Potrebni podaci',
+                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
+                   ),
+                 ),
+                 if(jobResult.result.first.jobStatus==JobStatus.unapproved)
+              Checkbox(value: multiDateJob,onChanged: (value){
+                setState(() {
+                  multiDateJob=value!;
+                });
+              },),
+               
+           ],
+         ),
        
         const SizedBox(height: 15),
       
@@ -642,6 +719,21 @@ DateTime normalizeTime(DateTime t) {
                 if(widget.job.jobStatus == JobStatus.unapproved)
                 Column(
                   children: [
+                    if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
+                    FormBuilderDateTimePicker(name: 'dateFinished',
+                    locale: Locale('bs'),
+                    firstDate: widget.job.jobDate,
+                    initialDate: widget.job.jobDate,
+                    inputType: InputType.date,
+                    selectableDayPredicate: _isWorkingDay,
+            
+                    decoration: const InputDecoration(
+                      labelText: 'Datum završetka',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.calendar_today),
+                    )
+                    ),
+                    const SizedBox(height: 15),
                     FormBuilderDateTimePicker(
                       name: "endEstimate",
                       
@@ -650,8 +742,9 @@ DateTime normalizeTime(DateTime t) {
                       firstDate: DateTime.now(),
                       currentDate: DateTime.now(),
                       initialDate: DateTime.now(),
+               
                       decoration: const InputDecoration(
-                        labelText: 'Trajanje posla',
+                        labelText: 'Vrijeme završetka',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.schedule),
                       ),
@@ -676,7 +769,23 @@ DateTime normalizeTime(DateTime t) {
                           if(outOfWorkHours==true){
                             return "Unesite novo vrijeme";
                           }
+                         for (int j = 0; j < parsedList.length; j++) {
+        DateTime bookedStart = parsedList[j];
+  DateTime bookedEnd = parsedEndList[j];
 
+  DateTime newStart = threshold; 
+  DateTime newEnd = selected;    
+
+  bool overlaps =
+      (newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart));
+
+  if (overlaps) {
+    return "Ovaj termin je već zauzet drugim poslom. Ako želite da zadržite ovaj posao,\n potrebno je izmijeniti vrijeme početka ili datum.";
+  }
+
+
+       
+      }
                           return null;
                         }
                       ]),
@@ -688,24 +797,7 @@ DateTime normalizeTime(DateTime t) {
 
   DateTime threshold = normalizeTime(parsedTime);
 
-  if(selected==threshold){
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vrijeme završetka mora biti poslije vremena početka posla.')),
-    );
-    setState(() {
-      
-    });
-  }
-    if(selected.isBefore(threshold))
-    {
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vrijeme završetka mora biti poslije vremena početka posla.')),
-      );
-      setState(() {
-        
-      });
-    }
+  
 
     if (selected.isAfter(maxTime)) {
 
@@ -723,7 +815,7 @@ DateTime normalizeTime(DateTime t) {
             Navigator.of(ctx).pop();
             
             
-          },child: const Text("Uredu",style: TextStyle(color: Colors.white),),),
+          },child: const Text("Nazad",style: TextStyle(color: Colors.black),),),
           ],
         ),
       );

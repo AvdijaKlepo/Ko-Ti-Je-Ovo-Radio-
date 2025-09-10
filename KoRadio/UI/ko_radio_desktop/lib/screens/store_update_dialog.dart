@@ -33,18 +33,27 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
   File? _image;
   String? _base64Image;
 
+  late TimeOfDay _startTime;
+  late TimeOfDay _endTime;
 
   @override
   void initState() {
     super.initState();
     locationProvider = context.read<LocationProvider>();
     storesProvider = context.read<StoreProvider>();
+
+      _startTime = _parseTime(widget.store.startTime!);
+      _endTime   = _parseTime(widget.store.endTime!);
+      final now = DateTime.now();
     _initialValue = {
       "storeName": widget.store.storeName,
       "description": widget.store.description,  
       "address": widget.store.address,
       "image": widget.store.image,
       "locationId": widget.store.location?.locationId,
+      "workingDays":    localizeWorkingDays( widget.store.workingDays?.map((d) => d.toString()).toList()),
+    "startTime":       DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute),
+    "endTime":         DateTime(now.year, now.month, now.day, _endTime.hour,   _endTime.minute),
     };
     if (widget.store.image != null) {
     try {
@@ -58,6 +67,10 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
    
   });
   
+  }
+  TimeOfDay _parseTime(String timeStr) {
+    final parts = timeStr.split(":");
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
   Future<void> _pickImage() async {
   var result = await FilePicker.platform.pickFiles(type: FileType.image);
@@ -155,6 +168,72 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                             [],
                       ),
                       const SizedBox(height: 20),
+                      FormBuilderCheckboxGroup<String>(
+  name: 'workingDays',
+  decoration: const InputDecoration(
+    labelText: "Radni Dani",
+    border: InputBorder.none,
+  ),
+  options: [
+    'Nedjelja',
+    'Ponedjeljak',
+    'Utorak',
+    'Srijeda',
+    'Četvrtak',
+    'Petak',
+    'Subota',
+  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
+    (value) {
+      if (value != null && value.isEmpty) {
+        return "Morate odabrati barem jedan dan.";
+      }
+      return null;
+    }
+  ]),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'startTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Početak Smjene",
+    border: OutlineInputBorder(),
+  ),
+  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
+),
+const SizedBox(height: 12),
+
+FormBuilderDateTimePicker(
+  name: 'endTime',
+  inputType: InputType.time,
+  decoration: const InputDecoration(
+    labelText: "Kraj Smjene",
+    border: OutlineInputBorder(),
+
+  ),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
+    (value) {
+      final start = FormBuilder.of(context)?.fields['startTime']?.value;
+
+      if (start != null && value != null) {
+        if (value.isBefore(start)) {
+          return "Kraj smjene mora biti nakon početka.";
+        }
+
+        final diff = value.difference(start).inHours;
+        if (diff < 3) {
+          return "Smjena mora trajati najmanje 3 sata.";
+        }
+      }
+      return null;
+    }
+  ]),
+),
+SizedBox(height: 12),
                        FormBuilderField(
   name: "image",
   builder: (field) {
@@ -249,7 +328,30 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
       request['isDeleted'] = false;
       request['roles']=[10,1011];
       request['userId']=widget.store.user?.userId;
-  
+      const Map<String, String> dayOfWeekMapping = {
+      'Ponedjeljak': 'Monday',
+      'Utorak': 'Tuesday',
+      'Srijeda': 'Wednesday',
+      'Četvrtak': 'Thursday',
+      'Petak': 'Friday',
+      'Subota': 'Saturday',
+      'Nedjelja': 'Sunday',
+    };
+
+    // Convert the localized working day strings to English using the map.
+    request['workingDays'] = (request['workingDays'] as List<dynamic>)
+        .map((localizedDay) {
+          return dayOfWeekMapping[localizedDay.toString()];
+        })
+        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .toList();
+   if (request["startTime"] is DateTime) {
+      request["startTime"] = (request["startTime"] as DateTime).toIso8601String().substring(11, 19);
+    }
+    if (request["endTime"] is DateTime) {
+      request["endTime"] = (request["endTime"] as DateTime).toIso8601String().substring(11, 19);
+    }
+    request['rating'] = widget.store.rating;
       if(_image!=null)
       {
         request['image'] = _base64Image;

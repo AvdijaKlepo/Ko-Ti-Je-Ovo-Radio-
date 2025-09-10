@@ -2,9 +2,7 @@
   "profiles": {
     "Subscriber": {
       "commandName": "Project"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
     }
+   
   }
 }

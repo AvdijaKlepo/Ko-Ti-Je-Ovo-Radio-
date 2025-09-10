@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace KoRadio.Model.Request
 {
-    public class JobInsertRequest
-    {
+	public class JobInsertRequest
+	{
 
 
 		public int? UserId { get; set; }
@@ -33,7 +33,7 @@ namespace KoRadio.Model.Request
 
 		public DateTime JobDate { get; set; }
 		public DateTime? DateFinished { get; set; }
-		
+
 		public string? JobDescription { get; set; }
 
 		public byte[]? Image { get; set; }

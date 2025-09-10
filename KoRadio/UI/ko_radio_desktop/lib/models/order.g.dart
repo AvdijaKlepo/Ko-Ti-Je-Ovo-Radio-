@@ -15,6 +15,7 @@ Order _$OrderFromJson(Map<String, dynamic> json) => Order(
           : User.fromJson(json['user'] as Map<String, dynamic>)
       ..isCancelled = json['isCancelled'] as bool?
       ..isShipped = json['isShipped'] as bool?
+      ..price = (json['price'] as num?)?.toDouble()
       ..createdAt = json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String)
@@ -28,6 +29,7 @@ Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
       'user': instance.user,
       'isCancelled': instance.isCancelled,
       'isShipped': instance.isShipped,
+      'price': instance.price,
       'createdAt': instance.createdAt?.toIso8601String(),
       'orderItems': instance.orderItems,
     };

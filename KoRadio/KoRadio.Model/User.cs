@@ -19,7 +19,7 @@ namespace KoRadio.Model
 		public byte[]? Image { get; set; }
 		public string PhoneNumber { get; set; } = null!;
 
-		public bool IsDeleted { get; set; } = false;
+		public bool IsDeleted { get; set; }
 
 		public DateTime CreatedAt { get; set; }
 

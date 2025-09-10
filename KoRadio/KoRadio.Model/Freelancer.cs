@@ -32,6 +32,8 @@ namespace KoRadio.Model
 		[NotMapped]
 		public double? AverageRating => TotalRatings == 0 ? 0 : RatingSum / TotalRatings;
 
+		public byte[]? CV { get; set; }
+
 
 		public virtual User FreelancerNavigation { get; set; } = null!;
 

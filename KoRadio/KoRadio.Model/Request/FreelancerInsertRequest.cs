@@ -28,6 +28,7 @@ namespace KoRadio.Model.Request
 		public  ICollection<int> ServiceId { get; set; } = new List<int>();
 	
 		public bool IsApplicant { get; set; }
+		public byte[]? CV { get; set; }
 
 
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/product.dart';
 import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
@@ -66,6 +67,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
         ),
         centerTitle: true,
+        scrolledUnderElevation: 0,
       ),
     
       body: SingleChildScrollView(
@@ -73,24 +75,52 @@ class _ProductDetailsState extends State<ProductDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: product.image != null
-                  ? imageFromString(
-                      product.image!,
-                      height: 240,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      'assets/images/productPlaceholder.jpg',
-                      height: 240,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+ 
+Stack(
+  children:[ Container(
+    width: double.infinity,
+    height: MediaQuery.of(context).size.height * 0.4,
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: Colors.grey.shade400, 
+        width: 2, 
+      ),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(14), 
+      child: product.image != null
+          ? imageFromString(
+              product.image!,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            )
+          : Image.asset(
+              'assets/images/productPlaceholder.jpg',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
             ),
-            const SizedBox(height: 20),
+    ),
+  ),
+     if (product.isOnSale == true)
+      Positioned(
+        top: 0,
+        left: 0,
+        child: Banner(
+          message: "Akcija",
+          location: BannerLocation.topStart,
+          color: Colors.redAccent, // background color of banner
+          textStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        )),
+          ]),
+const SizedBox(height: 20),
+
 
             // Product name
             if (product.productName != null)
@@ -112,7 +142,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             const SizedBox(height: 20),
 
             // Price
-            if (product.price != null)
+           product.isOnSale==false?
               Text(
                 'Cijena: ${product.price} KM',
                 style: Theme.of(context)
@@ -121,8 +151,30 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ?.copyWith(
                         color: const Color.fromRGBO(27, 76, 125, 25),
                         fontWeight: FontWeight.bold),
+              ):
+             Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Text('Stara cijena: ${product.price} KM',
+                 style: TextStyle(decoration: TextDecoration.lineThrough),),
+                  Text('Akcijska cijena: ${product.salePrice} KM',
+                 ),
+                 Text('Ponuda traje do: ${DateFormat('dd.MM.yyyy').format(product.saleExpires!)}',
+                   ),
+               ],
+             )
+              ,
+            
+            const SizedBox(height: 5),
+            Text(
+                'Na lageru: ${product.stockQuantity} komada',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(
+                        color: const Color.fromRGBO(27, 76, 125, 25),
+                        fontWeight: FontWeight.bold),
               ),
-            const SizedBox(height: 20),
 
             // Store info
             Text(
@@ -137,10 +189,18 @@ class _ProductDetailsState extends State<ProductDetails> {
               alignment: Alignment.bottomRight,
 
               child:   ElevatedButton(onPressed: (){
+                if(widget.product?.isOutOfStock==false)
+                {
               context.read<CartProvider>().add(product);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${product.productName} dodan u korpu.')),
           );
+                }
+                else{
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${product.productName} nije na lageru.')),
+                  );
+                }
             }, child: Text('Dodaj u korpu',style: TextStyle(color: Colors.white),)
             
           ,

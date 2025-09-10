@@ -15,6 +15,8 @@ namespace KoRadio.Model.Request
 		public string ProductDescription { get; set; } = null!;
 
 		public decimal Price { get; set; }
+		public int StockQuantity { get; set; } = 0;
+
 
 		public int StoreId { get; set; }
 		public byte[]? Image { get; set; }

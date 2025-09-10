@@ -87,8 +87,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Rezervacije za ${widget.selectedDay.toIso8601String().split('T')[0]}'),
-              const SizedBox(height: 6),
+              
                FormBuilderTextField(
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: "Obavezno polje"),
@@ -110,14 +109,8 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                    
                     ),  
                     const SizedBox(height: 15,),
-                    const ExpansionTile(initiallyExpanded: false,title: Text('Napomena'),
-                    children: [
-  Text('Datum rezervacije sa firmom ne predstavlja uslov početka rada na isti. U slučaju prihvaćanja zahtjeva, firma će vratiti procjenu roka završetka radova.',
-                    style: TextStyle(fontSize: 12),),
-                    ]
-                  
-                    )
-                    ,
+                    
+                    
                     const SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),

@@ -26,8 +26,9 @@ public partial class Freelancer:ISoftDelete,IApplicantDelete
     public int? TotalRatings { get; set; }
 
     public double? RatingSum { get; set; }
+	public byte[]? CV { get; set; }
 
-    public virtual User FreelancerNavigation { get; set; } = null!;
+	public virtual User FreelancerNavigation { get; set; } = null!;
 
     public virtual ICollection<FreelancerService> FreelancerServices { get; set; } = new List<FreelancerService>();
 

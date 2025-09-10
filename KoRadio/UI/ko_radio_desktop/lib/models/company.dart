@@ -21,6 +21,7 @@ class Company {
   Location? location;
   bool isDeleted;
   bool isApplicant;
+  String? businessCertificate;
   List<CompanyEmployee> companyEmployees;
   List<CompanyServices> companyServices; 
 

@@ -21,15 +21,22 @@ class _OrderListState extends State<OrderList> {
   late final ScrollController _scrollController;
 
   bool _isInitialized = false;
+  bool _isLoading=false;
   Timer? _debounce;
+     bool? isShipped=false;
+    bool? isCancelled=false;
 
-  // New: segment selection
-  String _selectedSegment = "made"; // "made", "shipped", "cancelled"
+
+  String _selectedSegment = "made";
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
 
+      setState(() {
+        _isLoading=true;
+      });
+  orderProvider = context.read<OrderProvider>();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -41,7 +48,8 @@ class _OrderListState extends State<OrderList> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      orderProvider = context.read<OrderProvider>();
+    
+    
 
       orderPagination = PaginatedFetcher<Order>(
         fetcher: ({
@@ -65,48 +73,52 @@ class _OrderListState extends State<OrderList> {
       orderPagination.addListener(() {
         if (mounted) setState(() {});
       });
-
+     
       await _refreshWithFilter();
+      if(!mounted) return;
       setState(() {
         _isInitialized = true;
+        _isLoading=false;
       });
     });
   }
 
-  Future<void> _refreshWithFilter() async {
-    bool? isShipped;
-    bool? isCancelled;
+ Future<void> _refreshWithFilter() async {
 
-    switch (_selectedSegment) {
-      case "made":
-        isShipped = false;
-        isCancelled = false;
-        break;
-      case "shipped":
-        isShipped = true;
-        isCancelled = false;
-        break;
-      case "cancelled":
-        isShipped = null;
-        isCancelled = true;
-        break;
-    }
 
-    final filter = <String, dynamic>{
-      'UserId': AuthProvider.user?.userId,
-      'IsShipped': isShipped,
-      'IsCancelled': isCancelled,
-    };
+  setState(() => _isLoading = true);
 
-    await orderPagination.refresh(newFilter: filter);
+  final filter = <String, dynamic>{
+    'UserId': AuthProvider.user?.userId,
+  };
+
+  switch (_selectedSegment) {
+    case "made":
+      filter['IsShipped'] = false;
+      filter['IsCancelled'] = false;
+      break;
+    case "shipped":
+      filter['IsShipped'] = true;
+      filter['IsCancelled'] = false;
+      break;
+    case "cancelled":
+      filter['IsShipped'] = false;
+      filter['IsCancelled'] = true;
+      break;
   }
+
+  await orderPagination.refresh(newFilter: filter);
+
+  if (!mounted) return;
+  setState(() => _isLoading = false);
+}
+
 
   void _onSegmentChanged(String segment) {
-    setState(() {
-      _selectedSegment = segment;
-    });
-    _refreshWithFilter();
-  }
+  if (_isLoading) return; // skip if already refreshing
+  setState(() => _selectedSegment = segment);
+  _refreshWithFilter();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +156,9 @@ class _OrderListState extends State<OrderList> {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _refreshWithFilter,
-                    child: orderPagination.items.isEmpty
+                    child: _isLoading ?
+                     const Center(child: CircularProgressIndicator()):
+                     orderPagination.items.isEmpty
                         ? ListView(
                             children: const [
                               SizedBox(height: 50),

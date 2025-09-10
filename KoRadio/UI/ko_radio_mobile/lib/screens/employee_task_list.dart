@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/employee_task.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
@@ -8,7 +9,7 @@ import 'package:ko_radio_mobile/providers/employee_task_provider.dart';
 import 'package:provider/provider.dart';
 
 class EmployeeTaskList extends StatefulWidget {
-  const EmployeeTaskList({ super.key, required this.job});
+  const EmployeeTaskList({super.key, required this.job});
   final Job job;
 
   @override
@@ -20,6 +21,9 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
   SearchResult<EmployeeTask>? employeeTaskResult;
   bool _isLoading = false;
 
+  // Use a nullable bool so we can pass directly to API
+  bool? _isFinished = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,21 +34,23 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
   }
 
   Future<void> _getEmployeeTask() async {
-    var filter = {'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
-    'JobId': widget.job.jobId};
-    setState(() {
-      _isLoading = true;
-    });
+    var filter = {
+      'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+      'JobId': widget.job.jobId,
+      'isFinished': _isFinished,
+    };
+
+    setState(() => _isLoading = true);
 
     try {
       var fetchedEmployeeTask = await employeeTaskProvider.get(filter: filter);
       setState(() {
         employeeTaskResult = fetchedEmployeeTask;
         _isLoading = false;
-        print(AuthProvider.selectedCompanyEmployeeId);
       });
     } catch (e) {
       if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Greška. Molim pokušajte ponovo.')),
       );
@@ -65,30 +71,78 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : (employeeTaskResult?.result.isEmpty ?? true)
-                ? const Center(child: Text("Nema zadataka"))
-                : ListView.separated(
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 35),
-                    itemCount: employeeTaskResult!.result.length,
-                    itemBuilder: (context, index) {
-                      return EmployeeTaskTile(
-                        task: employeeTaskResult!.result[index],
-                      );
-                    },
-                  ),
+      body: Column(
+        children: [
+          // 🔹 SegmentedButton for filtering tasks
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(
+                  value: false,
+                  icon: Icon(Icons.pending_actions),
+                  label: Text("Aktivni"),
+                ),
+                ButtonSegment(
+                  value: true,
+                  icon: Icon(Icons.done_all),
+                  label: Text("Završeni"),
+                ),
+              ],
+              selected: {_isFinished ?? false},
+              onSelectionChanged: (newSelection) async {
+                setState(() {
+                  _isFinished = newSelection.first;
+                });
+                await _getEmployeeTask();
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return const Color.fromRGBO(27, 76, 125, 1);
+                  }
+                  return Colors.grey.shade200;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return Colors.white;
+                  }
+                  return Colors.black87;
+                }),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : (employeeTaskResult?.result.isEmpty ?? true)
+                    ? const Center(child: Text("Nema zadataka"))
+                    : ListView.separated(
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 35),
+                        itemCount: employeeTaskResult!.result.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: EmployeeTaskTile(
+                              task: employeeTaskResult!.result[index],
+                              employeeTaskProvider: employeeTaskProvider,
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
       ),
     );
   }
 }
 
+
 class EmployeeTaskTile extends StatefulWidget {
   final EmployeeTask task;
-  const EmployeeTaskTile({super.key, required this.task});
+  final EmployeeTaskProvider employeeTaskProvider;
+  const EmployeeTaskTile({super.key, required this.task, required this.employeeTaskProvider});
 
   @override
   State<EmployeeTaskTile> createState() => _EmployeeTaskTileState();
@@ -119,7 +173,7 @@ class _EmployeeTaskTileState extends State<EmployeeTaskTile> {
               children: [
                 // Date
                 Text(
-                  "Datum: ${widget.task.createdAt.toString().split('T')[0]}",
+                  "Datum: ${DateFormat('dd.MM.yyyy').format(widget.task.createdAt!)}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -141,11 +195,11 @@ class _EmployeeTaskTileState extends State<EmployeeTaskTile> {
 
                 // Worker name
                 Text(
-                  "Radnik: ${widget.task.companyEmployee?.user?.firstName ?? ''} ${widget.task.companyEmployee?.user?.lastName ?? ''}",
+                  "Radnik: ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}",
                   style: const TextStyle(color: Colors.white70),
                 ),
-
-                // Expand/collapse icon
+               
+               
                 Align(
                   alignment: Alignment.centerRight,
                   child: Icon(
@@ -153,6 +207,36 @@ class _EmployeeTaskTileState extends State<EmployeeTaskTile> {
                     color: Colors.white70,
                   ),
                 ),
+                if(widget.task.isFinished==false)
+                 Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    child: ElevatedButton(
+                      child: const Text('Završi zadatak'),
+                      onPressed: () async {
+                        try { 
+                          await widget.employeeTaskProvider.update(widget.task.employeeTaskId,
+                          {
+                            "isFinished": true,
+                          });
+                          setState(() {
+                            
+                          });
+                        
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Zadatak završen')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Greška. Molim pokušajte ponovo.')),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  
+                ),
+
               ],
             ),
           ),

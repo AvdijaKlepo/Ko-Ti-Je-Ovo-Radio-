@@ -44,7 +44,9 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
             "productDescription": widget.product?.productDescription,
             "price": widget.product?.price.toString(),
             "image": widget.product?.image,
-
+            "stockQuantity": widget.product?.stockQuantity.toString(),
+            "isOnSale": widget.product?.isOnSale,
+            "salePrice": widget.product?.salePrice.toString(),
             "serviceId": widget.product?.productsServices?.map((e) => e.serviceId).whereType<int>().toSet()
       .toList()
 
@@ -120,6 +122,10 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if(widget.product==null)
+
+                      const Text("Unesite proizvod", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      if(widget.product!=null)
                       const Text("Podaci Proizvoda", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                       const SizedBox(height: 20),
@@ -157,6 +163,23 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                 ]),
                 valueTransformer: (value) => double.tryParse(value ?? ''),
               ),
+                      const SizedBox(height: 20),
+                      FormBuilderTextField(name: 'stockQuantity', decoration: const InputDecoration(labelText: 'Na lageru', border: OutlineInputBorder()),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.integer(errorText: 'Mora biti broj, npr. 10'),
+                      ]),
+                      ),
+                      if(widget.product!=null)
+                      const SizedBox(height: 20),
+                      if(widget.product!=null)
+
+                    
+                      const SizedBox(height: 20),
+                      if(widget.product?.isOnSale==true)
+                      FormBuilderCheckbox(title:Text('Akcija?'),name: 'isOnSale', initialValue: widget.product?.isOnSale ?? false, 
+                      
+                      ),
                       const SizedBox(height: 20),
                      
                  
@@ -274,6 +297,7 @@ void getImage(FormFieldState field) async {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
       request['storeId']=AuthProvider.selectedStoreId;
       request['isDeleted'] = false;
+      request['stockQuantity'] = request['stockQuantity'];
        if (request["price"] != null) {
       request["price"] = (request["price"] as double).toString();
     } else {

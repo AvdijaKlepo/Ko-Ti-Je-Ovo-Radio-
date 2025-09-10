@@ -36,12 +36,14 @@ namespace KoRadio.Services
 			}
 			if (search?.OrderBy == "asc")
 			{
-				query = query.OrderBy(x => x.MessageId); 
+				query = query.OrderBy(x => x.MessageId);
 			}
-			else if (search?.OrderBy == "desc")
+			else 
 			{
-				query = query.OrderByDescending(x => x.IsOpened == false).ThenBy(x=>x.MessageId); 
+				query = query.OrderBy(x => x.IsOpened ? 1 : 0)
+							 .ThenByDescending(x => x.MessageId);
 			}
+
 			return base.AddFilter(search, query);
 		}
 	}

@@ -157,7 +157,7 @@ class _BookJobState extends State<BookJob> {
 
     return Scaffold(
 
-      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Šta ćemo, kako ćemo?',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
       centerTitle: true,
       ),
       
@@ -188,19 +188,19 @@ class _BookJobState extends State<BookJob> {
                   ),
                   const Divider(height: 20),
                 ] else
-                   Text('Nema rezervacija za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay ?? DateTime.now())}',
-                      style: TextStyle(fontSize: 16)),
+                   SizedBox.shrink(),
                 const SizedBox(height: 20),
                 FormBuilderTextField(
                   name: "jobTitle",
                   decoration: const InputDecoration(
                     labelText: 'Naslov posla',
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
+                    prefixIcon: Icon(Icons.title),
                   ),
                   validator: FormBuilderValidators.compose(
                     [
                       FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      FormBuilderValidators.minLength(5, errorText: 'Minimalno 5 znakova'),
                        (value) {
       if (value == null || value.isEmpty) return null;
       final regex = RegExp(r'^[A-Z][a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
@@ -261,17 +261,18 @@ class _BookJobState extends State<BookJob> {
                 const SizedBox(height: 15),
                 FormBuilderTextField(
                   name: "jobDescription",
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
                     labelText: 'Opis problema',
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
+                    prefixIcon: Icon(Icons.description_outlined),
                   ),
                   maxLines: 3,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
                     FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
                     FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znakova'),
-                    FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][a-zA-ZčćžđšČĆŽŠĐ\s0-9 .,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                    FormBuilderValidators.match(r'^[a-zA-ZčćžđšČĆŽŠĐ\s0-9 .,\-\/!]+$', errorText: 'Dozvoljena su samo slova, brojevi i osnovni znakovi.'),
                   
                   ]
                    
@@ -305,7 +306,7 @@ class _BookJobState extends State<BookJob> {
   builder: (field) {
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: "Logo",
+        labelText: "Slika",
         border: OutlineInputBorder(),
       ),
       child: Column(
@@ -449,7 +450,7 @@ class _BookJobState extends State<BookJob> {
                   "payInvoice": null,
                   "jobDate": values["jobDate"],
                   "dateFinished": null,
-                  "jobDescription": values["jobDescription"],
+                  "jobDescription": capitalize( values["jobDescription"]),
                   "image": values["image"],
                   "jobStatus": JobStatus.unapproved.name,
                   "serviceId": values["serviceId"]

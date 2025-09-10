@@ -18,8 +18,9 @@ import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class UserUpdate extends StatefulWidget {
-  const UserUpdate({required this.user, super.key});
+  const UserUpdate({required this.user,  required this.locationId, super.key});
   final User user;
+  final int locationId;
 
   @override
   State<UserUpdate> createState() => _UserUpdateState();
@@ -29,6 +30,7 @@ class _UserUpdateState extends State<UserUpdate> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late UserProvider userProvider;
+  SearchResult<User>? userResult;
   late LocationProvider locationProvider;
   SearchResult<Location>? locationResult;
   bool _isLoadingLocations = true;
@@ -38,24 +40,44 @@ class _UserUpdateState extends State<UserUpdate> {
   @override
   void initState() {
     super.initState();
+
     locationProvider = context.read<LocationProvider>();
     userProvider = context.read<UserProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+await  _getLocations(); 
+await _getUsers();
 
-    _initialValue = {
+
+
+  
+  });
+ int? locationId = userResult?.result.first.location?.locationId;
+ print(locationId);
+_initialValue = {
       'userId': widget.user?.userId,
       'firstName': widget.user?.firstName,
       'lastName': widget.user?.lastName,
       'email': widget.user?.email,
       'phoneNumber': widget.user?.phoneNumber,
-      'locationId': widget.user?.location?.locationId,
+      'locationId': widget.locationId,
       'address': widget.user?.address,
       'image': widget.user?.image,
+    
     };
-
-    _getLocations();
+   
+    if(widget.user?.image!=null)
+    {
+      try {
+        _decodedImage = base64Decode(widget.user.image!);
+      } catch (_) {
+        _decodedImage = null;
+      }
+    }
+  
   }
   Future<void> _pickImage() async {
-  var result = await FilePicker.platform.pickFiles(type: FileType.image);
+  var result = await FilePicker.platform.pickFiles(type: FileType.image,
+  allowedExtensions: ['png', 'jpg', 'jpeg']);
 
   if (result != null && result.files.single.path != null) {
     setState(() {
@@ -68,14 +90,32 @@ class _UserUpdateState extends State<UserUpdate> {
   Future<void> _getLocations() async {
     try {
       var fetchedLocations = await locationProvider.get();
+      if(!mounted) return;
       setState(() {
         locationResult = fetchedLocations;
         _isLoadingLocations = false;
       });
     } catch (_) {
+      if(!mounted) return;
       setState(() => _isLoadingLocations = false);
     }
   }
+  Future<void> _getUsers() async {
+    var filter = {
+      'UserId': widget.user.userId,
+    };
+    try {
+      var fetchedUsers = await userProvider.get(filter: filter);
+      if(!mounted) return;
+      setState(() {
+        userResult = fetchedUsers;
+        
+      });
+    } catch (_) {
+
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,9 +212,7 @@ class _UserUpdateState extends State<UserUpdate> {
                         ),
                         const SizedBox(height: 12),
         
-                        _isLoadingLocations
-                            ? const Center(child: CircularProgressIndicator())
-                            : FormBuilderDropdown<int>(
+                       FormBuilderDropdown<int>(
                                 name: 'locationId',
                                 decoration: const InputDecoration(
                                   labelText: "Lokacija",
@@ -183,6 +221,7 @@ class _UserUpdateState extends State<UserUpdate> {
                                 validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                 items: locationResult?.result
                                         .map((loc) => DropdownMenuItem(
+
                                               value: loc.locationId,
                                               child: Text(loc.locationName ?? ''),
                                             ))

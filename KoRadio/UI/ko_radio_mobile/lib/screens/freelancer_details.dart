@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/company.dart';
@@ -136,28 +137,36 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
       body: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(2),
                 child: Builder(
                   builder: (context) {
                     final imageString = isFreelancer
                         ? freelancer?.freelancerNavigation?.image
                         : company?.image;
-
+      
                     if (imageString != null) {
                       return imageFromString(imageString, height: 100, width: 100);
                     } else if (isFreelancer) {
-                      return SvgPicture.asset(
-                        "assets/images/undraw_construction-workers_z99i.svg",
+                      return SizedBox(
                         width: 100,
                         height: 100,
+                        child: SvgPicture.asset(
+                          "assets/images/undraw_construction-workers_z99i.svg",
+                         
+                          fit: BoxFit.cover,
+                        ),
                       );
                     } else {
-                      return SvgPicture.asset(
-                        "assets/images/undraw_under-construction_c2y1.svg",
+                      return SizedBox(
                         width: 100,
                         height: 100,
+                        child: SvgPicture.asset(
+                          "assets/images/undraw_under-construction_c2y1.svg",
+                        
+                        ),
                       );
                     }
                   },
@@ -165,39 +174,43 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                
+                
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.person, size: 18, color: Colors.grey),
-                      SizedBox(width: 4,),
+                      const Icon(Icons.person, size: 18, color: Colors.grey),
+                      const SizedBox(width: 4,),
                       Text(isFreelancer
                           ? 'Ime: ${freelancer?.freelancerNavigation?.firstName ?? ''} ${freelancer?.freelancerNavigation?.lastName ?? ''}'
-                          : company?.companyName ?? 'Nepoznata kompanija',style: TextStyle(fontWeight: FontWeight.bold),),
+                          : company?.companyName ?? 'Nepoznata kompanija',style: const TextStyle(fontWeight: FontWeight.bold,),
+                          overflow: TextOverflow.ellipsis,maxLines: 1,
+                      )
                     ],
                   ),
                   if (isFreelancer)
                     Row(
                       children: [
-                        Icon(Icons.construction, size: 18, color: Colors.grey),
-                      SizedBox(width: 4,),
-
-                        Text('Iskustvo: ${freelancer?.experianceYears} godine', style: TextStyle(fontWeight: FontWeight.bold),),
+                        const Icon(Icons.construction, size: 18, color: Colors.grey),
+                      const SizedBox(width: 4,),
+                      
+                        Text('Iskustvo: ${freelancer?.experianceYears} godine', style: const TextStyle(fontWeight: FontWeight.bold),),
                       ],
                     ),
                   Row(
                     children: [
-                      Icon(Icons.star_outline, size: 18, color: Colors.grey),
-                      SizedBox(width: 4,),
-
-                      Text('Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}',style: TextStyle(fontWeight: FontWeight.bold),),
+                      const Icon(Icons.star_outline, size: 18, color: Colors.grey),
+                      const SizedBox(width: 4,),
+                      
+                      Text('Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}',style: const TextStyle(fontWeight: FontWeight.bold),),
                     ],
                   ),
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 18, color: Colors.grey),
-                      SizedBox(width: 4,),
-
-                      Text('Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}',style: TextStyle(fontWeight: FontWeight.bold),),
+                      const Icon(Icons.location_on_outlined, size: 18, color: Colors.grey),
+                      const SizedBox(width: 4,),
+                      
+                      Text('Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}',style: const TextStyle(fontWeight: FontWeight.bold),),
                     ],
                   ),
                   
@@ -206,21 +219,30 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
             ],
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Neradni dani radnika su onemogućeni',
-            style: TextStyle(
+          widget.freelancerId!=null ?
+           Text(
+            'Radni dani: ${localizeWorkingDays(freelancer?.workingDays).join(', ')}',
+            style: const TextStyle(
               color: Color.fromRGBO(27, 76, 125, 25),
               fontWeight: FontWeight.bold,
             ),
-          ),
+          ):
+           Text(
+            'Radni dani: ${localizeWorkingDays(company?.workingDays).join(', ')}',
+            style: const TextStyle(
+              color: Color.fromRGBO(27, 76, 125, 25),
+              fontWeight: FontWeight.bold,
+            ),
+          )
+          ,
           Text('Radno vrijeme: ${isFreelancer ? freelancer?.startTime.substring(0,5) : company?.startTime.substring(0,5)} - ${isFreelancer ? freelancer?.endTime.substring(0,5) : company?.endTime.substring(0,5)}',
-          style: TextStyle(
+          style: const TextStyle(
               color: Color.fromRGBO(27, 76, 125, 25),
               fontWeight: FontWeight.bold,
             ),),
           Expanded(
             child: TableCalendar(
-
+              locale: 'bs',
               key: const PageStorageKey('calendar'),
               shouldFillViewport: true,
               firstDay: DateTime.now(),
@@ -234,7 +256,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                 setState(() {
                   _focusedDay = selectedDay;
                 });
-
+      
                 if (isFreelancer && freelancer != null) {
                   await Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => FreelancerDaySchedule(selectedDay, freelancer),
@@ -244,7 +266,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                     builder: (context) => BookCompanyJob(company, selectedDay),
                   ));
                 }
-
+      
                 if (mounted) {
                   setState(() {
                     _focusedDay = _selectedDay!;
@@ -252,7 +274,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                 }
               },
               calendarStyle: CalendarStyle(
-
+      
                 isTodayHighlighted: true,
                 selectedDecoration: const BoxDecoration(
                   color: Color.fromRGBO(27, 76, 125, 1),
@@ -266,8 +288,8 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                   shape: BoxShape.circle,
                 ),
                  defaultTextStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-    
-   
+          
+         
                
                 outsideDaysVisible: false,
               ),

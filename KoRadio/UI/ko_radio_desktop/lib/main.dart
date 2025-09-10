@@ -18,8 +18,10 @@ import 'package:ko_radio_desktop/providers/stores_provider.dart';
 import 'package:ko_radio_desktop/providers/tender_bid_provider.dart';
 import 'package:ko_radio_desktop/providers/tender_provider.dart';
 import 'package:ko_radio_desktop/providers/user_provider.dart';
+import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:ko_radio_desktop/providers/signalr_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 void main() {
@@ -56,6 +58,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Flutter Demo',
+       supportedLocales: const[
+        Locale('en', 'Latn'),
+        Locale('bs', 'Latn'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+      ],
+     
       theme: ThemeData(
        
         colorScheme:
@@ -99,8 +112,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
      
-      body:Stack(children: [ Center(
-        child: Center(
+      body: Center(
           child: Container(
             constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
             child: Column(
@@ -142,7 +154,8 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-  onPressed:_isLoading ? null: () async {
+  onPressed: () async {
+    
     setState(() {
       _isLoading=true;
     });
@@ -158,6 +171,22 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       AuthProvider.user = user;
+      if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
       final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
       AuthProvider.isSignedIn = true;
 
@@ -202,6 +231,22 @@ class _LoginPageState extends State<LoginPage> {
                   return SimpleDialogOption(
                     onPressed: () async {
                       AuthProvider.selectedCompanyId = company.companyId;
+                     if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ova firme je deaktivirana."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
                       await signalRProvider.startConnection();
                       Navigator.pop(context);
                       Navigator.pushReplacement(
@@ -220,6 +265,22 @@ class _LoginPageState extends State<LoginPage> {
 
           if (companyEmployees.length == 1) {
             AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+            if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ova firma je deaktivirana."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
             await signalRProvider.startConnection();
           }
         } else if (chosenRole == "StoreAdministrator") {
@@ -233,6 +294,22 @@ class _LoginPageState extends State<LoginPage> {
                   return SimpleDialogOption(
                     onPressed: () async {
                       AuthProvider.selectedStoreId = store.storeId;
+                      if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj trgovina je deaktivirana ili nije odobrena."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
                       await signalRProvider.startConnection();
                       Navigator.pop(context);
                       Navigator.pushReplacement(
@@ -252,6 +329,22 @@ class _LoginPageState extends State<LoginPage> {
           if (stores.length == 1) {
             print(stores.length);
             AuthProvider.selectedStoreId = stores.first.storeId;
+            if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj trgovina je deaktivirana ili nije odobrena."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
             print(AuthProvider.selectedStoreId);
             await signalRProvider.startConnection();
           }
@@ -268,6 +361,22 @@ class _LoginPageState extends State<LoginPage> {
                 return SimpleDialogOption(
                   onPressed: () async {
                     AuthProvider.selectedCompanyId = company.companyId;
+                    if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
                     await signalRProvider.startConnection();
                     Navigator.pop(context);
                     Navigator.pushReplacement(
@@ -298,6 +407,22 @@ class _LoginPageState extends State<LoginPage> {
                 return SimpleDialogOption(
                   onPressed: () async {
                     AuthProvider.selectedStoreId = store.storeId;
+                    if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
                     await signalRProvider.startConnection();
                     Navigator.pop(context);
                     Navigator.pushReplacement(
@@ -316,6 +441,22 @@ class _LoginPageState extends State<LoginPage> {
 
         if (stores.length == 1) {
           AuthProvider.selectedStoreId = stores.first.storeId;
+          if (!validateAccountStatus(user)) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Greška"),
+      content: const Text("Ovaj račun je deaktiviran ili nije odobren."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("U redu"),
+        ),
+      ],
+    ),
+  );
+  return; 
+}
           await signalRProvider.startConnection();
         }
       }
@@ -369,18 +510,9 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
+      );
     
-    if(_isLoading)
-    Container(
-      color: Colors.white,
-      child: const Center(
-      child: CircularProgressIndicator(),
-      ),
-    )
-      ],
-      )
-    );
+   
   }
 }
 

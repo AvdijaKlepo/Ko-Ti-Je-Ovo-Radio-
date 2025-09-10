@@ -18,6 +18,7 @@ namespace KoRadio.Model.DTOs
 		public DateTime DateJoined { get; set; }
 		public string CompanyName { get; set; } = null!;
 		public string? CompanyRoleName { get; set; }
+		public CompanyDto? Company { get; set; }
 		public UserManualDto User { get; set; } = null!;
 	}
 
@@ -28,6 +29,11 @@ namespace KoRadio.Model.DTOs
 		public string LastName { get; set; } = null!;
 		public string Email { get; set; } = null!;
 		public string PhoneNumber { get; set; } = null!;
+	}
+	public class CompanyDto
+	{
+		public bool IsDeleted { get; set; }
+	
 	}
 
 }

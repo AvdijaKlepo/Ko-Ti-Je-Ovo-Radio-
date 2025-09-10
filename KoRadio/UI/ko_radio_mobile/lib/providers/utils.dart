@@ -9,12 +9,58 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/models/user.dart';
+import 'package:ko_radio_mobile/providers/auth_provider.dart';
 
 String formatDateTime(DateTime? date) {
   if (date == null) return "";
   return "${date.day}.${date.month}.${date.year}";
+}
+
+List<String> getWorkingDaysInRange({
+  required DateTime jobDate,
+  required DateTime dateFinished,
+  required List<String> workingDays,
+}) {
+
+  final normalized =  workingDays.map((d) => d.toLowerCase()).toSet();
+
+  final result = <String>[];
+  DateTime current = jobDate;
+
+  while (!current.isAfter(dateFinished)) {
+    final dayName = _dayName(current.weekday); 
+    if (normalized.contains(dayName.toLowerCase())) {
+      result.add(dayName);
+    }
+    current = current.add(const Duration(days: 1));
+  }
+
+  return localizeWorkingDays(result);
+}
+
+String _dayName(int weekday) {
+  switch (weekday) {
+    case DateTime.monday:
+      return "Monday";
+    case DateTime.tuesday:
+      return "Tuesday";
+    case DateTime.wednesday:
+      return "Wednesday";
+    case DateTime.thursday:
+      return "Thursday";
+    case DateTime.friday:
+      return "Friday";
+    case DateTime.saturday:
+      return "Saturday";
+    case DateTime.sunday:
+      return "Sunday";
+    default:
+      return "";
+  }
 }
 
 
@@ -40,9 +86,7 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
 
 
 
-
-
-  class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
+class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
   final TimeOfDay minTime;
   final TimeOfDay maxTime;
   final TimeOfDay now;
@@ -71,30 +115,12 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
 
   }) : super(
           builder: (FormFieldState<TimeOfDay?> field) {
-          
+          bool outOfWorkHours=false;
            
           
           
-            return InputDecorator(
-              
-
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                 
-                  
-                ),
-                labelText: 'Odaberi vrijeme',
-                errorText: field.errorText,
-                
-                
-              ),
-              child: ListTile(
-                
-
-                
-                title: Text(field.value?.format(field.context) ?? 'Odaberi vrijeme'),
-                trailing: const Icon(Icons.access_time),
-                onTap: () async {
+           return GestureDetector(
+  onTap: () async {
                   final picked = await showTimePicker(
                     context: field.context,
                     initialTime: jobDate?.toIso8601String().split('T')[0]!=DateTime.now().toIso8601String().split('T')[0] ? field.value ?? minTime : field.value ?? now,
@@ -177,11 +203,158 @@ AppBar appBar({required String title,   Widget? actions, required bool automatic
                       onChanged(picked);
                     }
                 },
-              ),
-            );
+  child: InputDecorator(
+    decoration: InputDecoration(
+      border: const OutlineInputBorder(),
+      prefixIcon: const Icon(Icons.schedule),
+      labelText: field.value!=null ? 'Vrijeme početka' : '',
+      errorText: field.errorText,
+    ),
+    // this makes the inside text look like a standard input
+    child: Text(
+      field.value?.format(field.context) ?? 'Vrijeme početka',
+      style: Theme.of(field.context).textTheme.bodyMedium,
+    ),
+  ),
+);
+
           },
         );
 }
+ DateTime parseTime(String timeStr) {
+      final parts = timeStr.split(':');
+      return DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      );
+    }
+     parseTimeString(String s) {
+    final parts = s.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+bool isOverlapping(DateTime selected, List<Map<String, DateTime>> jobs) {
+  for (final job in jobs) {
+    final start = job["start"]!;
+    final end = job["end"]!;
+    if (selected.isAfter(start) && selected.isBefore(end)) {
+      return true;
+    }
+  }
+  return false;
+}
+bool validateAccountStatus(User user) {
+  if (user.isDeleted == true && AuthProvider.selectedRole == "User") {
+    return false;
+  }
+
+  final freelancer = user.freelancer;
+  if (freelancer != null) {
+    if (freelancer.isDeleted! && AuthProvider.selectedRole == "Freelancer") {
+      return false;
+    }
+    if (freelancer.isApplicant! && AuthProvider.selectedRole == "Freelancer") {
+      return false;
+    }
+  }
+
+  final companyEmployees = user.companyEmployees ?? [];
+  for (final ce in companyEmployees) {
+    if (ce.isDeleted == true && AuthProvider.selectedRole == "CompanyEmployee") {
+      return false;
+    }
+    if (ce.isApplicant == true && AuthProvider.selectedRole == "CompanyEmployee") {
+      return false;
+    }
+  }
+
+  return true; 
+}
+String capitalize(String? s) {
+  if (s == null || s.isEmpty) {
+    return '';
+  }
+  // Make sure the rest of the string is not capitalized.
+  return s[0].toUpperCase() + s.substring(1).toLowerCase();
+}
+
+
+
+List<String> localizeWorkingDays(List<dynamic>? days) {
+  if (days == null) return [];
+
+  const dayNamesHR = [
+    "Nedjelja",
+    "Ponedjeljak",
+    "Utorak",
+    "Srijeda",
+    "Četvrtak",
+    "Petak",
+    "Subota"
+  ];
+
+  const mapping = {
+    "Sunday": "Nedjelja",
+    "Monday": "Ponedjeljak",
+    "Tuesday": "Utorak",
+    "Wednesday": "Srijeda",
+    "Thursday": "Četvrtak",
+    "Friday": "Petak",
+    "Saturday": "Subota"
+  };
+
+  return days.map((d) {
+    if (d is int && d >= 0 && d <= 6) return dayNamesHR[d];
+    if (d is String) return mapping[d] ?? d;
+    return d.toString();
+  }).toList();
+}
+
+
+  
+String formatJobRange(DateTime start, DateTime end) {
+  final dateFmt = DateFormat('dd.MM.yyyy');
+  final timeFmt = DateFormat('HH:mm');
+
+  if (start.year == end.year &&
+      start.month == end.month &&
+      start.day == end.day) {
+    // Same day
+    return "${dateFmt.format(start)} ${timeFmt.format(start)} – ${timeFmt.format(end)}";
+  } else {
+    // Multi-day
+    return "${dateFmt.format(start)} ${timeFmt.format(start)} – "
+           "${dateFmt.format(end)} ${timeFmt.format(end)}";
+  }
+}
+String? formatTimeOnly(dynamic value) {
+  if (value == null) return null;
+
+  if (value is DateTime) {
+    return "${value.hour.toString().padLeft(2, '0')}:"
+           "${value.minute.toString().padLeft(2, '0')}:"
+           "${value.second.toString().padLeft(2, '0')}";
+  }
+
+  if (value is TimeOfDay) {
+    return "${value.hour.toString().padLeft(2, '0')}:"
+           "${value.minute.toString().padLeft(2, '0')}:00";
+  }
+
+  if (value is String) {
+    // if already formatted correctly, just return it
+    final regex = RegExp(r'^\d{2}:\d{2}(:\d{2})?$');
+    if (regex.hasMatch(value)) {
+      return value.length == 5 ? "$value:00" : value;
+    }
+  }
+
+  return null;
+}
+
+
 
 
 
