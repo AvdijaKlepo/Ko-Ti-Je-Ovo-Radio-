@@ -37,6 +37,7 @@ class _EditJobState extends State<EditJob> {
   late Set<int> _workingDayInts;
   bool isLoading = false;
   Uint8List? _decodedImage;
+  int jobDifference=0;
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
     'Tuesday': 2,
@@ -71,11 +72,11 @@ class _EditJobState extends State<EditJob> {
     DateTime(day.year, day.month, day.day, t.hour, t.minute);
 
 bool _rangeOverlaps(DateTime aStart, DateTime aEnd, DateTime bStart, DateTime bEnd) {
-  // back-to-back allowed
+
   return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
 }
 
-// booked job strings like "HH:mm" -> DateTimes on selected day
+
 DateTime _parseOn(DateTime day, String hhmm) {
   final p = hhmm.split(':');
   return DateTime(day.year, day.month, day.day, int.parse(p[0]), int.parse(p[1]));
@@ -134,8 +135,9 @@ Future<void> _pickImage() async {
       'startEstimate': jobStartTime,
       'endEstimate': endTimeDate,
       'payEstimate': job.payEstimate.toString(),
-      'rescheduleNote': job.isEdited == false ? null : job.rescheduleNote,
+      'rescheduleNote': job.isWorkerEdited == false ? null : job.rescheduleNote,
       'jobDate': job.jobDate,
+      'dateFinished': job.dateFinished,
     };
   }
 
@@ -155,6 +157,10 @@ Future<void> _pickImage() async {
             .where((dayInt) => dayInt != -1)
             .toSet() ??
         {};
+    if(widget.job.dateFinished!=null)
+    {
+      jobDifference = widget.job.dateFinished!.difference(widget.job.jobDate).inDays;
+    }
 
     jobProvider = context.read<JobProvider>();
     serviceProvider = context.read<ServiceProvider>();
@@ -189,13 +195,14 @@ Future<void> _pickImage() async {
   }
 
 Future<void> _getJobs() async {
+  final message = ScaffoldMessenger.of(context);
   if (!mounted) return;
   final requested = _currentJobDate;       
   setState(() => isLoading = true);
   try {
     final job = await jobProvider.get(filter: {
       'FreelancerId': widget.job.freelancer?.freelancerId,
-      'JobDate': requested,
+      'DateRange': requested,
       'JobStatus': JobStatus.approved.name,
     });
     if (!mounted || requested != _currentJobDate) return; 
@@ -209,7 +216,7 @@ Future<void> _getJobs() async {
   } catch (e) {
     if (!mounted) return;
     setState(() => isLoading = false);
-    _showSnackBar('Greška u dohvaćanju poslova: $e', context);
+    message.showSnackBar(const SnackBar(content: Text('Greška u prikazivanju termina. Molimo pokušajte ponovo.')));
   }
 }
 
@@ -246,7 +253,6 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
   @override
   Widget build(BuildContext context) {
-   // Parse nullable times safely
 final jobStartTime = widget.job.startEstimate != null
     ? _parseTime(widget.job.startEstimate!)
     : null;
@@ -303,7 +309,7 @@ if (jobStartTime != null && jobEndTime != null) {
                
                 _currentBookedJobs!=null && _currentBookedJobs!.isNotEmpty ? 
                  Text(
-                    'Rezervacije za ${DateFormat('dd-MM-yyyy').format(_currentJobDate ?? DateTime.now())}',
+                    'Rezervacije radnika za ${DateFormat('dd-MM-yyyy').format(_currentJobDate ?? DateTime.now())}',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 12),
                   ) : const SizedBox.shrink(),
@@ -364,12 +370,48 @@ if (jobStartTime != null && jobEndTime != null) {
                   firstDate: DateTime.now(),
                   selectableDayPredicate: _isWorkingDay,
                 onChanged: (value) async {
+                  final message = ScaffoldMessenger.of(context);
+  
+                  
   if (value == null) return;
-  setState(() => _currentJobDate = value);
+  setState(() {
+    _currentJobDate = value;
+      if (jobDifference != null) {
+  var newDateFinished = DateTime(
+    value!.year,
+    value.month,
+    value.day + jobDifference!,
+  );
+
+                             if(!_isWorkingDay(newDateFinished))
+                          {
+                            
+                           while (!_isWorkingDay(newDateFinished)) {
+                              newDateFinished = newDateFinished.add(const Duration(days: 1));
+                            }
+                            _formKey.currentState?.patchValue({
+                              'dateFinished': newDateFinished,
+                            });
+                          }
+                          else{
+                          _formKey.currentState?.patchValue({
+                            'dateFinished': newDateFinished,
+                          });
+                          }
+                     
+                       
+                         
+                      }
+  
+  });
 
   await _getJobs();           
 
-  if (!mounted) return;
+  //_formKey.currentState?.patchValue({'dateFinished': _currentJobDate?.add(Duration(days: jobDifference))});
+    
+                
+
+
 
   final formStartTod = _formKey.currentState?.fields['startEstimate']?.value as TimeOfDay?;
   final effectiveStartTod = formStartTod ?? _parseTime(widget.job.startEstimate ?? "08:00");
@@ -382,10 +424,7 @@ if (jobStartTime != null && jobEndTime != null) {
   if (_overlapsAny(start, end)) {
 
     patchStartEnd(null, duration: duration);
-    _showSnackBar(
-      "Pronađene rezervacije za odabrani datum. Odaberite drugo vrijeme.",
-      context,
-    );
+    message.showSnackBar(const SnackBar(content: Text('Pronađene rezervacije za odabrani datum. Odaberite drugo vrijeme.')));
   } else {
 
     patchStartEnd(effectiveStartTod, duration: duration);
@@ -395,6 +434,20 @@ if (jobStartTime != null && jobEndTime != null) {
 
                 ),
                 const SizedBox(height: 15),
+                if(widget.job.dateFinished!=null)
+                FormBuilderDateTimePicker(name: 'dateFinished',
+                 format: DateFormat('dd-MM-yyyy'),
+                 enabled: false,
+                  decoration: const InputDecoration(
+                    labelText: 'Datum završetka',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                ),
+
+
+                const SizedBox(height: 15),
+
                
                 FormBuilderCustomTimePicker(
                   initialValue: jobStartTime,
@@ -449,7 +502,7 @@ if (jobStartTime != null && jobEndTime != null) {
                       decoration: const InputDecoration(
                         labelText: 'Trajanje posla',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.schedule),
+                        prefixIcon: Icon(Icons.schedule_outlined),
 
                       ),
                       validator: FormBuilderValidators.compose([
@@ -620,6 +673,8 @@ if (jobStartTime != null && jobEndTime != null) {
                   backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
                   textStyle: const TextStyle(color: Colors.white)),
               onPressed: () async {
+                final message = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
                 final isValid =
                     _formKey.currentState?.saveAndValidate() ?? false;
 
@@ -643,6 +698,14 @@ if (jobStartTime != null && jobEndTime != null) {
                       .toIso8601String()
                       .split('T')[0];
                 }
+             
+                
+                 if (values["dateFinished"] is DateTime && widget.job.dateFinished!=null) {
+                  values["dateFinished"] = (values["dateFinished"] as DateTime)
+                      .toIso8601String()
+                      .split('T')[0];
+                }
+                
                 if (widget.job.endEstimate != null &&
                     AuthProvider.user?.freelancer?.freelancerId != null) {
                   final dateTime = values["endEstimate"] as DateTime;
@@ -690,26 +753,27 @@ if (jobStartTime != null && jobEndTime != null) {
                     "payEstimate": null,
                     "payInvoice": null,
                     "jobDate": values["jobDate"],
-                    "dateFinished": null,
+                   
                     "jobDescription": values["jobDescription"],
                     "image": values["image"],
                     "jobStatus": JobStatus.unapproved.name,
-                    "serviceId": values["serviceId"]
+                    "serviceId": values["serviceId"],
+                 
                   };
 
                   try {
                     await jobProvider.update(
                         widget.job.jobId, jobInsertRequest);
                   
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    message.showSnackBar(const SnackBar(
                         content: Text('Posao uređen i radnik obaviješten.')));
+                        navigator.pop();
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                   message.showSnackBar(const SnackBar(
                         content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
                   }
 
-                  if (!mounted) return;
-                  Navigator.of(context).pop();
+               
                 }
 
                 if (widget.job.jobStatus == JobStatus.approved) {
@@ -727,7 +791,7 @@ if (jobStartTime != null && jobEndTime != null) {
                     "payEstimate": values["payEstimate"],
                     "payInvoice": null,
                     "jobDate": values["jobDate"].toString(),
-                    "dateFinished": null,
+                    "dateFinished": values["dateFinished"],
                     "jobDescription": values["jobDescription"],
                     "image": values["image"],
                     "jobStatus": JobStatus.approved.name,
@@ -740,15 +804,14 @@ if (jobStartTime != null && jobEndTime != null) {
                         widget.job.jobId, jobInsertRequestEdited);
                  
                     
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                   message.showSnackBar(const SnackBar(
                         content: Text('Posao uređen i radnik obaviješten.')));
-                    Navigator.pop(context, true);
+                  navigator.pop();
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    message.showSnackBar(const SnackBar(
                         content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
                   }
-                  if (!mounted) return;
-                  Navigator.of(context).pop();
+             ;
                 }
               },
               child:

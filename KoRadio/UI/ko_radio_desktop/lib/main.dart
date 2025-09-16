@@ -201,22 +201,25 @@ class _LoginPageState extends State<LoginPage> {
           barrierDismissible: false,
 
           context: context,
-          builder: (context) => SimpleDialog(
-
+          builder: (context) => Card(
+            borderOnForeground: true,
+            child: SimpleDialog(
             
-
-            title: const Text("Odaberite ulogu:"),
-            children: [
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, "Company Admin"),
-                child: const Text("Administrator firme"),
-              ),
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, "StoreAdministrator"),
-                child: const Text("Administrator trgovine"),
-              ),
-               
-            ],
+              
+            
+              title: const Text("Odaberite ulogu:"),
+              children: [
+                SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context, "Company Admin"),
+                  child: const Text("Administrator firme"),
+                ),
+                SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context, "StoreAdministrator"),
+                  child: const Text("Administrator trgovine"),
+                ),
+                 
+              ],
+            ),
           ),
         );
 
@@ -480,9 +483,17 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         showDialog(
           context: context,
-          builder: (context) => const AlertDialog(
-            title: Text("Greška"),
-            content: Text('Pogrešan email ili password'),
+          builder: (context) =>  AlertDialog(
+            title: const Text("Greška"),
+            content: const Text('Pogrešan email ili password'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"),
+              )
+            ],
           ),
         );
       }

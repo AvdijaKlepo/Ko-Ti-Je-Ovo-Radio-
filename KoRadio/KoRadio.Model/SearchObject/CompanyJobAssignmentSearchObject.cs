@@ -10,7 +10,9 @@ namespace KoRadio.Model.SearchObject
 	{
         public int? JobId { get; set; }
 		public bool? IsFinished { get; set; }
+		public bool? IsCancelled { get; set; }
 		public int? CompanyId { get; set; }
 		public int? CompanyEmployeeId { get; set; }
+		public DateTime? DateRange { get; set; }
 	}
 }

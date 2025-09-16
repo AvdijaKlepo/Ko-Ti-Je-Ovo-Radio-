@@ -17,6 +17,7 @@ namespace KoRadio.Model
 
 		public DateTime AssignedAt { get; set; }
 		public bool IsFinished { get; set; }
+		public bool IsCancelled { get; set; }
 
 		public virtual CompanyEmployee? CompanyEmployee { get; set; }
 

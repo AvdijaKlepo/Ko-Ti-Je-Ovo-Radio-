@@ -21,19 +21,32 @@ namespace KoRadio.Services
 		public override IQueryable<CompanyJobAssignment> AddFilter(CompanyJobAssignmentSearchObject search, IQueryable<CompanyJobAssignment> query)
 		{
 			query = query.Include(x => x.CompanyEmployee).ThenInclude(x => x.User);
+			query = query.Include(x => x.Job);
 			if (search.JobId!=null)
 			{
 				query = query.Where(x => x.JobId == search.JobId);
 			}
-			if(search.IsFinished==false)
+			if(search.IsFinished!=null)
 			{
-				query = query.Where(x => x.IsFinished == false);
+				query = query.Where(x => x.IsFinished == search.IsFinished);
 			}
-			if(search.CompanyEmployeeId!=null)
+			if (search.IsCancelled !=null)
+			{
+				query = query.Where(x => x.IsCancelled == search.IsCancelled);
+			}
+			if (search.CompanyEmployeeId!=null)
 			{
 				query = query.Where(x => x.CompanyEmployeeId == search.CompanyEmployeeId);
 			}
-		
+			if (search?.DateRange != null)
+			{
+				var chosenDate = search.DateRange.Value.Date;
+
+				query = query.Where(j =>
+					j.Job.JobDate <= chosenDate &&
+					(j.Job.DateFinished ?? j.Job.JobDate) >= chosenDate
+				);
+			}
 			return base.AddFilter(search, query);
 		}
 

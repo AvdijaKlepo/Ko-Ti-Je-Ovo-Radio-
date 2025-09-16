@@ -129,103 +129,112 @@ signalR.onNotificationReceived = (message) async {
         automaticallyImplyLeading: false,
         
     
-        title: Row(
+        title: Card(
+          clipBehavior: Clip.antiAlias,
+          color: Colors.white,
+        
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-
-          children: [
-              Stack(
-              
-            alignment: Alignment.topLeft,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                style: IconButton.styleFrom(
             
-                 
-                ),
-                color: const Color.fromRGBO(27, 76, 125, 1),
-                onPressed: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const MessagesScreen()),
-                  );
-                  setState(() {
-                    _getNotifications();
-                  });
-                },
-              ),
-              if (result?.result.isNotEmpty ?? false)
-                Positioned(
-
-                  right: 8,
-                  top: 8,
-                  child: CircleAvatar(
-                    
-                    radius: 8,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      '${result?.count ?? 0}',
-                      style: const TextStyle(fontSize: 10, color: Colors.white),
-                    ),
+              
+          
+            children: [
+                Stack(
+                
+              alignment: Alignment.topLeft,
+              children: [
+                IconButton(
+                
+                  icon: const Icon(Icons.notifications),
+                  style: IconButton.styleFrom(
+              
+                   
                   ),
+                  color: const Color.fromRGBO(27, 76, 125, 1),
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const MessagesScreen()),
+                    );
+                    setState(() {
+                      _getNotifications();
+                    });
+                  },
                 ),
-            ],
-          ) ,
-            Padding(
-              padding: 
-            EdgeInsets.zero,
-              child: 
-                FittedBox(
-                 
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'Ko Ti Je Ovo Radio?',
-                    style: GoogleFonts.lobster(
-                      textStyle: const TextStyle(
-                        color: Color.fromRGBO(27, 76, 125, 1),
-                        fontSize: 24,
+                if (result?.result.isNotEmpty ?? false)
+                  Positioned(
+          
+                    right: 8,
+                    top: 8,
+                    child: CircleAvatar(
+                      
+                      radius: 8,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        '${result?.count ?? 0}',
+                        style: const TextStyle(fontSize: 10, color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              
-              
-            ),
-               Stack(
-            alignment: Alignment.topRight,
- 
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                style: IconButton.styleFrom(
-            
-                 
-                ),
-                color: const Color.fromRGBO(27, 76, 125, 1),
-                onPressed: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Cart()),
-                  );
-                },
-              ),
-              if (cart.count > 0)
-                Positioned(
-
-                  right: 8,
-                  top: 8,
-                  child: CircleAvatar(
+              ],
+            ) ,
+              Padding(
+                padding: 
+              EdgeInsets.zero,
+                child: 
+                  FittedBox(
+                   
+                    fit: BoxFit.scaleDown,
                     
-                    radius: 8,
-                    backgroundColor: Colors.red,
                     child: Text(
-                      '${cart.count}',
-                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                      'Ko Ti Je Ovo Radio?',
+                      style: GoogleFonts.lobster(
+                        textStyle: const TextStyle(
+                          color: Color.fromRGBO(27, 76, 125, 1),
+                          fontSize: 24,
+                        ),
+                      ),
                     ),
                   ),
+                
+                
+              ),
+                 Stack(
+              alignment: Alignment.topRight,
+           
+              children: [
+                IconButton(
+                  
+                  icon: const Icon(Icons.shopping_cart),
+                  style: IconButton.styleFrom(
+              
+                   
+                  ),
+                  color: const Color.fromRGBO(27, 76, 125, 1),
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const Cart()),
+                    );
+                  },
                 ),
+                if (cart.count > 0)
+                  Positioned(
+          
+                    right: 8,
+                    top: 8,
+                    child: CircleAvatar(
+                      
+                      radius: 8,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        '${cart.count}',
+                        style: const TextStyle(fontSize: 10, color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            ) ,
             ],
-          ) ,
-          ],
+          ),
         ),
       ),
   body: pages[selectedIndex.clamp(0, pages.length - 1)],

@@ -651,6 +651,14 @@
             }
           },
           {
+            "name": "DateRange",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -5258,6 +5266,9 @@
           "isFinished": {
             "type": "boolean"
           },
+          "isCancelled": {
+            "type": "boolean"
+          },
           "companyEmployee": {
             "$ref": "#/components/schemas/CompanyEmployee"
           },
@@ -5323,10 +5334,16 @@
           },
           "assignedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "isFinished": {
-            "type": "boolean"
+            "type": "boolean",
+            "nullable": true
+          },
+          "isCancelled": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false

@@ -120,6 +120,7 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
           
           
            return GestureDetector(
+            
   onTap: () async {
                   final picked = await showTimePicker(
                     context: field.context,
@@ -203,7 +204,9 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
                       onChanged(picked);
                     }
                 },
+                
   child: InputDecorator(
+    
     decoration: InputDecoration(
       border: const OutlineInputBorder(),
       prefixIcon: const Icon(Icons.schedule),

@@ -1,25 +1,27 @@
-// book_company_job_page.dart
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
-import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
-import 'package:ko_radio_desktop/models/service.dart';
+
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
+
 import 'package:ko_radio_desktop/screens/add_employee_task.dart';
+import 'package:ko_radio_desktop/screens/edit_accept_job.dart';
 import 'package:ko_radio_desktop/screens/edit_job.dart';
 import 'package:provider/provider.dart';
 
@@ -36,32 +38,35 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final GlobalKey<FormBuilderState> _employeeFormKey = GlobalKey<FormBuilderState>();
 
-  // Providers
+
   late CompanyProvider _companyProvider;
   late JobProvider _jobProvider;
   late CompanyEmployeeProvider _companyEmployeeProvider;
   late CompanyJobAssignmentProvider _companyJobAssignmentProvider;
 
-  // Results
+
   SearchResult<Job>? _jobResult;
   SearchResult<CompanyEmployee>? _companyEmployeeResult;
   SearchResult<CompanyJobAssignment>? _companyJobAssignmentResult;
+  SearchResult<CompanyJobAssignment>? _companyJobCheck;
 
-  // UI state
+
   bool _loading = true;
   bool _assignCheckboxTouched = false;
   bool _showEditPanel = false;
   bool _showTaskPanel = false;
   bool _expansionOpen = false;
+  bool multiDateJob=false;
 
-  // Form initial values
+
   Map<String, dynamic> _initialForm = {};
 
-  // Image handling
+
   File? _image;
   String? _base64Image;
+  var daysInRange;
 
-  // Working days mapping
+
   late final Set<int> _workingDayInts;
   final Map<String, int> _dayStringToInt = {
     'Monday': DateTime.monday,
@@ -94,18 +99,22 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     setState(() => _loading = true);
 
     try {
-      // Parallel fetch
+ 
       final futures = await Future.wait([
         _jobProvider.get(filter: {'JobId': widget.job.jobId}),
         _companyEmployeeProvider.get(filter: {'companyId': widget.job.company?.companyId}),
         _companyJobAssignmentProvider.get(filter: {'JobId': widget.job.jobId}),
+        _companyJobAssignmentProvider.get(filter: {'DateRange':widget.job.jobDate,'IsFinished':false,'IsCancelled':false}),
+        
       ]);
 
       if (!mounted) return;
 
       _jobResult = futures[0] as SearchResult<Job>?;
       _companyEmployeeResult = futures[1] as SearchResult<CompanyEmployee>?;
-      _companyJobAssignmentResult = futures[2] as SearchResult<CompanyJobAssignment>?; // assignments
+      _companyJobAssignmentResult = futures[2] as SearchResult<CompanyJobAssignment>?;
+      _companyJobCheck = futures[3] as SearchResult<CompanyJobAssignment>?;
+  
 
       _prepareInitialForm();
 
@@ -119,7 +128,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
   }
 
   void _prepareInitialForm() {
-    // Build initial selected employee IDs from assignments
+
     final assignedIds = _companyJobAssignmentResult?.result
             .map((a) => a.companyEmployee?.companyEmployeeId)
             .whereType<int>()
@@ -129,7 +138,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
 
     _initialForm = {
       'companyEmployeeId': assignedIds,
-      // add other default fields if needed
+
     };
   }
 
@@ -182,9 +191,59 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     if (!isValid) return;
 
     final form = Map<String, dynamic>.from(_employeeFormKey.currentState?.value ?? {});
-    final List<dynamic>? selected = form['companyEmployeeId'] as List<dynamic>? ?? [];
+    final selectedEmployees = form['companyEmployeeId'] as List<int>; 
 
-    if (selected!.isEmpty) {
+
+  final parts = widget.job.startEstimate!.split(":");
+  final parsedTime = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+    int.parse(parts[0]),
+    int.parse(parts[1]),
+  );
+
+  DateTime normalizeTime(DateTime t) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
+  }
+  var jobEnd = parseTime(widget.job.endEstimate!);
+
+  DateTime selectedEnd = normalizeTime(jobEnd);
+  DateTime newStart = normalizeTime(parsedTime);
+  DateTime newEnd = selectedEnd;
+
+
+  final selectedEmployeeJobs = _companyJobCheck?.result
+      .where((e) => selectedEmployees.contains(e.companyEmployeeId) && e.jobId!=widget.job.jobId)
+      .toList() ?? [];
+
+  for (var jobCheck in selectedEmployeeJobs) {
+    if (jobCheck.job?.startEstimate == null || jobCheck.job?.endEstimate == null) {
+      continue;
+    }
+
+    final bookedStart = parseTime(jobCheck.job!.startEstimate!);
+    final bookedEnd = parseTime(jobCheck.job!.endEstimate!);
+
+    bool overlaps = newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart);
+    debugPrint(
+      'Checking empId=${jobCheck.companyEmployeeId} '
+      'booked=($bookedStart - $bookedEnd) new=($newStart - $newEnd) '
+      '=> overlaps=$overlaps',
+    );
+
+    if (overlaps) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Odabrani radnik je već zauzet u ovom terminu.'),
+        ),
+      );
+      return; 
+    }
+  }
+
+    if (selectedEmployees!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Niste odabrali radnike.')));
       return;
     }
@@ -192,7 +251,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     setState(() => _loading = true);
 
     try {
-      for (final id in selected!) {
+      for (final id in selectedEmployees!) {
         await _companyJobAssignmentProvider.insert({
           'jobId': widget.job.jobId,
           'companyEmployeeId': id,
@@ -200,7 +259,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
           'isFinished': false,
         });
       }
-      await _loadData(); // refresh assignments & job
+      await _loadData(); 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Zaposlenici uspješno dodani.')));
     } catch (e) {
       if (!mounted) return;
@@ -210,22 +269,147 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
       setState(() => _loading = false);
     }
   }
+ bool checkIfValid(int companyEmployeeId) {
+  final values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
 
-  Future<void> _submitForm(JobStatus resultingStatus) async {
-    final isValid = _formKey.currentState?.saveAndValidate() ?? false;
-    if (!isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Molimo popunite obavezna polja.')));
-      return;
+if (widget.job.startEstimate == null || values['endEstimate'] == null) {
+    return false;
+  }
+
+    final parts = widget.job.startEstimate?.split(":");
+    final parsedTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      int.parse(parts?[0] ?? '0'),
+      int.parse(parts?[1] ?? '0'),
+    );
+
+    DateTime normalizeTime(DateTime t) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
     }
 
-    setState(() => _loading = true);
-    try {
-      final values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
+    DateTime selectedEnd = normalizeTime(values['endEstimate']);
+    DateTime newStart = normalizeTime(parsedTime);
+    DateTime newEnd = selectedEnd;
 
-      // Normalize values
+    final selectedEmployeeJobs = _companyJobCheck?.result
+          .where((e) => e.companyEmployeeId == companyEmployeeId)
+            .toList() ??
+        [];
+
+    for (var jobCheck in selectedEmployeeJobs) {
+      if (jobCheck.job?.startEstimate == null ||
+          jobCheck.job?.endEstimate == null) {
+        continue;
+      }
+
+      final bookedStart = parseTime(jobCheck.job?.startEstimate??'');
+      final bookedEnd = parseTime(jobCheck.job?.endEstimate??'');
+
+      bool overlaps =
+          newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart);
+
+      debugPrint(
+        'Checking empId=${jobCheck.companyEmployeeId} '
+        'booked=($bookedStart - $bookedEnd) new=($newStart - $newEnd) '
+        '=> overlaps=$overlaps',
+      );
+
+      if (overlaps) {
+        return true; 
+      }
+    }
+    return false; 
+  }
+
+
+
+
+
+
+  
+
+  Future<void> _submitForm(JobStatus resultingStatus) async {
+  final isValid = _formKey.currentState?.saveAndValidate() ?? false;
+  if (!isValid) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Molimo popunite obavezna polja.')),
+    );
+    return;
+  }
+
+  final values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
+    final selectedEmployees;
+    selectedEmployees = _jobResult?.result.first.jobStatus==JobStatus.unapproved ?  values['companyEmployeeId'] as List<int> : null; 
+
+  if(selectedEmployees!=null && selectedEmployees.isNotEmpty){
+  final parts = widget.job.startEstimate!.split(":");
+  final parsedTime = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+    int.parse(parts[0]),
+    int.parse(parts[1]),
+  );
+
+  DateTime normalizeTime(DateTime t) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
+  }
+
+  DateTime selectedEnd = normalizeTime(values['endEstimate']);
+  DateTime newStart = normalizeTime(parsedTime);
+  DateTime newEnd = selectedEnd;
+
+
+  final selectedEmployeeJobs = _companyJobCheck?.result
+      .where((e) => selectedEmployees.contains(e.companyEmployeeId))
+      .toList() ?? [];
+
+  for (var jobCheck in selectedEmployeeJobs) {
+    if (jobCheck.job?.startEstimate == null || jobCheck.job?.endEstimate == null) {
+      continue;
+    }
+
+    final bookedStart = parseTime(jobCheck.job!.startEstimate!);
+    final bookedEnd = parseTime(jobCheck.job!.endEstimate!);
+
+    bool overlaps = newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart);
+    debugPrint(
+      'Checking empId=${jobCheck.companyEmployeeId} '
+      'booked=($bookedStart - $bookedEnd) new=($newStart - $newEnd) '
+      '=> overlaps=$overlaps',
+    );
+
+    if (overlaps) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Odabrani radnik je već zauzet u ovom terminu.'),
+        ),
+      );
+      return; 
+    }
+  }
+  }
+                        
+                                              
+    setState(() => _loading = true);
+ 
+      
+    try{
+   
       if (values['dateFinished'] is DateTime) {
         values['dateFinished'] = (values['dateFinished'] as DateTime).toIso8601String();
       }
+        if (values["endEstimate"] is DateTime) {
+            final dateTime = values["endEstimate"] as DateTime;
+            final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
+            values["endEstimate"] = formattedTime;
+          }
+
+          print(widget.job.jobsServices?.map((e) => e.service?.serviceId ?? 0).toList());
 
       final jobUpdateRequest = {
         'userId': widget.job.user?.userId,
@@ -236,21 +420,23 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
         'isFreelancer': false,
         'isInvoiced': false,
         'isRated': false,
-        'startEstimate': null,
-        'endEstimate': null,
+        'startEstimate': widget.job.startEstimate,
+        'endEstimate': values["endEstimate"],
         'payEstimate': values.containsKey('payEstimate') ? values['payEstimate'] : widget.job.payEstimate,
         'payInvoice': values.containsKey('payInvoice') ? values['payInvoice'] : widget.job.payInvoice,
         'jobDate': widget.job.jobDate.toIso8601String(),
-        'dateFinished': values['dateFinished'],
+        'dateFinished':values.containsKey('dateFinished') ? values['dateFinished'] : widget.job.dateFinished?.toIso8601String(),
         'jobDescription': widget.job.jobDescription,
-        'image': widget.job.image ?? _base64Image,
+        'image': widget.job.image,
         'jobStatus': _jobResult?.result.first.jobStatus==JobStatus.unapproved ? JobStatus.approved.name : JobStatus.finished.name,
-        'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),
+        'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList() ?? [],
+
       };
 
-      await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
 
-      // Assign employees if provided
+      await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
+      
+
       final selectedEmployeeIds = values['companyEmployeeId'] as List<dynamic>?;
       if (selectedEmployeeIds != null && selectedEmployeeIds.isNotEmpty) {
         for (final employeeId in selectedEmployeeIds) {
@@ -261,9 +447,9 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
           });
         }
       }
+      
 
-      // If finishing a job, mark assignments finished
-      if (resultingStatus == JobStatus.finished) {
+      if (jobUpdateRequest['jobStatus']==JobStatus.finished.name) {
         final assignments = _companyJobAssignmentResult?.result ?? [];
         for (final a in assignments) {
           if (a.companyJobId != null) {
@@ -273,10 +459,10 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
       }
 
       await _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resultingStatus == JobStatus.approved ? 'Posao prihvaćen.' : 'Posao označen kao završen.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(jobUpdateRequest['jobStatus']==JobStatus.unapproved ? 'Posao prihvaćen.' : 'Posao označen kao završen.')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri slanju: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri slanju. Molimo pokušajte ponovo.')));
     } finally {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -291,6 +477,16 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
       await _loadData();
     }
   }
+   Future<void> _editApproveJob() async {
+    final job = await showDialog<Job>(
+      context: context,
+      builder: (c) => EditAcceptJob(job: widget.job),
+    );
+    if (job != null) {
+      await _loadData();
+    }
+  }
+
 
   Future<void> _cancelJob() async {
     final confirm = await showDialog<bool>(
@@ -310,27 +506,17 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     setState(() => _loading = true);
     try {
       final jobUpdateRequest = {
-        'userId': widget.job.user?.userId,
-        'freelancerId': null,
-        'companyId': widget.job.company?.companyId,
-        'jobTitle': widget.job.jobTitle,
-        'isTenderFinalized': false,
-        'isFreelancer': false,
-        'isInvoiced': false,
-        'isRated': false,
-        'startEstimate': null,
-        'endEstimate': null,
-        'payEstimate': null,
-        'payInvoice': null,
-        'jobDate': widget.job.jobDate.toIso8601String(),
-        'dateFinished': widget.job.dateFinished?.toIso8601String(),
-        'jobDescription': widget.job.jobDescription,
-        'image': widget.job.image,
-        'jobStatus': JobStatus.cancelled.name,
-        'serviceId': widget.job.jobsServices?.map((e) => e.service?.serviceId).toList(),
+    
+        'jobStatus': JobStatus.cancelled.name
       };
 
       await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
+       final assignments = _companyJobAssignmentResult?.result ?? [];
+        for (final a in assignments) {
+          if (a.companyJobId != null) {
+            await _companyJobAssignmentProvider.update(a.companyJobId!, {'isCancelled': true});
+          }
+        }
       await _loadData();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao otkazan.')));
     } catch (e) {
@@ -374,6 +560,21 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     final availableEmployees = _companyEmployeeResult?.result?.where((e) => e.userId != AuthProvider.user?.userId).toList() ?? [];
 
     final job = _jobResult?.result.first ?? widget.job;
+final dateFormat = DateFormat('dd.MM.yyyy');
+ if (job.dateFinished != null) {
+    daysInRange = getWorkingDaysInRange(
+      jobDate: job.jobDate,
+      dateFinished: job.dateFinished!,
+      workingDays: job.freelancer?.freelancerId!=null ?
+       job.freelancer?.workingDays ?? []:
+       job.company?.workingDays ?? [],
+    );
+  }
+  else{
+    daysInRange=[];
+  }
+  
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -391,11 +592,13 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                     direction: isWide ? Axis.horizontal : Axis.vertical,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left/main panel
+                 
                       Flexible(
                         flex: 3,
                         child: Card(
-                          
+                          color: Colors.white,
+                          shadowColor: Colors.transparent,
+                 
                           elevation: 3,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: Padding(
@@ -403,7 +606,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Alert banner if edited
+                       
                                 if (job.isEdited == true || job.isWorkerEdited == true)
                                   Container(
                                     padding: const EdgeInsets.all(12),
@@ -471,9 +674,22 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                 _sectionTitle('Radne specifikacije', color: Colors.black),
                                 _detailRow('Posao', job.jobTitle ?? 'Nije dostupan'),
                                 _detailRow('Servis', job.jobsServices?.map((e) => e.service?.serviceName).whereType<String>().join(', ') ?? 'N/A'),
-                                _detailRow('Datum', DateFormat('dd-MM-yyyy').format(job.jobDate)),
-                                _detailRow('Datum završetka', job.dateFinished != null ? DateFormat('dd-MM-yyyy').format(job.dateFinished!) : 'Nije dostupan'),
-                                _detailRow('Opis posla', job.jobDescription ?? 'Nije dostupan'),
+                                 _detailRow('Datum početka radova', dateFormat.format(job.jobDate)),
+                  if(job.dateFinished!=null)
+                  _detailRow('Datum završetka\nradova', dateFormat.format(job.dateFinished!)),
+                  if(job.dateFinished!=null)
+                 _detailRow('Radni dani',  daysInRange.join(', ')),
+
+                  if(job.dateFinished==null)
+                  _detailRow('Vrijeme početka', job.startEstimate.toString().substring(0,5)),
+                  if(job.dateFinished==null)
+                  _detailRow('Vrijeme završetka',
+                 job.endEstimate!=null ?
+                      job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                      if(job.endEstimate!=null && job.dateFinished!=null)
+                  _detailRow('Vremenski', 'Svakim navedenim danom od ${job.startEstimate.toString().substring(0,5)} do ${job.endEstimate.toString().substring(0,5)}'),
+                                _detailRow('Opis posla', job.jobDescription),
+                                _detailRow('Servis', job.jobsServices?.map((e) => e.service?.serviceName).whereType<String>().join(', ') ?? 'N/A'),
 
                                 if (job.image != null) const SizedBox(height: 8),
                                 if (job.image != null)
@@ -490,9 +706,11 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
 
                                 if (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished)
                                   _sectionTitle('Preuzeli dužnost', color: Colors.black),
+                                  _detailRow('Radnici','${assignedNames.isNotEmpty ? assignedNames.join(', ') : 'Nema zaposlenika'}'),
+                                  Divider(height: 24),
 
                                 // Assignments view and selection
-                                if (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished)
+                                if (job.jobStatus == JobStatus.approved)
                                   Card(
                                     color: Colors.grey.shade100,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -553,6 +771,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                   ),
 
                                 const SizedBox(height: 12),
+                                if(_jobResult?.result.first.jobStatus==JobStatus.approved)
                                 const Divider(height: 24),
 
                                 _sectionTitle('Korisnički podaci', color: Colors.black),
@@ -561,22 +780,24 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                 _detailRow('Lokacija', job.user?.location?.locationName ?? 'Nepoznato'),
                                 _detailRow('Adresa', job.user?.address ?? 'Nepoznato'),
 
-                                const SizedBox(height: 12),
+                                const Divider(height: 24,),
                                 _sectionTitle('Podaci Firme', color: Colors.black),
                                 _detailRow('Naziv Firme', job.company?.companyName ?? 'Nepoznato'),
                                 _detailRow('E-mail', job.company?.email ?? 'Nepoznato'),
                                 _detailRow('Telefonski broj', _formatPhoneNumber(job.company?.phoneNumber ?? 'Nepoznato')),
 
-                                const SizedBox(height: 12),
+                                const Divider(height: 24,),
+                                
                                 _sectionTitle('Račun', color: Colors.black),
                                 _detailRow('Procijena', (job.payEstimate != null) ? job.payEstimate!.toStringAsFixed(2) : 'Nije unesena'),
                                 _detailRow('Konačna cijena', (job.payInvoice != null) ? job.payInvoice!.toStringAsFixed(2) : 'Nije unesena'),
+                                if(job.payInvoice!=null)
                                 _detailRow('Plaćen', job.isInvoiced == true ? 'Da' : 'Ne'),
                                 if (job.jobStatus == JobStatus.cancelled) _detailRow('Otkazan', 'Da'),
 
                                 const SizedBox(height: 12),
 
-                                // Form for approving / finishing etc.
+                            
                                 FormBuilder(
                                   key: _formKey,
                                   initialValue: _initialForm,
@@ -585,17 +806,55 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                     children: [
                                       if (job.jobStatus == JobStatus.unapproved) ...[
                                         const Divider(),
-                                        _sectionTitle('Potrebni podaci', color: Colors.black),
+                                       Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children: [
+             Padding(
+                   padding: const EdgeInsets.all(  12),
+                   child: Text(
+                     'Potrebni podaci',
+                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
+                   ),
+                 ),
+                 if(job.jobStatus==JobStatus.unapproved)
+              Checkbox(value: multiDateJob,onChanged: (value){
+                setState(() {
+                  multiDateJob=value!;
+                });
+              },),
+               
+           ],
+         ),
                                         const SizedBox(height: 8),
+                                        if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
                                         FormBuilderDateTimePicker(
                                           name: 'dateFinished',
                                           inputType: InputType.date,
                                           decoration: const InputDecoration(labelText: 'Kraj radova', border: OutlineInputBorder(), prefixIcon: Icon(Icons.calendar_today)),
                                           firstDate: job.jobDate,
                                           initialDate: job.jobDate.isAfter(DateTime.now()) ? job.jobDate : DateTime.now(),
-                                          validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                            
+                                          ]),
                                           selectableDayPredicate: _isWorkingDay,
                                         ),
+                                        const SizedBox(height: 12),
+                                        FormBuilderDateTimePicker(name: 'endEstimate',
+                                          inputType: InputType.time,
+                                          decoration: const InputDecoration(labelText: 'Kraj', border: OutlineInputBorder(), prefixIcon: Icon(Icons.schedule_outlined),
+                                          ),
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                            
+                                           
+
+                                            
+                                            
+                                          ]),
+                                        ),
+
+
                                         const SizedBox(height: 12),
                                         FormBuilderTextField(
                                           name: 'payEstimate',
@@ -608,14 +867,31 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                           valueTransformer: (value) => double.tryParse(value ?? ''),
                                         ),
                                         const SizedBox(height: 12),
-                                        FormBuilderCheckboxGroup<int>(
-                                          name: 'companyEmployeeId',
-                                          decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
-                                          options: availableEmployees.map((e) {
-                                            final name = '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}';
-                                            return FormBuilderFieldOption(value: e.companyEmployeeId!, child: Text(name));
-                                          }).toList(),
-                                        ),
+                                       FormBuilderCheckboxGroup<int>(
+  name: 'companyEmployeeId',
+  decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
+  options: availableEmployees.map((e) {
+    final name = '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}';
+    final isBusy = checkIfValid(e.companyEmployeeId);
+
+    return FormBuilderFieldOption(
+      value: e.companyEmployeeId!,
+
+      child: Row(
+        children: [
+          Icon(isBusy ? Icons.close : Icons.check_circle,
+              color: isBusy ? Colors.red : Colors.green),
+          const SizedBox(width: 8),
+          Text(isBusy ? 'Zauzet' : 'Slobodan'),
+          const SizedBox(width: 12),
+          Text(name),
+        ],
+      ),
+    );
+  }).toList(),
+  validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+)
+
                                       ],
 
                                       if (job.jobStatus == JobStatus.approved) ...[
@@ -624,7 +900,8 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                           name: 'payInvoice',
                                           enabled: _jobResult?.result.first.isEdited==true ||  _jobResult?.result.first.isWorkerEdited==true  ? false : true,
                                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          decoration: const InputDecoration(labelText: 'Finalna cijena', border: OutlineInputBorder(), prefixIcon: Icon(Icons.attach_money)),
+                                          decoration: const InputDecoration(labelText: 'Finalna cijena', border: OutlineInputBorder(), prefixIcon: Icon(Icons.attach_money),
+                                       ),
                                           validator: FormBuilderValidators.compose([
                                             FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                             FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
@@ -653,7 +930,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
                                         TextButton.icon(
                                         icon: const Icon(Icons.edit, color: Colors.amber),
                                         label: const Text('Uredi', style: TextStyle(color: Colors.amber)),
-                                        onPressed: _editJob,
+                                        onPressed: _jobResult?.result.first.jobStatus==JobStatus.unapproved ? _editApproveJob : _editJob,
                                       ),
                                       const SizedBox(width: 12),
 

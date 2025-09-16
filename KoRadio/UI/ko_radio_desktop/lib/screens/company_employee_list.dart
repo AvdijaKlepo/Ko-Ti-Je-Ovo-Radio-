@@ -126,6 +126,7 @@ void initState() {
   Future<void> _getJobAssignments() async {
     final filter = {
       'IsFinished':false,
+      'IsCancelled':false,
     };
 
     final fetchedJobAssignments = await companyJobAssignmentProvider.get(filter: filter);

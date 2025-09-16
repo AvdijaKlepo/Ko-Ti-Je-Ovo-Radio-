@@ -125,6 +125,7 @@ void patchStartEnd(TimeOfDay? startTod, {required Duration duration}) {
       'payEstimate': job.payEstimate.toString(),
       'rescheduleNote': job.isEdited == false ? null : job.rescheduleNote,
       'jobDate': job.jobDate,
+      'dateFinished': job.dateFinished,
     };
   }
 
@@ -345,6 +346,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 FormBuilderDateTimePicker(
                   enabled: !isLoading,
                   format: DateFormat('dd-MM-yyyy'),
+                  
                   decoration: const InputDecoration(
                     labelText: 'Datum rezervacije',
                     border: OutlineInputBorder(),
@@ -388,7 +390,20 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
                 ),
                 const SizedBox(height: 15),
-               
+                 if(widget.job.dateFinished!=null)
+                FormBuilderDateTimePicker(name: 'dateFinished',
+                 format: DateFormat('dd-MM-yyyy'),
+                  inputType: InputType.date,
+                  selectableDayPredicate: _isWorkingDay,
+                  decoration: const InputDecoration(
+                    labelText: 'Datum završetka',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                ),
+
+
+                const SizedBox(height: 15),               
                 FormBuilderCustomTimePicker(
                   initialValue: jobStartTime,
                   name: 'startEstimate',
@@ -422,6 +437,7 @@ const SizedBox(height: 15),
 
 FormBuilderDateTimePicker(
   name: "endEstimate",
+  locale: Locale('bs'),
   inputType: InputType.time,
   format: DateFormat('HH:mm'),
   decoration: const InputDecoration(
@@ -441,10 +457,12 @@ FormBuilderDateTimePicker(
                 FormBuilderTextField(name: 'rescheduleNote',
                     enabled: true,
                   decoration: const InputDecoration(
-                    labelText: 'Poruka korisniku',
+                    labelText: 'Razlog promjene',
+                    
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.description),
                   ),
+                  
                   maxLines: 3,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
@@ -610,6 +628,8 @@ Widget _save() {
                   backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
                   textStyle: const TextStyle(color: Colors.white)),
               onPressed: () async {
+                final message = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
                 final isValid =
                     _formKey.currentState?.saveAndValidate() ?? false;
 
@@ -633,8 +653,13 @@ Widget _save() {
                   values["jobDate"] =
                       (values["jobDate"] as DateTime).toIso8601String().split('T')[0];
                 }
+                     if (values["dateFinished"] is DateTime) {
+                  values["dateFinished"] =
+                      (values["dateFinished"] as DateTime).toIso8601String().split('T')[0];
+                }
               
-                 var endEstimateValue = values["endEstimate"];
+              
+              
 
               final formattedEndEstimate   = formatTimeOnly(values["endEstimate"]);
                 if (_base64Image != null) {
@@ -665,7 +690,7 @@ Widget _save() {
                   "payEstimate":values["payEstimate"],
                   "payInvoice": null,
                   "jobDate": values["jobDate"],
-                  "dateFinished": null,
+                  "dateFinished": values["dateFinished"],
                   "jobDescription": values["jobDescription"],
                   "image": values["image"],
                   "jobStatus": JobStatus.approved.name,
@@ -684,20 +709,20 @@ Widget _save() {
                 try{
                 await jobProvider.update(widget.job.jobId,jobInsertRequest);
                 
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao uređen i radnik obaviješten.')));
-                  Navigator.of(context).pop();
+                  message.showSnackBar(const SnackBar(content: Text('Posao uređen i radnik obaviješten.')));
+                  navigator.pop();
                 }
                 catch(e){
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
-                  Navigator.of(context).pop();
+                  message.showSnackBar(const SnackBar(content: Text('Greška tokom slanja. Molimo pokušajte ponovo.')));
+                 
 
                 
                 
               
 
                 
-                if(!mounted) return;
-                Navigator.of(context).pop();
+         
+       
               }
              
               }

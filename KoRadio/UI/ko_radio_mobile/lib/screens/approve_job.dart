@@ -33,6 +33,8 @@ class _ApproveJobState extends State<ApproveJob> {
   bool _isLoading = false;
   bool multiDateJob=false;
   late Set<int> _workingDayInts;
+  var daysInRange;
+  
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
     'Tuesday': 2,
@@ -61,6 +63,7 @@ class _ApproveJobState extends State<ApproveJob> {
     
       await _getJob();
       await _getOtherFreelancersJobs();
+    
       setState(() {
         _isLoading=false;
       });
@@ -84,6 +87,7 @@ class _ApproveJobState extends State<ApproveJob> {
       setState(() {
         jobResult = fetchedJob;
         _isLoading=false;
+        
       });
     } on Exception catch (e) {
       if(!mounted) return;
@@ -264,16 +268,16 @@ class _ApproveJobState extends State<ApproveJob> {
     );
   }
   String formatPhoneNumber(String phone) {
-  // Step 1: Replace +387 at the start with 0
+
   String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
 
-  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+
   normalized = normalized.replaceAll(RegExp(r'\D'), '');
 
-  // Step 3: Ensure we only format if we have at least 9 digits
+
   if (normalized.length < 9) return normalized;
 
-  // Step 4: Insert dashes in 3-3-3 format
+
   String part1 = normalized.substring(0, 3);
   String part2 = normalized.substring(3, 6);
   String part3 = normalized.substring(6, 9);
@@ -286,23 +290,34 @@ class _ApproveJobState extends State<ApproveJob> {
 
   @override
   Widget build(BuildContext context) {
-    if(_isLoading==true)
-    {
-      final job = null;
-    }
-    else{
-        final job = jobResult.result.first;
-    }
+  
+    
+   
   
     final dateFormat = DateFormat('dd.MM.yyyy');
     final _formKey = GlobalKey<FormBuilderState>();
-    final job = jobResult.result.first;
+   if (_isLoading) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
 
-final daysInRange = getWorkingDaysInRange(
-  jobDate: job.jobDate,
-  dateFinished: job.dateFinished!,
-  workingDays:  job.freelancer?.workingDays ?? [],
-);
+
+
+
+  final job = jobResult.result.first;
+
+  var daysInRange;
+  if (job.dateFinished != null) {
+    daysInRange = getWorkingDaysInRange(
+      jobDate: job.jobDate,
+      dateFinished: job.dateFinished!,
+      workingDays: job.freelancer?.workingDays ?? [],
+    );
+  }
+
+    
+   
     return Scaffold(
 
       
@@ -376,6 +391,7 @@ final daysInRange = getWorkingDaysInRange(
               "payEstimate": widget.job.payEstimate,
               "payInvoice": null,
               "jobDate": widget.job.jobDate.toIso8601String(),
+              "dateFinished": widget.job.dateFinished?.toIso8601String(),
              
 
               "jobDescription": widget.job.jobDescription,
@@ -418,7 +434,7 @@ final daysInRange = getWorkingDaysInRange(
   ),
 ],
                     
-                      _sectionTitle('Radne specifikacije'),
+                   _sectionTitle('Radne specifikacije'),
                   _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
                   _buildDetailRow('Servis', widget.job.jobsServices
                           ?.map((e) => e.service?.serviceName)
@@ -426,21 +442,22 @@ final daysInRange = getWorkingDaysInRange(
                           .join(', ') ??
                       'N/A'),
                  
-                  _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
-                  if(jobResult.result.first.dateFinished!=null)
-                  _buildDetailRow('Datum završetka', dateFormat.format(jobResult.result.first.dateFinished!)),
-                  if(jobResult.result.first.dateFinished!=null)
+                                _buildDetailRow('Datum početka\nradova', dateFormat.format(job.jobDate)),
+                  if(job.dateFinished!=null)
+                  _buildDetailRow('Datum završetka\nradova', dateFormat.format(job.dateFinished!)),
+                  if(job.dateFinished!=null)
                  _buildDetailRow('Radni dani',  daysInRange.join(', ')),
-             
 
-                  
-               
-                  _buildDetailRow('Vrijeme početka', widget.job.startEstimate.toString().substring(0,5)),
-                 
+                  if(job.dateFinished==null)
+                  _buildDetailRow('Vrijeme početka', job.startEstimate.toString().substring(0,5)),
+                  if(job.dateFinished==null)
                   _buildDetailRow('Vrijeme završetka',
-                  jobResult.result.first.endEstimate!=null ?
-                      jobResult.result.first.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                 job.endEstimate!=null ?
+                      job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                      if(job.endEstimate!=null && job.dateFinished!=null)
+                  _buildDetailRow('Vremenski', 'Svakim navedenim danom od ${job.startEstimate.toString().substring(0,5)} do ${job.endEstimate.toString().substring(0,5)}'),
                   _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
+                  _buildDetailRow('Servis', jobResult.result.first.jobsServices?.map((e) => e.service?.serviceName).join(', ')??'Nije uneseno'),
                    jobResult.result.first.image!=null ?
                         _buildImageRow(
                                   'Slika',
@@ -492,8 +509,8 @@ final daysInRange = getWorkingDaysInRange(
                   ),
 
                   const Divider(height: 32),
-                  
-                
+                    
+                  _sectionTitle('Račun'),
                    jobResult.result.first.payEstimate!=null ?
                   _buildDetailRow('Procijena',
                       '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM'):

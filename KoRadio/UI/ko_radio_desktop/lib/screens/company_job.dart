@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
@@ -21,13 +22,14 @@ class _CompanyJobState extends State<CompanyJob> {
   late JobProvider jobProvider;
   late PaginatedFetcher<Job> jobsPagination;
   final ScrollController _scrollController = ScrollController();
+  SearchResult<Job>? jobResult =SearchResult();
   int _selectedIndex = 0;
   bool _isInitialized = false;
   bool _isLoading = false;
-  
-  // Calendar state
+
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  Map<DateTime, DateTime?> jobDates = {};
   Map<DateTime, List<Job>> jobsByDate = {};
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime? _rangeStart;
@@ -82,17 +84,26 @@ class _CompanyJobState extends State<CompanyJob> {
   }
 
   Future<void> _loadAllJobsForCalendar() async {
-    final allJobs = await jobProvider.get(filter: {
+    jobResult = await jobProvider.get(filter: {
       'CompanyId': AuthProvider.selectedCompanyId,
       'isTenderFinalized': false,
       'isDeleted': false,
+      'JobStatus': JobStatus.approved.name,
+
+      
     });
     if (!mounted) return;
     setState(() {
       jobsByDate.clear();
-      for (var job in allJobs.result) {
-        final day = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
-        jobsByDate.putIfAbsent(day, () => []).add(job);
+      for (var job in jobResult!.result) {
+        final start = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
+        final end = job.dateFinished!=null ? DateTime(job.dateFinished!.year, job.dateFinished!.month, job.dateFinished!.day) : null;
+       for (var date = start;
+          date.isBefore(end!.add(const Duration(days: 1)));
+          date = date.add(const Duration(days: 1))) {
+        jobsByDate.putIfAbsent(date, () => []).add(job);
+      }
+      
       }
     });
   }
@@ -103,6 +114,8 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
     'isTenderFinalized': false,
     'OrderBy': 'desc',
     'isDeleted': false,
+    'JobStatus': _jobStatuses[_selectedIndex].name,
+
   };
 
   if (date != null) {
@@ -110,6 +123,9 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
   } else {
     filter['JobStatus'] = status.name;
   }
+  
+ 
+   
 
   return filter;
 }
@@ -163,8 +179,6 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
     });
 
     if (start != null && end != null) {
-      // The backend doesn't support a date range, so we'll treat the selection
-      // as the last day of the range.
       await jobsPagination.refresh(newFilter: _createFilterMap(
         _jobStatuses[_selectedIndex],
         date: end,
@@ -196,6 +210,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
 
   @override
   Widget build(BuildContext context) {
+ 
     return DefaultTabController(
       length: _jobStatuses.length,
       initialIndex: _selectedIndex,
@@ -206,7 +221,9 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 350,
+                width: MediaQuery.of(context).size.width * 0.2,
+                height: MediaQuery.of(context).size.height,
+                
                 child: Column(
                   children: [
                     TabBar(
@@ -229,6 +246,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                       indicatorColor: const Color.fromRGBO(27, 76, 125, 1),
                       labelColor: const Color.fromRGBO(27, 76, 125, 1),
                       unselectedLabelColor: Colors.grey,
+                      
                       tabs: const [
                         Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
                         Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
@@ -237,75 +255,113 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                       ],
                     ),
                     const SizedBox(height: 15),
-                    TableCalendar(
-                      shouldFillViewport: false,
-                      locale: 'bs',
-                      firstDay: DateTime.utc(2020, 1, 1),
-                      lastDay: DateTime.utc(2030, 12, 31),
-                      focusedDay: _focusedDay,
-                      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                      onDaySelected: _onDaySelected,
-                      onRangeSelected: _onRangeSelected,
-                      rangeStartDay: _rangeStart,
-                      rangeEndDay: _rangeEnd,
-                      rangeSelectionMode: _rangeSelectionMode,
-                      availableCalendarFormats: const {
-                        CalendarFormat.month: 'Mjesec',
-                        CalendarFormat.week: 'Sedmica',
-                      },
-                      onPageChanged: (focusedDay) {
-                        _focusedDay = focusedDay;
-                      },
-                      startingDayOfWeek: StartingDayOfWeek.monday,
-                      headerStyle: const HeaderStyle(
-                        formatButtonVisible: true,
-                        titleCentered: true,
-                      ),
-                      calendarStyle: const CalendarStyle(
-                        todayDecoration: BoxDecoration(
-                          color: Color.fromRGBO(27, 76, 125, 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        selectedDecoration: BoxDecoration(
-                          color: Color.fromRGBO(27, 76, 125, 1),
-                          shape: BoxShape.circle,
-                        ),
-                        rangeStartDecoration: BoxDecoration(
-                          color: Color.fromRGBO(27, 76, 125, 1),
-                          shape: BoxShape.circle,
-                        ),
-                        rangeEndDecoration: BoxDecoration(
-                          color: Color.fromRGBO(27, 76, 125, 1),
-                          shape: BoxShape.circle,
-                        ),
-                        selectedTextStyle: TextStyle(color: Colors.white),
-                      ),
-                      eventLoader: (day) {
-                        final normalized = DateTime(day.year, day.month, day.day);
-                        return jobsByDate[normalized] ?? [];
-                      },
-                      calendarBuilders: CalendarBuilders(
-                        markerBuilder: (context, day, events) {
-                          if (events.isNotEmpty) {
-                            return Positioned(
-                              bottom: 1,
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  '${events.length}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                                ),
-                              ),
-                            );
-                          }
-                          return null;
+                    Expanded(
+                      child: TableCalendar(
+                      
+                        shouldFillViewport: true,
+                        locale: 'bs',
+                        firstDay: DateTime.utc(2020, 1, 1),
+                        lastDay: DateTime.utc(2030, 12, 31),
+                        focusedDay: _focusedDay,
+                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                        onDaySelected: _onDaySelected,
+                        onRangeSelected: _onRangeSelected,
+                        rangeStartDay: _rangeStart,
+                        rangeEndDay: _rangeEnd,
+                        rangeSelectionMode: _rangeSelectionMode,
+                        availableCalendarFormats: const {
+                          CalendarFormat.month: 'Mjesec',
+                          CalendarFormat.week: 'Sedmica'
                         },
+                        calendarFormat: CalendarFormat.month,
+                       
+                        onPageChanged: (focusedDay) {
+                          _focusedDay = focusedDay;
+                        },
+                        startingDayOfWeek: StartingDayOfWeek.monday,
+                        headerStyle: const HeaderStyle(
+                          formatButtonVisible: true,
+                          titleCentered: true,
+                        ),
+                        calendarStyle: const CalendarStyle(
+                          todayDecoration: BoxDecoration(
+                            color: Color.fromRGBO(27, 76, 125, 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          selectedDecoration: BoxDecoration(
+                            color: Color.fromRGBO(27, 76, 125, 1),
+                            shape: BoxShape.circle,
+                          ),
+                          rangeStartDecoration: BoxDecoration(
+                            color: Color.fromRGBO(27, 76, 125, 1),
+                            shape: BoxShape.circle,
+                          ),
+                          rangeEndDecoration: BoxDecoration(
+                            color: Color.fromRGBO(27, 76, 125, 1),
+                            shape: BoxShape.circle,
+                          ),
+                          selectedTextStyle: TextStyle(color: Colors.white),
+                        ),
+                        eventLoader: (day) {
+                          final normalized = DateTime(day.year, day.month, day.day);
+                          return jobsByDate[normalized] ?? [];
+                        },
+                        calendarBuilders: CalendarBuilders(
+                          markerBuilder: (context, day, events) {
+                            if (events.isNotEmpty) {
+                              return Positioned(
+                                bottom: 1,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${events.length}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                                  ),
+                                ),
+                              );
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Align(alignment: Alignment.centerLeft,child: Text('Pretraži klijente', style: Theme.of(context).textTheme.titleMedium)),
+                    const TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          
+                        ),
+                        prefixIcon: Icon(Icons.search_outlined),
+                        labelText: 'Ime i prezime klijenta',
+                      ),
+                      ),
+                    const SizedBox(height: 16),
+                  
+                    Align(alignment: Alignment.centerLeft,child: Text('Pretraži po radniku', style: Theme.of(context).textTheme.titleMedium)),
+                    const Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            
+                          ),
+                          prefixIcon: Icon(Icons.search_outlined),
+                          labelText: 'Ime i prezime radnika',
+                        ),
+                        ),
+
+                      ),
+                    
                   ],
                 ),
               ),
@@ -315,13 +371,13 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text('Ukupan broj poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
+                        Text('Ukupan broj ${_jobStatuses[_selectedIndex]} poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
                         if (_selectedDay != null || _rangeStart != null)
                           TextButton.icon(
                             icon: const Icon(Icons.close),
-                            label: const Text('Poništi filter datuma'),
+                            label: const Text('Poništi aktivni filter datuma'),
                             onPressed: _clearDateFilter,
                           ),
                       ],

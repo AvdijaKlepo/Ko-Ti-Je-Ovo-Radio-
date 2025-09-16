@@ -22,16 +22,16 @@ import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
-class EditJob extends StatefulWidget {
-  const EditJob({required this.job, super.key});
+class EditAcceptJob extends StatefulWidget {
+  const EditAcceptJob({super.key , required this.job});
   final Job job;
 
   @override
-  State<EditJob> createState() => _EditJobState();
+  State<EditAcceptJob> createState() => _EditAcceptJobState();
 }
 
-class _EditJobState extends State<EditJob> {
-    final _formKey = GlobalKey<FormBuilderState>();
+class _EditAcceptJobState extends State<EditAcceptJob> {
+      final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late CompanyEmployeeProvider companyEmployeeProvider;
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
@@ -161,10 +161,9 @@ void initState() {
     }
   }
 
-   
   @override
   Widget build(BuildContext context) {
-    final filterLoggedInUser = companyEmployeeResult?.result
+   final filterLoggedInUser = companyEmployeeResult?.result
         .where((element) => element.userId != AuthProvider.user?.userId)
         .toList();
    var jobDate = widget.job.jobDate;
@@ -196,8 +195,9 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-             
-                Text('Uredi',style: const TextStyle(color: Colors.black),),
+
+                Text('Uredi i prihvati',style: const TextStyle(color: Colors.black),),
+          
                 
                 IconButton(
                   icon: const Icon(Icons.close),

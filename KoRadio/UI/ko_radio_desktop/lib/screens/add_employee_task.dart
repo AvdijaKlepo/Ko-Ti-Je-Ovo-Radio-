@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/company_role.dart';
@@ -11,6 +12,7 @@ import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_job_assignment_provider.dart';
+import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/company_role_provider.dart';
 import 'package:ko_radio_desktop/providers/employee_task_provider.dart';
 import 'package:provider/provider.dart';
@@ -31,12 +33,24 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
   late EmployeeTaskProvider employeeTaskProvider;
   late CompanyRoleProvider companyRoleProvider;
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
+  late CompanyProvider companyProvider;
   SearchResult<CompanyEmployee>? companyEmployeeResult;
   SearchResult<CompanyRole>? companyRoleResult;
   SearchResult<EmployeeTask>? employeeTaskResult;
   SearchResult<CompanyJobAssignment>? companyJobAssignmentResult;
   bool _isLoading = false;
   AssignmentType _assignmentType = AssignmentType.employee;
+  late Set<int> _workingDayInts;
+  final Map<String, int> _dayStringToInt = {
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6,
+    'Sunday': 7,
+  };
+
 
   @override
   void initState() {
@@ -47,6 +61,11 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
     companyJobAssignmentProvider = context.read<CompanyJobAssignmentProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchData();
+      _workingDayInts = widget.job.company?.workingDays
+            ?.map((day) => _dayStringToInt[day] ?? -1)
+            .where((dayInt) => dayInt != -1)
+            .toSet() ??
+        {};
     });
   }
 
@@ -60,6 +79,7 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
         _getCompanyRoles(),
         _getEmployeeTasks(),
         _getCompanyJobAssignments(),
+
       ]);
     } catch (e) {
       if (!mounted) return;
@@ -71,6 +91,9 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
         _isLoading = false;
       });
     }
+  }
+   bool _isWorkingDay(DateTime day) {
+    return _workingDayInts.contains(day.weekday);
   }
 
   Future<void> _getCompanyJobAssignments() async {
@@ -108,6 +131,7 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
       companyEmployeeResult = fetchedCompanyEmployees;
     });
   }
+  
 
   Future<void> _saveTask() async {
     final isValid = _formKey.currentState?.saveAndValidate() ?? false;
@@ -166,9 +190,9 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
         .whereType<CompanyEmployee>()
         .toList();
 
-    return Dialog(
-      insetPadding: const EdgeInsets.all(24),
-      child: Padding(
+    return Scaffold(
+    
+      body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: SingleChildScrollView(
           child: Column(
@@ -285,7 +309,8 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
             inputType: InputType.date,
             initialValue: widget.job.jobDate,
             firstDate: widget.job.jobDate,
-            lastDate: widget.job.dateFinished,
+            lastDate: widget.job.dateFinished ?? widget.job.jobDate,
+            selectableDayPredicate: _isWorkingDay,
             format: DateFormat('dd.MM.yyyy'),
             decoration: const InputDecoration(
               labelText: 'Datum',
@@ -377,7 +402,7 @@ class _EmployeeTaskCardState extends State<EmployeeTaskCard> {
                   const SizedBox(width: 8),
                   Chip(
                     label: Text(
-                      widget.task.companyEmployee?.companyRoleName ?? 'Nema uloge',
+                      widget.task.companyEmployee?.companyRoleName ?? 'Zaposlenik nema uloge',
                       style: const TextStyle(fontSize: 12),
                     ),
                     backgroundColor: widget.task.companyEmployee?.companyRoleName != null ? Colors.blue.shade50 : Colors.grey.shade200,

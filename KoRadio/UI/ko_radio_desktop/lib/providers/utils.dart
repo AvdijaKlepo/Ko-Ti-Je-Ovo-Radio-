@@ -153,7 +153,48 @@ bool validateAccountStatus(User user) {
 }
 
 
+List<String> getWorkingDaysInRange({
+  required DateTime jobDate,
+  required DateTime dateFinished,
+  required List<String> workingDays,
+}) {
 
+  final normalized =  workingDays.map((d) => d.toLowerCase()).toSet();
+
+  final result = <String>[];
+  DateTime current = jobDate;
+
+  while (!current.isAfter(dateFinished)) {
+    final dayName = _dayName(current.weekday); 
+    if (normalized.contains(dayName.toLowerCase())) {
+      result.add(dayName);
+    }
+    current = current.add(const Duration(days: 1));
+  }
+
+  return localizeWorkingDays(result);
+}
+
+String _dayName(int weekday) {
+  switch (weekday) {
+    case DateTime.monday:
+      return "Monday";
+    case DateTime.tuesday:
+      return "Tuesday";
+    case DateTime.wednesday:
+      return "Wednesday";
+    case DateTime.thursday:
+      return "Thursday";
+    case DateTime.friday:
+      return "Friday";
+    case DateTime.saturday:
+      return "Saturday";
+    case DateTime.sunday:
+      return "Sunday";
+    default:
+      return "";
+  }
+}
 
 
 void showPdfDialog(BuildContext context, String base64Pdf, String title) {

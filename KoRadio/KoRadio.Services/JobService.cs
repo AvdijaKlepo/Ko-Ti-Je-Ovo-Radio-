@@ -124,7 +124,7 @@ namespace KoRadio.Services
 			}
 			if (string.IsNullOrEmpty(search?.OrderBy))
 			{
-				// fallback ordering to ensure deterministic Skip/Take
+		
 				query = query.OrderBy(x => x.JobId);
 			}
 			if (search?.JobService != null)

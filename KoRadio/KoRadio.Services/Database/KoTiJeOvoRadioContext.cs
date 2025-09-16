@@ -67,14 +67,14 @@ public partial class KoTiJeOvoRadioContext : DbContext
 
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	{
-		if (!optionsBuilder.IsConfigured)
-		{
-			
-		}
-	}
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=IB190091;Trusted_Connection=true;TrustServerCertificate=True");
+        }
+    }
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>(entity =>
         {

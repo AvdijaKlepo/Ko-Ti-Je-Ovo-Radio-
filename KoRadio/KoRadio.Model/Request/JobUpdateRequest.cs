@@ -36,7 +36,7 @@ namespace KoRadio.Model.Request
 		public byte[]? Image { get; set; }
 		public string? JobStatus { get; set; } = null!;
 
-		public ICollection<int>? ServiceId { get; set; } = new List<int>();
+		public ICollection<int>? ServiceId { get; set; }
 		public bool? IsDeleted { get; set; }
 		public bool? IsDeletedWorker { get; set; }
 

@@ -38,7 +38,7 @@ class _JobDetailsState extends State<JobDetails> {
   late JobProvider jobProvider;
   late UserRatings userRatingsProvider;
   late Company companyResult;
-  late SearchResult<Job> jobResult;
+  SearchResult<Job> jobResult=SearchResult();
   SearchResult<UserRating>? userRatingsResult;
   late MessagesProvider messagesProvider;
   late CompanyJobAssignmentProvider companyJobAssignmentProvider;
@@ -49,6 +49,7 @@ class _JobDetailsState extends State<JobDetails> {
   
   
   double _rating = 0;
+  var daysInRange;
 
   @override
   void initState() {
@@ -75,16 +76,19 @@ class _JobDetailsState extends State<JobDetails> {
       }
       await _getJob();
       await _getUserRatings();
+     
        setState(() {
       _isLoading=false;
-      final job = jobResult.result.first;
+    
     });
+     
     
     });
    
    
   
   }
+  
   Future<void> _getUserRatings() async {
     var filter={'JobId': widget.job.jobId, 'UserId': widget.job.user?.userId};
     try {
@@ -144,10 +148,11 @@ class _JobDetailsState extends State<JobDetails> {
     );
   }
   }
+  
    _openCancelDialog() {
     return AlertDialog(
       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-      title: const Text('Odbaci posao',style: TextStyle(color: Colors.white),),
+      title: const Text('Otkaži posao',style: TextStyle(color: Colors.white),),
       content: const Text('Jeste li sigurni da želite da otkažete ovaj posao?',style: TextStyle(color: Colors.white),),
       actions: [
         TextButton(
@@ -173,13 +178,7 @@ class _JobDetailsState extends State<JobDetails> {
                 "jobStatus": JobStatus.cancelled.name
                 
           };
-          var messageRequest = {
-            'message1': "Korisnik ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName} je otkazao posao ${widget.job.jobTitle}",
-            'userId': AuthProvider.user?.userId,
-            'createdAt': DateTime.now().toIso8601String(),
-            'isOpened': false,
-          };
-          
+        
          
             
               try {
@@ -187,7 +186,16 @@ class _JobDetailsState extends State<JobDetails> {
             await jobProvider.update(widget.job.jobId,
             jobUpdateRequest
             );
-            await messagesProvider.insert(messageRequest);
+            if(companyJobAssignmentResult?.result.isNotEmpty ?? false)
+            {
+               final assignments = companyJobAssignmentResult?.result ?? [];
+        for (final a in assignments) {
+          if (a.companyJobId != null) {
+            await companyJobAssignmentProvider.update(a.companyJobId!, {'isCancelled': true});
+          }
+        }
+            }
+          
             
             message.showSnackBar(const SnackBar(content: Text('Posao otkazan.')));
         
@@ -229,13 +237,27 @@ class _JobDetailsState extends State<JobDetails> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final job = jobResult.result.first;
+    if (_isLoading) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
 
-final daysInRange = getWorkingDaysInRange(
-  jobDate: job.jobDate,
-  dateFinished: job.dateFinished!,
-  workingDays:  job.freelancer?.workingDays ?? [],
-);
+
+
+
+  final job = jobResult.result.first;
+
+
+  if (job.dateFinished != null) {
+    daysInRange = getWorkingDaysInRange(
+      jobDate: job.jobDate,
+      dateFinished: job.dateFinished!,
+      workingDays: job.freelancer?.freelancerId!=null ?
+       job.freelancer?.workingDays ?? []:
+       job.company?.workingDays ?? [],
+    );
+  }
   
 
     return Scaffold(
@@ -342,18 +364,22 @@ final daysInRange = getWorkingDaysInRange(
                           .join(', ') ??
                       'N/A'),
                  
-                  _buildDetailRow('Datum', dateFormat.format(jobResult.result.first.jobDate)),
-                  if(jobResult.result.first.dateFinished!=null)
-                  _buildDetailRow('Datum završetka', dateFormat.format(jobResult.result.first.dateFinished!)),
-                  if(jobResult.result.first.dateFinished!=null)
+                                _buildDetailRow('Datum početka\nradova', dateFormat.format(job.jobDate)),
+                  if(job.dateFinished!=null)
+                  _buildDetailRow('Datum završetka\nradova', dateFormat.format(job.dateFinished!)),
+                  if(job.dateFinished!=null)
                  _buildDetailRow('Radni dani',  daysInRange.join(', ')),
-                  _buildDetailRow('Vrijeme početka', jobResult.result.first.startEstimate.toString().substring(0,5) ?? ''),
-                 
-                  if(jobResult.result.first.freelancer?.freelancerId!=null)
+
+                  if(job.dateFinished==null)
+                  _buildDetailRow('Vrijeme početka', job.startEstimate.toString().substring(0,5)),
+                  if(job.dateFinished==null)
                   _buildDetailRow('Vrijeme završetka',
-                 jobResult.result.first.endEstimate!=null ?
-                      jobResult.result.first.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                 job.endEstimate!=null ?
+                      job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                      if(job.endEstimate!=null && job.dateFinished!=null)
+                  _buildDetailRow('Vremenski', 'Svakim navedenim danom od ${job.startEstimate.toString().substring(0,5)} do ${job.endEstimate.toString().substring(0,5)}'),
                   _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
+                  _buildDetailRow('Servis', jobResult.result.first.jobsServices?.map((e) => e.service?.serviceName).join(', ')??'Nije uneseno'),
                     jobResult.result.first.image!=null ?
                         _buildImageRow(
                                   'Slika',
@@ -380,19 +406,19 @@ final daysInRange = getWorkingDaysInRange(
                               : _buildDetailRow('Slika','Nije unesena'),
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
-  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
   
   const Divider(height: 32,),
-  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished) )
 
   _sectionTitle('Preuzeli dužnost'),
-  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
 
   _buildDetailRow('Radnici', '${companyJobAssignmentResult?.result.map((e) => '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}').join(', ')}'),
-  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
 
   const SizedBox(height: 15,),
-  if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
+  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
 
   if(companyJobAssignmentResult?.result.isNotEmpty==true && AuthProvider.selectedRole == "CompanyEmployee")
   if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
@@ -464,7 +490,7 @@ final daysInRange = getWorkingDaysInRange(
                     "payEstimate":widget.job.payEstimate,
                     "payInvoice": null,
                     "jobDate": widget.job.jobDate.toIso8601String(),
-                    "dateFinished": null,
+                    "dateFinished": widget.job.dateFinished?.toIso8601String(),
                     "jobDescription": widget.job.jobDescription,
                     "image": widget.job.image,
                     "jobStatus": JobStatus.approved.name,
@@ -587,6 +613,7 @@ final daysInRange = getWorkingDaysInRange(
                   _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.freelancer?.freelancerNavigation?.phoneNumber ?? 'Nepoznato')) : 
                    _buildDetailRow('Telefonski broj', formatPhoneNumber(widget.job.company?.phoneNumber ?? 'Nepoznato')),
                   const Divider(height: 32),
+                 _sectionTitle('Račun'),
                   _buildDetailRow('Procijena',
                      jobResult.result.first.payEstimate!=null ?
                       '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM' : 'Nije unesena'),

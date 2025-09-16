@@ -13,6 +13,7 @@ import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/company_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
+import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class BookCompanyJob extends StatefulWidget {
@@ -73,6 +74,17 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
   }
   @override
   Widget build(BuildContext context) {
+     final startTimeString = widget.c.startTime;
+    final endTimeString = widget.c.endTime;
+
+    TimeOfDay parseTime(String timeStr) {
+      final parts = timeStr.split(':');
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }
+
+    final startTime = parseTime(startTimeString);
+    final endTime = parseTime(endTimeString);
+
     return Scaffold(
       appBar: AppBar(title:  Text('Rezerviši posao',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
       centerTitle: true,
@@ -135,6 +147,17 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         
                       },
                     ),
+                  const SizedBox(height: 15,),
+                  FormBuilderCustomTimePicker(
+                  name: 'startEstimate',
+                  minTime: startTime,
+                  maxTime: endTime,
+                  now: TimeOfDay.now(),
+                  jobDate: _currentJobDate,
+                  bookedJobs: [],
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Obavezno polje'),
+                ),
                   const SizedBox(height: 15,),
                FormBuilderTextField(
                   validator: FormBuilderValidators.compose([
@@ -278,6 +301,14 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
+                  if (formData["startEstimate"] is TimeOfDay) {
+                  formData["startEstimate"] =
+                      (formData["startEstimate"] as TimeOfDay)
+                          .toString()
+                          .split('TimeOfDay(')[1]
+                          .split(')')[0];
+                }
+
               
           
 
@@ -299,7 +330,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                   "isFreelancer": false,
                   "isInvoiced": false,
                   "isRated": false,
-                  "startEstimate": null,
+                  "startEstimate": formData["startEstimate"],
                   "endEstimate": null,
                   "payEstimate": null,
                   "payInvoice": null,
