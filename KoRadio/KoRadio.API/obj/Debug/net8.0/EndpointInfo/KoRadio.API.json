@@ -635,6 +635,13 @@
             }
           },
           {
+            "name": "IsCancelled",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "CompanyId",
             "in": "query",
             "schema": {
@@ -652,6 +659,22 @@
           },
           {
             "name": "DateRange",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "JobDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DateFinished",
             "in": "query",
             "schema": {
               "type": "string",

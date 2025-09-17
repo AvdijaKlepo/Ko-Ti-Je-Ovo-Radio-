@@ -14,5 +14,8 @@ namespace KoRadio.Model.SearchObject
 		public int? CompanyId { get; set; }
 		public int? CompanyEmployeeId { get; set; }
 		public DateTime? DateRange { get; set; }
+
+		public DateTime? JobDate { get; set; }
+		public DateTime? DateFinished { get; set; }
 	}
 }

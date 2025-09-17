@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
@@ -24,6 +25,7 @@ import 'package:ko_radio_desktop/screens/add_employee_task.dart';
 import 'package:ko_radio_desktop/screens/edit_accept_job.dart';
 import 'package:ko_radio_desktop/screens/edit_job.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class BookCompanyJobPage extends StatefulWidget {
   const BookCompanyJobPage({required this.job, Key? key}) : super(key: key);
@@ -57,6 +59,9 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
   bool _showTaskPanel = false;
   bool _expansionOpen = false;
   bool multiDateJob=false;
+  DateTime? _dateFinishedValue;
+  DateTime? _dateEndValue;
+  DateTime? jobDate;
 
 
   Map<String, dynamic> _initialForm = {};
@@ -96,6 +101,7 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
   }
 
   Future<void> _loadData() async {
+  
     setState(() => _loading = true);
 
     try {
@@ -104,9 +110,23 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
         _jobProvider.get(filter: {'JobId': widget.job.jobId}),
         _companyEmployeeProvider.get(filter: {'companyId': widget.job.company?.companyId}),
         _companyJobAssignmentProvider.get(filter: {'JobId': widget.job.jobId}),
-        _companyJobAssignmentProvider.get(filter: {'DateRange':widget.job.jobDate,'IsFinished':false,'IsCancelled':false}),
+      _companyJobAssignmentProvider.get(
+  filter: _dateFinishedValue == null
+      ? {
+          'JobDate': widget.job.jobDate,
+          'IsFinished': false,
+          'IsCancelled': false,
+        }
+      : {
+          'JobDate': widget.job.jobDate,
+          'DateRange': _dateFinishedValue!.toIso8601String(),
+          'IsFinished': false,
+          'IsCancelled': false,
+        },
+),
         
       ]);
+      print(_jobResult?.result.first.jobDate);
 
       if (!mounted) return;
 
@@ -135,14 +155,15 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
             .toSet()
             .toList() ??
         [];
-
+final currentValues = _formKey.currentState?.value ?? {};
     _initialForm = {
+      ...currentValues,
       'companyEmployeeId': assignedIds,
 
     };
   }
 
-  // Helper: format phone
+
   String _formatPhoneNumber(String phone) {
     if (phone.isEmpty) return phone;
     String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
@@ -270,59 +291,47 @@ class _BookCompanyJobPageState extends State<BookCompanyJobPage> with TickerProv
     }
   }
  bool checkIfValid(int companyEmployeeId) {
-  final values = Map<String, dynamic>.from(_formKey.currentState?.value ?? {});
-
-if (widget.job.startEstimate == null || values['endEstimate'] == null) {
+  if (widget.job.startEstimate == null || _dateEndValue == null) {
     return false;
   }
+  final parts = _jobResult?.result.first.startEstimate!.split(":");
+  final parsedTime = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+    int.parse(parts![0]),
+    int.parse(parts[1]),
+  );
 
-    final parts = widget.job.startEstimate?.split(":");
-    final parsedTime = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-      int.parse(parts?[0] ?? '0'),
-      int.parse(parts?[1] ?? '0'),
-    );
-
-    DateTime normalizeTime(DateTime t) {
-      final now = DateTime.now();
-      return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
-    }
-
-    DateTime selectedEnd = normalizeTime(values['endEstimate']);
-    DateTime newStart = normalizeTime(parsedTime);
-    DateTime newEnd = selectedEnd;
-
-    final selectedEmployeeJobs = _companyJobCheck?.result
-          .where((e) => e.companyEmployeeId == companyEmployeeId)
-            .toList() ??
-        [];
-
-    for (var jobCheck in selectedEmployeeJobs) {
-      if (jobCheck.job?.startEstimate == null ||
-          jobCheck.job?.endEstimate == null) {
-        continue;
-      }
-
-      final bookedStart = parseTime(jobCheck.job?.startEstimate??'');
-      final bookedEnd = parseTime(jobCheck.job?.endEstimate??'');
-
-      bool overlaps =
-          newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart);
-
-      debugPrint(
-        'Checking empId=${jobCheck.companyEmployeeId} '
-        'booked=($bookedStart - $bookedEnd) new=($newStart - $newEnd) '
-        '=> overlaps=$overlaps',
-      );
-
-      if (overlaps) {
-        return true; 
-      }
-    }
-    return false; 
+  DateTime normalizeTime(DateTime t) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
   }
+
+  final newStart = normalizeTime(parsedTime);
+  final newEnd = normalizeTime(_dateEndValue!);
+
+  final selectedEmployeeJobs = _companyJobCheck?.result
+          .where((e) => e.companyEmployeeId == companyEmployeeId)
+          .toList() ??
+      [];
+
+  for (var jobCheck in selectedEmployeeJobs) {
+    if (jobCheck.job?.startEstimate == null ||
+        jobCheck.job?.endEstimate == null) {
+      continue;
+    }
+
+    final bookedStart = parseTime(jobCheck.job!.startEstimate!);
+    final bookedEnd = parseTime(jobCheck.job!.endEstimate!);
+
+    if (newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 
 
 
@@ -462,7 +471,7 @@ if (widget.job.startEstimate == null || values['endEstimate'] == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(jobUpdateRequest['jobStatus']==JobStatus.unapproved ? 'Posao prihvaćen.' : 'Posao označen kao završen.')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška pri slanju. Molimo pokušajte ponovo.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Greška pri slanju. Molimo pokušajte ponovo.')));
     } finally {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -482,9 +491,9 @@ if (widget.job.startEstimate == null || values['endEstimate'] == null) {
       context: context,
       builder: (c) => EditAcceptJob(job: widget.job),
     );
-    if (job != null) {
+
       await _loadData();
-    }
+    
   }
 
 
@@ -578,7 +587,9 @@ final dateFormat = DateFormat('dd.MM.yyyy');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Posao: ${job.jobTitle ?? ''}'),
+        title: Text('Posao: ${job.jobTitle ?? ''}',style: TextStyle(color:Color.fromRGBO(27, 76, 125, 1),letterSpacing: 1.2,fontFamily: GoogleFonts.lobster().fontFamily,fontSize: 30),),
+        centerTitle: true,
+        scrolledUnderElevation: 0,
        
       ),
       body: _loading
@@ -707,7 +718,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                 if (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished)
                                   _sectionTitle('Preuzeli dužnost', color: Colors.black),
                                   _detailRow('Radnici','${assignedNames.isNotEmpty ? assignedNames.join(', ') : 'Nema zaposlenika'}'),
-                                  Divider(height: 24),
+                                  const Divider(height: 24),
 
                                 // Assignments view and selection
                                 if (job.jobStatus == JobStatus.approved)
@@ -829,6 +840,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                         if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
                                         FormBuilderDateTimePicker(
                                           name: 'dateFinished',
+                                          initialValue: _dateFinishedValue,
                                           inputType: InputType.date,
                                           decoration: const InputDecoration(labelText: 'Kraj radova', border: OutlineInputBorder(), prefixIcon: Icon(Icons.calendar_today)),
                                           firstDate: job.jobDate,
@@ -838,20 +850,39 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                             
                                           ]),
                                           selectableDayPredicate: _isWorkingDay,
+                                          onChanged: (value) async {
+                                        
+                                           _dateFinishedValue = value;
+                                           _dateFinishedValue!.toIso8601String();
+                                           
+                                          
+                                            
+                                            await _loadData();
+                                            print(_companyJobCheck?.count);
+                                          },
                                         ),
                                         const SizedBox(height: 12),
                                         FormBuilderDateTimePicker(name: 'endEstimate',
+                                        initialValue: _dateEndValue,
                                           inputType: InputType.time,
                                           decoration: const InputDecoration(labelText: 'Kraj', border: OutlineInputBorder(), prefixIcon: Icon(Icons.schedule_outlined),
                                           ),
                                           validator: FormBuilderValidators.compose([
                                             FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                            
-                                           
+                                     
+                                          
 
                                             
                                             
                                           ]),
+                                          onChanged: (value) async {
+                                          
+                                           setState(() {
+                                             _dateEndValue = value;
+                                           });
+                                         
+                                         
+                                          },
                                         ),
 
 
@@ -862,35 +893,35 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                           decoration: const InputDecoration(labelText: 'Moguća Cijena', border: OutlineInputBorder(), prefixIcon: Icon(Icons.attach_money)),
                                           validator: FormBuilderValidators.compose([
                                             FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                            FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                                            FormBuilderValidators.numeric(errorText: 'Numerička vrijednost.'),
+                                      
                                           ]),
                                           valueTransformer: (value) => double.tryParse(value ?? ''),
                                         ),
                                         const SizedBox(height: 12),
-                                       FormBuilderCheckboxGroup<int>(
-  name: 'companyEmployeeId',
-  decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
-  options: availableEmployees.map((e) {
-    final name = '${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}';
-    final isBusy = checkIfValid(e.companyEmployeeId);
+                                    ValueListenableBuilder<DateTime?>(
+  valueListenable: ValueNotifier(_dateEndValue),
+  builder: (context, endValue, _) {
+    return FormBuilderCheckboxGroup<int>(
+      name: 'companyEmployeeId',
+      decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
+      options: availableEmployees.map((e) {
+        final isBusy = checkIfValid(e.companyEmployeeId);
+        return FormBuilderFieldOption(
 
-    return FormBuilderFieldOption(
-      value: e.companyEmployeeId!,
-
-      child: Row(
-        children: [
-          Icon(isBusy ? Icons.close : Icons.check_circle,
-              color: isBusy ? Colors.red : Colors.green),
-          const SizedBox(width: 8),
-          Text(isBusy ? 'Zauzet' : 'Slobodan'),
-          const SizedBox(width: 12),
-          Text(name),
-        ],
-      ),
+          value: e.companyEmployeeId!,
+          child: Row(
+            children: [
+              isBusy ? Icon(Icons.close, color: Colors.red) : Icon(Icons.check, color: Colors.green),
+              Text('${e.user?.firstName ?? ''} ${e.user?.lastName ?? ''}'),
+            ],
+          ),
+        );
+      }).toList(),
     );
-  }).toList(),
-  validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-)
+  },
+),
+
 
                                       ],
 
@@ -955,17 +986,106 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                           flex: 2,
                           child: Column(
                             children: [
+                            if (_jobResult?.result.isNotEmpty == true &&
+    _jobResult!.result.first.jobStatus == JobStatus.unapproved)
+  SizedBox(
+    height: MediaQuery.of(context).size.height * 0.75,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _dateFinishedValue==null ?
+            'Raspored radnika za ${DateFormat('dd.MM.yyyy').format(_jobResult!.result.first.jobDate)}'
+            : 'Raspored radnika od ${DateFormat('dd.MM.yyyy').format(_jobResult!.result.first.jobDate)} do ${DateFormat('dd.MM.yyyy').format(_dateFinishedValue!)}',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: ListView.builder(
+              itemCount: availableEmployees.length,
+              itemBuilder: (context, index) {
+                final employee = availableEmployees[index];
+
+                // Get ALL jobs for this employee
+                final companyJobs = _companyJobCheck?.result
+                        .where((e) =>
+                            e.companyEmployeeId == employee.companyEmployeeId)
+                        .toList() ??
+                    [];
+
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.person, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${employee.user?.firstName ?? ''} ${employee.user?.lastName ?? ''}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                 
+                        if (companyJobs.isEmpty)
+                          Text(
+                            'Slobodan',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          )
+                        else
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: companyJobs.map((job) {
+                              final start = job.job?.startEstimate ?? 'Nema';
+                              final end = job.job?.endEstimate ?? 'Nema';
+                              DateTime date = job.job!.jobDate;
+                              DateTime? dateFinished = job.job!.dateFinished;
+                              String title = job.job!.jobTitle!;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                child: job.job?.dateFinished==null ? Text('Posao: $title\n${DateFormat('dd.MM.yyyy').format(date)}\nOd: ${start.substring(0,5)}   Do: ${end.substring(0,5)}'):
+                                 Text('Posao: $title\n${DateFormat('dd.MM.yyyy').format(date)} do ${DateFormat('dd.MM.yyyy').format(dateFinished!)}\nOd: ${start.substring(0,5)}   Do: ${end.substring(0,5)}'),
+                              );
+                            }).toList(),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
+
                               // Task panel
                               if (_jobResult?.result.first.jobStatus==JobStatus.approved)
-                                Card(
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  child: SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.75,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: AddEmployeeTask(job: widget.job),
-                                    ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.75,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: AddEmployeeTask(job: widget.job),
                                   ),
                                 ),
                               const SizedBox(height: 12),

@@ -38,7 +38,28 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.CompanyEmployeeId == search.CompanyEmployeeId);
 			}
-			if (search?.DateRange != null)
+			if (search?.JobDate != null && search?.DateRange != null)
+			{
+				var jobDate = search.JobDate.Value.Date;
+				var chosenDate = search.DateRange.Value.Date;
+
+				query = query.Where(j =>
+		
+					j.Job.JobDate <= chosenDate &&
+				
+					(j.Job.DateFinished ?? j.Job.JobDate) >= jobDate
+				);
+			}
+			else if (search?.JobDate != null)
+			{
+				var jobDate = search.JobDate.Value.Date;
+
+				query = query.Where(j =>
+					j.Job.JobDate <= jobDate &&
+					(j.Job.DateFinished ?? j.Job.JobDate) >= jobDate
+				);
+			}
+			else if (search?.DateRange != null)
 			{
 				var chosenDate = search.DateRange.Value.Date;
 
@@ -47,6 +68,14 @@ namespace KoRadio.Services
 					(j.Job.DateFinished ?? j.Job.JobDate) >= chosenDate
 				);
 			}
+
+
+
+
+
+
+
+
 			return base.AddFilter(search, query);
 		}
 

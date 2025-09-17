@@ -92,14 +92,10 @@ void initState() {
           .whereType<int>()
           .toSet()
           .toList(),
-      'dateFinished': widget.job.dateFinished,
+
       'startEstimate': jobStart,
-      'payEstimate': widget.job.payEstimate.toString(),
-      'companyEmployeeId': companyJobAssignmentResult?.result
-          .map((e) => e.companyEmployee?.companyEmployeeId)
-          .whereType<int>()
-          .toSet()
-          .toList(),
+
+   
     };
      if (widget.job?.image != null) {
     try {
@@ -299,25 +295,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                      ),
                      const SizedBox(height: 15,),
                     
-                     FormBuilderDateTimePicker(
-                     
-                       format: DateFormat('dd-MM-yyyy'),
-                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                       decoration: const InputDecoration(
-                         labelText: 'Kraj radova',
-                         border: OutlineInputBorder(),
-                         prefixIcon: Icon(Icons.calendar_today),
-                       ),
-                       name: "dateFinished",
-                       
-                       inputType: InputType.date,
-                       firstDate: widget.job.jobDate,
-                        initialDate: widget.job.jobDate.isAfter(DateTime.now())
-              ? widget.job.jobDate
-              : DateTime.now(),
-                       selectableDayPredicate: _isWorkingDay,
-                      
-                     ),
+                  
                      const SizedBox(height: 15,),
                      FormBuilderDateTimePicker(name: 'startEstimate',
                      inputType: InputType.time,
@@ -332,20 +310,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                        
                      ]),
                    ),
-                     const SizedBox(height: 15,),
-                      FormBuilderDateTimePicker(name: 'endEstimate',
-                     inputType: InputType.time,
-                     decoration: const InputDecoration(labelText: 'Kraj', border: OutlineInputBorder(), prefixIcon: Icon(Icons.schedule_outlined),
-                     ),
-                     validator: FormBuilderValidators.compose([
-                       FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                       
-                       
-
-                       
-                       
-                     ]),
-                   ),
+                  
                      const SizedBox(height: 15,),
 
                        if(widget.job.jobStatus==JobStatus.approved)
@@ -553,12 +518,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                 var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
 
-                    if(formData['jobDate']==widget.job.jobDate && formData['dateFinished']==widget.job.dateFinished)
-                  {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Niste izmjenili polja.")));
-                    return;
-                    }
-
+                 
         
 
                 if (formData["jobDate"] is DateTime) {
@@ -569,6 +529,11 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                 if (_base64Image != null) {
                   formData['image'] = _base64Image;
                 }
+                  if (formData["startEstimate"] is DateTime) {
+            final dateTime = formData["startEstimate"] as DateTime;
+            final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
+            formData["endEstistartEstimatemate"] = formattedTime;
+
               
           
 
@@ -583,25 +548,25 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                         : []);
                   var jobInsertRequest = {
                   "userId": widget.job.user?.userId,
-                  "freelancerId": null,
+            
                   "companyId": widget.job.company?.companyId,
                   "jobTitle": formData["jobTitle"],
-                  "isTenderFinalized": false,
-                  "isFreelancer": false,
-                  "isInvoiced": false,
-                  "isRated": false,
-                  "startEstimate": null,
-                  "endEstimate": null,
-                  "payEstimate": formData["payEstimate"],
-                  "payInvoice": null,
+             
+            
+          
+           
+                  "startEstimate": formattedTime,
+            
+              
+          
                   "jobDate": formData["jobDate"],
-                  "dateFinished": (formData["dateFinished"] as DateTime).toIso8601String(),
+                
                   "jobDescription": formData["jobDescription"],
                   "image": formData["image"],
                   "jobStatus": widget.job.jobStatus.name,
                   "serviceId": formData["serviceId"],
-                  "isWorkerEdited":true,
-                  'rescheduleNote':formData['rescheduleNote']
+                
+         
                 };
 
        
@@ -612,7 +577,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                 if(!mounted) return;
                  Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Zahtjev proslijeđen korisniku!")));
+                    content: Text("Posao uređen. Završite procjenu.")));
               }
               catch(e){
    
@@ -623,5 +588,6 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
 
 
        
+  }
   }
 }
