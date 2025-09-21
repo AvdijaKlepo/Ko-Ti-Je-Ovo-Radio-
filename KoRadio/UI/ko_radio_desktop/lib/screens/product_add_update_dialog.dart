@@ -99,35 +99,102 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.all(24),
-      child: SizedBox(
-        width: 500,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  'assets/images/undraw_data-input_whqw.svg',
-                  fit: BoxFit.cover,
-                ),
+    
+    surfaceTintColor: Colors.white,
+    child: SizedBox(
+      width: MediaQuery.of(context).size.width * 0.25,
+      height: MediaQuery.of(context).size.height * 1,
+      child:  ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: FormBuilder(
-                  key: _formKey,
-                  initialValue: _initialValue,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if(widget.product==null)
-
-                      const Text("Unesite proizvod", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      if(widget.product!=null)
-                      const Text("Podaci Proizvoda", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: 
+            SingleChildScrollView(
+              child: FormBuilder(
+                key: _formKey,
+                initialValue: _initialValue,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if(widget.product==null)
+            
+                    Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
                     ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Dodaj proizvod',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                          splashRadius: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                    if(widget.product!=null)
+                     Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Detalji prozivoda',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                          splashRadius: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                             const Text(
+                              'Informacije o proizvodu',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(height: 12),
                       const SizedBox(height: 20),
                       FormBuilderTextField(name: "productName", decoration: const InputDecoration(labelText: "Naziv proizvoda:", border: OutlineInputBorder()),
                       validator: FormBuilderValidators.compose([
@@ -138,8 +205,14 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                       ]),
                       ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "productDescription", decoration: const InputDecoration(labelText: "Opis", border: OutlineInputBorder()),
+                      FormBuilderTextField(name: "productDescription", decoration:  InputDecoration(
+                        labelText: "Opis", border: OutlineInputBorder(),
+                       helperText: "Maksimalno 100 znakova",
+                       filled: true,
+                       fillColor: Colors.grey[100],
+                      ),
                       maxLines: 3,
+                      
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.maxLength(100, errorText: 'Maksimalno 100 znakova'),
@@ -150,19 +223,19 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                       const SizedBox(height: 20),
                      
                        FormBuilderTextField(
-                name: "price",
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Cijena',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                ),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                  FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
-                ]),
-                valueTransformer: (value) => double.tryParse(value ?? ''),
-              ),
+                                  name: "price",
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Cijena',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: Icon(Icons.attach_money),
+                                  ),
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                    FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
+                                  ]),
+                                  valueTransformer: (value) => double.tryParse(value ?? ''),
+                                ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(name: 'stockQuantity', decoration: const InputDecoration(labelText: 'Na lageru', border: OutlineInputBorder()),
                       validator: FormBuilderValidators.compose([
@@ -173,7 +246,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                       if(widget.product!=null)
                       const SizedBox(height: 20),
                       if(widget.product!=null)
-
+                                
                     
                       const SizedBox(height: 20),
                       if(widget.product?.isOnSale==true)
@@ -182,102 +255,124 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                       ),
                       const SizedBox(height: 20),
                      
-                 
-
+                                   
+                                  const Text(
+                              'Tip proizvoda',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(height: 8),
                     
- Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0),
-                            child: serviceResult?.result != null
-                                ? FormBuilderFilterChip(
+                                serviceResult?.result.isNotEmpty == true
+                                ? FormBuilderFilterChip<int>(
                                     name: "serviceId",
-                                    decoration: const InputDecoration(border: InputBorder.none,label: Text("Kategorije")),
                                     options: serviceResult!.result
                                         .map((s) => FormBuilderChipOption(
-                                          
-                                            value: s.serviceId, 
-                                             child: Text(s.serviceName ?? "")))
+                                              value: s.serviceId,
+                                              child: Text(s.serviceName ?? ""),
+                                            ))
                                         .toList(),
                                     spacing: 6,
                                     runSpacing: 4,
+                                    validator: FormBuilderValidators.required(
+                                        errorText: "Odaberite bar jednu uslugu."),
                                   )
                                 : const Text("Nema dostupnih usluga"),
-                          ),
-                          const SizedBox(height: 20,),
-                    
+                      
+                            const SizedBox(height: 16),
+                        
+                                  const Text(
+                              'Slika proizvoda',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(height: 16),
+
                     
                          FormBuilderField(
-  name: "image",
-  builder: (field) {
-    return InputDecorator(
-      decoration: const InputDecoration(
-        labelText: "Slika proizvoda",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: _image != null
-                ? Text(_image!.path.split('/').last)
-                : widget.product?.image != null
+                                  name: "image",
+                                  builder: (field) {
+                                    return InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: "Slika proizvoda",
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.image),
+                          title: _image != null
+                                  ? Text(_image!.path.split('/').last)
+                                  : widget.product?.image != null
                     ? const Text('Proslijeđena slika')
                     : const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null && widget.product?.image == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickImage(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (_image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (_decodedImage != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  },
-),
-                      const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text("Sačuvaj"),
-                          onPressed: _save,
+                          trailing: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                                ),
+                                icon: const Icon(Icons.file_upload, color: Colors.white),
+                                label: _image == null && widget.product?.image == null
+                                    ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                                    : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+                                onPressed: () => _pickImage(),
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        if (_image != null)
+                          ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  _image!,
+                                  fit: BoxFit.cover,
+                                ),
+                          )
+                        else if (_decodedImage != null)
+                          ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.memory(
+                                  _decodedImage!,
+                                  fit: BoxFit.cover,
+                                ),
+                          )
+                        else
+                          const SizedBox.shrink(),
+                      ],
+                    ),
+                                    );
+                                  },
+                                ),
+                      ],
+                    ),
                   ),
+                  
+                  
+                     const SizedBox(height: 24),
+                      
+                                         
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                              
+                                  icon: const Icon(Icons.save, color: Colors.white),
+                                  label: const Text("Sačuvaj", style: TextStyle(color: Colors.white)),
+                                  onPressed: _save,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                                  ),
+                                ),
+                              ),
+                            ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+       
       ),
+    ),
     );
-    
   }
 void getImage(FormFieldState field) async {
   var result = await FilePicker.platform.pickFiles(type: FileType.image);

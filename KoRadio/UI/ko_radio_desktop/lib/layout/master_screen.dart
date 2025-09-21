@@ -254,7 +254,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
           await _getNotifications();
         }
       },
-      drawer: const Drawer(
+      drawer:  Drawer(
       
 
         
@@ -263,7 +263,10 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
         child: Column(
           children: [
         
-            MessagesScreen(),
+            MessagesScreen(
+              companyId: AuthProvider.selectedCompanyId,
+              storeId: AuthProvider.selectedStoreId,
+            ),
 
            
           ],
@@ -271,185 +274,200 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
       body: Row(
         children: [
        
-          NavigationRail(
-            extended: true,
-         
-            trailing:Padding(padding: const EdgeInsets.only(right: 110),
-
-            child: Column(
-              children: [
-                if(AuthProvider.selectedCompanyId!=null &&  AuthProvider.selectedStoreId==null)
-                InkWell(
-                  onTap: () async {
-               
-               
-                    showDialog(
-                      context: context,
-                      builder: (_) => CompanyUpdateScreen(
-                        companyId: AuthProvider.selectedCompanyId!,
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      IconButton(onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (_) => CompanyUpdateScreen(
-                            companyId: AuthProvider.selectedCompanyId!,
-                          ),
-                        );
-                      }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
-                      const SizedBox(width: 10,),
-                      const Text('Postavke',style: TextStyle(color: Colors.white),),
-                    ],
-                  ),
-                ),
-                if(AuthProvider.selectedCompanyId==null && AuthProvider.selectedStoreId!=null)
-                InkWell(
-                  onTap: () async {
-                    showDialog(
-                      context: context,
-                      builder: (_) => StoreUpdateScreen(
-                        storeId: AuthProvider.selectedStoreId!,
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      IconButton(onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (_) => StoreUpdateScreen(
-                            storeId: AuthProvider.selectedStoreId!,
-                          ),
-                        );
-                      }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
-                      const SizedBox(width: 10,),
-                      const Text('Postavke',style: TextStyle(color: Colors.white),),
-                    ],
-                  ),
-                ),
-                Row(
-                
-                      
-                  children: [
-                  
-                   IconButton(alignment: Alignment.topLeft,icon: const Icon(Icons.logout),color: Colors.white, onPressed: ()  {
-                        
-                
-                  AuthProvider().logout();
-                        
-                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  const LoginPage()), (route) => false);
-                           
-                }),
-                const SizedBox(width: 25,),
-                const Text('Odjava',style: TextStyle(color: Colors.white),),
-                ]
-                ),
-              ],
-            )
-            ,),
-             
-            backgroundColor: const Color(0xFF1B4C7D),
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (int index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            leading: Padding(
-              padding: const EdgeInsets.all(16.0),
+          Container( decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft, 
+          end: Alignment.bottomRight, 
+          colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)]
+      
+        ),
+      ),
+            child: NavigationRail(
+              backgroundColor: Colors.transparent,
+              extended: true,
+                     
+              trailing:Padding(padding: const EdgeInsets.only(right: 110),
+            
               child: Column(
                 children: [
-                  Text(
-                    "Ko Ti Je Ovo Radio?",
-                    style: GoogleFonts.lobster(
-                      textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                  if(AuthProvider.selectedCompanyId!=null &&  AuthProvider.selectedStoreId==null)
+                  InkWell(
+                    onTap: () async {
+                 
+                 
+                 
+                await showDialog(
+                        context: context,
+                        builder: (_) => CompanyUpdateScreen(
+                          companyId: AuthProvider.selectedCompanyId!,
+                          parentContext: context,
+                        ),
+                      );
+                    
+                    },
+                    child: Row(
+                      children: [
+                        IconButton(onPressed: () async {
+                         await showDialog(
+                            context: context,
+                            builder: (_) => CompanyUpdateScreen(
+                              companyId: AuthProvider.selectedCompanyId!,
+                              parentContext: context,
+                            ),
+                          );
+                        }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
+                        const SizedBox(width: 10,),
+                        const Text('Postavke',style: TextStyle(color: Colors.white),),
+                      ],
                     ),
                   ),
-                   if(AuthProvider.selectedCompanyId!=null)
+                  if(AuthProvider.selectedCompanyId==null && AuthProvider.selectedStoreId!=null)
+                  InkWell(
+                    onTap: () async {
+                      showDialog(
+                        context: context,
+                        builder: (_) => StoreUpdateScreen(
+                          storeId: AuthProvider.selectedStoreId!,
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        IconButton(onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder: (_) => StoreUpdateScreen(
+                              storeId: AuthProvider.selectedStoreId!,
+                            ),
+                          );
+                        }, icon: const Icon(Icons.settings_outlined,color: Colors.white,),),
+                        const SizedBox(width: 10,),
+                        const Text('Postavke',style: TextStyle(color: Colors.white),),
+                      ],
+                    ),
+                  ),
+                  Row(
+                  
+                        
+                    children: [
+                    
+                     IconButton(alignment: Alignment.topLeft,icon: const Icon(Icons.logout),color: Colors.white, onPressed: ()  {
+                          
+                  
+                    AuthProvider().logout();
+                          
+                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>  const LoginPage()), (route) => false);
+                             
+                  }),
+                  const SizedBox(width: 25,),
+                  const Text('Odjava',style: TextStyle(color: Colors.white),),
+                  ]
+                  ),
+                ],
+              )
+              ,),
+               
+              
+              
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              leading: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
                     Text(
-                      "${AuthProvider.user!.companyEmployees!.where((element) => element.companyId==AuthProvider.selectedCompanyId).map((e) => e.companyName).first}",
+                      "Ko Ti Je Ovo Radio?",
                       style: GoogleFonts.lobster(
                         textStyle: const TextStyle(color: Colors.white, fontSize: 22),
                       ),
                     ),
-                    if(AuthProvider.selectedStoreId!=null)
-                    Text(
-                      "${AuthProvider.user!.stores!.where((element) => element.storeId==AuthProvider.selectedStoreId).map((e) => e.storeName).first}",
-                      style: GoogleFonts.lobster(
-                        textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                     if(AuthProvider.selectedCompanyId!=null)
+                      Text(
+                        "${AuthProvider.user!.companyEmployees!.where((element) => element.companyId==AuthProvider.selectedCompanyId).map((e) => e.companyName).first}",
+                        style: GoogleFonts.lobster(
+                          textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20,),
-                Padding(padding: const EdgeInsets.only(right: 110),
-                child:  Row(
-                       children: [
-                         Stack(
+                      if(AuthProvider.selectedStoreId!=null)
+                      Text(
+                        "${AuthProvider.user!.stores!.where((element) => element.storeId==AuthProvider.selectedStoreId).map((e) => e.storeName).first}",
+                        style: GoogleFonts.lobster(
+                          textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                  Padding(padding: const EdgeInsets.only(right: 110),
+                  child:  Row(
+                         children: [
+                           Stack(
+                                         
+                                       alignment: Alignment.topLeft,
+                                       children: [
+                                        
                                        
-                                     alignment: Alignment.topLeft,
-                                     children: [
-                                      
-                                     
-                                       IconButton(
-                                         icon: const Icon(Icons.notifications),
-                                         style: IconButton.styleFrom(
-                                     
-                                          
+                                         IconButton(
+                                           icon: const Icon(Icons.notifications),
+                                           style: IconButton.styleFrom(
+                                       
+                                            
+                                           ),
+                                           color:  Colors.white,
+                                           onPressed: () async {
+                                           _scaffoldKey.currentState?.openDrawer();
+                                        
+                                           setState(() {
+                                             isChecked = false;
+                                           });
+                                            
+                                            
+                                         
+                                           },
                                          ),
-                                         color:  Colors.white,
-                                         onPressed: () async {
-                                         _scaffoldKey.currentState?.openDrawer();
-                                      
-                                         setState(() {
-                                           isChecked = false;
-                                         });
-                                          
-                                          
-                                       
-                                         },
-                                       ),
-                                       if (result?.result.isNotEmpty ?? false)
-                                         Positioned(
-                         
-                                           right: 8,
-                                           top: 8,
-                                           child: CircleAvatar(
-                                             
-                                             radius: 8,
-                                             backgroundColor: Colors.red,
-                                             child: Text(
-                          '${result?.count ?? 0}',
-                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                                         if (result?.result.isNotEmpty ?? false)
+                                           Positioned(
+                           
+                                             right: 8,
+                                             top: 8,
+                                             child: CircleAvatar(
+                                               
+                                               radius: 8,
+                                               backgroundColor: Colors.red,
+                                               child: Text(
+                            '${result?.count ?? 0}',
+                            style: const TextStyle(fontSize: 10, color: Colors.white),
+                                               ),
                                              ),
                                            ),
-                                         ),
-                                     ],
-                                   ),
-                                
-                                 
-                                   const Text('Notifikacije',style: TextStyle(color: Colors.white),),
-                       ],
-                     ) ,)
-                    
-                ],
+                                       ],
+                                     ),
+                                  
+                                   
+                                     const Text('Notifikacije',style: TextStyle(color: Colors.white),),
+                         ],
+                       ) ,)
+                      
+                  ],
+                ),
+            
               ),
-
+              
+              unselectedIconTheme: const IconThemeData(color: Colors.white),
+              selectedIconTheme: const IconThemeData(color: Colors.amberAccent),
+              selectedLabelTextStyle: const TextStyle(
+                color: Colors.amberAccent,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelTextStyle: const TextStyle(color: Colors.white),
+              destinations: destinationsForUser
+            
+              
+              
+               
             ),
-            
-            unselectedIconTheme: const IconThemeData(color: Colors.white),
-            selectedIconTheme: const IconThemeData(color: Colors.amberAccent),
-            selectedLabelTextStyle: const TextStyle(
-              color: Colors.amberAccent,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelTextStyle: const TextStyle(color: Colors.white),
-            destinations: destinationsForUser
-          
-            
-            
-             
           ),
           const VerticalDivider(thickness: 1, width: 1),
          

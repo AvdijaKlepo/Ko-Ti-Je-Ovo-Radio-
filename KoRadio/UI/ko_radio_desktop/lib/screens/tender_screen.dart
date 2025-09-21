@@ -96,8 +96,8 @@ void initState() {
                 children:   [
                 
                  
-                  Image.asset('assets/images/tenderNotFound.webp'),
-                  const Text("Nema aktivnih tendera. Provjerite kasnije.", style: TextStyle(fontSize: 18)) ,
+                  Image.asset('assets/images/usersNotFound.webp', width: 250, height: 250),
+                  const Text("Trenutno nema aktivnih tendera. Provjerite kasnije.", style: TextStyle(fontSize: 18)) ,
                   const SizedBox(height: 10,),
                 ]
             ):

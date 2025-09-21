@@ -1,8 +1,10 @@
-﻿using KoRadio.Model.Request;
+﻿using KoRadio.Model;
+using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
 using KoRadio.Services.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +20,7 @@ namespace KoRadio.Services
 		{
 		
 		}
-		public override IQueryable<CompanyRole> AddFilter(CompanyRoleSearchObject search, IQueryable<CompanyRole> query)
+		public override IQueryable<Database.CompanyRole> AddFilter(CompanyRoleSearchObject search, IQueryable<Database.CompanyRole> query)
 		{
 
 			if(search.CompanyId!=null)
@@ -26,6 +28,26 @@ namespace KoRadio.Services
 				query = query.Where(x => x.CompanyId == search.CompanyId);
 			}
 			return base.AddFilter(search, query);
+		}
+
+		public override async Task BeforeDeleteAsync(Database.CompanyRole entity, CancellationToken cancellationToken)
+		{
+			var isUsedByEmployee = await _context.CompanyEmployees
+		   .AnyAsync(fs => fs.CompanyRoleId == entity.CompanyRoleId, cancellationToken);
+
+			
+
+			if (isUsedByEmployee)
+			{
+				throw new UserException("Ne možete izbrisati ulogu koja je trenutno dodijeljena radniku.");
+			}
+			await base.BeforeDeleteAsync(entity, cancellationToken);
+			
+		}
+		public override async Task BeforeInsertAsync(CompanyRoleInsertRequest request, Database.CompanyRole entity, CancellationToken cancellationToken = default)
+		{
+			
+			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
 
 	}

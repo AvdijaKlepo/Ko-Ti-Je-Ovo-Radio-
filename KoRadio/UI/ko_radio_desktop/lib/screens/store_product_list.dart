@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
@@ -875,11 +877,16 @@ final pdfBytes = await pdf.save();
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+             crossAxisAlignment: WrapCrossAlignment.center,
+            
             children: [
-              Expanded(
+              SizedBox(
+                width: 250,
                 child: TextField(
                   controller: _productNameController,
                   decoration:  InputDecoration(
@@ -901,82 +908,96 @@ final pdfBytes = await pdf.save();
                   onChanged: (_) => _onSearchChanged(),
                 ),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(onPressed:  () async{
-            await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
-          },style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ) ,child: const Text("Dodaj proizvod",style: TextStyle(color: Colors.white),)),
-              const SizedBox(width: 16),
-               ElevatedButton(onPressed:  () async{
-            _openCatalogueDialog(context);
-          },style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ) ,child: const Text("Dodaj katalog",style: TextStyle(color: Colors.white),)),
+            
               const SizedBox(width: 16),
 
 
-              DropdownButton<int?>(
-                value: selectedServiceId,
-                hint: const Text("Filter po usluzi"),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text("Sve usluge")),
-                  ...?serviceResult?.result.map((s) => DropdownMenuItem(
-                        value: s.serviceId,
-                        child: Text(s.serviceName ?? ''),
-                      )),
-                ],
-                onChanged: (value) {
-                  setState(() => selectedServiceId = value);
-                  _onSearchChanged();
-                },
+              SizedBox(
+                width: 250,
+                child: DropdownButtonFormField<int?>(
+                  value: selectedServiceId,
+                 
+                  decoration: const InputDecoration(labelText: "Tip proizvoda",border: OutlineInputBorder()),
+                
+                  hint: const Text("Filter po usluzi"),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text("Svi tipovi")),
+                    ...?serviceResult?.result.map((s) => DropdownMenuItem(
+                          value: s.serviceId,
+                          child: Text(s.serviceName ?? ''),
+                        )),
+                  ],
+                  onChanged: (value) {
+                    setState(() => selectedServiceId = value);
+                    _onSearchChanged();
+                  },
+                ),
               ),
-   
+     const SizedBox(width: 8),
+              SizedBox(
+                width: 250,
+                child: ElevatedButton(onPressed:  () async{
+                            await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
+                          },style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ) ,child: const Text("Dodaj proizvod",style: TextStyle(color: Colors.white),)),
+              ),
+              const SizedBox(width: 16),
+               SizedBox(
+                width: 200,
+                 child: ElevatedButton(onPressed:  () async{
+                             _openCatalogueDialog(context);
+                           },style: ElevatedButton.styleFrom(
+                             backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                           ) ,child: const Text("Dodaj katalog",style: TextStyle(color: Colors.white),)),
+               ),
 
                 
               const SizedBox(width: 16),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text("Prikaži izbrisane"),
-                  Switch(
-                    value: showDeleted,
-                    onChanged: (val) {
-                      setState(() => showDeleted = val);
-                      _onSearchChanged();
-                    },
-                  ),
+                   Switch(
+                value: showDeleted,
+                onChanged: (val) {
+                  setState(() => showDeleted = val);
+                  _onSearchChanged();
+                },
+              ),
                 ],
               ),
+             
             ],
           ),
           const SizedBox(height: 16),
 Container(
-  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-  decoration: BoxDecoration(
-    color: Colors.grey.shade100,
-    borderRadius: BorderRadius.circular(8),
-  ),
-  child: Container(
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-    decoration: BoxDecoration(
-      color: Colors.grey.shade100,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Row(
-      children: [
-        Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 4, child: Text("Opis", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Cijena", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Akcijska cijena", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Vrijedi do", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 2, child: Text("Na lageru", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 3, child: Text("Tip", style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(flex: 3, child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold)))),
-        Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
-      ],
-    ),
+     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+         gradient: LinearGradient(
+        colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
+        ),
+  child: const Row(
+    children: [
+      Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 4, child: Text("Opis", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 2, child: Text("Cijena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 2, child: Text("Akcijska cijena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 2, child: Text("Vrijedi do", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 2, child: Text("Na lageru", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 3, child: Text("Tip", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 3, child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+      Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+    ],
   ),
 ),
 
@@ -1180,6 +1201,7 @@ Expanded(
                             Expanded(flex:1,child: 
                             Center(
                               child: PopupMenuButton<String>(
+                                surfaceTintColor: Colors.white,
                                 tooltip: 'Uredi/Izbriši',
                                 icon: const Icon(Icons.more_vert),
                                 color: Colors.white,
@@ -1251,17 +1273,23 @@ Expanded(
   if (selectedProductIds.isEmpty) return const SizedBox.shrink();
 
   return Container(
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: Colors.blueGrey.shade50,
-      border: Border.all(color: Colors.blueGrey),
-      borderRadius: BorderRadius.circular(8),
-    ),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+           gradient: LinearGradient(
+          colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+          ),
     child: Row(
       children: [
         selectedProductIds.length==1 ?
-        Text('${selectedProductIds.length} proizvod odabran')
-        : Text('${selectedProductIds.length} proizvoda odabrana'),
+        Text('${selectedProductIds.length} proizvod odabran',style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold))
+        : Text('${selectedProductIds.length} proizvoda odabrana',style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
 
         const Spacer(),
 

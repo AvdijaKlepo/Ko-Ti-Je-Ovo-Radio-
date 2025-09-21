@@ -194,8 +194,7 @@ class _LoginPageState extends State<LoginPage> {
       final stores = user.stores ?? [];
     
       final signalRProvider = context.read<SignalRProvider>();
-     
-      // --- ROLE CHOICE if user has both ---
+
       if (roles.contains("Company Admin") && roles.contains("StoreAdministrator")) {
         final chosenRole = await showDialog<String>(
           barrierDismissible: false,
@@ -203,11 +202,12 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           builder: (context) => Card(
             borderOnForeground: true,
+            surfaceTintColor: Colors.white,
             child: SimpleDialog(
             
               
             
-              title: const Text("Odaberite ulogu:"),
+              title:  Text("Dobrodošli ${AuthProvider.user?.firstName ?? ''} ${AuthProvider.user?.lastName ?? ''}!"),
               children: [
                 SimpleDialogOption(
                   onPressed: () => Navigator.pop(context, "Company Admin"),
@@ -224,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         if (chosenRole == "Company Admin") {
-          // --- COMPANY SELECTION ---
+          
           if (companyEmployees.length > 1) {
             await showDialog(
               context: context,

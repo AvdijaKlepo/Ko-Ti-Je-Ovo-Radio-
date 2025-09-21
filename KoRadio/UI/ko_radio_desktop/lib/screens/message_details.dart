@@ -39,12 +39,53 @@ class _MessageDetailsState extends State<MessageDetails> {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.all(24),
+      surfaceTintColor: Colors.white,
+      
       child: SizedBox(
-        width: 500,
-        height: 200,
-        child: Center(
-        child: Text(widget.messages.message1??"Poruka nije dostupna"),
-      ),
+     
+            width: 500,
+            height: 200,
+            child: Center(
+            child:Column(
+          children: [
+              Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child:  Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Notifikacija',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              IconButton(onPressed: () async {
+               
+                Navigator.of(context).pop();
+              },icon: const Icon(Icons.close,color: Colors.white,),),
+            ],
+          ),
+        ),
+        Text(widget.messages.message1!,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+            
+          ],
+        ),
+              ),
       ) 
     );
   }

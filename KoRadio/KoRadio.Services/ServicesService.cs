@@ -63,13 +63,6 @@ namespace KoRadio.Services
 			var isUsedByProduct = await _context.ProductsServices
 				.AnyAsync(c => c.ServiceId == entity.ServiceId, cancellationToken);
 
-			// Check for usage by jobs
-
-
-			// Check for usage by companies (assuming you have a CompanyService table)
-			// var isUsedByCompany = await _context.CompanyServices
-			//     .AnyAsync(cs => cs.ServiceId == entity.ServiceId, cancellationToken);
-
 			if (isUsedByFreelancer ||  isUsedByCompany || isUsedByJob || isUsedByProduct)
 			{
 				throw new UserException("Ne možete izbrisati servisi koji se aktivno koristi od strane radnika ili firme, ili je dodijeljen poslu ili proizvodu.");

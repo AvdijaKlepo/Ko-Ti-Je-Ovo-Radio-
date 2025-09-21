@@ -8,7 +8,7 @@ namespace KoRadio.Model.Request
 {
     public class MessageUpdateRequest
     {
-		public int MessageId { get; set; }
+		public int? MessageId { get; set; }
 
 		public string? Message1 { get; set; }
 
@@ -16,6 +16,6 @@ namespace KoRadio.Model.Request
 		public int? CompanyId { get; set; }
 		public int? StoreId { get; set; }
 
-		public bool IsOpened { get; set; }
+		public bool? IsOpened { get; set; }
 	}
 }

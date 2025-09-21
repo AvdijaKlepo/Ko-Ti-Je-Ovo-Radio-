@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/job_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/book_company_job.dart';
@@ -21,11 +25,17 @@ class CompanyJob extends StatefulWidget {
 class _CompanyJobState extends State<CompanyJob> {
   late JobProvider jobProvider;
   late PaginatedFetcher<Job> jobsPagination;
+  late CompanyProvider companyProvider;
+  late SearchResult<Company>? companyResult;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _clientController = TextEditingController();
+  final TextEditingController _employeeController = TextEditingController();
   SearchResult<Job>? jobResult =SearchResult();
   int _selectedIndex = 0;
   bool _isInitialized = false;
   bool _isLoading = false;
+  Timer? _debounce;
+  late Set<int> _workingDayInts;
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -41,10 +51,24 @@ class _CompanyJobState extends State<CompanyJob> {
     JobStatus.unapproved,
     JobStatus.cancelled,
   ];
+  final Map<String, int> _dayStringToInt = {
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6,
+    'Sunday': 7,
+  };
+
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _isLoading = true;
+    });
+    companyProvider = context.read<CompanyProvider>();
     jobProvider = context.read<JobProvider>();
     jobsPagination = PaginatedFetcher<Job>(
       pageSize: 10,
@@ -75,40 +99,90 @@ class _CompanyJobState extends State<CompanyJob> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await jobsPagination.refresh();
       await _loadAllJobsForCalendar();
+
+      
       if (mounted) {
         setState(() {
           _isInitialized = true;
+          _isLoading = false;
+    
         });
       }
     });
+    
+  }
+    bool _isWorkingDay(DateTime day) {
+    return _workingDayInts.contains(day.weekday);
+  }
+  Future<void> _loadCompany() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final fetchedCompanies = await companyProvider.get(filter: {'CompanyId': AuthProvider.selectedCompanyId});
+      setState(() {
+        companyResult = fetchedCompanies;
+        _isLoading = false;
+  
+      });
+    } catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Greška tokom dohvaćanja radnih dana. Molimo osvježite aplikaciju.")),
+      );
+    }
   }
 
   Future<void> _loadAllJobsForCalendar() async {
-    jobResult = await jobProvider.get(filter: {
-      'CompanyId': AuthProvider.selectedCompanyId,
-      'isTenderFinalized': false,
-      'isDeleted': false,
-      'JobStatus': JobStatus.approved.name,
+  jobResult = await jobProvider.get(filter: {
+    'CompanyId': AuthProvider.selectedCompanyId,
+    'isTenderFinalized': false,
+    'isDeleted': false,
+    'JobStatus': JobStatus.approved.name,
+  });
 
-      
-    });
-    if (!mounted) return;
-    setState(() {
-      jobsByDate.clear();
-      for (var job in jobResult!.result) {
-        final start = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
-        final end = job.dateFinished!=null ? DateTime(job.dateFinished!.year, job.dateFinished!.month, job.dateFinished!.day) : null;
-       for (var date = start;
-          date.isBefore(end!.add(const Duration(days: 1)));
-          date = date.add(const Duration(days: 1))) {
-        jobsByDate.putIfAbsent(date, () => []).add(job);
+  if (!mounted) return;
+
+  setState(() {
+    jobsByDate.clear();
+
+    for (var job in jobResult!.result) {
+      final start = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
+
+
+      if (job.dateFinished != null) {
+        final end = DateTime(job.dateFinished!.year, job.dateFinished!.month, job.dateFinished!.day);
+
+        for (var date = start;
+            !date.isAfter(end); 
+            date = date.add(const Duration(days: 1))) {
+          jobsByDate.putIfAbsent(date, () => []).add(job);
+        }
+      } else {
+
+        jobsByDate.putIfAbsent(start, () => []).add(job);
       }
-      
-      }
-    });
+    }
+  });
+}
+
+   translateJobStatus(JobStatus status) {
+    switch (status) {
+      case JobStatus.approved:
+        return 'odobrenih';
+      case JobStatus.cancelled:
+        return 'otkazanih';
+      case JobStatus.finished:
+        return 'završenih';
+      case JobStatus.unapproved:
+        return 'neodborenih';
+      default:
+        return 'Nepoznato';
+    }
   }
 
 Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
+
   final Map<String, dynamic> filter = {
     'CompanyId': AuthProvider.selectedCompanyId,
     'isTenderFinalized': false,
@@ -117,23 +191,50 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
     'JobStatus': _jobStatuses[_selectedIndex].name,
 
   };
+  
 
   if (date != null) {
     filter['DateRange'] = date.toIso8601String().split('T')[0];
   } else {
     filter['JobStatus'] = status.name;
   }
-  
+  if(_clientController.text.isNotEmpty)
+  {
+    filter['ClientName'] = _clientController.text;
+  }
+  if(_employeeController.text.isNotEmpty)
+  {
+    filter['EmployeeName'] = _employeeController.text;
+  }
  
-   
+
 
   return filter;
 }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 100), () async {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      await jobsPagination.refresh(newFilter: _createFilterMap(_jobStatuses[_selectedIndex]));
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
     jobsPagination.dispose();
+    _clientController.dispose();
+    _clientController.removeListener(() {_clientController.dispose();});
+    _employeeController.removeListener(() {_employeeController.dispose();});
+
     super.dispose();
   }
 
@@ -145,7 +246,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) async {
     final normalizedSelectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
-    if (!isSameDay(_selectedDay, normalizedSelectedDay)) {
+    if (!isSameDay(_selectedDay, normalizedSelectedDay) && mounted) {
       setState(() {
         _selectedDay = normalizedSelectedDay;
         _focusedDay = focusedDay;
@@ -255,10 +356,12 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                       ],
                     ),
                     const SizedBox(height: 15),
-                    Expanded(
+                    SizedBox(
+                     
+                  
                       child: TableCalendar(
                       
-                        shouldFillViewport: true,
+                        shouldFillViewport: false,
                         locale: 'bs',
                         firstDay: DateTime.utc(2020, 1, 1),
                         lastDay: DateTime.utc(2030, 12, 31),
@@ -269,9 +372,10 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                         rangeStartDay: _rangeStart,
                         rangeEndDay: _rangeEnd,
                         rangeSelectionMode: _rangeSelectionMode,
+                        
                         availableCalendarFormats: const {
                           CalendarFormat.month: 'Mjesec',
-                          CalendarFormat.week: 'Sedmica'
+                                       
                         },
                         calendarFormat: CalendarFormat.month,
                        
@@ -303,8 +407,13 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                           selectedTextStyle: TextStyle(color: Colors.white),
                         ),
                         eventLoader: (day) {
+                          if(_jobStatuses[_selectedIndex]==JobStatus.approved)
+                          {
                           final normalized = DateTime(day.year, day.month, day.day);
                           return jobsByDate[normalized] ?? [];
+                          }else{
+                            return [];
+                          }
                         },
                         calendarBuilders: CalendarBuilders(
                           markerBuilder: (context, day, events) {
@@ -331,8 +440,11 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                     ),
                     const SizedBox(height: 16),
                     Align(alignment: Alignment.centerLeft,child: Text('Pretraži klijente', style: Theme.of(context).textTheme.titleMedium)),
-                    const TextField(
-                      decoration: InputDecoration(
+                    const SizedBox(height: 16),
+
+                     TextField(
+                      controller: _clientController,
+                      decoration: const InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(10),
@@ -341,14 +453,21 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                         ),
                         prefixIcon: Icon(Icons.search_outlined),
                         labelText: 'Ime i prezime klijenta',
+                        
                       ),
+                      onChanged: (value) async {
+                       _onSearchChanged();
+                      },
                       ),
                     const SizedBox(height: 16),
                   
                     Align(alignment: Alignment.centerLeft,child: Text('Pretraži po radniku', style: Theme.of(context).textTheme.titleMedium)),
-                    const Expanded(
+                    const SizedBox(height: 16),
+
+                     Expanded(
                       child: TextField(
-                        decoration: InputDecoration(
+                        controller: _employeeController,
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(
                               Radius.circular(10),
@@ -358,6 +477,9 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                           prefixIcon: Icon(Icons.search_outlined),
                           labelText: 'Ime i prezime radnika',
                         ),
+                           onChanged: (value) async {
+                               _onSearchChanged();
+                      },
                         ),
 
                       ),
@@ -373,7 +495,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text('Ukupan broj ${_jobStatuses[_selectedIndex]} poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
+                        Text('Ukupan broj ${translateJobStatus(_jobStatuses[_selectedIndex])} poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
                         if (_selectedDay != null || _rangeStart != null)
                           TextButton.icon(
                             icon: const Icon(Icons.close),
@@ -422,63 +544,112 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
           await showDialog(context: context, builder: (_) => BookCompanyJobPage(job: job));
           await jobsPagination.refresh(newFilter: _createFilterMap(_jobStatuses[_selectedIndex]));
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.work_outline, color: Colors.white, size: 40),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        text: 'Datum: ',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        children: [
-                          TextSpan(
-                            text: DateFormat('dd.MM.yyyy.').format(job.jobDate),
-                            style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Korisnik: ${job.user?.firstName} ${job.user?.lastName}', style: const TextStyle(color: Colors.white)),
-                    Text('Telefon: ${_formatPhoneNumber(job.user!.phoneNumber!)}', style: const TextStyle(color: Colors.white)),
-                    Text('Adresa: ${job.user?.address}', style: const TextStyle(color: Colors.white)),
-                    const SizedBox(height: 8),
-                    Text.rich(
-                      TextSpan(
-                        text: 'Posao: ',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        children: [
-                          TextSpan(
-                            text: job.jobTitle,
-                            style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text('Opis: ${job.jobDescription}', style: const TextStyle(color: Colors.white)),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: job.isInvoiced == true ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ),
-                  ],
+        child: Container(
+           width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+           
+              children: [
+                ClipRRect(
+                
+                  borderRadius: BorderRadius.circular(25),
+                  child: job.user?.image!= null ?
+                imageFromString(job.user!.image!, width: 40, height: 40) :
+                Image.asset('Sample_User_Icon.png',width: 40,height: 40,),
                 ),
-              ),
-            ],
+               
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          text: 'Datum: ',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                          children: [
+                            TextSpan(
+                              text: DateFormat('dd.MM.yyyy.').format(job.jobDate),
+                              style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Klijent: ${job.user?.firstName} ${job.user?.lastName}', style: const TextStyle(color: Colors.white)),
+                      Text('Telefon: ${_formatPhoneNumber(job.user!.phoneNumber!)}', style: const TextStyle(color: Colors.white)),
+                      Text('Adresa: ${job.user?.address}', style: const TextStyle(color: Colors.white)),
+
+                      const SizedBox(height: 8),
+                      Text.rich(
+                        TextSpan(
+                          text: 'Naslov posla: ',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                          children: [
+                            TextSpan(
+                              text: job.jobTitle,
+                              style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      if(job.jobStatus==JobStatus.finished)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: job.isInvoiced == true ? Colors.green : Colors.red,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                       if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                       if(job.jobStatus==JobStatus.cancelled)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color:  Colors.red,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Otkazan',
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

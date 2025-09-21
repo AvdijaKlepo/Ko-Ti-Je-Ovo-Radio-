@@ -21,6 +21,7 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   late MessagesProvider messagesProvider;
   late PaginatedFetcher<Messages> messagesPagination;
+  late SearchResult<Messages>? messagesResult;
   bool _isInitialized = false;
   bool isChecked = false;
   bool isLoading = false;
@@ -64,11 +65,34 @@ class _MessagesScreenState extends State<MessagesScreen> {
         filter = {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'};
       }
       await messagesPagination.refresh(newFilter: filter);
+      await _getNotifications();
     
 
      
       setState(() => _isInitialized = true);
     });
+  }
+  Future<void> _getNotifications() async {
+    Map<String, dynamic>? filter;
+    if(AuthProvider.selectedCompanyId!=null)
+    {
+      filter = {'CompanyId': AuthProvider.selectedCompanyId, 'OrderBy': 'desc'};
+    }
+    else if(AuthProvider.selectedStoreId!=null)
+    {
+      filter = {'StoreId': AuthProvider.selectedStoreId, 'OrderBy': 'desc'};
+    }
+    else{
+      filter = {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'};
+    }
+    try {
+      var fetched = await messagesProvider.get(filter: filter);
+      if(!mounted) return;
+      setState(() => messagesResult = fetched);
+    } catch (e) {
+      if(!mounted) return;
+     
+    }
   }
 
   @override
@@ -92,15 +116,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         borderRadius: BorderRadius.circular(12)),
                     value: isChecked,
                     onChanged: (bool? value) async {
+                      final message = ScaffoldMessenger.of(context);
                       setState(() => isChecked = true);
         
-                      for (var message in messagesPagination.items
+                      for (var message in messagesResult!.result
                           .where((e) => e.isOpened == false)
                           .toList()) {
                         var request = {
-                          'messageId': message.messageId,
-                          'message1': message.message1,
-                          'userId': AuthProvider.user?.userId,
+                        
                           'isOpened': true,
                         };
                         await messagesProvider.update(
@@ -108,21 +131,28 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       }
         
                       setState(() => isLoading = true);
-                      await messagesPagination.refresh();
+                      await messagesPagination.refresh(
+                        newFilter: widget.companyId != null
+                            ? {'CompanyId': widget.companyId, 'OrderBy': 'desc'}
+                            : widget.storeId != null
+                                ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
+                                : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
+                      );
                       setState(() {
                         isChecked = false;
                         isLoading = false;
                       });
+                      message.showSnackBar(const SnackBar(content: Text('Notifikacije su označene kao pročitane.')));
                     },
                   ),
                   const Text(
-                    'Označi sve vidljive kao pročitano',
+                    'Označi sve notifikacije kao pročitane',
                     style: TextStyle(color: Colors.black),
                   ),
                 ],
               ),
         
-            // Delete all read messages
+   
             if (messagesPagination.items.isNotEmpty &&
                 messagesPagination.items
                     .where((e) => e.isOpened == false)
@@ -134,19 +164,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         borderRadius: BorderRadius.circular(12)),
                     value: isChecked,
                     onChanged: (bool? value) async {
+                      final message = ScaffoldMessenger.of(context);
                       setState(() => isChecked = true);
         
-                      for (var message in messagesPagination.items
+                      for (var message in messagesResult!.result
                           .where((e) => e.isOpened == true)) {
                         await messagesProvider.delete(message.messageId!);
                       }
         
                       setState(() => isLoading = true);
-                      await messagesPagination.refresh();
+                      await messagesPagination.refresh(
+                        newFilter: widget.companyId != null
+                            ? {'CompanyId': widget.companyId, 'OrderBy': 'desc'}
+                            : widget.storeId != null
+                                ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
+                                : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
+                      );
                       setState(() {
                         isChecked = false;
                         isLoading = false;
                       });
+                      message.showSnackBar(const SnackBar(content: Text('Notifikacije su izbrisane.')));
                     },
                   ),
                   const Text(
@@ -156,7 +194,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 ],
               ),
         
-            // Messages list
+  
             ...messagesPagination.items.map((e) {
               return Card(
                 color: e.isOpened! ? const Color(0xFF2E2E2E) : const Color(0xFFFFF3CD),
@@ -172,7 +210,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       context: context,
                       builder: (_) => MessageDetails(messages: e),
                     );
-                    await messagesPagination.refresh();
+                    await messagesPagination.refresh(newFilter: widget.companyId != null
+            ? {'CompanyId': widget.companyId, 'OrderBy': 'desc'}
+            : widget.storeId != null
+                ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
+                : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'} );
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -216,7 +258,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             color: Colors.white54,
                             onPressed: () async {
                               await messagesProvider.delete(e.messageId!);
-                              await messagesPagination.refresh();
+                              await messagesPagination.refresh(
+                                newFilter: widget.companyId != null
+                                    ? {'CompanyId': widget.companyId, 'OrderBy': 'desc'}
+                                    : widget.storeId != null
+                                        ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
+                                        : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
+                              );
                             },
                             tooltip: 'Obriši poruku',
                           ),
@@ -227,7 +275,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               );
             }).toList(),
         
-            // Empty state
+  
             if (messagesPagination.items.isEmpty)
               isLoading
                   ? const Center(child: CircularProgressIndicator())

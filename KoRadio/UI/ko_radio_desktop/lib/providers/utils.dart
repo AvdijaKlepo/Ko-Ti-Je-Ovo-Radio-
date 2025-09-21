@@ -7,10 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:ko_radio_desktop/layout/master_screen.dart';
 import 'package:ko_radio_desktop/models/user.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/signalr_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 
@@ -395,4 +398,140 @@ String formatPhoneNumber(String phone) {
   String part3 = normalized.substring(6, 9);
 
   return "$part1-$part2-$part3";
+}
+
+Future<void> _showWelcomeDialog(BuildContext context, User user) async {
+  final signalRProvider = context.read<SignalRProvider>();
+  final roles = user.userRoles?.map((r) => r.role?.roleName).whereType<String>().toList() ?? [];
+  final companyEmployees = user.companyEmployees ?? [];
+  final stores = user.stores ?? [];
+
+  String? selectedRole;
+  int? selectedCompanyId;
+  int? selectedStoreId;
+
+  await showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: Text("Dobrodošli ${user.firstName ?? ''} ${user.lastName ?? ''}!"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  
+                  child: user.image != null
+                      ? imageFromString(user.image!, width: 40, height: 40)
+                      : const Image(
+                          image: AssetImage(
+                            'assets/images/Sample_User_Icon.png',
+                          ),
+                          fit: BoxFit.contain,
+                          width: 40,
+                          height: 40,
+                        ),
+                ),
+                      
+                
+                const SizedBox(height: 16),
+
+                // Role selection
+                if (roles.length > 1)
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    decoration: const InputDecoration(labelText: "Odaberite ulogu"),
+                    items: roles.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                    onChanged: (val) => setState(() => selectedRole = val),
+                  )
+                else if (roles.length == 1)
+                  Builder(builder: (_) {
+                    selectedRole = roles.first;
+                    return Text("Uloga: ${roles.first}");
+                  }),
+
+                const SizedBox(height: 12),
+
+                // Company selection if role is Company Admin
+                if (selectedRole == "Company Admin" && companyEmployees.isNotEmpty)
+                  DropdownButtonFormField<int>(
+                    value: selectedCompanyId,
+                    decoration: const InputDecoration(labelText: "Odaberite firmu"),
+                    items: companyEmployees
+                        .map((c) => DropdownMenuItem(
+                              value: c.companyId,
+                              child: Text(c.companyName ?? "Nepoznata firma"),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedCompanyId = val),
+                  ),
+
+                // Store selection if role is StoreAdministrator
+                if (selectedRole == "StoreAdministrator" && stores.isNotEmpty)
+                  DropdownButtonFormField<int>(
+                    value: selectedStoreId,
+                    decoration: const InputDecoration(labelText: "Odaberite trgovinu"),
+                    items: stores
+                        .map((s) => DropdownMenuItem(
+                              value: s.storeId,
+                              child: Text(s.storeName ?? "Nepoznata trgovina"),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedStoreId = val),
+                  ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  // Validation logic identical to your old dialogs
+                  if (selectedRole == "Company Admin") {
+                    if (companyEmployees.length == 1) {
+                      AuthProvider.selectedCompanyId = companyEmployees.first.companyId;
+                    } else if (selectedCompanyId != null) {
+                      AuthProvider.selectedCompanyId = selectedCompanyId;
+                    } else {
+                      return; // keep dialog open until chosen
+                    }
+                  } else if (selectedRole == "StoreAdministrator") {
+                    if (stores.length == 1) {
+                      AuthProvider.selectedStoreId = stores.first.storeId;
+                    } else if (selectedStoreId != null) {
+                      AuthProvider.selectedStoreId = selectedStoreId;
+                    } else {
+                      return;
+                    }
+                  }
+
+                  // Account validation check
+                  if (!validateAccountStatus(user)) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                        title: Text("Greška"),
+                        content: Text("Ovaj račun ili entitet je deaktiviran."),
+                      ),
+                    );
+                    return;
+                  }
+
+                  await signalRProvider.startConnection();
+                  Navigator.pop(context); // close welcome dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MasterScreen()),
+                  );
+                },
+                child: const Text("Nastavi"),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

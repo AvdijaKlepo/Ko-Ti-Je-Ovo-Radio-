@@ -193,12 +193,35 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
     return Scaffold(
     
       body: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Dodaj zadatak', style: Theme.of(context).textTheme.headlineSmall),
+               Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        child:  Text('Dodaj zadatak',
+        style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),),
+            
+          ),
+      
+
               const SizedBox(height: 24),
               _buildTaskForm(filterLoggedInUser),
               const SizedBox(height: 24),

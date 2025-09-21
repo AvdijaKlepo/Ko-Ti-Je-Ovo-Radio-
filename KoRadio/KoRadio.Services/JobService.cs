@@ -131,6 +131,28 @@ namespace KoRadio.Services
 			{
 				query = query.Where(x => x.JobsServices.Any(x => x.ServiceId == search.JobService));
 			}
+			if(!string.IsNullOrWhiteSpace(search.ClientName))
+			{
+				query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).StartsWith(search.ClientName));
+			}
+
+
+
+			if (!string.IsNullOrWhiteSpace(search.EmployeeName))
+			{
+				query = query.Where(x =>
+					x.CompanyJobAssignments != null &&
+					x.CompanyJobAssignments.Any(a =>
+						a.CompanyEmployee != null &&
+						a.CompanyEmployee.User != null &&
+						(a.CompanyEmployee.User.FirstName + " " + a.CompanyEmployee.User.LastName)
+							.StartsWith(search.EmployeeName)
+					)
+				);
+			}
+
+
+
 
 
 
