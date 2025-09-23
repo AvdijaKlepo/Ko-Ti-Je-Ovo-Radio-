@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace KoRadio.Services.Database;
 
@@ -24,6 +25,9 @@ public partial class Job : IJobDelete
 	public byte[]? Image { get; set; }
 
 	public string JobStatus { get; set; } = null!;
+	[MaxLength(3)]
+	[MinLength(3)]
+	public int Pin { get; set; }
 
 	public bool IsDeleted { get; set; }
 

@@ -269,9 +269,19 @@ namespace KoRadio.Services
 			_context.Jobs.Include(x => x.User);
 		
 
+			if(request.JobStatus=="approved" && entity.JobStatus=="unapproved")
+			{
+				entity.Pin = new Random().Next(100, 999);
+			}
+			if(request.JobStatus == "finished" && entity.JobStatus == "approved")
+			{
+				if(request.Pin!=entity.Pin)
+				{
+					throw new UserException("Pogrešan PIN. Molimo pokušajte ponovo.");
+				}
+			}
 
-			
-			
+
 
 			if (entity?.FreelancerId != null && entity.CompanyId == null && entity.JobStatus == "unapproved" && request.JobStatus == "approved")
 			{

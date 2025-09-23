@@ -160,6 +160,7 @@ class _CompanyUpdateScreenState extends State<CompanyUpdateScreen> {
 Widget build(BuildContext context) {
   return Dialog(
     
+    
     surfaceTintColor: Colors.white,
     child: SizedBox(
       width: MediaQuery.of(context).size.width * 0.25,

@@ -32,6 +32,7 @@ namespace KoRadio.Model
 		public byte[]? Image { get; set; }
 
 		public string JobStatus { get; set; } = null!;
+		public int Pin { get; set; }
 		public bool IsFreelancer { get; set; }
 
 		public bool IsDeleted { get; set; }

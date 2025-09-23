@@ -103,7 +103,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
     surfaceTintColor: Colors.white,
     child: SizedBox(
       width: MediaQuery.of(context).size.width * 0.25,
-      height: MediaQuery.of(context).size.height * 1,
+      height: MediaQuery.of(context).size.height * 0.7,
       child:  ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -188,7 +188,8 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              
+                              mainAxisSize: MainAxisSize.min,
                       children: [
                              const Text(
                               'Informacije o proizvodu',
@@ -196,7 +197,9 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                             ),
                             const SizedBox(height: 12),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "productName", decoration: const InputDecoration(labelText: "Naziv proizvoda:", border: OutlineInputBorder()),
+                      FormBuilderTextField(name: "productName", decoration:  InputDecoration(labelText: "Naziv proizvoda:", border: OutlineInputBorder(),
+                       filled: true,
+                       fillColor: Colors.grey[100],),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.maxLength(20, errorText: 'Maksimalno 20 znakova'),
@@ -225,10 +228,13 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                        FormBuilderTextField(
                                   name: "price",
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  decoration: const InputDecoration(
+                                  decoration:  InputDecoration(
                                     labelText: 'Cijena',
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.attach_money),
+                                     filled: true,
+                       fillColor: Colors.grey[100],
+                                    
                                   ),
                                   validator: FormBuilderValidators.compose([
                                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
@@ -237,7 +243,9 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                                   valueTransformer: (value) => double.tryParse(value ?? ''),
                                 ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: 'stockQuantity', decoration: const InputDecoration(labelText: 'Na lageru', border: OutlineInputBorder()),
+                      FormBuilderTextField(name: 'stockQuantity', decoration:  InputDecoration(labelText: 'Na lageru', border: OutlineInputBorder(),
+                       filled: true,
+                       fillColor: Colors.grey[100],),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.integer(errorText: 'Mora biti broj, npr. 10'),
@@ -291,9 +299,11 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                                   name: "image",
                                   builder: (field) {
                                     return InputDecorator(
-                    decoration: const InputDecoration(
+                    decoration:  InputDecoration(
                       labelText: "Slika proizvoda",
                       border: OutlineInputBorder(),
+                       filled: true,
+                       fillColor: Colors.grey[100],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

@@ -212,8 +212,8 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
             topRight: Radius.circular(16),
           ),
         ),
-        child:  Text('Dodaj zadatak',
-        style: const TextStyle(
+        child:  const Text('Dodaj zadatak',
+        style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -251,13 +251,28 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
         children: [
           Center(
             child: SegmentedButton<AssignmentType>(
+              style: SegmentedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      
+                      selectedBackgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+                      selectedForegroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                   
+                      
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+
               segments: const <ButtonSegment<AssignmentType>>[
                 ButtonSegment<AssignmentType>(
                   value: AssignmentType.employee,
                   label: Text('Radnik'),
                   icon: Icon(Icons.person),
+
                 ),
                 ButtonSegment<AssignmentType>(
+
                   value: AssignmentType.role,
                   label: Text('Uloga'),
                   icon: Icon(Icons.group),

@@ -64,118 +64,146 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      surfaceTintColor: Colors.white,
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
         width: 500,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  'assets/images/undraw_data-input_whqw.svg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: FormBuilder(
-                  key: _formKey,
-                  initialValue: _initialValue,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FormBuilderTextField(
-  name: "serviceName",
-  decoration: const InputDecoration(
-    labelText: "Naziv Servisa*",
-    border: OutlineInputBorder(),
-    // will show backend error here
-  ),
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.required(errorText: 'Obavezno polje'),
-    FormBuilderValidators.maxLength(15, errorText: 'Maksimalno 15 znakova'),
-    FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
-    FormBuilderValidators.match(
-      r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$',
-      errorText: 'Dozvoljena su samo slova sa prvim velikim.',
-    ),
-  ]),
-),
-
-                      const SizedBox(height: 20),
-                     FormBuilderField(
-  name: "image",
-  builder: (field) {
-    return InputDecorator(
-      decoration: const InputDecoration(
-        labelText: "Logo",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: _image != null
-                ? Text(_image!.path.split('/').last)
-                : widget.service?.image != null
-                    ? const Text('Proslijeđena slika')
-                    : const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null && widget.service?.image == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickImage(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (_image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (_decodedImage != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  },
-),
-                      const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text("Sačuvaj"),
-                          onPressed: _save,
+        child: 
+            SingleChildScrollView(
+              child: FormBuilder(
+                key: _formKey,
+                initialValue: _initialValue,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
                         ),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                           Text(widget.service!=null ?
+                            'Uredi uslugu': 'Dodaj uslugu',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
+                            splashRadius: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        
+                        children: [
+                          FormBuilderTextField(
+                                        name: "serviceName",
+                                        decoration: const InputDecoration(
+                                          labelText: "Naziv Servisa*",
+                                          border: OutlineInputBorder(),
+                                          // will show backend error here
+                                        ),
+                                        validator: FormBuilderValidators.compose([
+                                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                          FormBuilderValidators.maxLength(15, errorText: 'Maksimalno 15 znakova'),
+                                          FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                                          FormBuilderValidators.match(
+                                            r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž ]+$',
+                                            errorText: 'Dozvoljena su samo slova sa prvim velikim.',
+                                          ),
+                                        ]),
+                                      ),
+                                      
+                          const SizedBox(height: 20),
+                                             FormBuilderField(
+                                        name: "image",
+                                        builder: (field) {
+                                          return InputDecorator(
+                                            decoration: const InputDecoration(
+                          labelText: "Logo",
+                          border: OutlineInputBorder(),
+                                            ),
+                                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: const Icon(Icons.image),
+                              title: _image != null
+                                        ? Text(_image!.path.split('/').last)
+                                        : widget.service?.image != null
+                                            ? const Text('Proslijeđena slika')
+                                            : const Text("Nema proslijeđene slike"),
+                              trailing: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                                      ),
+                                      icon: const Icon(Icons.file_upload, color: Colors.white),
+                                      label: _image == null && widget.service?.image == null
+                                          ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                                          : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
+                                      onPressed: () => _pickImage(),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            if (_image != null)
+                              ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        _image!,
+                                        fit: BoxFit.cover,
+                                      ),
+                              )
+                            else if (_decodedImage != null)
+                              ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.memory(
+                                        _decodedImage!,
+                                        fit: BoxFit.cover,
+                                      ),
+                              )
+                            else
+                              const SizedBox.shrink(),
+                          ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                          const SizedBox(height: 30),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.save),
+                              label: const Text("Sačuvaj"),
+                              onPressed: _save,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+        
       ),
     );
   }

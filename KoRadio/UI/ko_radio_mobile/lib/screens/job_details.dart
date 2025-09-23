@@ -404,6 +404,7 @@ class _JobDetailsState extends State<JobDetails> {
                                     ),
                                   ))
                               : _buildDetailRow('Slika','Nije unesena'),
+                              _buildDetailRow('Pin', jobResult.result.first.pin==null ? 'Nije unesen' : '${jobResult.result.first.pin}'),
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
   if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
@@ -1020,6 +1021,32 @@ ScaffoldMessenger.of(context).showSnackBar(
   }
 
   Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+
+      child: Row(
+
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors. white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPinRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
 

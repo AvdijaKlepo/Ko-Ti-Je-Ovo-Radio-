@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/store.dart';
 import 'package:ko_radio_desktop/providers/stores_provider.dart';
@@ -322,11 +324,15 @@ Navigator.of(context).pop();
      return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+  
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 350,
                 child: TextField(
                   controller: _storeNameController,
                   decoration:  InputDecoration(
@@ -351,7 +357,8 @@ Navigator.of(context).pop();
               ),
               const SizedBox(width: 8),
 
-               Expanded(
+               SizedBox(
+                width: 350,
                 child: TextField(
                   controller: _storeOwnerNameController,
                   decoration:  InputDecoration(
@@ -405,28 +412,36 @@ Navigator.of(context).pop();
           ),
           const SizedBox(height: 16),
         Container(
-  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-  decoration: BoxDecoration(
-    color: Colors.grey.shade100,
-    borderRadius: BorderRadius.circular(8),
-  ),
+  width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
   child:  Row(
     children: [
-      const Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold))),
-      const Expanded(flex: 3, child: Text("Vlasnik", style: TextStyle(fontWeight: FontWeight.bold))),
-      const Expanded(flex: 2, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-      const Expanded(flex: 3, child: Text("Adresa", style: TextStyle(fontWeight: FontWeight.bold))),
-      const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-      const Expanded(flex: 3, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold))),
+      const Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      const Expanded(flex: 3, child: Text("Vlasnik", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      const Expanded(flex: 2, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      const Expanded(flex: 3, child: Text("Adresa", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      const Expanded(flex: 3, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       const Expanded(
         flex: 3,
         child: Center(
-          child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ),
-      showApplicants ? const Expanded(flex: 1, child: Text("Obrtni list", style: TextStyle(fontWeight: FontWeight.bold))) : const SizedBox(width: 0),
+      showApplicants ? const Expanded(flex: 1, child: Text("Obrtni list", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))) : const SizedBox(width: 0),
 
-      const Expanded(flex: 2, child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold))),
+      const Expanded(flex: 2, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
     ],
   ),
 ),

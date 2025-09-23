@@ -169,10 +169,16 @@ class _StoreOrdersState extends State<StoreOrders> {
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          Row(
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 350,
                 child: TextField(
+                  
                   controller: _userNameController,
                   decoration:  InputDecoration(
                     labelText: 'Ime Korisnika narudžbe',
@@ -194,6 +200,7 @@ class _StoreOrdersState extends State<StoreOrders> {
                 ),
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text("Prikaži poslane"),
                   Switch(
@@ -206,6 +213,7 @@ class _StoreOrdersState extends State<StoreOrders> {
                 ],
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text("Prikaži otkazane"),
                   Switch(
@@ -223,30 +231,37 @@ class _StoreOrdersState extends State<StoreOrders> {
           const SizedBox(height: 16),
          Container(
            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-           decoration: BoxDecoration(
-             color: Colors.grey.shade100,
-             borderRadius: BorderRadius.circular(8),
-           ),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
                      child: Row(
              children: [
-               const Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold))),
-               const Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold))),
-               const Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Broj narudžbe", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+               const Expanded(flex: 2, child: Text("Datum", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+               const Expanded(flex: 2, child: Text("Korisnik", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
             
-               const Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold))),
+               const Expanded(flex: 2, child: Text("Poslano", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
             const Expanded(flex: 1, child: Padding(
                  padding: EdgeInsets.symmetric(horizontal: 4),
-                 child: Icon(Icons.receipt_long, size: 18),
+                 child: Icon(Icons.receipt_long, size: 18, color: Colors.white),
                )),
                  if(!showShipped && !showCancelled)
                  const Expanded(flex: 1, child: Padding(
                  padding: EdgeInsets.symmetric(horizontal: 4),
-                 child: Icon(Icons.local_shipping, size: 18),
+                 child: Icon(Icons.local_shipping, size: 18, color: Colors.white),
                )),
                if(!showShipped && !showCancelled)
                const Expanded(flex: 1, child: Padding(
                  padding: EdgeInsets.symmetric(horizontal: 4),
-                 child: Icon(Icons.delete, size: 18),
+                 child: Icon(Icons.delete, size: 18, color: Colors.white),
                )),
                  ],
            ),

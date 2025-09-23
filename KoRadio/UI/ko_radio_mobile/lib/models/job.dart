@@ -29,6 +29,7 @@ class Job{
   String? image;
   List<JobsService>? jobsServices;
   JobStatus jobStatus;
+  int? pin;
   Company? company;
   DateTime? dateFinished;
   bool? isDeletedWorker;

@@ -133,10 +133,10 @@ namespace KoRadio.Services
 			if (request.StoreCatalogue != null)
 			{
 			
-				if (entity.StoreCataloguePublish != null && entity.StoreCataloguePublish.Value.AddDays(5) > DateTime.Now)
-				{
-					throw new UserException("Novi katalog se može objaviti tek nakon 5 dana od posljednjeg objavljenog kataloga.");
-				}
+				//if (entity.StoreCataloguePublish != null && entity.StoreCataloguePublish.Value.AddDays(5) > DateTime.Now)
+				//{
+				//	throw new UserException("Novi katalog se može objaviti tek nakon 5 dana od posljednjeg objavljenog kataloga.");
+				//}
 
 			
 				entity.StoreCataloguePublish = DateTime.Now;

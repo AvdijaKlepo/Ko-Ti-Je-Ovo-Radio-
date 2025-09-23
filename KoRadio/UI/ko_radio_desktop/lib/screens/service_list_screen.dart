@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/models/user.dart';
@@ -160,14 +162,18 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          // SERVICES COLUMN
+      
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: 350,
                       child: TextField(
                         controller: _serviceNameController,
                         decoration: const InputDecoration(
@@ -295,11 +301,15 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: 350,
                       child: TextField(
                         controller: _locationNameController,
                         decoration: const InputDecoration(

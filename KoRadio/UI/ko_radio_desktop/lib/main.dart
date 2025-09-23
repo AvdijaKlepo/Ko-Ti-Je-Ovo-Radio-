@@ -96,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading=false;
 
 
+
   @override
   void initState() {
     super.initState();
@@ -108,46 +109,81 @@ class _LoginPageState extends State<LoginPage> {
   }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-     
-      body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                 Flexible(child: Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),)),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Expanded(
-                      child: TextField(
-                        controller: usernameController,
-                       
-                        decoration:  InputDecoration(
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                            labelText: "Email adresa", prefixIcon: const Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
-                      ),
-                    ),
-                  ),
-              
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Expanded(
-                      child: TextField(
-                        obscureText: true,
-                        obscuringCharacter: '*',
-                        controller: passwordController,
-                        decoration:  InputDecoration(
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                            labelText: "Lozinka",
-                            prefixIcon: const Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
-                      ),
-                    ),
-                  ),
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Ko Ti Je Ovo Radio?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 36,
+                fontFamily: GoogleFonts.lobster().fontFamily,
+                letterSpacing: 1.2,
+                color: const Color.fromRGBO(27, 76, 125, 1),
+                
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Username
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelStyle: const TextStyle(
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+                labelText: "Email adresa",
+                prefixIcon: const Icon(
+                  Icons.email,
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Password
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              obscuringCharacter: '*',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelStyle: const TextStyle(
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+                labelText: "Lozinka",
+                prefixIcon: const Icon(
+                  Icons.lock,
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
                   ElevatedButton(
                     clipBehavior: Clip.hardEdge,
                     style: ElevatedButton.styleFrom(
@@ -190,38 +226,95 @@ class _LoginPageState extends State<LoginPage> {
       final roles = AuthProvider.user?.userRoles?.map((r) => r.role?.roleName).toList() ?? [];
       AuthProvider.isSignedIn = true;
 
-      final companyEmployees = user.companyEmployees ?? [];
+      final companyEmployees = user.companyEmployees?.where((element) => element.isOwner==true) ?? [];
       final stores = user.stores ?? [];
     
       final signalRProvider = context.read<SignalRProvider>();
 
       if (roles.contains("Company Admin") && roles.contains("StoreAdministrator")) {
         final chosenRole = await showDialog<String>(
-          barrierDismissible: false,
+          barrierDismissible: true,
+
 
           context: context,
-          builder: (context) => Card(
-            borderOnForeground: true,
-            surfaceTintColor: Colors.white,
-            child: SimpleDialog(
-            
-              
-            
-              title:  Text("Dobrodošli ${AuthProvider.user?.firstName ?? ''} ${AuthProvider.user?.lastName ?? ''}!"),
-              children: [
-                SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context, "Company Admin"),
-                  child: const Text("Administrator firme"),
-                ),
-                SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context, "StoreAdministrator"),
-                  child: const Text("Administrator trgovine"),
-                ),
-                 
-              ],
+          builder: (context) => SimpleDialog(
+           
+          
+             surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+          
+            title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
             ),
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabir uloge', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
+            children: [
+              Center(child: Text("Dobrodošli ${AuthProvider.user?.firstName ?? ''} ${AuthProvider.user?.lastName ?? ''}")),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: user.image!=null ?
+                imageFromString(user.image!,width: 100,height: 100,fit: BoxFit.contain,)
+                : const Image(image: AssetImage('assets/images/Sample_User_Icon.png'),fit: BoxFit.contain, width: 100, height: 100,),
+              ),
+              SimpleDialogOption(
+
+                onPressed: () => Navigator.pop(context, "Company Admin"),
+                child: Container(
+                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+           borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                  
+                  child: const Center(child: Text("Administrator firme", style: TextStyle(fontSize: 16,color: Colors.white)))),
+              ),
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, "StoreAdministrator"),
+                child: Container(
+                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                  
+                  child: const Center(child: Text("Administrator trgovine", style: TextStyle(fontSize: 16,color: Colors.white)))),
+              ),
+               
+            ],
+          ),
         );
+        if(chosenRole==null || chosenRole=="cancel") return;
 
         if (chosenRole == "Company Admin") {
           
@@ -229,7 +322,34 @@ class _LoginPageState extends State<LoginPage> {
             await showDialog(
               context: context,
               builder: (context) => SimpleDialog(
-                title: const Text("Odaberite firmu:"),
+                  surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16)),
+               title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabirite firmu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
                 children: companyEmployees.map((company) {
                   return SimpleDialogOption(
                     onPressed: () async {
@@ -257,8 +377,21 @@ class _LoginPageState extends State<LoginPage> {
                         MaterialPageRoute(builder: (_) => const MasterScreen()),
                       );
                     },
-                    child: Text(company.companyName ?? 'Nepoznata firma',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                      child: Center(
+                        child: Text(company.companyName ?? 'Nepoznata firma',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
@@ -287,12 +420,39 @@ class _LoginPageState extends State<LoginPage> {
             await signalRProvider.startConnection();
           }
         } else if (chosenRole == "StoreAdministrator") {
-          // --- STORE SELECTION ---
+      
           if (stores.length > 1) {
             await showDialog(
               context: context,
               builder: (context) => SimpleDialog(
-                title: const Text("Odaberite trgovinu:"),
+                surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16)),
+               title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabirite trgovinu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
                 children: stores.map((store) {
                   return SimpleDialogOption(
                     onPressed: () async {
@@ -320,8 +480,21 @@ class _LoginPageState extends State<LoginPage> {
                         MaterialPageRoute(builder: (_) => const MasterScreen()),
                       );
                     },
-                    child: Text(store.storeName ?? 'Nepoznata trgovina',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                      child: Center(
+                        child: Text(store.storeName ?? 'Nepoznata trgovina',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
@@ -354,7 +527,7 @@ class _LoginPageState extends State<LoginPage> {
         }
        
       } else {
-        // --- FALLBACK: only company OR only store logic (your existing one) ---
+    
         if (companyEmployees.length > 1) {
           await showDialog(
             context: context,
@@ -464,7 +637,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
 
-      // --- FINAL NAVIGATION ---
+     
       if (roles.contains("Admin") && AuthProvider.selectedCompanyId == null && AuthProvider.selectedStoreId == null) {
         await signalRProvider.startConnection();
       }

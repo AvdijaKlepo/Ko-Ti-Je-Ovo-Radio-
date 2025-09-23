@@ -126,8 +126,7 @@ String? _base64Pdf;
       });
     }
     
-  
-    // Refresh after updates
+
     await productPagination.refresh(newFilter: {
       'isDeleted': showDeleted,
       'storeId': AuthProvider.selectedStoreId,
@@ -149,7 +148,7 @@ String? _base64Pdf;
         _isInitialized = true;
         isLoading = false;
       });
-     print(productPagination.items.map((e) => e.saleExpires?.isBefore(DateTime.now())).contains(true));
+
   
     });
     
@@ -439,51 +438,82 @@ final expiry = result['saleExpires'] as DateTime?;
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Objavi katalog proizovda'),
-           actions: [
-            FormBuilder(child: 
-            FormBuilderField(
-  name: "storeCatalogue",
-  validator: (val) {
-    if (_pdfFile == null) {
-      return "Obavezno je učitati PDF dokument";
-    }
-    return null;
-  },
-  builder: (field) {
-    return InputDecorator(
-      decoration: const InputDecoration(
-        labelText: "Katalog (PDF)",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-            title: _pdfFile != null
-                ? Text(_pdfFile!.path.split('/').last)
-                : const Text("Nema učitanog PDF dokumenta"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _pdfFile == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickPdf(),
+        surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
             ),
           ),
-        ],
-      ),
-    );
-  },
-),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Objavi katalog proizvoda', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
+           actions: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FormBuilder(child: 
+              FormBuilderField(
+                name: "storeCatalogue",
+                validator: (val) {
+                  if (_pdfFile == null) {
+                    return "Obavezno je učitati PDF dokument";
+                  }
+                  return null;
+                },
+                builder: (field) {
+                  return InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: "Katalog (PDF)",
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+              title: _pdfFile != null
+                  ? Text(_pdfFile!.path.split('/').last)
+                  : const Text("Nema učitanog PDF dokumenta"),
+              trailing: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                ),
+                icon: const Icon(Icons.file_upload, color: Colors.white),
+                label: _pdfFile == null
+                    ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                    : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
+                onPressed: () => _pickPdf(),
+              ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              ),
             ),
              ElevatedButton(
-              child: const Text("Pošalji korisnicima"),
+              child: const Text("Pošalji korisnicima", style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+        
+            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+          ),
               onPressed: () async {
                 try {
   await storeProvider.update(AuthProvider.selectedStoreId!,
@@ -516,7 +546,32 @@ Future<void> _openBatchSaleDialog(List<Product> products) async {
   final result = await showDialog<Map<String, dynamic>?>(
     context: context,
     builder: (_) => AlertDialog(
-      title: Text("Akcija za ${products.length} proizvoda"),
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      titlePadding: EdgeInsets.zero,
+      title: Container(
+         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: const BoxDecoration(
+         gradient: LinearGradient(
+        colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Akcija za ${products.length} proizvoda", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white)),
+          ],
+        ),
+      ),
       
       content: FormBuilder(
         key: formKey,
@@ -531,10 +586,12 @@ Future<void> _openBatchSaleDialog(List<Product> products) async {
               const SizedBox(height: 15,),
               FormBuilderTextField(
                 name: 'salePrice',
+                
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: "Postotak sniženja (%)",
                   border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.percent),
                 ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required( errorText: 'Obavezno polje'),
@@ -545,14 +602,16 @@ Future<void> _openBatchSaleDialog(List<Product> products) async {
               ),
               const SizedBox(height: 12),
               FormBuilderDateTimePicker(
-
+                locale: const Locale('bs'),
                 name: 'saleExpires',
-                firstDate: DateTime.now(),
+                firstDate: DateTime.now().add(const Duration(days: 1)),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
+                initialDate: DateTime.now().add(const Duration(days: 1)),
                 inputType: InputType.date,
                 decoration: const InputDecoration(
                   labelText: "Datum isteka",
                   border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.calendar_today),
                 ),
                 validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
               ),
@@ -572,7 +631,11 @@ Future<void> _openBatchSaleDialog(List<Product> products) async {
               Navigator.pop(context, formKey.currentState!.value);
             }
           },
-          child: const Text("Spremi"),
+          style: ElevatedButton.styleFrom(
+        
+            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+          ),
+          child: const Text("Sačuvaj", style: TextStyle(color: Colors.white)),
         ),
       ],
     ),
@@ -610,7 +673,7 @@ final expiry = result['saleExpires'] as DateTime?;
     'IsOnSale': true
   });
 } on Exception catch (e) {
-  // TODO
+
 }
     }
     setState(() {
@@ -622,53 +685,89 @@ final expiry = result['saleExpires'] as DateTime?;
 
 
 
-  // 📰 --- CATALOG GENERATOR ---
   Future<void> _openCatalogDialog(List<Product> selected) async {
-    if (selected.length <6 || selected.length > 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Generisani katalog mora imati 6 proizvoda.")),
-      );
-      return;
-    }
+  if (selected.length != 6) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Generisani katalog mora imati 6 proizvoda.")),
+    );
+    return;
+  }
 
-    await showDialog(
-      context: context,
-      builder: (_) {
-        String? selectedBackground;
-        return AlertDialog(
-          title: const Text("Kreiraj katalog"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+  await showDialog(
+    context: context,
+    builder: (_) {
+      String? selectedBackground;
+      return AlertDialog(
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        titlePadding: EdgeInsets.zero,
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              
-              const SizedBox(height: 12),
-              Text("Odabrani proizvodi (${selected.length}):"),
-              ...selected.map((p) => Text("• ${p.productName} - ${p.price} KM")),
+              const Text(
+                "Kreiraj katalog",
+                style: TextStyle(color: Colors.white),
+              ),
+              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white)),
             ],
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Odustani")),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.picture_as_pdf),
-              label: const Text("Spasi lokalno"),
-              onPressed: () {
-                Navigator.pop(context);
-                _generatePdfCatalog(selected, selectedBackground,true);
-              },
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Text("Odabrani proizvodi (${selected.length}):"),
+                const SizedBox(height: 8),
+                ...selected.map((p) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text("• ${p.productName} - ${p.price} KM"),
+                    )),
+              ],
             ),
-             ElevatedButton.icon(
-              icon: const Icon(Icons.picture_as_pdf),
-              label: const Text("Spasi lokalno i pošalji korisnicima."),
-              onPressed: () {
-                Navigator.pop(context);
-                _generatePdfCatalog(selected, selectedBackground,false);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ),
+        actions: [
+          
+          ElevatedButton.icon(
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text("Spasi lokalno"),
+            onPressed: () {
+              Navigator.pop(context);
+              _generatePdfCatalog(selected, selectedBackground, true);
+            },
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text("Spasi lokalno i pošalji korisnicima"),
+            onPressed: () {
+              Navigator.pop(context);
+              _generatePdfCatalog(selected, selectedBackground, false);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 
   Future<pw.ImageProvider?> _loadBackground(String? key) async {
@@ -715,7 +814,7 @@ Future<void> _generatePdfCatalog(List<Product> products, String? backgroundKey,b
                pw.Positioned(
               left: 70,
               right: 0,
-              top: 130, // adjust depending on your template
+              top: 130, 
               child: pw.Transform.rotate(
                 angle: 0.2,
                 child:
@@ -805,7 +904,7 @@ Future<void> _generatePdfCatalog(List<Product> products, String? backgroundKey,b
                         ),
                       ),
 
-                      // centered product content
+               
                       pw.Center(
                         child: pw.Column(
                           mainAxisSize: pw.MainAxisSize.min,
@@ -934,8 +1033,23 @@ final pdfBytes = await pdf.save();
                 ),
               ),
      const SizedBox(width: 8),
+       Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("Prikaži izbrisane"),
+                   Switch(
+                value: showDeleted,
+                onChanged: (val) {
+                  setState(() => showDeleted = val);
+                  _onSearchChanged();
+                },
+              ),
+                ],
+              ),
+     const SizedBox(width: 8),
+
               SizedBox(
-                width: 250,
+                width: 200,
                 child: ElevatedButton(onPressed:  () async{
                             await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
                           },style: ElevatedButton.styleFrom(
@@ -956,26 +1070,14 @@ final pdfBytes = await pdf.save();
 
                 
               const SizedBox(width: 16),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("Prikaži izbrisane"),
-                   Switch(
-                value: showDeleted,
-                onChanged: (val) {
-                  setState(() => showDeleted = val);
-                  _onSearchChanged();
-                },
-              ),
-                ],
-              ),
+            
              
             ],
           ),
           const SizedBox(height: 16),
 Container(
      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
          gradient: LinearGradient(
         colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
         begin: Alignment.centerLeft,
@@ -991,10 +1093,11 @@ Container(
       Expanded(flex: 2, child: Text("Naziv", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       Expanded(flex: 4, child: Text("Opis", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       Expanded(flex: 2, child: Text("Cijena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-      Expanded(flex: 2, child: Text("Akcijska cijena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-      Expanded(flex: 2, child: Text("Vrijedi do", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+    
       Expanded(flex: 2, child: Text("Na lageru", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       Expanded(flex: 3, child: Text("Tip", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+        Expanded(flex: 2, child: Text("Akcijska cijena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      Expanded(flex: 2, child: Text("Vrijedi do", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       Expanded(flex: 3, child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
       Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
     ],
@@ -1052,25 +1155,25 @@ Expanded(
                 final totalPages = (productPagination.count / productPagination.pageSize).ceil();
                 final isActive = currentPage == pageNum;
 
-                // Determine if there is only one page
+                
                 final bool isSinglePage = totalPages <= 1;
 
                 return OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     backgroundColor: isActive 
                         ? const Color.fromRGBO(27, 76, 125, 1) 
-                        : isSinglePage ? Colors.grey : Colors.white, // Grey if single page
+                        : isSinglePage ? Colors.grey : Colors.white,
                     foregroundColor: isActive 
                         ? Colors.white 
                         : Colors.black87,
                     side: BorderSide(
                       color: isActive 
                         ? Colors.transparent 
-                        : isSinglePage ? Colors.grey.shade400 : Colors.grey.shade300, // Border color for single page
+                        : isSinglePage ? Colors.grey.shade400 : Colors.grey.shade300, 
                     ),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   ),
-                  onPressed: isSinglePage // Conditionally set onPressed to null
+                  onPressed: isSinglePage 
                       ? null
                       : () async {
                           if (!mounted) return;
@@ -1152,7 +1255,20 @@ Expanded(
               ),
         
       
+          
+        
+      
+              Expanded(flex: 2, child: Text(p.stockQuantity!>1 ? "${p.stockQuantity} komada" : "Van zaliha")),
+       
               Expanded(
+                flex: 3,
+                child: Text(
+                  p.productsServices?.map((e) => e.service?.serviceName ?? '').join('\n') ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+                  Expanded(
                 flex: 2,
                 child: p.isOnSale == true
                     ? Text("${p.salePrice?.toStringAsFixed(2)} KM",
@@ -1165,18 +1281,6 @@ Expanded(
                 child: p.isOnSale == true && p.saleExpires != null
                     ? Text("${p.saleExpires!.day}.${p.saleExpires!.month}.${p.saleExpires!.year}")
                     : const Text("-"),
-              ),
-        
-      
-              Expanded(flex: 2, child: Text(p.stockQuantity!>1 ? "${p.stockQuantity} komada" : "Van zaliha")),
-       
-              Expanded(
-                flex: 3,
-                child: Text(
-                  p.productsServices?.map((e) => e.service?.serviceName ?? '').join('\n') ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
               ),
         
       
@@ -1274,7 +1378,7 @@ Expanded(
 
   return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
            gradient: LinearGradient(
           colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
           begin: Alignment.centerLeft,

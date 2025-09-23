@@ -6101,6 +6101,10 @@
             "type": "string",
             "nullable": true
           },
+          "pin": {
+            "type": "integer",
+            "format": "int32"
+          },
           "isFreelancer": {
             "type": "boolean"
           },
@@ -6408,6 +6412,11 @@
           },
           "jobStatus": {
             "type": "string",
+            "nullable": true
+          },
+          "pin": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "serviceId": {

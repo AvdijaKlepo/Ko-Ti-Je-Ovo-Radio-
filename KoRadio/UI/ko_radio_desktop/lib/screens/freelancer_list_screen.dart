@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ko_radio_desktop/models/freelancer.dart';
 import 'package:ko_radio_desktop/models/freelancer_service.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
@@ -356,11 +358,16 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      
         children: [
-          Row(
+          Wrap(
+           
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 350,
                 child: TextField(
                   controller: _firstNameController,
                   decoration:  InputDecoration(
@@ -383,7 +390,8 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
                 ),
               ),
               const SizedBox(width: 8),
-               Expanded(
+               SizedBox(
+                width: 350,
                 child: TextField(
                   controller: _emailController,
                   decoration:  InputDecoration(
@@ -439,34 +447,44 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
           ),
           const SizedBox(height: 20),
           
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
-          ),
+            Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
+                    
             child:  Row(
               children: [
-                const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold))),
-                const Expanded(flex: 2, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold))),
+                const Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 3, child: Text("Radni Dani", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 2, child: Text("Iskustvo", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 2, child: Text("Ocjena", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+               
                  const Expanded(
                     flex: 3,
                     child: Center(
                       child: Text(
                         "Slika",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ),
                   ),
-                const Expanded(flex: 4, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold))),
-      showApplicants ? const Expanded(flex: 1, child: Center(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold)))) : const SizedBox(width: 0),
+                const Expanded(flex: 4, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      showApplicants ? const Expanded(flex: 1, child: Center(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))) : const SizedBox(width: 0),
 
-               const Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
+               const Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
                
               
               ],

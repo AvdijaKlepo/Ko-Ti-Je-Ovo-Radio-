@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/user.dart';
@@ -139,11 +141,13 @@ class _UserListScreenState extends State<UserListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 🔎 Search & filters
-          Row(
+     
+          Wrap(
+            alignment: WrapAlignment.center,
             children: [
-              Expanded(
-                flex: 3,
+              SizedBox(
+                width: 350,
+             
                 child: TextField(
                   controller: _firstNameController,
                   decoration: InputDecoration(
@@ -167,8 +171,8 @@ class _UserListScreenState extends State<UserListScreen> {
               ),
             
             const SizedBox(width: 12),
-            Expanded(
-              flex: 3,
+            SizedBox(
+              width: 350,
               child: TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -211,22 +215,30 @@ class _UserListScreenState extends State<UserListScreen> {
       
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
           ),
+          
           child: const Row(
             children: [
-              Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 3, child: Text("Adresa", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 3, child: Text("Broj Telefona", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 1, child: Text("Račun kreiran", style: TextStyle(fontWeight: FontWeight.bold))),
-              Expanded(flex: 3,child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold)))),
+              Expanded(flex: 2, child: Text("Ime", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 2, child: Text("Prezime", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 3, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 3, child: Text("Lokacija", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 3, child: Text("Adresa", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 3, child: Text("Broj Telefona", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 1, child: Text("Račun kreiran", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+              Expanded(flex: 3,child: Center(child: Text("Slika", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
               
-              Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold)))),
+              Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
             ],
           ),
         ),

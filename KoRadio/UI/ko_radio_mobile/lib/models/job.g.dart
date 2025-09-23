@@ -33,6 +33,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       ..isTenderFinalized = json['isTenderFinalized'] as bool?
       ..isInvoiced = json['isInvoiced'] as bool?
       ..isRated = json['isRated'] as bool?
+      ..pin = (json['pin'] as num?)?.toInt()
       ..company = json['company'] == null
           ? null
           : Company.fromJson(json['company'] as Map<String, dynamic>)
@@ -63,6 +64,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'image': instance.image,
       'jobsServices': instance.jobsServices,
       'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
+      'pin': instance.pin,
       'company': instance.company,
       'dateFinished': instance.dateFinished?.toIso8601String(),
       'isDeletedWorker': instance.isDeletedWorker,

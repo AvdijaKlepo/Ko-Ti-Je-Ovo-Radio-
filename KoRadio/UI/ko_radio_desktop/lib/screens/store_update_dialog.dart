@@ -99,213 +99,330 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
   
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(24),
-      child: SizedBox(
-        width: 500,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  'assets/images/undraw_data-input_whqw.svg',
-                  fit: BoxFit.cover,
+     return Dialog(
+  surfaceTintColor: Colors.white,
+  insetPadding: const EdgeInsets.all(24),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  child: SizedBox(
+    width: MediaQuery.of(context).size.width * 0.35,
+    child:  Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🔹 Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Podaci trgovine',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                      splashRadius: 20,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: FormBuilder(
-                  key: _formKey,
-                  initialValue: _initialValue,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text("Podaci Trgovine", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      FormBuilderTextField(name: "storeName", decoration: const InputDecoration(labelText: "Ime Trgovine:"),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 50 znakova'),
-                        FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
-                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž .]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
-                      ])
-                      ),
-                      const SizedBox(height: 20),
-                      FormBuilderTextField(name: "description",maxLines: 3, decoration: const InputDecoration(labelText: "Opis"),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
-                        FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znakova'),
-                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
-                      ])
-                      ),
-                      const SizedBox(height: 20),
-                      FormBuilderTextField(name: "address", decoration: const InputDecoration(labelText: "Adresa"),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
-                      ]),
-                      ),
-                      const SizedBox(height: 20),
 
-                      
-                     
-                    
+              // 🔹 Form (scrollable area)
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: FormBuilder(
+                    key: _formKey,
+                    initialValue: _initialValue,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text("Informacije o trgovini",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 12),
 
-                       FormBuilderDropdown<int>(
-                        name: 'locationId',
-                        decoration: const InputDecoration(labelText: "Lokacija*"),
-                        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        items: locationResult?.result
-                                .map((loc) => DropdownMenuItem(
-                                      value: loc.locationId,
-                                      child: Text(loc.locationName ?? ''),
-                                    ))
-                                .toList() ??
-                            [],
-                      ),
-                      const SizedBox(height: 20),
-                      FormBuilderCheckboxGroup<String>(
-  name: 'workingDays',
-  decoration: const InputDecoration(
-    labelText: "Radni Dani",
-    border: InputBorder.none,
-  ),
-  options: [
-    'Nedjelja',
-    'Ponedjeljak',
-    'Utorak',
-    'Srijeda',
-    'Četvrtak',
-    'Petak',
-    'Subota',
-  ].map((e) => FormBuilderFieldOption(value: e)).toList(),
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.required(errorText: "Odaberite bar jedan radni dan."),
-    (value) {
-      if (value != null && value.isEmpty) {
-        return "Morate odabrati barem jedan dan.";
-      }
-      return null;
-    }
-  ]),
-),
-const SizedBox(height: 12),
-
-FormBuilderDateTimePicker(
-  name: 'startTime',
-  inputType: InputType.time,
-  decoration: const InputDecoration(
-    labelText: "Početak Smjene",
-    border: OutlineInputBorder(),
-  ),
-  validator: FormBuilderValidators.required(errorText: "Početak smjene je obavezan."),
-),
-const SizedBox(height: 12),
-
-FormBuilderDateTimePicker(
-  name: 'endTime',
-  inputType: InputType.time,
-  decoration: const InputDecoration(
-    labelText: "Kraj Smjene",
-    border: OutlineInputBorder(),
-
-  ),
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.required(errorText: "Kraj smjene je obavezan."),
-    (value) {
-      final start = FormBuilder.of(context)?.fields['startTime']?.value;
-
-      if (start != null && value != null) {
-        if (value.isBefore(start)) {
-          return "Kraj smjene mora biti nakon početka.";
-        }
-
-        final diff = value.difference(start).inHours;
-        if (diff < 3) {
-          return "Smjena mora trajati najmanje 3 sata.";
-        }
-      }
-      return null;
-    }
-  ]),
-),
-SizedBox(height: 12),
-                       FormBuilderField(
-  name: "image",
-  builder: (field) {
-    return InputDecorator(
-      decoration: const InputDecoration(
-        labelText: "Logo",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: _image != null
-                ? Text(_image!.path.split('/').last)
-                : widget.store?.image != null
-                    ? const Text('Proslijeđena slika')
-                    : const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null && widget.store?.image == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickImage(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (_image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (_decodedImage != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  },
-),
-                      const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text("Sačuvaj"),
-                          onPressed: _save,
+                        FormBuilderTextField(
+                          name: "storeName",
+                          decoration: InputDecoration(
+                            labelText: "Ime firme",
+                            border: const OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.maxLength(20,
+                                errorText: 'Maksimalno 20 znakova'),
+                            FormBuilderValidators.minLength(2,
+                                errorText: 'Minimalno 2 znaka'),
+                            FormBuilderValidators.match(
+                                r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž .]+$',
+                                errorText:
+                                    'Dozvoljena su samo slova sa prvim velikim.'),
+                          ]),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+
+                        FormBuilderTextField(
+                          name: "description",
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: "Opis",
+                            border: const OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.maxLength(230,
+                                errorText: 'Maksimalno 230 znakova'),
+                            FormBuilderValidators.minLength(10,
+                                errorText: 'Minimalno 10 znakova'),
+                            FormBuilderValidators.match(
+                                r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$',
+                                errorText:
+                                    'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                          ]),
+                        ),
+                        const SizedBox(height: 16),
+
+                        FormBuilderTextField(
+                          name: "address",
+                          decoration: InputDecoration(
+                            labelText: "Adresa",
+                            border: const OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                            FormBuilderValidators.match(
+                                r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9\s.,\-\/!]+$',
+                                errorText:
+                                    'Dozvoljena su samo slova sa prvim velikim, brojevi i osnovni znakovi.'),
+                          ]),
+                        ),
+
+                        const SizedBox(height: 24),
+                        const Text("Radno vrijeme",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 12),
+
+                        FormBuilderCheckboxGroup<String>(
+                          name: 'workingDays',
+                          decoration: const InputDecoration(
+                            labelText: "Radni Dani",
+                            border: InputBorder.none,
+                            
+                          ),
+                          options: const [
+                            'Nedjelja',
+                            'Ponedjeljak',
+                            'Utorak',
+                            'Srijeda',
+                            'Četvrtak',
+                            'Petak',
+                            'Subota',
+                          ].map((e) => FormBuilderFieldOption(value: e)).toList(),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: "Odaberite bar jedan radni dan."),
+                          ]),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FormBuilderDateTimePicker(
+                                name: 'startTime',
+                                inputType: InputType.time,
+                                decoration:  InputDecoration(
+                                  labelText: "Početak smjene",
+                                  border: OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
+                                ),
+                                validator: FormBuilderValidators.required(
+                                    errorText: "Početak smjene je obavezan."),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FormBuilderDateTimePicker(
+                                name: 'endTime',
+                                inputType: InputType.time,
+                                decoration:  InputDecoration(
+                                  labelText: "Kraj smjene",
+                                  border: OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
+                                ),
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(
+                                      errorText: "Kraj smjene je obavezan."),
+                                  (value) {
+                                    final start = FormBuilder.of(context)
+                                        ?.fields['startTime']
+                                        ?.value;
+                                    if (start != null && value != null) {
+                                      if (value.isBefore(start)) {
+                                        return "Kraj smjene mora biti nakon početka.";
+                                      }
+                                      if (value.difference(start).inHours < 3) {
+                                        return "Smjena mora trajati najmanje 3 sata.";
+                                      }
+                                    }
+                                    return null;
+                                  }
+                                ]),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+                        const Text("Lokacija",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 12),
+
+                        FormBuilderDropdown<int>(
+                          name: 'locationId',
+                          decoration:  InputDecoration(
+                            labelText: "Lokacija*",
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                          ),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Obavezno polje'),
+                          items: locationResult?.result
+                                  .map((loc) => DropdownMenuItem(
+                                        value: loc.locationId,
+                                        child: Text(loc.locationName ?? ''),
+                                      ))
+                                  .toList() ??
+                              [],
+                        ),
+
+                        const SizedBox(height: 24),
+                       FormBuilderField(
+                              name: "image",
+                              builder: (field) {
+                                return InputDecorator(
+                                  decoration: const InputDecoration(
+                                    labelText: "Logo",
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        leading: const Icon(Icons.image),
+                                        title: _image != null
+                                            ? Text(_image!.path.split('/').last)
+                                            : widget.store.image !=
+                                                    null
+                                                ? const Text(
+                                                    'Proslijeđena slika')
+                                                : const Text(
+                                                    "Nema proslijeđene slike"),
+                                        trailing: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromRGBO(
+                                                    27, 76, 125, 1),
+                                          ),
+                                          icon: const Icon(Icons.file_upload,
+                                              color: Colors.white),
+                                          label: _image == null &&
+                                                  widget.store
+                                                          .image ==
+                                                      null
+                                              ? const Text("Odaberi",
+                                                  style: TextStyle(
+                                                      color: Colors.white))
+                                              : const Text("Promijeni sliku",
+                                                  style: TextStyle(
+                                                      color: Colors.white)),
+                                          onPressed: () => _pickImage(),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      if (_image != null)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.file(
+                                            _image!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      else if (_decodedImage != null)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.memory(
+                                            _decodedImage!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      else
+                                        const SizedBox.shrink(),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                        const SizedBox(height: 100), 
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+
+          
+               Padding(
+                 padding: const EdgeInsets.all(8.0),
+                 child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                 
+                                  icon: const Icon(Icons.save, color: Colors.white),
+                                  label: const Text("Sačuvaj", style: TextStyle(color: Colors.white)),
+                                  onPressed: _save,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                                  ),
+                                ),
+                              ),
+               ),
+            ],
+          ),
+  ),
+);
   }
    void getImage(FormFieldState field) async {
   var result = await FilePicker.platform.pickFiles(type: FileType.image);

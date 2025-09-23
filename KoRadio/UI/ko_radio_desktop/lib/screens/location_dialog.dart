@@ -37,61 +37,88 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      surfaceTintColor: Colors.white,
       insetPadding: const EdgeInsets.all(24),
       child: SizedBox(
         width: 500,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  'assets/images/undraw_data-input_whqw.svg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: FormBuilder(
-                  key: _formKey,
-                  initialValue: _initialValue,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FormBuilderTextField(
-                        name: "locationName",
-                        decoration: const InputDecoration(
-                          labelText: "Naziv Lokacije*",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                          FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 30 znakova'),
-                          FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
-                          FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
-                        
-                        ]),
+        child: 
+            SingleChildScrollView(
+              child: FormBuilder(
+                key: _formKey,
+                initialValue: _initialValue,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      const SizedBox(height: 20),
-                     
-                      const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
-                          label: const Text("Sačuvaj"),
-                          onPressed: _save,
-                        ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
                       ),
-                    ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                         Text(widget.location!=null ?
+                          'Uredi lokaciju': 'Dodaj lokaciju',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                          splashRadius: 20,
+                        ),
+                      ],
+                    ),
                   ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          FormBuilderTextField(
+                            name: "locationName",
+                            decoration: const InputDecoration(
+                              labelText: "Naziv Lokacije*",
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                              FormBuilderValidators.maxLength(50, errorText: 'Maksimalno 30 znakova'),
+                              FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
+                              FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž]+$', errorText: 'Dozvoljena su samo slova sa prvim velikim.'),
+                            
+                            ]),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                   
+                    const SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.save),
+                        label: const Text("Sačuvaj"),
+                        onPressed: _save,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+       
       ),
     );
   }

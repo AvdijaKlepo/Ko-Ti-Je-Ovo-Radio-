@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -316,216 +317,221 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
       length: _jobStatuses.length,
       initialIndex: _selectedIndex,
       child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.2,
-                height: MediaQuery.of(context).size.height,
-                
-                child: Column(
-                  children: [
-                    TabBar(
-                      onTap: (index) async {
-                        setState(() {
-                          _selectedIndex = index;
-                          _isLoading = true;
-                          _selectedDay = null;
-                          _rangeStart = null;
-                          _rangeEnd = null;
-                          _rangeSelectionMode = RangeSelectionMode.toggledOff;
-                        });
-                        await jobsPagination.refresh(newFilter: _createFilterMap(_jobStatuses[_selectedIndex]));
-                        if (mounted) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      },
-                      indicatorColor: const Color.fromRGBO(27, 76, 125, 1),
-                      labelColor: const Color.fromRGBO(27, 76, 125, 1),
-                      unselectedLabelColor: Colors.grey,
-                      
-                      tabs: const [
-                        Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
-                        Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
-                        Tab(icon: Icon(Icons.free_cancellation), text: 'Zahtjevi'),
-                        Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    SizedBox(
-                     
+        body: ConstrainedBox(
+           constraints: const BoxConstraints(minWidth: 800, minHeight: 600),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.height,
                   
-                      child: TableCalendar(
-                      
-                        shouldFillViewport: false,
-                        locale: 'bs',
-                        firstDay: DateTime.utc(2020, 1, 1),
-                        lastDay: DateTime.utc(2030, 12, 31),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                        onDaySelected: _onDaySelected,
-                        onRangeSelected: _onRangeSelected,
-                        rangeStartDay: _rangeStart,
-                        rangeEndDay: _rangeEnd,
-                        rangeSelectionMode: _rangeSelectionMode,
-                        
-                        availableCalendarFormats: const {
-                          CalendarFormat.month: 'Mjesec',
-                                       
-                        },
-                        calendarFormat: CalendarFormat.month,
-                       
-                        onPageChanged: (focusedDay) {
-                          _focusedDay = focusedDay;
-                        },
-                        startingDayOfWeek: StartingDayOfWeek.monday,
-                        headerStyle: const HeaderStyle(
-                          formatButtonVisible: true,
-                          titleCentered: true,
-                        ),
-                        calendarStyle: const CalendarStyle(
-                          todayDecoration: BoxDecoration(
-                            color: Color.fromRGBO(27, 76, 125, 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          selectedDecoration: BoxDecoration(
-                            color: Color.fromRGBO(27, 76, 125, 1),
-                            shape: BoxShape.circle,
-                          ),
-                          rangeStartDecoration: BoxDecoration(
-                            color: Color.fromRGBO(27, 76, 125, 1),
-                            shape: BoxShape.circle,
-                          ),
-                          rangeEndDecoration: BoxDecoration(
-                            color: Color.fromRGBO(27, 76, 125, 1),
-                            shape: BoxShape.circle,
-                          ),
-                          selectedTextStyle: TextStyle(color: Colors.white),
-                        ),
-                        eventLoader: (day) {
-                          if(_jobStatuses[_selectedIndex]==JobStatus.approved)
-                          {
-                          final normalized = DateTime(day.year, day.month, day.day);
-                          return jobsByDate[normalized] ?? [];
-                          }else{
-                            return [];
-                          }
-                        },
-                        calendarBuilders: CalendarBuilders(
-                          markerBuilder: (context, day, events) {
-                            if (events.isNotEmpty) {
-                              return Positioned(
-                                bottom: 1,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    '${events.length}',
-                                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                                  ),
-                                ),
-                              );
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        TabBar(
+                          onTap: (index) async {
+                            setState(() {
+                              _selectedIndex = index;
+                              _isLoading = true;
+                              _selectedDay = null;
+                              _rangeStart = null;
+                              _rangeEnd = null;
+                              _rangeSelectionMode = RangeSelectionMode.toggledOff;
+                            });
+                            await jobsPagination.refresh(newFilter: _createFilterMap(_jobStatuses[_selectedIndex]));
+                            if (mounted) {
+                              setState(() {
+                                _isLoading = false;
+                              });
                             }
-                            return null;
                           },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Align(alignment: Alignment.centerLeft,child: Text('Pretraži klijente', style: Theme.of(context).textTheme.titleMedium)),
-                    const SizedBox(height: 16),
-
-                     TextField(
-                      controller: _clientController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
+                          indicatorColor: const Color.fromRGBO(27, 76, 125, 1),
+                          labelColor: const Color.fromRGBO(27, 76, 125, 1),
+                          unselectedLabelColor: Colors.grey,
                           
+                          tabs: const [
+                            Tab(icon: Icon(Icons.check_circle), text: 'Završeni'),
+                            Tab(icon: Icon(Icons.hourglass_top), text: 'Odobreni'),
+                            Tab(icon: Icon(Icons.free_cancellation), text: 'Zahtjevi'),
+                            Tab(icon: Icon(Icons.cancel), text: 'Otkazani'),
+                          ],
                         ),
-                        prefixIcon: Icon(Icons.search_outlined),
-                        labelText: 'Ime i prezime klijenta',
-                        
-                      ),
-                      onChanged: (value) async {
-                       _onSearchChanged();
-                      },
-                      ),
-                    const SizedBox(height: 16),
-                  
-                    Align(alignment: Alignment.centerLeft,child: Text('Pretraži po radniku', style: Theme.of(context).textTheme.titleMedium)),
-                    const SizedBox(height: 16),
-
-                     Expanded(
-                      child: TextField(
-                        controller: _employeeController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                         
+                      
+                          child: TableCalendar(
+                          
+                            shouldFillViewport: false,
+                            locale: 'bs',
+                            firstDay: DateTime.utc(2020, 1, 1),
+                            lastDay: DateTime.utc(2030, 12, 31),
+                            focusedDay: _focusedDay,
+                            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                            onDaySelected: _onDaySelected,
+                            onRangeSelected: _onRangeSelected,
+                            rangeStartDay: _rangeStart,
+                            rangeEndDay: _rangeEnd,
+                            rangeSelectionMode: _rangeSelectionMode,
+                            
+                            availableCalendarFormats: const {
+                              CalendarFormat.month: 'Mjesec',
+                                           
+                            },
+                            calendarFormat: CalendarFormat.month,
+                           
+                            onPageChanged: (focusedDay) {
+                              _focusedDay = focusedDay;
+                            },
+                            startingDayOfWeek: StartingDayOfWeek.monday,
+                            headerStyle: const HeaderStyle(
+                              formatButtonVisible: true,
+                              titleCentered: true,
                             ),
+                            calendarStyle: const CalendarStyle(
+                              todayDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              selectedDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              rangeStartDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              rangeEndDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              selectedTextStyle: TextStyle(color: Colors.white),
+                            ),
+                            eventLoader: (day) {
+                              if(_jobStatuses[_selectedIndex]==JobStatus.approved)
+                              {
+                              final normalized = DateTime(day.year, day.month, day.day);
+                              return jobsByDate[normalized] ?? [];
+                              }else{
+                                return [];
+                              }
+                            },
+                            calendarBuilders: CalendarBuilders(
+                              markerBuilder: (context, day, events) {
+                                if (events.isNotEmpty) {
+                                  return Positioned(
+                                    bottom: 1,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '${events.length}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(alignment: Alignment.centerLeft,child: Text('Pretraži klijente', style: Theme.of(context).textTheme.titleMedium)),
+                        const SizedBox(height: 16),
+                              
+                         TextField(
+                          controller: _clientController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              
+                            ),
+                            prefixIcon: Icon(Icons.search_outlined),
+                            labelText: 'Ime i prezime klijenta',
                             
                           ),
-                          prefixIcon: Icon(Icons.search_outlined),
-                          labelText: 'Ime i prezime radnika',
-                        ),
-                           onChanged: (value) async {
-                               _onSearchChanged();
-                      },
-                        ),
-
-                      ),
-                    
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text('Ukupan broj ${translateJobStatus(_jobStatuses[_selectedIndex])} poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
-                        if (_selectedDay != null || _rangeStart != null)
-                          TextButton.icon(
-                            icon: const Icon(Icons.close),
-                            label: const Text('Poništi aktivni filter datuma'),
-                            onPressed: _clearDateFilter,
+                          onChanged: (value) async {
+                           _onSearchChanged();
+                          },
                           ),
+                        const SizedBox(height: 16),
+                      
+                        Align(alignment: Alignment.centerLeft,child: Text('Pretraži po radniku', style: Theme.of(context).textTheme.titleMedium)),
+                        const SizedBox(height: 16),
+                              
+                         SizedBox(
+                          child: TextField(
+                            controller: _employeeController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                
+                              ),
+                              prefixIcon: Icon(Icons.search_outlined),
+                              labelText: 'Ime i prezime radnika',
+                            ),
+                               onChanged: (value) async {
+                                   _onSearchChanged();
+                          },
+                            ),
+                              
+                          ),
+                        
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : jobsPagination.items.isEmpty
-                              ? const Center(child: Text('Nema poslova za prikaz.'))
-                              : ListView.builder(
-                                  controller: _scrollController,
-                                  itemCount: jobsPagination.items.length + (jobsPagination.hasNextPage ? 1 : 0),
-                                  itemBuilder: (context, index) {
-                                    if (index < jobsPagination.items.length) {
-                                      final job = jobsPagination.items[index];
-                                      return _jobCard(context, job);
-                                    }
-                                    return const Center(child: CircularProgressIndicator());
-                                  },
-                                ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text('Ukupan broj ${translateJobStatus(_jobStatuses[_selectedIndex])} poslova: ${jobsPagination.count}', style: Theme.of(context).textTheme.titleMedium),
+                          if (_selectedDay != null || _rangeStart != null)
+                            TextButton.icon(
+                              icon: const Icon(Icons.close),
+                              label: const Text('Poništi aktivni filter datuma'),
+                              onPressed: _clearDateFilter,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : jobsPagination.items.isEmpty
+                                ? const Center(child: Text('Nema poslova za prikaz.'))
+                                : ListView.builder(
+                                    controller: _scrollController,
+                                    itemCount: jobsPagination.items.length + (jobsPagination.hasNextPage ? 1 : 0),
+                                    itemBuilder: (context, index) {
+                                      if (index < jobsPagination.items.length) {
+                                        final job = jobsPagination.items[index];
+                                        return _jobCard(context, job);
+                                      }
+                                      return const Center(child: CircularProgressIndicator());
+                                    },
+                                  ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
