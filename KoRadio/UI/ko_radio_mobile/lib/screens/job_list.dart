@@ -51,19 +51,63 @@ ExpansionTileController _expansionTileController = ExpansionTileController();
     JobStatus.cancelled,
 
   ];
-Map<String, dynamic> filterMap(JobStatus status)  {
-  return{
+Map<String, dynamic> filterMap(JobStatus status,{DateTime? date})  {
 
-     if(isUser) 'UserId': _userId,
+  final Map<String, dynamic> filter = {
+ if(isUser) 'UserId': _userId,
         if(isFreelancer) 'FreelancerId': _freelancerId,
         if(isCompanyEmployee) 'CompanyEmployeeId': _companyEmployeeId,
         
-        'JobStatus': jobStatus.name,
+        'JobStatus': status.name,
         'isTenderFinalized': false,
         'OrderBy': 'desc',
         'isDeleted': false,
+      
   };
+   if (date != null) {
+    filter['DateRange'] = date.toIso8601String().split('T')[0];
+  } else {
+    filter['JobStatus'] = status.name;
+  }
+  return filter;
 }
+ void _clearDateFilter() async {
+    setState(() {
+      _selectedDay = null;
+
+      _isLoading = true;
+    });
+    await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+void _onDaySelected(DateTime selectedDay, DateTime focusedDay) async {
+  final navigator = Navigator.of(context);
+    final normalizedSelectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    if (!isSameDay(_selectedDay, normalizedSelectedDay) && mounted) {
+      setState(() {
+        _selectedDay = normalizedSelectedDay;
+        _focusedDay = focusedDay;
+       
+        _isLoading = true;
+      });
+     await jobsPagination.refresh(newFilter: filterMap(
+  jobStatuses[selectedIndex],
+  date: normalizedSelectedDay,
+
+
+      ));
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+    navigator.pop();
+  }
 
   @override
   void initState() {
@@ -124,7 +168,7 @@ Map<String, dynamic> filterMap(JobStatus status)  {
         _isInitialized = true;
         _isLoading=false;
       });
-      await _loadJobs();
+     await _loadJobs();
       
     });
    }
@@ -138,21 +182,37 @@ Map<String, dynamic> filterMap(JobStatus status)  {
      
   
    Future<void> _loadJobs() async {
-  final result = await jobProvider.get(filter: filterMap(jobStatuses[selectedIndex]));
+  final result = await jobProvider.get(filter: 
+  
+  
+  filterMap(JobStatus.approved));
   
   if (!mounted) return;
 
   setState(() {
-    jobsPagination.items = result.result;
     jobsByDate.clear();
 
     for (var job in result.result) {
-      final day = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
-      jobsByDate.putIfAbsent(day, () => []).add(job);
-    }
+      
+      final start = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
 
+
+      if (job.dateFinished != null) {
+        final end = DateTime(job.dateFinished!.year, job.dateFinished!.month, job.dateFinished!.day);
+
+        for (var date = start;
+            !date.isAfter(end); 
+            date = date.add(const Duration(days: 1))) {
+          jobsByDate.putIfAbsent(date, () => []).add(job);
+        }
+      } else {
+
+        jobsByDate.putIfAbsent(start, () => []).add(job);
+      }
+    }
     _isInitialized = true;
     _isLoading = false;
+  
   });
 }
 
@@ -209,16 +269,19 @@ Map<String, dynamic> filterMap(JobStatus status)  {
               TabBar(
                 onTap: (index) async {
                   setState(() {
+                     if(_selectedDay!=null) _clearDateFilter();
                     selectedIndex = index;
                     jobStatus = jobStatuses[index];
                     _isLoading=true;
-                    _expansionTileController.collapse();
+                   
+                  
+                   
                     
                   });
 
                 
                   
-                 
+                  
         
                   await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
 
@@ -239,98 +302,142 @@ Map<String, dynamic> filterMap(JobStatus status)  {
                 ],  
               ),
               const SizedBox(height: 15),
+              if (_selectedDay != null)
+                            Center(
+                              child: TextButton.icon(
+                                icon: const Icon(Icons.close),
+                                label: const Text('Poništi aktivni filter datuma'),
+                                onPressed: _clearDateFilter,
+                              ),
+                            ),
               if(!_isLoading)
-              Text(
-                'Broj poslova: ${jobsPagination.items.length}',
-                style: Theme.of(context).textTheme.titleMedium,
+              SizedBox(
+                width: double.maxFinite,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                           
+                  children:[ Text(
+                    'Broj poslova: ${jobsPagination.items.length}',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                    
+                 
+                  IconButton(onPressed: () async{
+                    await showModalBottomSheet(context: context, builder: (context) {
+                      return Column(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Kalendar',style: TextStyle(color: Colors.white),),
+                                IconButton(onPressed: (){
+                                  Navigator.pop(context);
+                                }, icon: Icon(Icons.close,color: Colors.white,),),
+                              ],
+                            ),
+                          ),
+                           SizedBox(
+                         
+                      
+                          child: TableCalendar(
+                          
+                            shouldFillViewport: false,
+                            locale: 'bs',
+                            firstDay: DateTime.utc(2020, 1, 1),
+                            lastDay: DateTime.utc(2030, 12, 31),
+                            focusedDay: _focusedDay,
+                            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                           onDaySelected: _onDaySelected,
+                            
+                            availableCalendarFormats: const {
+                              CalendarFormat.month: 'Mjesec',
+                                           
+                            },
+                            calendarFormat: CalendarFormat.month,
+                           
+                            onPageChanged: (focusedDay) {
+                              _focusedDay = focusedDay;
+                            },
+                            startingDayOfWeek: StartingDayOfWeek.monday,
+                            headerStyle: const HeaderStyle(
+                              formatButtonVisible: true,
+                              titleCentered: true,
+                            ),
+                            calendarStyle: const CalendarStyle(
+                              todayDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              selectedDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              rangeStartDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              rangeEndDecoration: BoxDecoration(
+                                color: Color.fromRGBO(27, 76, 125, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              selectedTextStyle: TextStyle(color: Colors.white),
+                            ),
+                            eventLoader: (day) {
+                              if(jobStatuses[selectedIndex]==JobStatus.approved)
+                              {
+                              final normalized = DateTime(day.year, day.month, day.day);
+                              return jobsByDate[normalized] ?? [];
+                              }else{
+                                return [];
+                              }
+                            },
+                            calendarBuilders: CalendarBuilders(
+                              markerBuilder: (context, day, events) {
+                                if (events.isNotEmpty) {
+                                  return Positioned(
+                                    bottom: 1,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '${events.length}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                          
+                        ]
+                      );
+                    });
+                    
+                  }, icon: 
+                  const Icon(Icons.calendar_month,color: Colors.black,),),
+                            ]),
               ),
               const SizedBox(height: 16),
-            ExpansionTile(
-              controller: _expansionTileController,
-              title: const Text('Kalendar'),
-              children:[ Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TableCalendar(
-                    locale: 'bs',
-                    firstDay: DateTime.utc(2020, 1, 1),
-                    lastDay: DateTime.utc(2030, 12, 31),
-                    focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                    calendarFormat: CalendarFormat.week,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    headerStyle: const HeaderStyle(
-                      formatButtonVisible: false,
-                      titleCentered: true,
-                    ),
-                    calendarStyle: const CalendarStyle(
-                      todayDecoration: BoxDecoration(
-                        color: Color.fromRGBO(27, 76, 125, 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      selectedDecoration: BoxDecoration(
-                        color: Color.fromRGBO(27, 76, 125, 1),
-                        shape: BoxShape.circle,
-                      ),
-                      selectedTextStyle: TextStyle(color: Colors.white),
-                    ),
-                    eventLoader: (day) {
-                      final normalized = DateTime(day.year, day.month, day.day);
-                      return jobsByDate[normalized] ?? [];
-                    },
-                    onDaySelected: (selectedDay, focusedDay) async {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                        _isLoading = true;
-                      });
-              
-                      // fetch all jobs for the active tab
-                      final result = await jobProvider.get(
-                        filter: filterMap(jobStatuses[selectedIndex]),
-                      );
-              
-                      if (!mounted) return;
-                      setState(() {
-                        jobsPagination.items = result.result
-                .where((job) => isSameDay(job.jobDate, selectedDay))
-                .toList();
-                        _isLoading = false;
-                      });
-                    },
-                    onPageChanged: (focusedDay) => _focusedDay = focusedDay,
-                    calendarBuilders: CalendarBuilders(
-                      markerBuilder: (context, day, events) {
-                        if (events.isNotEmpty) {
-              return Positioned(
-                bottom: 1,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${events.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              );
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              ]
-            ),
+         
 
 const SizedBox(height: 16),
 
@@ -384,61 +491,26 @@ const SizedBox(height: 16),
           : Colors.white;
       final textColor = isDark ? Colors.white : Colors.black87;
 
-      return Card(
-        elevation: 3,
-        shadowColor: Colors.black26,
-        color: cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Slidable(
-          key: ValueKey(job.jobId),
-          enabled: (job.jobStatus == JobStatus.cancelled ||
-                  (job.jobStatus == JobStatus.finished && job.isInvoiced == true)) ||
-              ((job.jobStatus == JobStatus.approved ||
-                      job.jobStatus == JobStatus.unapproved) &&
-                  AuthProvider.selectedRole == "User") ||
-              ((job.jobStatus == JobStatus.approved &&
-                  AuthProvider.selectedRole == "Freelancer")),
-          endActionPane: ActionPane(
-            motion: const ScrollMotion(),
-            extentRatio: 0.25,
-            children: [
-              if (job.jobStatus == JobStatus.cancelled ||
-                  (job.jobStatus == JobStatus.finished &&
-                      job.isInvoiced == true))
-                SlidableAction(
-                  onPressed: (_) => _onLongPress(context, job),
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  icon: Icons.delete_outline,
-                  label: 'Obriši',
-                ),
-              if (((job.jobStatus == JobStatus.approved ||
-                          job.jobStatus == JobStatus.unapproved) &&
-                      AuthProvider.selectedRole == "User") ||
-                  (job.jobStatus == JobStatus.approved &&
-                      AuthProvider.selectedRole == "Freelancer"))
-                SlidableAction(
-                  onPressed: (_) async {
-                    if (AuthProvider.selectedRole == "User") {
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => EditJob(job: job)));
-                    } else if (AuthProvider.selectedRole == "Freelancer") {
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => EditJobFreelancer(job: job)));
-                    }
-                    setState(() => _isLoading = true);
-                    await jobsPagination
-                        .refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-                    setState(() => _isLoading = false);
-                  },
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
-                  icon: Icons.edit_outlined,
-                  label: 'Uredi',
-                ),
-            ],
+      return Container(
+         width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
+         borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        child: Card(
+          elevation: 3,
+          shadowColor: Colors.transparent,
+          
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: ListTile(
+            tileColor: Colors.transparent,
+            
             onTap: () async {
               final destination =
                   ((status == JobStatus.unapproved &&
@@ -447,10 +519,10 @@ const SizedBox(height: 16),
                               AuthProvider.selectedRole == "Freelancer"))
                       ? ApproveJob(job: job, freelancer: job.freelancer!)
                       : JobDetails(job: job);
-
+                  
               await Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => destination));
-
+                  
               if(!mounted) return;
               setState(() => _isLoading = true);
               await jobsPagination
@@ -459,14 +531,49 @@ const SizedBox(height: 16),
               setState(() => _isLoading = false);
             },
             leading: CircleAvatar(
-              backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
-              child: Icon(
-                isCompanyJob
-                    ? Icons.business_outlined
-                    : Icons.construction_outlined,
-                color: isDark ? Colors.white : Colors.black87,
+  backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
+  child: isCompanyJob
+      ? (job.company != null && job.company!.image != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+            child: imageFromString(
+                job.company!.image!,
+                height: 40,
+                width: 40,
+                fit: BoxFit.cover,
               ),
-            ),
+          )
+          : Icon(
+              Icons.business_outlined,
+              color: isDark ? Colors.white : Colors.black87,
+            ))
+      : (!isUser && job.user != null && job.user!.image != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+            child: imageFromString(
+                job.user!.image!,
+                height: 40,
+                width: 40,
+                fit: BoxFit.cover,
+              ),
+          )
+          : (job.freelancer != null &&
+                  job.freelancer!.freelancerNavigation!.image != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                child: imageFromString(
+                    job.freelancer!.freelancerNavigation!.image!,
+                    height: 40,
+                    width: 40,
+                    fit: BoxFit.cover,
+                  ),
+              )
+              : Icon(
+                  Icons.construction_outlined,
+                  color: isDark ? Colors.white : Colors.black87,
+                ))),
+),
+
             title: Text(
               job.jobTitle!,
               style: TextStyle(
@@ -500,47 +607,43 @@ const SizedBox(height: 16),
                       style: TextStyle(color: textColor),
                     ),
                   const SizedBox(height: 4),
-                  if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
-                  Row(
-                    children: [
-                      Icon(
-                        job.jobStatus==JobStatus.approved ?? false ?Icons.check_circle : Icons.cancel,
-                        size: 16,
-                        color: job.jobStatus==JobStatus.approved ?? false ? Colors.green : Colors.red,
+                  
+                 if(job.jobStatus==JobStatus.finished)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: job.isInvoiced == true ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        job.jobStatus==JobStatus.approved ?? false ? "Odobren" : "Nije odobren",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, color: textColor),
+                      child: Text(
+                        job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
                       ),
-                    ],
-                  ),
-                  if(job.jobStatus==JobStatus.finished)
-                  Row(
-                    children: [
-                      Icon(
-                        job.isInvoiced ?? false ? Icons.check_circle : Icons.cancel,
-                        size: 16,
-                        color: job.isInvoiced ?? false ? Colors.green : Colors.red,
+                    ),
+                     if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        job.isInvoiced ?? false ? "Plaćen" : "Nije plaćen",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, color: textColor),
+                      child: Text(
+                        job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
                       ),
-                      if (job.isEdited == true || job.isWorkerEdited == true) ...[
-                        const SizedBox(width: 8),
-                        Chip(
-                          label: const Text("Uređen"),
-                          backgroundColor: Colors.orange.shade100,
-                          labelStyle: const TextStyle(color: Colors.black87),
-                          visualDensity: VisualDensity.compact,
-                        )
-                      ]
-                    ],
-                  ),
+                    ),
+                     if(job.jobStatus==JobStatus.cancelled)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color:  Colors.red,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Otkazan',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -552,32 +655,5 @@ const SizedBox(height: 16),
 }
 
 
-  void _onLongPress(BuildContext context, Job job) {
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: const Text('Obriši posao'),
-
-      content: const Text('Jeste li sigurni da želite obrisati ovaj posao?'),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Ne'),
-        ),
-        TextButton(
-          onPressed: () async {
-            try{
-               await jobProvider.delete(job.jobId);
-            } on Exception catch (e) {
-              if(!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom brisanja posla: ${e.toString()}')));
-            }
-           Navigator.pop(context);
-            await jobsPagination.refresh(newFilter: filterMap(jobStatuses[selectedIndex]));
-          },
-          child: const Text('Da'),
-        ),
-      ],
-    ));
-  }
+  
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/models/order.dart';
 
@@ -73,14 +74,20 @@ class _OrderDetailsState extends State<OrderDetails> {
 
             // Summary
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Unikatnih proizvoda: ${items.length}',
-                    style: Theme.of(context).textTheme.bodyMedium),
-                    Text('Ukupno: ${widget.order!.price} KM',
-                    style: Theme.of(context).textTheme.bodyMedium),
-              ],
+            SizedBox(
+              width: double.maxFinite,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text('Unikatnih proizvoda: ${items.length}',
+                      style: Theme.of(context).textTheme.bodyMedium),
+                      Text('Ukupno: ${widget.order!.price} KM',
+                      style: Theme.of(context).textTheme.bodyMedium),
+                ],
+              ),
             ),
             const SizedBox(height: 8),
            

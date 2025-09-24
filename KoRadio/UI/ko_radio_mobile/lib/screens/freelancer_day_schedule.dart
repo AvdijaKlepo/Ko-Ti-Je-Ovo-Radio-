@@ -136,7 +136,7 @@ Widget build(BuildContext context) {
                 
                      
                      
-                       Text('Radnik nema termina za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),),
+                       Text('Raspored slobodan za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
                         

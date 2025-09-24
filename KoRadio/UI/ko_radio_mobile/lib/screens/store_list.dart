@@ -176,6 +176,7 @@ Widget build(BuildContext context) {
    Padding(
      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
      child: DropdownButtonFormField<int>(
+      isExpanded: true,
         decoration: InputDecoration(
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -251,13 +252,21 @@ Widget build(BuildContext context) {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(12.0),
-                                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-                                         Text(
-                                        store.storeName ?? '',
-                                        style:const TextStyle(color: Colors.black),
-                                      ),
-                                      Text(store.location?.locationName ?? "",style:const  TextStyle(color: Colors.black),),
-                                      ],)
+                                      child: SizedBox(
+                                        width: double.maxFinite,
+                                        child: Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          alignment: WrapAlignment.spaceBetween,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                           Text(
+                                          store.storeName ?? '',
+                                          style:const TextStyle(color: Colors.black),
+                                        ),
+                                        Text(store.location?.locationName ?? "",style:const  TextStyle(color: Colors.black),),
+                                        ],),
+                                      )
                                       
                                      
                                     ),

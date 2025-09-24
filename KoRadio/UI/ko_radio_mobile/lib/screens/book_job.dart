@@ -222,6 +222,7 @@ class _BookJobState extends State<BookJob> {
                   ),
                   validator: FormBuilderValidators.required(
                       errorText: 'Obavezno polje'),
+                      locale: Locale('bs'),
                   name: "jobDate",
                   inputType: InputType.date,
                   firstDate: DateTime.now(),
@@ -266,6 +267,7 @@ class _BookJobState extends State<BookJob> {
                     labelText: 'Opis problema',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.description_outlined),
+                    hintText: 'Maximalno 230 znakova'
                   ),
                   maxLines: 3,
                   validator: FormBuilderValidators.compose([

@@ -138,188 +138,211 @@ _initialValue = {
                           
                          
                        
+  const Text(
+                            'Osnovne informacije',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(height: 12),
 
-                            const SizedBox(height: 30,),
-                          
-                             
-                     FormBuilderTextField(
-                          name: "firstName",
-                          decoration: const InputDecoration(
-                            labelText: "Ime",
-                            border: OutlineInputBorder(),
+                          FormBuilderTextField(
+                            name: "firstName",
+                            decoration: InputDecoration(
+                              labelText: "Ime",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Ime je obavezno.'),
+                              FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka.'),
+                              FormBuilderValidators.maxLength(35, errorText: 'Maksimalno 35 znakova.'),
+                              FormBuilderValidators.match(
+                                r'^[A-Z][a-zA-ZĆČĐŠŽćčđšž]+$',
+                                errorText: 'Samo slova, prvo mora biti veliko.',
+                              ),
+                            ]),
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                            FormBuilderValidators.maxLength(35, errorText: 'Maksimalno dozvoljeno je 35 znakova'),
-                            FormBuilderValidators.minLength(2, errorText: 'Minimalno dozvoljeno je 2 znakova'),
-                            FormBuilderValidators.match(r'^[A-Za-zĆČĐŠŽćčđšž]+$', errorText: 'Dozvoljena su samo slova'),
-                            FormBuilderValidators.match(
-    r'^[A-Z][a-zA-Z]*$',
-    errorText: 'Prvo slovo mora biti veliko',
-  ),
-                            
-                        
-                          ])
-                        ),
-                        const SizedBox(height: 12),
-        
-                        FormBuilderTextField(
-                          name: "lastName",
-                          decoration: const InputDecoration(
-                            labelText: "Prezime",
-                            border: OutlineInputBorder(),
+                          const SizedBox(height: 12),
+
+                          FormBuilderTextField(
+                            name: "lastName",
+                            decoration: InputDecoration(
+                              labelText: "Prezime",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Prezime je obavezno.'),
+                              FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka.'),
+                              FormBuilderValidators.maxLength(35, errorText: 'Maksimalno 35 znakova.'),
+                              FormBuilderValidators.match(
+                                r'^[A-Z][a-zA-ZĆČĐŠŽćčđšž]+$',
+                                errorText: 'Samo slova, prvo mora biti veliko.',
+                              ),
+                            ]),
                           ),
-                         validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                            FormBuilderValidators.maxLength(35, errorText: 'Maksimalno dozvoljeno je 35 znakova'),
-                            FormBuilderValidators.minLength(2, errorText: 'Minimalno dozvoljeno je 2 znakova'),
-                            FormBuilderValidators.match(r'^[a-zA-Z]+$', errorText: 'Dozvoljena su samo slova'),
-                            FormBuilderValidators.match(
-    r'^[A-Z][a-zA-Z]*$',
-    errorText: 'Prvo slovo mora biti veliko',
-  ),
-                            
-                        
-                          ])
-                        ),
-                        const SizedBox(height: 12),
-        
-                        FormBuilderTextField(
-                          name: "email",
-                          decoration: const InputDecoration(
-                            labelText: "Email",
-                            border: OutlineInputBorder(),
+
+                          const SizedBox(height: 20),
+
+                          // --- CONTACT INFO ---
+                          const Text(
+                            'Kontakt informacije',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                            FormBuilderValidators.email(errorText: 'Neispravan email'),
-                          ]),
-                        ),
-                        const SizedBox(height: 12),
-        
-                        FormBuilderTextField(
-                          name: "phoneNumber",
-                          decoration: const InputDecoration(
-                            labelText: "Broj Telefona",
-                            border: OutlineInputBorder(),
+                          const SizedBox(height: 12),
+
+                          FormBuilderTextField(
+                            name: "email",
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Email je obavezan.'),
+                              FormBuilderValidators.email(errorText: 'Neispravan email.'),
+                            ]),
                           ),
-                          validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: "Obavezno polje."),
-                FormBuilderValidators.match(r'^\+\d{11}$',
-                    errorText:
-                        "Telefon mora imati 11 cifara \ni počinjati znakom +."),
-              ]),
-                        ),
-                        const SizedBox(height: 12),
-        
-                       FormBuilderDropdown<int>(
-                                name: 'locationId',
+                          const SizedBox(height: 12),
+
+                          FormBuilderTextField(
+                            name: "phoneNumber",
+                            decoration: InputDecoration(
+                              labelText: "Telefon",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: "Telefon je obavezan."),
+                              FormBuilderValidators.match(
+                                r'^\+\d{11}$',
+                                errorText: "Telefon mora imati +387 i ukupno 11 cifara.",
+                              ),
+                            ]),
+                          ),
+                          const SizedBox(height: 12),
+
+                          FormBuilderTextField(
+                            name: "address",
+                            decoration: InputDecoration(
+                              labelText: "Adresa",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Adresa je obavezna.'),
+                              FormBuilderValidators.maxLength(40, errorText: 'Maksimalno 40 znakova.'),
+                            ]),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // --- LOCATION ---
+                          FormBuilderDropdown<int>(
+                            name: 'locationId',
+                            decoration: InputDecoration(
+                              labelText: "Lokacija*",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: FormBuilderValidators.required(errorText: 'Lokacija je obavezna.'),
+                            items: locationResult?.result
+                                    .map((loc) => DropdownMenuItem(
+                                          value: loc.locationId,
+                                          child: Text(loc.locationName ?? ''),
+                                        ))
+                                    .toList() ??
+                                [],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // --- IMAGE UPLOAD ---
+                          FormBuilderField(
+                            name: "image",
+                            builder: (field) {
+                              return InputDecorator(
                                 decoration: const InputDecoration(
-                                  labelText: "Lokacija",
+                                  labelText: "Profilna slika",
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                                items: locationResult?.result
-                                        .map((loc) => DropdownMenuItem(
-
-                                              value: loc.locationId,
-                                              child: Text(loc.locationName ?? ''),
-                                            ))
-                                        .toList() ??
-                                    [],
-                              ),
-                        const SizedBox(height: 12),
-        
-                        FormBuilderTextField(
-                          name: "address",
-                          decoration: const InputDecoration(
-                            labelText: "Adresa Stanovanja",
-                            border: OutlineInputBorder(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: const Icon(Icons.image),
+                                      title: _image != null
+                                          ? Text(_image!.path.split('/').last)
+                                          : widget.user?.image != null
+                                              ? const Text('Proslijeđena slika')
+                                              : const Text("Nema slike"),
+                                      trailing: ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                                        ),
+                                        icon: const Icon(Icons.file_upload, color: Colors.white),
+                                        label: _image == null && widget.user?.image == null
+                                            ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                                            : const Text("Promijeni", style: TextStyle(color: Colors.white)),
+                                        onPressed: () => _pickImage(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (_image != null)
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(_image!, fit: BoxFit.cover),
+                                      )
+                                    else if (_decodedImage != null)
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.memory(_decodedImage!, fit: BoxFit.cover),
+                                      )
+                                    else
+                                      const SizedBox.shrink(),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                            FormBuilderValidators.match(
-      r'^(?:[A-Za-zĆČĐŠŽćčđšž0-9\s,.\-]{5,100}|[bB]\.?[bB]\.?)$',
-      errorText: 'Adresa mora sadržavati slova/brojeve i , . - (dozvoljeno i "bb"/"b.b.").',
-    ),
-FormBuilderValidators.maxLength(40, errorText: 'Maksimalno dozvoljeno je 40 znakova'),
-                          ]),
-                        ),
-                        const SizedBox(height: 10),
-                     
-                   FormBuilderField(
-  name: "image",
-  builder: (field) {
-    return InputDecorator(
-      decoration: const InputDecoration(
-        labelText: "Profilna slika",
-        border: OutlineInputBorder(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: _image != null
-                ? Text(_image!.path.split('/').last)
-                : widget.user?.image != null
-                    ? const Text('Proslijeđena slika')
-                    : const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-              ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null && widget.user?.image == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickImage(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (_image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (_decodedImage != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  },
-),
-SizedBox(height: 20,),
-                        Text('U slučaju da ne mjenjate lozinku ne morate je popuniti.',style: TextStyle(color: Colors.red),),
-                        FormBuilderTextField(
-          name: "password",
-          obscureText: true,
-          decoration: InputDecoration(labelText: "Nova Lozinka",border: OutlineInputBorder()),
-          validator: FormBuilderValidators.match(
-            _formKey.currentState?.fields['confirmPassword']?.value ?? '',
-            errorText: 'Lozinke se ne poklapaju',
-          ),
-        ),
-                        const SizedBox(height: 12),
-        
-        FormBuilderTextField(
-          name: "confirmPassword",
-          obscureText: true,
-          decoration: InputDecoration(labelText: "Potvrdi Lozinku",border: OutlineInputBorder()),
-        ),
-        
+
+                          const SizedBox(height: 20),
+
+                          // --- PASSWORD ---
+                          const Text(
+                            'Ako ne mijenjate lozinku, ostavite polja prazna.',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 8),
+
+                          FormBuilderTextField(
+                            name: "password",
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: "Nova Lozinka",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          FormBuilderTextField(
+                            name: "confirmPassword",
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: "Potvrdi Lozinku",
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
         
                         const SizedBox(height: 20),
         

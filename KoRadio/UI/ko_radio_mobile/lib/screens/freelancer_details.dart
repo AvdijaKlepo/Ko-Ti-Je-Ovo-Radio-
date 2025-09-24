@@ -124,139 +124,167 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
         body: Center(child: Text("Nema rezultata")),
       );
     }
-
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}',
-          style: TextStyle(
-            color: const Color.fromRGBO(27, 76, 125, 1),
-            fontFamily: GoogleFonts.lobster().fontFamily,
-          ),
+return Scaffold(
+  appBar: AppBar(
+    centerTitle: true,
+    title: Text(
+      'Kalendar ${isFreelancer ? 'radnika' : 'kompanije'}',
+      style: GoogleFonts.lobster(
+        textStyle: const TextStyle(
+          color: Color.fromRGBO(27, 76, 125, 1),
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: Builder(
-                    builder: (context) {
-                      final imageString = isFreelancer
-                          ? freelancer?.freelancerNavigation?.image
-                          : company?.image;
-        
-                      if (imageString != null) {
-                        return imageFromString(imageString, height: 100, width: 100);
-                      } else if (isFreelancer) {
-                        return SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: SvgPicture.asset(
-                            "assets/images/undraw_construction-workers_z99i.svg",
-                           
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      } else {
-                        return SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: SvgPicture.asset(
-                            "assets/images/undraw_under-construction_c2y1.svg",
-                          
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        
-                        
-                        children: [
-                         
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.person, size: 18, color: Colors.grey),
-                                const SizedBox(width: 4,),
-                                Flexible(
-                                  child: Text(isFreelancer
-                                      ? 'Ime: ${freelancer?.freelancerNavigation?.firstName ?? ''} ${freelancer?.freelancerNavigation?.lastName ?? ''}'
-                                      : company?.companyName ?? 'Nepoznata kompanija',style: const TextStyle(fontWeight: FontWeight.bold,),
-                                      overflow: TextOverflow.ellipsis,maxLines: 1,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          if (isFreelancer)
-                            Row(
-                              children: [
-                                const Icon(Icons.construction, size: 18, color: Colors.grey),
-                              const SizedBox(width: 4,),
-                              
-                                Flexible(child: Text('Iskustvo: ${freelancer?.experianceYears} godine', style: const TextStyle(fontWeight: FontWeight.bold),)),
-                              ],
-                            ),
-                          Row(
-                            children: [
-                              const Icon(Icons.star_outline, size: 18, color: Colors.grey),
-                              const SizedBox(width: 4,),
-                              
-                              Flexible(child: Text('Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}',style: const TextStyle(fontWeight: FontWeight.bold),)),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_outlined, size: 18, color: Colors.grey),
-                              const SizedBox(width: 4,),
-                              
-                              Flexible(child: Text('Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}',style: const TextStyle(fontWeight: FontWeight.bold),)),
-                            ],
-                          ),
-                          
-                        ],
+    ),
+  ),
+  body: SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Builder(
+                builder: (context) {
+                  final imageString = isFreelancer
+                      ? freelancer?.freelancerNavigation?.image
+                      : company?.image;
+
+                  final avatarSize = MediaQuery.of(context).size.width * 0.22;
+
+                  if (imageString != null) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: imageFromString(imageString,
+                          height: avatarSize, width: avatarSize),
+                    );
+                  } else if (isFreelancer) {
+                    return SizedBox(
+                      width: avatarSize,
+                      height: avatarSize,
+                      child: SvgPicture.asset(
+                        "assets/images/undraw_construction-workers_z99i.svg",
+                        fit: BoxFit.cover,
                       ),
+                    );
+                  } else {
+                    return SizedBox(
+                      width: avatarSize,
+                      height: avatarSize,
+                      child: SvgPicture.asset(
+                        "assets/images/undraw_under-construction_c2y1.svg",
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.person,
+                                size: 18, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                isFreelancer
+                                    ? 'Ime: ${freelancer?.freelancerNavigation?.firstName ?? ''} ${freelancer?.freelancerNavigation?.lastName ?? ''}'
+                                    : company?.companyName ??
+                                        'Nepoznata kompanija',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (isFreelancer) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.construction,
+                                  size: 18, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Iskustvo: ${freelancer?.experianceYears} godine',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.star_outline,
+                                size: 18, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Ocjena: ${(isFreelancer ? freelancer?.rating : company?.rating) != 0 ? (isFreelancer ? freelancer?.rating.toStringAsFixed(1) : company?.rating.toStringAsFixed(1)).toString() : 'Neocijenjen'}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined,
+                                size: 18, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Lokacija: ${isFreelancer ? freelancer?.freelancerNavigation?.location?.locationName : company?.location?.locationName ?? 'Nepoznato'}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            widget.freelancerId!=null ?
-             Text(
-              'Radni dani: ${localizeWorkingDays(freelancer?.workingDays).join(', ')}',
-              style: const TextStyle(
-                color: Color.fromRGBO(27, 76, 125, 25),
-                fontWeight: FontWeight.bold,
               ),
-            ):
-             Text(
-              'Radni dani: ${localizeWorkingDays(company?.workingDays).join(', ')}',
-              style: const TextStyle(
-                color: Color.fromRGBO(27, 76, 125, 25),
-                fontWeight: FontWeight.bold,
-              ),
-            )
-            ,
-            Text('Radno vrijeme: ${isFreelancer ? freelancer?.startTime.substring(0,5) : company?.startTime.substring(0,5)} - ${isFreelancer ? freelancer?.endTime.substring(0,5) : company?.endTime.substring(0,5)}',
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Radni dani: ${(widget.freelancerId != null ? localizeWorkingDays(freelancer?.workingDays) : localizeWorkingDays(company?.workingDays)).join(', ')}',
             style: const TextStyle(
-                color: Color.fromRGBO(27, 76, 125, 25),
-                fontWeight: FontWeight.bold,
-              ),),
+              color: Color.fromRGBO(27, 76, 125, 1),
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Radno vrijeme: ${isFreelancer ? freelancer?.startTime.substring(0, 5) : company?.startTime.substring(0, 5)} - ${isFreelancer ? freelancer?.endTime.substring(0, 5) : company?.endTime.substring(0, 5)}',
+            style: const TextStyle(
+              color: Color.fromRGBO(27, 76, 125, 1),
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+   
+
+
             Expanded(
               child: TableCalendar(
                 locale: 'bs',
@@ -269,6 +297,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                 calendarFormat: CalendarFormat.month,
                 availableGestures: AvailableGestures.all,
                 enabledDayPredicate: _isWorkingDay,
+
                 onDaySelected: (selectedDay, focusedDay) async {
                   setState(() {
                     _focusedDay = selectedDay;
@@ -297,6 +326,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                     color: Color.fromRGBO(27, 76, 125, 1),
                     shape: BoxShape.circle,
                   ),
+                  
                   todayDecoration: BoxDecoration(
                     border: Border.all(
                       color: const Color.fromRGBO(27, 76, 125, 1),
@@ -304,7 +334,14 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
                     ),
                     shape: BoxShape.circle,
                   ),
-                   defaultTextStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                   defaultTextStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontWeight: FontWeight.bold),
+                   disabledDecoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    backgroundBlendMode: BlendMode.srcATop,
+                    shape: BoxShape.circle,
+                  ),
+
+                  
             
            
                  
@@ -323,6 +360,7 @@ class _FreelancerDetailsState extends State<FreelancerDetails> {
           ],
         ),
       ),
+  ),
     );
   }
   Widget _buildDetailRow(Icon icon, String value) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:ko_radio_mobile/models/service.dart';
 
@@ -196,35 +197,41 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                                               fit: BoxFit.cover,
                                             )
                                           : Image.asset(
-                                              'assets/images/intro-1660762097.jpg',
+                                              'assets/images/service3.jpg',
                                               fit: BoxFit.cover,
                                               
                                             ),
                         
                           ),
                           Padding(padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                                Text(
-                                service.serviceName,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              Row(
-                                children: [
-                                  
+                          child: SizedBox(
+                            width: double.maxFinite,
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              spacing: 8,
+                              runSpacing: 8,
+                             
+                              children: [
                                   Text(
-                                    'Radnika: ${service.freelancerCount}',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Firma: ${service.companyCount}',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  service.serviceName,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                Wrap(
+                                  children: [
+                                    
+                                    Text(
+                                      'Radnika: ${service.freelancerCount}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Firma: ${service.companyCount}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           
                           )

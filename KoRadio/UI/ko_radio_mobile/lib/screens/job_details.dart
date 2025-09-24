@@ -651,8 +651,10 @@ class _JobDetailsState extends State<JobDetails> {
                     children: [
                       if(widget.job.jobStatus==JobStatus.approved || widget.job.jobStatus==JobStatus.unapproved
                       )
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      Wrap(
+                        spacing: 1,
+                        runSpacing: 1,
+                        alignment: WrapAlignment.end,
                         children: [
                       if (widget.job.jobStatus == JobStatus.unapproved ||
                           (widget.job.jobStatus == JobStatus.approved &&

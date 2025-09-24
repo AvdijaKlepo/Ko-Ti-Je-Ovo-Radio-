@@ -269,28 +269,31 @@ Future<void> _loadRecommendedCompanies() async {
             SegmentedButton<Options>(
               showSelectedIcon: false,
               emptySelectionAllowed: false,
+              
               style: ButtonStyle(
+                
                 backgroundColor:MaterialStateProperty.resolveWith<Color>(
-   (Set<MaterialState> states) {
-      if (states.contains(MaterialState.selected)){
-        return const Color.fromRGBO(27, 76, 125, 25);
-      }
-      return Colors.white;
-    },
- ),
+               (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)){
+                    return const Color.fromRGBO(27, 76, 125, 25);
+                  }
+                  return Colors.white;
+                },
+             ),
                 
                 foregroundColor: MaterialStateProperty.resolveWith<Color>(
-   (Set<MaterialState> states) {
-      if (states.contains(MaterialState.selected)){
-        return Colors.white;
-      }
-      return Colors.black;
-    },
- ),
+               (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)){
+                    return Colors.white;
+                  }
+                  return Colors.black;
+                },
+             ),
               ),
               segments: const [
                 ButtonSegment(
-
+            
+            
                     value: Options.radnici,
                     label: Text('Radnici'),
                     icon: Icon(Icons.construction)),
@@ -299,10 +302,10 @@ Future<void> _loadRecommendedCompanies() async {
                     label: Text('Firme'),
                     icon: Icon(Icons.business)),
               ],
-
+            
               selected: {view},
               onSelectionChanged: (Set<Options> newSelection) {
-
+            
                 setState(() => view = newSelection.first);
                 _refreshWithFilter();
               },
@@ -324,7 +327,7 @@ Future<void> _loadRecommendedCompanies() async {
 if (view == Options.radnici) _buildRecommendedFreelancers(),
 if  (view == Options.firme) _buildRecommendedCompanies(),
 const Divider(height: 12,thickness: 2,),
-Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
+const Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
            Expanded(
   child: RefreshIndicator(
     onRefresh: _refreshWithFilter,
@@ -339,9 +342,9 @@ Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextS
             children:   [
             
              
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               
-              Center(child: Text("Nema rezultata.")),
+              const Center(child: Text("Nema rezultata.")),
                   
     
             ],
@@ -372,6 +375,7 @@ Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextS
 
   Widget _buildFilterCard() {
     return DropdownButtonFormField<int>(
+      isExpanded: true,
       decoration: InputDecoration(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -381,7 +385,9 @@ Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style: TextS
         'Odaberi lokaciju',
         style: TextStyle(color: Colors.black),
       ),
+      
       icon: const Icon(Icons.location_on,color: Color.fromRGBO(27, 76, 125, 25),),
+      
       dropdownColor: Colors.white,
       items: locationDropdownItems,
       onChanged: (value) {
@@ -530,7 +536,7 @@ Widget _buildRecommendedFreelancers() {
   }
 
   if (recommendedFreelancers.isEmpty) {
-    return const SizedBox.shrink(); // nothing to show
+    return const SizedBox.shrink(); 
   }
 
   return Column(

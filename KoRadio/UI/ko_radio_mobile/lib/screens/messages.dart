@@ -76,8 +76,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
       )..addListener(() => setState(() {}));
   
 
-     
-      await messagesPagination.refresh();
+     _fetchData();
+      await messagesPagination.refresh(
+        newFilter: {
+          'UserId': AuthProvider.user?.userId ?? 0,
+         'OrderBy': 'desc',
+        }
+      );
       setState(() {
         _isInitialized = true;
         isLoading=false;
@@ -126,6 +131,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
 
    
     return  Scaffold(
@@ -135,7 +141,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
       centerTitle: true,
       ),
       
-      body: !_isInitialized ? const Center(child: CircularProgressIndicator()) : SafeArea(
+      body: !_isInitialized ? const Center(child: CircularProgressIndicator()) :
+      isLoading ? const Center(child: CircularProgressIndicator()) 
+      
+       : SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -143,91 +152,118 @@ class _MessagesScreenState extends State<MessagesScreen> {
            if (messagesPagination.items.isNotEmpty &&
     messagesPagination.items.any((element) => element.isOpened == false))
 
-  Row(
-    children: [
-      Checkbox(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        value: isChecked,
-        onChanged: (bool? value) async {
-          setState(() {
-            isChecked = true;
-          });
-
-          for (var message
-              in messagesPagination.items.where((e) => e.isOpened == false).toList()) {
-
-              
-            var request = {
-              'messageId': message.messageId,
-              'message1': message.message1,
-              'userId': AuthProvider.user?.userId,
-              
-              'isOpened': true,
-            };
-            await messagesProvider.update(message.messageId!, request);
-          }
+  SizedBox(
+    width: double.maxFinite,
+    child: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+     
+     crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Checkbox(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          value: isChecked,
+          onChanged: (bool? value) async {
+            final message = ScaffoldMessenger.of(context);
             setState(() {
-                      isChecked = false;
-                      isLoading=true;
-                    });
-          await messagesPagination.refresh();
-
-          setState(() {
-            isLoading=false;
-          });
-       
-        },
-      ),
-      const Text(
-        'Označi sve vidljive kao pročitano',
-        style: TextStyle(color: Colors.black),
-      ),
-    ],
+              isChecked = true;
+            });
+    
+            for (var message
+                in result.result.where((e) => e.isOpened == false).toList()) {
+    
+                
+              var request = {
+             
+                
+                'isOpened': true,
+              };
+              await messagesProvider.update(message.messageId!, request);
+            }
+              setState(() {
+                        isChecked = false;
+                        isLoading=true;
+                      });
+            await messagesPagination.refresh(newFilter: {
+              'UserId': AuthProvider.user?.userId ?? 0,
+         'OrderBy': 'desc',
+            });
+    
+            setState(() {
+              isLoading=false;
+            });
+            message.showSnackBar(
+              const SnackBar(content: Text("Notifikacije označene kao pročitane.")),
+            );
+         
+          },
+        ),
+        const Text(
+          'Označi sve notifikacije kao pročitane',
+          style: TextStyle(color: Colors.black),
+        ),
+      ],
+    ),
   ),
   messagesPagination.items.where((e) => e.isOpened == false).isEmpty
   && messagesPagination.items.isNotEmpty
    ?
-   Row(
-    children: [
-      Checkbox(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        value: isChecked,
-        onChanged: (bool? value) async {
-          setState(() {
-            isChecked = true;
-          });
-
-          for (var message
-              in messagesPagination.items.where((e) => e.isOpened == true)) {
+   SizedBox(
+    width: double.maxFinite,
+     child: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Checkbox(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          value: isChecked,
+          onChanged: (bool? value) async {
+            final message = ScaffoldMessenger.of(context);
+            setState(() {
+              isChecked = true;
+            });
+     
+            for (var message
+                in result.result.where((e) => e.isOpened == true)) {
+              
+              await messagesProvider.delete(message.messageId!);
+            }
             
-            await messagesProvider.delete(message.messageId!);
-          }
-          
-          setState(() {
-            isChecked = false;
-            isLoading=true;
-          });
-
-         
-          await messagesPagination.refresh();
-
-
-          setState(() {
-            isLoading=false;
-          });
-          
-        },
-      ),
-      const Text(
-        'Izbriši sve pročitane notifikacije',
-        style: TextStyle(color: Colors.black),
-      ),
-    ],
-  ) : const SizedBox.shrink(),
+            setState(() {
+              isChecked = false;
+              isLoading=true;
+            });
+     
+           
+            await messagesPagination.refresh(
+              newFilter: {
+                'UserId': AuthProvider.user?.userId ?? 0,
+         'OrderBy': 'desc',
+              }
+            );
+     
+     
+            setState(() {
+              isLoading=false;
+            });
+            message.showSnackBar(
+              const SnackBar(content: Text("Notifikacije izbrisane.")),
+            );
+            
+          },
+        ),
+        const Text(
+          'Izbriši sve pročitane notifikacije',
+          style: TextStyle(color: Colors.black),
+        ),
+      ],
+       ),
+   ) : const SizedBox.shrink(),
 
               Expanded(
                 child:
@@ -314,8 +350,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
             icon: const Icon(Icons.delete_outline),
             color: e.isOpened! ? Colors.white54 : Colors.redAccent,
             onPressed: () async {
-              await messagesProvider.delete(e.messageId!);
-              await messagesPagination.refresh();
+              final message = ScaffoldMessenger.of(context);
+              try {
+  await messagesProvider.delete(e.messageId!);
+  await messagesPagination.refresh();
+  await _fetchData();
+  message.showSnackBar(
+    const SnackBar(content: Text("Notifikacija obrisana.")),
+  );
+} on Exception catch (e) {
+  message.showSnackBar(
+    SnackBar(content: Text('Greška tokom brisanja notifikacije. Pokušajte ponovo.')),
+  );
+}
             },
             tooltip: 'Obriši poruku',
           ):const SizedBox.shrink(),

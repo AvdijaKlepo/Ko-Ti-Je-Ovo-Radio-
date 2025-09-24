@@ -129,12 +129,15 @@ signalR.onNotificationReceived = (message) async {
         automaticallyImplyLeading: false,
         
     
-        title: Card(
-          clipBehavior: Clip.antiAlias,
-          color: Colors.white,
-        
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: SizedBox(
+          width: double.maxFinite,
+          child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.spaceBetween,
+          
+          
             
               
           

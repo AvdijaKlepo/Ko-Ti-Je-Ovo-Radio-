@@ -236,50 +236,79 @@ class _ProductTypeListState extends State<ProductTypeList> {
                         const SizedBox(height: 12),
                         
                        if (serviceDropdownItems.isNotEmpty)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-        Expanded(
-          child: DropdownButtonFormField<int?>(
-            iconDisabledColor: Colors.grey,
-            iconEnabledColor: const Color.fromRGBO(27, 76, 125, 25),
-            value: _selectedServiceId,
-            decoration: InputDecoration(
-              
-           
-              labelText: "Tip proizvoda",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            items: serviceDropdownItems,
-            onChanged: (value) {
-              setState(() => _selectedServiceId = value);
-              _refreshWithFilter();
-            },
-          ),
-        ),
-        SizedBox(width: 10,),
-        ActionChip(
-          
-          label: Text('Van zaliha'),onPressed: (){
-          setState(() {
-            _showOutOfStock=!_showOutOfStock;
-         
-          });
-          _refreshWithFilter();
-        },avatar:  Icon(Icons.shopping_cart_checkout,color:  _showOutOfStock ? Colors.white : Colors.blue,),labelStyle: TextStyle(color: Colors.black),backgroundColor: _showOutOfStock ? Colors.blue : Colors.white,elevation: 0,),
-         SizedBox(width: 10,),
-         ActionChip(
-          
-          label: Text('Akcija'),onPressed: (){
-          setState(() {
-            _showSale=!_showSale;
-         
-          });
-          _refreshWithFilter();
-        },avatar:  Icon(Icons.credit_card,color:  _showSale ? Colors.white : Colors.blue,),labelStyle: TextStyle(color: Colors.black),backgroundColor: _showSale ? Colors.blue : Colors.white,elevation: 0,),
-            ],
-          ),
+          SizedBox(
+                            width: double.maxFinite,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                DropdownButtonFormField<int?>(
+                                  isExpanded: true,
+                                  iconDisabledColor: Colors.grey,
+                                  iconEnabledColor:
+                                      const Color.fromRGBO(27, 76, 125, 25),
+                                  value: _selectedServiceId,
+                                  decoration: InputDecoration(
+                                    labelText: "Tip proizvoda",
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                  ),
+                                  items: serviceDropdownItems,
+                                  onChanged: (value) {
+                                    setState(() => _selectedServiceId = value);
+                                    _refreshWithFilter();
+                                  },
+                                ),
+                               
+                                ActionChip(
+                                  label: const Text('Prikaži nedostupne proizvode'),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showOutOfStock = !_showOutOfStock;
+                                    });
+                                    _refreshWithFilter();
+                                  },
+                                  avatar: Icon(
+                                    Icons.shopping_cart_checkout,
+                                    color: _showOutOfStock
+                                        ? Colors.white
+                                        : Colors.blue,
+                                  ),
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black),
+                                  backgroundColor: _showOutOfStock
+                                      ? Colors.blue
+                                      : Colors.white,
+                                  elevation: 0,
+                                ),
+                              
+                                ActionChip(
+                                  label: const Text('Prikaži proizvode na akciji'),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showSale = !_showSale;
+                                    });
+                                    _refreshWithFilter();
+                                  },
+                                  avatar: Icon(
+                                    Icons.credit_card,
+                                    color:
+                                        _showSale ? Colors.white : Colors.blue,
+                                  ),
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black),
+                                  backgroundColor:
+                                      _showSale ? Colors.blue : Colors.white,
+                                  elevation: 0,
+                                ),
+                              ],
+                            ),
+                          ),
           
         
                       ],
@@ -341,14 +370,14 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                         ),
                                        
                                         if (product.isOnSale == true)
-        Positioned(
+        const Positioned(
           top: 0,
           left: 0,
           child: Banner(
             message: "Akcija",
             location: BannerLocation.topStart,
             color: Colors.redAccent, // background color of banner
-            textStyle: const TextStyle(
+            textStyle: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 12,
@@ -369,7 +398,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                             decoration:   BoxDecoration(
                                               
                                               color: product.isOnSale==false ? Colors.white : Colors.yellow,
-                                              borderRadius: BorderRadius.only(
+                                              borderRadius: const BorderRadius.only(
                                                 bottomLeft: Radius.circular(16),
                                                 bottomRight: Radius.circular(16),
                                               ),
@@ -521,7 +550,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
           if (store!.rating != null)
             Row(
               children: [
-                Icon(Icons.star, color: Colors.amber),
+                const Icon(Icons.star, color: Colors.amber),
                 const SizedBox(width: 4),
                 Text(
                   store!.rating!.toStringAsFixed(1),

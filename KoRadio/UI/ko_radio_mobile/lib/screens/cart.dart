@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
@@ -92,7 +94,8 @@ class _CartState extends State<Cart> {
                               const SizedBox(height: 6),
 
                              
-                              Row(
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
                               
                                 children: [
                                   IconButton(
@@ -149,16 +152,22 @@ class _CartState extends State<Cart> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Ukupno:', style: theme.textTheme.titleMedium),
-                      Text('${cart.total.toStringAsFixed(2)} KM',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ],
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text('Ukupno:', style: theme.textTheme.titleMedium),
+                        Text('${cart.total.toStringAsFixed(2)} KM',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
