@@ -20,6 +20,7 @@ import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class EditJob extends StatefulWidget {
   const EditJob({required this.job, super.key});
@@ -149,8 +150,10 @@ Future<void> _pickImage() async {
   @override
   void initState() {
     super.initState();
+          initializeDateFormatting('bs', null);
     _currentJobDate = widget.job.jobDate;
     _initialValue = _buildInitialValues(widget.job);
+
 
     _workingDayInts = widget.job.freelancer?.workingDays
             ?.map((day) => _dayStringToInt[day] ?? -1)
@@ -305,31 +308,35 @@ if (jobStartTime != null && jobEndTime != null) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 isLoading ? const Center(child: LinearProgressIndicator()) :
-               
-                _currentBookedJobs!=null && _currentBookedJobs!.isNotEmpty ? 
-                 Text(
-                    'Rezervacije radnika za ${DateFormat('dd-MM-yyyy').format(_currentJobDate ?? DateTime.now())}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 12),
-                  ) : const SizedBox.shrink(),
-                  
+                   if (_currentBookedJobs != null && _currentBookedJobs!.isNotEmpty) ...[
+        Text(
+          'Rezervacije za ${DateFormat.yMMMMd('bs').format(_currentJobDate!)}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 6,
+          runSpacing: -8,
+          children: _currentBookedJobs!.map(
+            (job) => InputChip(
+              label: Text(
+                '${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
+              ),
+              disabledColor: Colors.grey.shade200,
+              onPressed: null, 
+            ),
+          ).toList(),
+        ),
+        const Divider(height: 20),
+      ] else
+        const SizedBox.shrink(),
               
-                  const SizedBox(height: 6),
-                 
-                  ...?_currentBookedJobs?.map(
-                    (job) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(
-                        '  ${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                  
-                  
-              
-                const SizedBox(height: 20),
+                 Text('Posao i servis',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                
                 FormBuilderTextField(
               
@@ -355,6 +362,58 @@ if (jobStartTime != null && jobEndTime != null) {
                 ),
                 ),
                 const SizedBox(height: 15),
+
+                  FormBuilderTextField(
+                  name: "jobDescription",
+                  enabled: AuthProvider.user?.freelancer?.freelancerId != null
+                      ? false
+                      : true,
+                  decoration: const InputDecoration(
+                    labelText: 'Opis problema',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                  maxLines: 3,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                    (value) {
+                      if (value == null || value.isEmpty) return null;
+                      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+
+                      if (!regex.hasMatch(value)) {
+                        return 'Dozvoljena su samo slova i brojevi';
+                      }
+                      return null;
+                    },
+                  ]),
+                ),
+                const SizedBox(height: 15),
+                FormBuilderCheckboxGroup<int>(
+               
+                  name: "serviceId",
+                  decoration: const InputDecoration(
+                    labelText: "Servis",
+                    border: InputBorder.none,
+                  ),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Obavezno polje'),
+                  options: widget.job.freelancer?.freelancerServices
+                          .map(
+                            (item) => FormBuilderFieldOption<int>(
+                              value: item.service!.serviceId,
+                              child: Text(item.service?.serviceName ?? ""),
+                            ),
+                          )
+                          .toList() ??
+                      [],
+                ),
+              const SizedBox(height: 15),
+                    
+                    
+                                 Text('Rezervacija',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15),
+
                 FormBuilderDateTimePicker(
                   enabled: !isLoading,
                   format: DateFormat('dd-MM-yyyy'),
@@ -367,7 +426,7 @@ if (jobStartTime != null && jobEndTime != null) {
                       errorText: 'Obavezno polje'),
                   name: "jobDate",
                   inputType: InputType.date,
-                  firstDate: DateTime.now(),
+                    firstDate: DateTime.now(),
                   selectableDayPredicate: _isWorkingDay,
                 onChanged: (value) async {
                   final message = ScaffoldMessenger.of(context);
@@ -407,7 +466,7 @@ if (jobStartTime != null && jobEndTime != null) {
 
   await _getJobs();           
 
-  //_formKey.currentState?.patchValue({'dateFinished': _currentJobDate?.add(Duration(days: jobDifference))});
+
     
                 
 
@@ -517,50 +576,9 @@ if (jobStartTime != null && jobEndTime != null) {
                   const SizedBox(
                     height: 15,
                   ),
-                FormBuilderTextField(
-                  name: "jobDescription",
-                  enabled: AuthProvider.user?.freelancer?.freelancerId != null
-                      ? false
-                      : true,
-                  decoration: const InputDecoration(
-                    labelText: 'Opis problema',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                  maxLines: 3,
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                    (value) {
-                      if (value == null || value.isEmpty) return null;
-                      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
-
-                      if (!regex.hasMatch(value)) {
-                        return 'Dozvoljena su samo slova i brojevi';
-                      }
-                      return null;
-                    },
-                  ]),
-                ),
-                const SizedBox(height: 15),
-                FormBuilderCheckboxGroup<int>(
-               
-                  name: "serviceId",
-                  decoration: const InputDecoration(
-                    labelText: "Servis",
-                    border: InputBorder.none,
-                  ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Obavezno polje'),
-                  options: widget.job.freelancer?.freelancerServices
-                          .map(
-                            (item) => FormBuilderFieldOption<int>(
-                              value: item.service!.serviceId,
-                              child: Text(item.service?.serviceName ?? ""),
-                            ),
-                          )
-                          .toList() ??
-                      [],
-                ),
+                  if (widget.job.jobStatus == JobStatus.approved)
+                Text('Procijena',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
                 const SizedBox(height: 15),
                 if (widget.job.jobStatus != JobStatus.unapproved)
                   FormBuilderTextField(
@@ -581,9 +599,13 @@ if (jobStartTime != null && jobEndTime != null) {
                     ]),
                     valueTransformer: (value) => double.tryParse(value ?? ''),
                   ),
-                const SizedBox(
-                  height: 15,
-                ),
+              if (widget.job.jobStatus != JobStatus.unapproved)
+                   const SizedBox(height: 15),
+                    
+                    
+                                 Text('Slika',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15),
                FormBuilderField(
   name: "image",
   builder: (field) {

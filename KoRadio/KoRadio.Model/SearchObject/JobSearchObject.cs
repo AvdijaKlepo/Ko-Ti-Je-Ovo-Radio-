@@ -24,6 +24,7 @@ namespace KoRadio.Model.SearchObject
         public int? JobService { get; set; }
         public string? ClientName { get; set; }
         public string? EmployeeName { get; set; }
+        public int? Location { get; set; }
 
 
     }

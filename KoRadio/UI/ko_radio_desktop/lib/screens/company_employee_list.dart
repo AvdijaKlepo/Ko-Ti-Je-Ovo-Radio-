@@ -6,6 +6,7 @@ import 'package:ko_radio_desktop/models/company.dart';
 import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/company_role.dart';
+import 'package:ko_radio_desktop/models/job_status.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
@@ -128,6 +129,7 @@ void initState() {
     final filter = {
       'IsFinished':false,
       'IsCancelled':false,
+      'JobStatus':JobStatus.approved.name,
     };
 
     final fetchedJobAssignments = await companyJobAssignmentProvider.get(filter: filter);

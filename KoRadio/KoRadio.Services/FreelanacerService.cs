@@ -303,6 +303,18 @@ namespace KoRadio.Services
 				.Include(u => u.Freelancer)
 				.FirstOrDefaultAsync(u => u.UserId == entity.FreelancerId, cancellationToken);
 
+
+			var jobs =  _context.Jobs.Where(x => x.FreelancerId == entity.FreelancerId
+			&& x.JobStatus=="approved").Any();
+
+			if(request.WorkingDays!=null)
+			{
+				if(jobs)
+				{
+					throw new UserException("Ne možete urađivati radne dane dok imate aktivne poslove!");
+				}
+			}
+
 			
 
 

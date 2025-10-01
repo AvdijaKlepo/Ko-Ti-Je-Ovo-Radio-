@@ -17,5 +17,6 @@ namespace KoRadio.Model.SearchObject
 
 		public DateTime? JobDate { get; set; }
 		public DateTime? DateFinished { get; set; }
+		public string? JobStatus { get; set; }
 	}
 }

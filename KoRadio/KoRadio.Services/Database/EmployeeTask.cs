@@ -22,6 +22,7 @@ public partial class EmployeeTask
     public virtual Company Company { get; set; } = null!;
 
     public virtual CompanyEmployee? CompanyEmployee { get; set; }
+   
 
     public virtual Job Job { get; set; } = null!;
 }

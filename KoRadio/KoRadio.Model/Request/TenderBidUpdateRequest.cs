@@ -14,13 +14,13 @@ namespace KoRadio.Model.Request
 
 		public int? CompanyId { get; set; }
 
-		public decimal BidAmount { get; set; }
+		public decimal? BidAmount { get; set; }
 
 		public string? BidDescription { get; set; }
 
-		public DateTime DateFinished { get; set; }
+		public DateTime? DateFinished { get; set; }
 
-		public DateTime CreatedAt { get; set; }
+		public DateTime? CreatedAt { get; set; }
 
 	
 	}

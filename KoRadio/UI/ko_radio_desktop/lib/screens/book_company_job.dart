@@ -1551,7 +1551,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                              
                               if (_jobResult?.result.first.jobStatus==JobStatus.approved)
                                 SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.75,
+                                  height: MediaQuery.of(context).size.height * 1,
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: AddEmployeeTask(job: widget.job),

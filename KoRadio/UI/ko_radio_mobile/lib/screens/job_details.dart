@@ -295,7 +295,7 @@ class _JobDetailsState extends State<JobDetails> {
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        if((jobResult?.result.first.isEdited==true && AuthProvider.selectedRole=="Freelancer")
+        if((jobResult?.result.first.isWorkerEdited==true)
         )
         ElevatedButton(
           onPressed: () async {
@@ -322,6 +322,7 @@ class _JobDetailsState extends State<JobDetails> {
                   ?.map((e) => e.service?.serviceId)
                   .toList(),
               "isEdited": false,
+              "isWorkerEdited": false,
 
             };
 
@@ -404,6 +405,7 @@ class _JobDetailsState extends State<JobDetails> {
                                     ),
                                   ))
                               : _buildDetailRow('Slika','Nije unesena'),
+                              if(jobResult.result.first.jobStatus==JobStatus.approved)
                               _buildDetailRow('Pin', jobResult.result.first.pin==null ? 'Nije unesen' : '${jobResult.result.first.pin}'),
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
@@ -437,147 +439,7 @@ class _JobDetailsState extends State<JobDetails> {
                   ,
                   const SizedBox(height: 15,),
             
-            if(jobResult.result.first.isWorkerEdited==true)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(onPressed: () async {
-                        switch(jobResult.result.first.freelancer?.freelancerId!=null){
-                          case true:
-                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditJob(job: jobResult.result.first)));
-                          case false:
-                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => EditCompanyJob(job: jobResult.result.first)));
-                        }
-
-                  
-                        setState(() {
-                          _isLoading=true;
-                        });
-                        await _getJob();
-                        if(!mounted) return;
-                        setState(() {
-                          _isLoading=false;
-                        });
-                      }, style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ), child:const Text(
-                                      'Uredi dalje',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(27, 76, 125, 25)),
-                                    ), ),
-                                    const SizedBox(width: 15,),
-                                     ElevatedButton(onPressed: () async{
-                                     
-
-
-                switch(widget.job.freelancer?.freelancerId!=null){
-                  case true:
-                  try{  var jobInsertRequestApproved = {
-                    "userId": widget.job.user?.userId,
-                    "freelancerId": widget.job.freelancer?.freelancerId,
-                    "companyId": widget.job.company?.companyId,
-                    "jobTitle": widget.job.jobTitle,
-                    "isTenderFinalized": false,
-                    "isFreelancer": true,
-                    "isInvoiced": false,
-                    "isRated": false,
-                    "startEstimate": widget.job.startEstimate,
-                    "endEstimate": widget.job.endEstimate,
-                    "payEstimate":widget.job.payEstimate,
-                    "payInvoice": null,
-                    "jobDate": widget.job.jobDate.toIso8601String(),
-                    "dateFinished": widget.job.dateFinished?.toIso8601String(),
-                    "jobDescription": widget.job.jobDescription,
-                    "image": widget.job.image,
-                    "jobStatus": JobStatus.approved.name,
-                    "serviceId": widget.job.jobsServices
-                            ?.map((e) => e.service?.serviceId)
-                            .toList(),
-                    'isEdited':false,
-                    'rescheduleNote': null,
-                    'isWorkerEdited':false
-                   
-                  };
-                    
-                    await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
-                  await messagesProvider.insert({
-                      'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
-                      'userId': widget.job.freelancer?.freelancerId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
-                  
-                  } on Exception catch (e) {
-                    if(!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-                  }
-                  case false:
-                  try{
-                    var jobInsertCompanyRequestApproved = {
-                  "userId": widget.job.user?.userId,
-                  "freelancerId": null,
-                  "companyId": widget.job.company?.companyId,
-                  "jobTitle": widget.job.jobTitle,
-                  "isTenderFinalized": false,
-                  "isFreelancer": false,
-                  "isInvoiced": false,
-                  "isRated": false,
-                  "startEstimate": null,
-                  "endEstimate":null,
-                  "payEstimate":widget.job.payEstimate,
-                  "payInvoice": null,
-                  "jobDate": widget.job.jobDate.toIso8601String(),
-                  "dateFinished": widget.job.dateFinished?.toIso8601String(),
-                  "jobDescription": widget.job.jobDescription,
-                  "image": widget.job.image,
-                  "jobStatus": JobStatus.approved.name,
-                  "serviceId": widget.job.jobsServices
-                          ?.map((e) => e.service?.serviceId)
-                          .toList(),
-                    'isEdited':false,
-                    'rescheduleNote': null,
-                    'isWorkerEdited':false
-                 
-                };
-                  await jobProvider.update(widget.job.jobId,jobInsertCompanyRequestApproved);
-                  await messagesProvider.insert({
-                      'message1': "Promjene koje ste zakazali za posao ${widget.job.jobTitle} su prihvaćene od strane korisnika ${widget.job.user?.firstName} ${widget.job.user?.lastName}",
-                      'companyId': widget.job.company?.companyId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
-
-                  } on Exception catch (e) {
-                    if(!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Greška tokom slanja: ${e.toString()}')));
-                  }
-                }
-
-
-                                       
-               
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Posao uređen i radnik obaviješten.')));
-                Navigator.pop(context,true);
-
-                                     },style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.amber,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ), child:const Text(
-                                      'Odobri',
-                                      style: TextStyle(
-                                          color:
-                                              Colors.black),
-                                    ), )
-                    ],
-                  ),
+          
 
                   const Divider(height: 32),
                   _sectionTitle('Korisnički podaci'),
@@ -712,11 +574,12 @@ class _JobDetailsState extends State<JobDetails> {
     )
   )
   && 
-  (jobResult?.result.first.isEdited == false && jobResult?.result.first.isWorkerEdited == false)
+  (jobResult?.result.first.isEdited == false && jobResult?.result.first.isWorkerEdited == false
+    && DateTime.now().isBefore(widget.job.jobDate))
 )
                         ElevatedButton(
                           onPressed: () async {
-  // If job belongs to a company
+
   if (widget.job.company?.companyId != null && widget.job.freelancer?.freelancerId == null) {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -727,8 +590,9 @@ class _JobDetailsState extends State<JobDetails> {
     );
     await _getJob();
   } 
-  // If job belongs to a freelancer
-  else if (widget.job.freelancer?.freelancerId != null && widget.job.company?.companyId == null) {
+
+  else if (widget.job.freelancer?.freelancerId != null && widget.job.company?.companyId == null
+  && DateTime.now().isBefore(widget.job.jobDate)) {
     if (AuthProvider.selectedRole == "User") {
       await Navigator.of(context).push(
         MaterialPageRoute(

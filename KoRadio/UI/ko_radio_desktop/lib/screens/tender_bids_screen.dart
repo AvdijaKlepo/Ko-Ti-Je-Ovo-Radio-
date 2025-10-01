@@ -180,8 +180,18 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                 Text('Potrebno: ${tenderBid.bidDescription}' ,  
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
             const SizedBox(height: 6),
-            Text('Trajanje: ${DateFormat('dd‑MM‑yyyy').format(widget.tender.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
+            if(tenderBid.dateFinished!=null)
+            Text('Posao traje od: ${DateFormat('dd‑MM‑yyyy').format(widget.tender.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
                 style: const TextStyle(fontSize: 13, color: Colors.white70),
+            
+
+               
+           
+            ),
+                if(tenderBid.dateFinished==null)
+                Text('Od ${tenderBid.startEstimate?.substring(0,5)} do ${tenderBid.endEstimate?.substring(0,5)}',
+                style: const TextStyle(fontSize: 13, color: Colors.white70),
+            
 
                
            

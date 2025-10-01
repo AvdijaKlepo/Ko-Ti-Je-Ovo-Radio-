@@ -352,16 +352,26 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                                       fillColor: Colors.grey[100],
                                     ),
                                     inputType: InputType.time,
-                                    validator: (value) {
-                                      final form = FormBuilder.of(context);
-                                      final start = form?.fields['startTime']?.value;
-                                      if (value == null) return "Kraj je obavezan.";
-                                      if (start != null) {
-                                        if (value.isBefore(start)) return "Kraj mora biti nakon početka.";
-                                        if (value.difference(start).inHours < 3) return "Smjena mora trajati barem 3 sata.";
-                                      }
-                                      return null;
-                                    },
+                                         validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+  // Convert TimeOfDay -> DateTime for comparison
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena mora trajati najmanje 3 sata.";
+  }
+
+  return null;
+},
                                   ),
                                 ),
                               ],
@@ -442,7 +452,8 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
                               const SizedBox(
                                 height: 20,
                               ),
-                             FormBuilderField(
+                          
+                         FormBuilderField(
   name: "image",
   builder: (field) {
     return InputDecorator(
@@ -453,44 +464,46 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.image),
-            title: _image != null
-                ? Text(_image!.path.split('/').last)
-                : companyResult?.result.first.image != null
-                    ? const Text('Proslijeđena slika')
-                    : const Text("Nema proslijeđene slike"),
-            trailing: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+          Row(
+            children: [
+              const Icon(Icons.image, color: Colors.grey),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _image != null
+                      ? _image!.path.split('/').last
+                      : widget.company.image != null
+                          ? "Proslijeđena slika"
+                          : "Nema slike",
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              label: _image == null && companyResult?.result.first.image == null
-                  ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                  : const Text("Promijeni sliku", style: TextStyle(color: Colors.white)),
-              onPressed: () => _pickImage(),
-            ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  minimumSize: const Size(90, 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                onPressed: _pickImage,
+                child: Text(
+                  _image == null && widget.company?.image == null
+                      ? "Odaberi"
+                      : "Promijeni",
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          if (_image != null)
+          if (_image != null || _decodedImage != null) ...[
+            const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (_decodedImage != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _decodedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            const SizedBox.shrink(),
+              child: _image != null
+                  ? Image.file(_image!, fit: BoxFit.cover, height: 120)
+                  : Image.memory(_decodedImage!,
+                      fit: BoxFit.cover, height: 120),
+            ),
+          ]
         ],
       ),
     );

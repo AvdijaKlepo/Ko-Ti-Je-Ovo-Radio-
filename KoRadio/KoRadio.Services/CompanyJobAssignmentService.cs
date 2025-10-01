@@ -68,6 +68,10 @@ namespace KoRadio.Services
 					(j.Job.DateFinished ?? j.Job.JobDate) >= chosenDate
 				);
 			}
+			if(search.JobStatus!=null)
+			{
+				query = query.Where(x => x.Job.JobStatus == search.JobStatus);
+			}
 
 
 

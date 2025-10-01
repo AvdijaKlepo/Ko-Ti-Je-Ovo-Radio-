@@ -21,8 +21,8 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
   SearchResult<EmployeeTask>? employeeTaskResult;
   bool _isLoading = false;
 
-  // Use a nullable bool so we can pass directly to API
   bool? _isFinished = false;
+    bool _expanded = false;
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
       ),
       body: Column(
         children: [
-          // 🔹 SegmentedButton for filtering tasks
+     
           Padding(
             padding: const EdgeInsets.all(12),
             child: SegmentedButton<bool>(
@@ -122,12 +122,83 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
                             const Divider(height: 35),
                         itemCount: employeeTaskResult!.result.length,
                         itemBuilder: (context, index) {
+                          var task = employeeTaskResult!.result[index];
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: EmployeeTaskTile(
-                              task: employeeTaskResult!.result[index],
-                              employeeTaskProvider: employeeTaskProvider,
-                            ),
+                            child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: Card(
+        color: const Color.fromRGBO(27, 76, 125, 25),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Date
+                Text(
+                  "Datum: ${DateFormat('dd.MM.yyyy').format(task.createdAt!)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // Task text
+                Text(
+                 task.task ?? '',
+                  style: const TextStyle(color: Colors.white),
+                  maxLines: _expanded ? null : 2,
+                  overflow:
+                      _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 6),
+
+                // Worker name
+                Text(
+                  "Radnik: ${AuthProvider.user?.firstName} ${AuthProvider.user?.lastName}",
+                  style: const TextStyle(color: Colors.white70),
+                ),
+               
+               
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.white70,
+                  ),
+                ),
+                if(task.isFinished==false)
+                 Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    child: ElevatedButton(
+                      child: const Text('Završi zadatak'),
+                      onPressed: () async {
+                       _finishTask(task);
+                      },
+                    ),
+                  ),
+                  
+                ),
+
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
                           );
                         },
                       ),
@@ -136,13 +207,50 @@ class _EmployeeTaskListState extends State<EmployeeTaskList> {
       ),
     );
   }
+  void _finishTask(EmployeeTask task) async {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text('Završi zadatak?'),
+        content: const Text('Jeste li sigurni da je zatadak završen?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Ne'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await employeeTaskProvider.update(task.employeeTaskId,
+                {
+                  "isFinished": true,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Zadatak završen')),
+                );
+                await _getEmployeeTask();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Greška. Molim pokušajte ponovo.')),
+                );
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Text('Da'),
+          ),
+        ],
+      );
+    });
+
+  }
 }
 
 
 class EmployeeTaskTile extends StatefulWidget {
   final EmployeeTask task;
   final EmployeeTaskProvider employeeTaskProvider;
-  const EmployeeTaskTile({super.key, required this.task, required this.employeeTaskProvider});
+  final Job job;
+  final bool isFinished;
+  const EmployeeTaskTile({super.key, required this.task, required this.employeeTaskProvider, required this.job, required this.isFinished});
 
   @override
   State<EmployeeTaskTile> createState() => _EmployeeTaskTileState();
@@ -219,13 +327,17 @@ class _EmployeeTaskTileState extends State<EmployeeTaskTile> {
                           {
                             "isFinished": true,
                           });
-                          setState(() {
-                            
-                          });
-                        
+                       
+                          await widget.employeeTaskProvider.get(filter: {'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+      'JobId': widget.job.jobId,
+      'isFinished': widget.isFinished,});
+      setState(() {
+        
+      });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Zadatak završen')),
                           );
+                        
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Greška. Molim pokušajte ponovo.')),

@@ -276,24 +276,27 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                                   filled: true,
                                   fillColor: Colors.grey[100],
                                 ),
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(
-                                      errorText: "Kraj smjene je obavezan."),
-                                  (value) {
-                                    final start = FormBuilder.of(context)
-                                        ?.fields['startTime']
-                                        ?.value;
-                                    if (start != null && value != null) {
-                                      if (value.isBefore(start)) {
-                                        return "Kraj smjene mora biti nakon početka.";
-                                      }
-                                      if (value.difference(start).inHours < 3) {
-                                        return "Smjena mora trajati najmanje 3 sata.";
-                                      }
-                                    }
-                                    return null;
-                                  }
-                                ]),
+                                  validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+  // Convert TimeOfDay -> DateTime for comparison
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena mora trajati najmanje 3 sata.";
+  }
+
+  return null;
+},
+                             
                               ),
                             ),
                           ],
@@ -325,77 +328,64 @@ class _StoreUpdateDialogState extends State<StoreUpdateDialog> {
                         ),
 
                         const SizedBox(height: 24),
-                       FormBuilderField(
-                              name: "image",
-                              builder: (field) {
-                                return InputDecorator(
-                                  decoration: const InputDecoration(
-                                    labelText: "Logo",
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      ListTile(
-                                        contentPadding: EdgeInsets.zero,
-                                        leading: const Icon(Icons.image),
-                                        title: _image != null
-                                            ? Text(_image!.path.split('/').last)
-                                            : widget.store.image !=
-                                                    null
-                                                ? const Text(
-                                                    'Proslijeđena slika')
-                                                : const Text(
-                                                    "Nema proslijeđene slike"),
-                                        trailing: ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color.fromRGBO(
-                                                    27, 76, 125, 1),
-                                          ),
-                                          icon: const Icon(Icons.file_upload,
-                                              color: Colors.white),
-                                          label: _image == null &&
-                                                  widget.store
-                                                          .image ==
-                                                      null
-                                              ? const Text("Odaberi",
-                                                  style: TextStyle(
-                                                      color: Colors.white))
-                                              : const Text("Promijeni sliku",
-                                                  style: TextStyle(
-                                                      color: Colors.white)),
-                                          onPressed: () => _pickImage(),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      if (_image != null)
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: Image.file(
-                                            _image!,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      else if (_decodedImage != null)
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: Image.memory(
-                                            _decodedImage!,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      else
-                                        const SizedBox.shrink(),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                        const SizedBox(height: 100), 
+                     
+                         FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Logo",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.image, color: Colors.grey),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _image != null
+                      ? _image!.path.split('/').last
+                      : widget.store?.image != null
+                          ? "Proslijeđena slika"
+                          : "Nema slike",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  minimumSize: const Size(90, 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                onPressed: _pickImage,
+                child: Text(
+                  _image == null && widget.store?.image == null
+                      ? "Odaberi"
+                      : "Promijeni",
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          if (_image != null || _decodedImage != null) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _image != null
+                  ? Image.file(_image!, fit: BoxFit.cover, height: 120)
+                  : Image.memory(_decodedImage!,
+                      fit: BoxFit.cover, height: 120),
+            ),
+          ]
+        ],
+      ),
+    );
+  },
+),
+                   
                       ],
                     ),
                   ),

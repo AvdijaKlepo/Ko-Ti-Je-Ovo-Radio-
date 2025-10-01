@@ -17,9 +17,11 @@ namespace Subscriber.MailSenderService
 			{
 				if (emailObj == null) return;
 
-				Env.Load();
+			Env.Load(Path.Combine(AppContext.BaseDirectory, @"..\..\..\..\.env"));
 
-				string fromAddress = Environment.GetEnvironmentVariable("_fromAddress") ?? "ko.radio.servis@gmail.com";
+
+
+			string fromAddress = Environment.GetEnvironmentVariable("_fromAddress") ?? "ko.radio.servis@gmail.com";
 				string password = Environment.GetEnvironmentVariable("_password") ?? "";
 				string host = Environment.GetEnvironmentVariable("_host") ?? "smtp.gmail.com";
 				int port = int.Parse(Environment.GetEnvironmentVariable("_port") ?? "465");
@@ -38,13 +40,12 @@ namespace Subscriber.MailSenderService
 			email.To.Add(new MailboxAddress(emailObj.ReceiverName, emailObj.EmailTo));
 			email.Subject = emailObj.Subject;
 
-			// Create builder for attachments + body
+	
 			var builder = new BodyBuilder
 			{
 				HtmlBody = emailObj.Message
 			};
 
-			// Attach PDF if present
 			if (emailObj.PdfBytes != null && emailObj.PdfBytes.Length > 0)
 			{
 				builder.Attachments.Add(emailObj.AttachmentFileName,
@@ -52,7 +53,7 @@ namespace Subscriber.MailSenderService
 										new ContentType("application", "pdf"));
 			}
 
-			// Embed inline preview if present
+	
 			if (emailObj.InlineImageBytes != null && emailObj.InlineImageBytes.Length > 0)
 			{
 				var image = builder.LinkedResources.Add("preview.png", emailObj.PdfBytes);
@@ -62,7 +63,7 @@ namespace Subscriber.MailSenderService
 									$"<img src=\"cid:{image.ContentId}\" style='max-width:500px;' />";
 			}
 
-			//email.Body = builder.ToMessageBody();
+
 
 			email.Body = builder.ToMessageBody();
 

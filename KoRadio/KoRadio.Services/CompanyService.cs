@@ -270,6 +270,17 @@ namespace KoRadio.Services
 				entity.Rating = entity.RatingSum / entity.TotalRatings;
 			}
 
+			var jobs = _context.Jobs.Where(x => x.CompanyId == entity.CompanyId
+			&& x.JobStatus == "approved").Any();
+
+			if (request.WorkingDays != null)
+			{
+				if (jobs)
+				{
+					throw new UserException("Ne možete urađivati radne dane dok imate aktivne poslove!");
+				}
+			}
+
 
 
 

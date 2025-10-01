@@ -223,11 +223,12 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Raspored radnika'),
+               
                 SizedBox(
   width: double.infinity, 
   height: 100,            
   child: DatePicker(
+
     locale: 'bs',
     DateTime.now().subtract(const Duration(days: 2)),
     initialSelectedDate: _now,
@@ -306,186 +307,213 @@ class _FreelancerJobsScreenState extends State<FreelancerJobsScreen> {
           ? const Color.fromRGBO(27, 76, 125, 1)
           : Colors.white;
       final textColor = isDark ? Colors.white : Colors.black87;
-                      return Container(
-                        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-         borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-                        child: Card(
-                              color: Colors.transparent,
-                              surfaceTintColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                tileColor: Colors.transparent,
-
-                                onTap: () async {
-                                  AuthProvider.selectedRole == "Freelancer" ?
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => ApproveJob(
-                                        job: job,
-                                        freelancer: job.freelancer!,
+                      return 
+                          Expanded(
+                            child: Container(
+                              width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    decoration:  BoxDecoration(
+                                    
+                                      gradient: LinearGradient(
+                                        colors: job.isEdited==false && job.isWorkerEdited==false ?
+                                        [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)] :
+                                        [Colors.blue,Colors.amberAccent]
+,
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
                                       ),
+                                     borderRadius: BorderRadius.all(Radius.circular(16)),
                                     ),
-                                  ):
-                                   await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => JobDetails(
-                                        job: job
+                              child: Card(
+                                    color: Colors.transparent,
+                                    surfaceTintColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    margin: const EdgeInsets.symmetric(vertical: 8),
+                                    child: ListTile(
+                                      tileColor: Colors.transparent,
+                            
+                                      onTap: () async {
+                                        AuthProvider.selectedRole == "Freelancer" ?
+                                        await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ApproveJob(
+                                              job: job,
+                                              freelancer: job.freelancer!,
+                                            ),
+                                          ),
+                                        ):
+                                         await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => JobDetails(
+                                              job: job
+                                             
+                                            ),
+                                          ),
+                                        )
+                                        ;
+                                        await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer" ?
+                                      
+                                       {
+                                       'FreelancerId': AuthProvider.user?.freelancer?.freelancerId,
+                                        'DateRange': _now.toIso8601String().split('T')[0],
+                                        'JobStatus': JobStatus.approved.name,
+                                        'isTenderFinalized': false,
+                                        'OrderBy': 'desc',
+                                        'isDeleted': false,
+                                      } : {
+                                        'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
+                                        'DateRange': _now.toIso8601String().split('T')[0],
+                                        'JobStatus': JobStatus.approved.name,
+                                        'isTenderFinalized': false,
+                                        'OrderBy': 'desc',
+                                        'isDeleted': false,
+                                      },);
                                        
+                                      },
+                                      leading: CircleAvatar(
+                                      backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
+                                      child: isCompanyJob
+                                          ? (job.company != null && job.company!.image != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(20),
+                                        child: imageFromString(
+                                            job.company!.image!,
+                                            height: 40,
+                                            width: 40,
+                                            fit: BoxFit.cover,
+                                          ),
+                                      )
+                                      : Icon(
+                                          Icons.business_outlined,
+                                          color: isDark ? Colors.white : Colors.black87,
+                                        ))
+                                          : (job.user != null && job.user!.image != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(20),
+                                        child: imageFromString(
+                                            job.user!.image!,
+                                            height: 40,
+                                            width: 40,
+                                            fit: BoxFit.cover,
+                                          ),
+                                      )
+                                      : (job.freelancer != null &&
+                                              job.freelancer!.freelancerNavigation!.image != null
+                                          ? ClipRRect(
+                                              borderRadius: BorderRadius.circular(20),
+                                            child: imageFromString(
+                                                job.freelancer!.freelancerNavigation!.image!,
+                                                height: 40,
+                                                width: 40,
+                                                fit: BoxFit.cover,
+                                              ),
+                                          )
+                                          : Icon(
+                                              Icons.construction_outlined,
+                                              color: isDark ? Colors.white : Colors.black87,
+                                            ))),
+                                    ),
+                                        title: Text(
+                                          job.jobTitle!,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: textColor,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        subtitle: Padding(
+                                          padding: const EdgeInsets.only(top: 6.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
+                                                style: TextStyle(color: textColor),
+                                              ),
+                                              if (isUserJob && AuthProvider.selectedRole == "Freelancer")
+                                                Text(
+                                                  "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}",
+                                                  style: TextStyle(color: textColor),
+                                                ),
+                                              if (isFreelancerJob && AuthProvider.selectedRole == "User")
+                                                Text(
+                                                  "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                                                  style: TextStyle(color: textColor),
+                                                ),
+                                              if (isCompanyJob)
+                                                Text(
+                                                  "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
+                                                  style: TextStyle(color: textColor),
+                                                ),
+                                              const SizedBox(height: 4),
+                                             
+                                              if(job.jobStatus==JobStatus.finished)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                              color: job.isInvoiced == true ? Colors.green : Colors.red,
+                              borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: Text(
+                              job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                  ),
+                                                ),
+                                                
+                                                Row(
+                                                  children: [
+                                                     if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                                                  color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
+                                                                                  borderRadius: BorderRadius.circular(20),
+                                                      ),
+                                                      child: Text(
+                                                                                  job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
+                                                                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                      ),
+                                                    ),
+                                                     SizedBox(width: 10,),
+                                                    if(job.isEdited==true || job.isWorkerEdited==true)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                              color:  Colors.amber,
+                              borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: const Text(
+                              'Izmenjen',
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                                                  ),
+                                                ),
+                                                  ],
+                                                ),
+                                               
+                                                 if(job.jobStatus==JobStatus.cancelled)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                              color:  Colors.red,
+                              borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: const Text(
+                              'Otkazan',
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                                                  ),
+                                                ),
+                                                
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                  ;
-                                  await jobPagination.refresh(newFilter: AuthProvider.selectedRole == "Freelancer" ?
-                                
-                                 {
-                                 'FreelancerId': AuthProvider.user?.freelancer?.freelancerId,
-                                  'DateRange': _now.toIso8601String().split('T')[0],
-                                  'JobStatus': _selectedOption.name,
-                                  'isTenderFinalized': false,
-                                  'OrderBy': 'desc',
-                                  'isDeleted': false,
-                                } : {
-                                  'CompanyEmployeeId': AuthProvider.selectedCompanyEmployeeId,
-                                  'DateRange': _now.toIso8601String().split('T')[0],
-                                  'JobStatus': _selectedOption.name,
-                                  'isTenderFinalized': false,
-                                  'OrderBy': 'desc',
-                                  'isDeleted': false,
-                                },);
-                                 
-                                },
-                                leading: CircleAvatar(
-                                backgroundColor: isDark ? Colors.white24 : Colors.grey.shade200,
-                                child: isCompanyJob
-                                    ? (job.company != null && job.company!.image != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                  child: imageFromString(
-                                      job.company!.image!,
-                                      height: 40,
-                                      width: 40,
-                                      fit: BoxFit.cover,
-                                    ),
-                                )
-                                : Icon(
-                                    Icons.business_outlined,
-                                    color: isDark ? Colors.white : Colors.black87,
-                                  ))
-                                    : (job.user != null && job.user!.image != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                  child: imageFromString(
-                                      job.user!.image!,
-                                      height: 40,
-                                      width: 40,
-                                      fit: BoxFit.cover,
-                                    ),
-                                )
-                                : (job.freelancer != null &&
-                                        job.freelancer!.freelancerNavigation!.image != null
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                      child: imageFromString(
-                                          job.freelancer!.freelancerNavigation!.image!,
-                                          height: 40,
-                                          width: 40,
-                                          fit: BoxFit.cover,
-                                        ),
-                                    )
-                                    : Icon(
-                                        Icons.construction_outlined,
-                                        color: isDark ? Colors.white : Colors.black87,
-                                      ))),
-                              ),
-                                  title: Text(
-                                    job.jobTitle!,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: textColor,
-                                      fontSize: 16,
-                                    ),
                                   ),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 6.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Datum: ${DateFormat('dd.MM.yyyy').format(job.jobDate)}",
-                                          style: TextStyle(color: textColor),
-                                        ),
-                                        if (isUserJob && AuthProvider.selectedRole == "Freelancer")
-                                          Text(
-                                            "Korisnik: ${job.user?.firstName} ${job.user?.lastName}\nAdresa: ${job.user?.address}",
-                                            style: TextStyle(color: textColor),
-                                          ),
-                                        if (isFreelancerJob && AuthProvider.selectedRole == "User")
-                                          Text(
-                                            "Radnik: ${job.freelancer?.freelancerNavigation?.firstName} ${job.freelancer?.freelancerNavigation?.lastName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
-                                            style: TextStyle(color: textColor),
-                                          ),
-                                        if (isCompanyJob)
-                                          Text(
-                                            "Firma: ${job.company?.companyName}\nServis: ${job.jobsServices?.map((e) => e.service?.serviceName).join(', ')}",
-                                            style: TextStyle(color: textColor),
-                                          ),
-                                        const SizedBox(height: 4),
-                                       
-                                        if(job.jobStatus==JobStatus.finished)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                        color: job.isInvoiced == true ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                        job.isInvoiced == true ? 'Plaćen' : 'Nije plaćen',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                                            ),
-                                          ),
-                                           if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                        color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                        job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                                            ),
-                                          ),
-                                           if(job.jobStatus==JobStatus.cancelled)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                        color:  Colors.red,
-                        borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: const Text(
-                        'Otkazan',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                             ),
-                      );;
+                          );
                     },
                   ),
                 ),

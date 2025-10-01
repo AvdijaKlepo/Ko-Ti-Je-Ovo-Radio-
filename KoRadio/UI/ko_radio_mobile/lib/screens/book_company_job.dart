@@ -99,10 +99,18 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              Text('Posao i servis',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
               
                FormBuilderTextField(
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: "Obavezno polje"),
+                    FormBuilderValidators.maxLength(15,errorText: 'Maksimalno 15 znakova'),
+                    FormBuilderValidators.minLength(4,errorText: 'Minimalno 4 znaka'),
+
+
                    (value) {
       if (value == null || value.isEmpty) return null;
       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
@@ -113,23 +121,80 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
     },
                   ]),
                       name: "jobTitle",
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         labelText: 'Naslov posla',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.description),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        helperText: 'Maksimalno 15 znakova'
                       ),
                    
                     ),  
                     const SizedBox(height: 15,),
+                      FormBuilderTextField(
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: "Obavezno polje"),
+                    FormBuilderValidators.maxLength(230,errorText: 'Maksimalno 230 znakova'),
+                    FormBuilderValidators.minLength(15,errorText: 'Minimalno 15 znaka'),
+                   (value) {
+      if (value == null || value.isEmpty) return null;
+       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                  ]),
+                      name: "jobDescription",
+                      decoration:  InputDecoration(
+                        labelText: 'Opis problema',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.description),
+                         filled: true,
+                        fillColor: Colors.grey[100],
+                        helperText: 'Maksimalno 230 znakova'
+                      ),
+                      maxLines: 3,
+                    ),
+                      const SizedBox(height: 15),
+                    FormBuilderCheckboxGroup<int>(
+                      name: "serviceId",
+                      validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
+                      decoration:  InputDecoration(
+                        labelText: "Servis",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        
+
+                      ),
+                      options: widget.c?.companyServices
+                              ?.map(
+                                (item) => FormBuilderFieldOption<int>(
+                                  value: item.service!.serviceId,
+                                  child: Text(item.service?.serviceName ?? ""),
+                                ),
+                              )
+                              .toList() ??
+                          [],
+                    ),
+                    const SizedBox(height: 15),
                     
                     
-                    const SizedBox(height: 15,),
+                                 Text('Rezervacija',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15),
+
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                      decoration: const InputDecoration(
+                  locale: Locale('bs'),
+                      decoration:  InputDecoration(
                         labelText: 'Datum rezervacije',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.calendar_today),
+                        
                       ),
                       name: "jobDate",
                       inputType: InputType.date,
@@ -149,6 +214,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                     ),
                   const SizedBox(height: 15,),
                   FormBuilderCustomTimePicker(
+                  locale: Locale('bs'),
                   name: 'startEstimate',
                   minTime: startTime,
                   maxTime: endTime,
@@ -159,47 +225,10 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                       errorText: 'Obavezno polje'),
                 ),
                   const SizedBox(height: 15,),
-               FormBuilderTextField(
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: "Obavezno polje"),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s]+$');
+                           Text('Slika',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                  const SizedBox(height: 15,),
 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                  ]),
-                      name: "jobDescription",
-                      decoration: const InputDecoration(
-                        labelText: 'Opis problema',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
-                      maxLines: 3,
-                    ),
-                      const SizedBox(height: 15),
-                    FormBuilderCheckboxGroup<int>(
-                      name: "serviceId",
-                      validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
-                      decoration: const InputDecoration(
-                        labelText: "Servis",
-                        border: InputBorder.none,
-
-                      ),
-                      options: widget.c?.companyServices
-                              ?.map(
-                                (item) => FormBuilderFieldOption<int>(
-                                  value: item.service!.serviceId,
-                                  child: Text(item.service?.serviceName ?? ""),
-                                ),
-                              )
-                              .toList() ??
-                          [],
-                    ),
-                    const SizedBox(height: 15),
                     FormBuilderField(
   name: "image",
   builder: (field) {

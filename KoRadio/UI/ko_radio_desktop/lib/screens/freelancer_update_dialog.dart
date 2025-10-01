@@ -94,7 +94,7 @@ void initState() {
   surfaceTintColor: Colors.white,
   child: SizedBox(
     width: MediaQuery.of(context).size.width * 0.25,
-    height: MediaQuery.of(context).size.height * 1,
+
     child:ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -239,6 +239,7 @@ void initState() {
                                   validator: FormBuilderValidators.required(
                                       errorText: "Početak smjene je obavezan."),
                                 ),
+                                
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -251,17 +252,27 @@ void initState() {
                                     filled: true,
                                     fillColor: Colors.grey[100],
                                   ),
-                                  validator: (value) {
-                                    final start = FormBuilder.of(context)?.fields['startTime']?.value;
-                                    if (value == null) return "Kraj smjene je obavezan.";
-                                    if (start != null) {
-                                      if (value.isBefore(start)) return "Kraj mora biti nakon početka.";
-                                      if (value.difference(start).inHours < 3) {
-                                        return "Smjena mora trajati najmanje 3 sata.";
-                                      }
-                                    }
-                                    return null;
-                                  },
+                                 validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+  // Convert TimeOfDay -> DateTime for comparison
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena mora trajati najmanje 3 sata.";
+  }
+
+  return null;
+},
+
                                 ),
                               ),
                             ],

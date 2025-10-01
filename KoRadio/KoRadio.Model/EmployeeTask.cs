@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoRadio.Model.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace KoRadio.Model
 
 		public virtual Company Company { get; set; } = null!;
 
-		public virtual CompanyEmployee? CompanyEmployee { get; set; }
+		public virtual CompanyEmployeeDto? CompanyEmployee { get; set; }
 
 		public virtual Job Job { get; set; } = null!;
 

@@ -265,47 +265,34 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                   },
                                 ),
                                
-                                ActionChip(
-                                  label: const Text('Prikaži nedostupne proizvode'),
-                                  onPressed: () {
-                                    setState(() {
-                                      _showOutOfStock = !_showOutOfStock;
-                                    });
-                                    _refreshWithFilter();
-                                  },
-                                  avatar: Icon(
-                                    Icons.shopping_cart_checkout,
-                                    color: _showOutOfStock
-                                        ? Colors.white
-                                        : Colors.blue,
-                                  ),
-                                  labelStyle:
-                                      const TextStyle(color: Colors.black),
-                                  backgroundColor: _showOutOfStock
-                                      ? Colors.blue
-                                      : Colors.white,
-                                  elevation: 0,
-                                ),
-                              
-                                ActionChip(
-                                  label: const Text('Prikaži proizvode na akciji'),
-                                  onPressed: () {
-                                    setState(() {
-                                      _showSale = !_showSale;
-                                    });
-                                    _refreshWithFilter();
-                                  },
-                                  avatar: Icon(
-                                    Icons.credit_card,
-                                    color:
-                                        _showSale ? Colors.white : Colors.blue,
-                                  ),
-                                  labelStyle:
-                                      const TextStyle(color: Colors.black),
-                                  backgroundColor:
-                                      _showSale ? Colors.blue : Colors.white,
-                                  elevation: 0,
-                                ),
+                              Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+  spacing: 8,
+  children: [
+    FilterChip(
+      label: const Text("Van lagera"),
+      selected: _showOutOfStock,
+      onSelected: (val) {
+        setState(() => _showOutOfStock = val);
+        _refreshWithFilter();
+      },
+      selectedColor: Colors.blue.shade100,
+      checkmarkColor: Colors.blue,
+    ),
+    FilterChip(
+      label: const Text("Na akciji"),
+      selected: _showSale,
+      onSelected: (val) {
+        setState(() => _showSale = val);
+        _refreshWithFilter();
+      },
+      selectedColor: Colors.blue.shade100,
+      checkmarkColor: Colors.blue,
+    ),
+  ],
+)
+
                               ],
                             ),
                           ),

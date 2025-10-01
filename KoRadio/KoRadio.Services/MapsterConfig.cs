@@ -76,6 +76,7 @@ public class MapsterConfig
 		TypeAdapterConfig<KoRadio.Services.Database.CompanyEmployee, KoRadio.Model.DTOs.CompanyEmployeeDto>
 			.NewConfig()
 			.Map(dest => dest.CompanyName, src => src.Company.CompanyName);
+	
 
 		TypeAdapterConfig<KoRadio.Services.Database.Service, KoRadio.Model.Service>.NewConfig()
 	.Map(dest => dest.FreelancerCount, src => src.FreelancerCount)

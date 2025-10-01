@@ -292,31 +292,35 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 isLoading ? const Center(child: LinearProgressIndicator()) :
-               
-                _currentBookedJobs!=null && _currentBookedJobs!.isNotEmpty ? 
-                 Text(
-                    'Rezervacije za ${DateFormat('dd-MM-yyyy').format(_currentJobDate ?? DateTime.now())}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 12),
-                  ) : const SizedBox.shrink(),
-                  
+                if (_currentBookedJobs != null && _currentBookedJobs!.isNotEmpty) ...[
+        Text(
+          'Rezervacije za ${DateFormat.yMMMMd('bs').format(_currentJobDate!)}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 6,
+          runSpacing: -8,
+          children: _currentBookedJobs!.map(
+            (job) => InputChip(
+              label: Text(
+                '${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
+              ),
+              disabledColor: Colors.grey.shade200,
+              onPressed: null, 
+            ),
+          ).toList(),
+        ),
+        const Divider(height: 20),
+      ] else
+        const SizedBox.shrink(),
               
-                  const SizedBox(height: 6),
-                 
-                  ...?_currentBookedJobs?.map(
-                    (job) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(
-                        '  ${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                  
-                  
-              
-                const SizedBox(height: 20),
+                 Text('Posao i servis',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                
                 FormBuilderTextField(
               
@@ -343,6 +347,55 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 ),
                 ),
                 const SizedBox(height: 15),
+
+                 FormBuilderTextField(
+                  name: "jobDescription",
+                   enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
+                  decoration: const InputDecoration(
+                    labelText: 'Opis problema',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                  maxLines: 3,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                   (value) {
+      if (value == null || value.isEmpty) return null;
+   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+
+      if (!regex.hasMatch(value)) {
+        return 'Dozvoljena su samo slova i brojevi';
+      }
+      return null;
+    },
+                  ]
+                   
+                ),
+                ),
+                const SizedBox(height: 15),
+                FormBuilderCheckboxGroup<int>(
+                  enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
+                  name: "serviceId",
+                  decoration: const InputDecoration(
+                    labelText: "Servis",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Obavezno polje'),
+                  options: widget.job.freelancer?.freelancerServices
+                          .map(
+                            (item) => FormBuilderFieldOption<int>(
+                              value: item.service!.serviceId,
+                              child: Text(item.service?.serviceName ?? ""),
+                            ),
+                          )
+                          .toList() ??
+                      [],
+                ),
+            
+                 Text('Rezervacija',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                 FormBuilderDateTimePicker(
                   enabled: !isLoading,
                   format: DateFormat('dd-MM-yyyy'),
@@ -357,6 +410,9 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                   name: "jobDate",
                   inputType: InputType.date,
                   firstDate: DateTime.now(),
+                  initialDate: widget.job.jobDate,
+                  currentDate:widget.job.jobDate,
+                  
                   selectableDayPredicate: _isWorkingDay,
                 onChanged: (value) async {
   if (value == null) return;
@@ -400,6 +456,18 @@ ScaffoldMessenger.of(context).showSnackBar(snackbar);
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.calendar_today_outlined),
                   ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                    (value) {
+                    
+
+                      final start = _formKey.currentState?.fields['jobDate']?.value;
+                      if (start != null && value!.isBefore(start)) {
+                        return 'Datum završetka mora biti nakon poćetka posla';
+                      }
+                      return null;
+                    },
+                  ]),
                 ),
 
 
@@ -445,13 +513,33 @@ FormBuilderDateTimePicker(
     border: OutlineInputBorder(),
     prefixIcon: Icon(Icons.schedule),
   ),
-  validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+    (value) {
+  
+
+      final start = _formKey.currentState?.fields['startEstimate']?.value;
+       final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value!.hour, value.minute);
+      if (startDt != null && endDt!.isBefore(startDt)) {
+        return 'Vrijeme završetka mora biti nakon početka posla';
+      }
+      return null;
+    },
+  ]),
   onChanged: (_) {
     
  
   },
 ),
                 const SizedBox(height: 15),
+                if (widget.job.jobStatus == JobStatus.approved)
+
+                  Text('Navedite promjene',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                const SizedBox(height: 15),
+
                 if (widget.job.jobStatus == JobStatus.approved)
                   
                 FormBuilderTextField(name: 'rescheduleNote',
@@ -480,51 +568,12 @@ FormBuilderDateTimePicker(
                 ),
                 ),
                 SizedBox(height: 15,),
-                FormBuilderTextField(
-                  name: "jobDescription",
-                   enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
-                  decoration: const InputDecoration(
-                    labelText: 'Opis problema',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                  maxLines: 3,
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                   (value) {
-      if (value == null || value.isEmpty) return null;
-   final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+              if(widget.job.jobStatus == JobStatus.approved && AuthProvider.user?.freelancer?.freelancerId!=null)
 
-      if (!regex.hasMatch(value)) {
-        return 'Dozvoljena su samo slova i brojevi';
-      }
-      return null;
-    },
-                  ]
-                   
-                ),
-                ),
-                const SizedBox(height: 15),
-                FormBuilderCheckboxGroup<int>(
-                  enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
-                  name: "serviceId",
-                  decoration: const InputDecoration(
-                    labelText: "Servis",
-                    border: InputBorder.none,
-                  ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Obavezno polje'),
-                  options: widget.job.freelancer?.freelancerServices
-                          .map(
-                            (item) => FormBuilderFieldOption<int>(
-                              value: item.service!.serviceId,
-                              child: Text(item.service?.serviceName ?? ""),
-                            ),
-                          )
-                          .toList() ??
-                      [],
-                ),
-                const SizedBox(height: 15),
+                 Text('Procijena',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                SizedBox(height: 15,),
+
               if(widget.job.jobStatus == JobStatus.approved && AuthProvider.user?.freelancer?.freelancerId!=null)
                 FormBuilderTextField(
                       enabled: AuthProvider.user?.freelancer?.freelancerId!=null ? false:true ,
@@ -544,7 +593,10 @@ FormBuilderDateTimePicker(
                       valueTransformer: (value) => double.tryParse(value ?? ''),
                     ),
                     SizedBox(height: 15,),
-               
+                 Text('Slika',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                SizedBox(height: 15,),
+
              
 
  FormBuilderField(

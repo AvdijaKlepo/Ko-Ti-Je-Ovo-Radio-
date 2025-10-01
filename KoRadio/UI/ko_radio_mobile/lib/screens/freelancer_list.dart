@@ -542,6 +542,8 @@ Widget _buildRecommendedFreelancers() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+const Divider(height: 12,thickness: 2,),
+
       const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(
@@ -616,6 +618,8 @@ Widget _buildRecommendedCompanies() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+const Divider(height: 12,thickness: 2,),
+
       const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(

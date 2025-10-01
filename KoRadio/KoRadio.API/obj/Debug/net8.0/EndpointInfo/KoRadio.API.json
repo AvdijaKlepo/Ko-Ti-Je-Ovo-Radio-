@@ -682,6 +682,13 @@
             }
           },
           {
+            "name": "JobStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "Page",
             "in": "query",
             "schema": {
@@ -1840,6 +1847,14 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -5636,7 +5651,7 @@
             "$ref": "#/components/schemas/Company"
           },
           "companyEmployee": {
-            "$ref": "#/components/schemas/CompanyEmployee"
+            "$ref": "#/components/schemas/CompanyEmployeeDto"
           },
           "job": {
             "$ref": "#/components/schemas/Job"
@@ -7697,7 +7712,8 @@
           },
           "bidAmount": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "bidDescription": {
             "type": "string",
@@ -7705,11 +7721,13 @@
           },
           "dateFinished": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false

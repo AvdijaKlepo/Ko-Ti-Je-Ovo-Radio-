@@ -9,6 +9,8 @@ import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
+import 'package:ko_radio_mobile/models/user.dart';
+import 'package:ko_radio_mobile/providers/base_provider.dart';
 import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -34,6 +36,8 @@ class _ApproveJobState extends State<ApproveJob> {
   bool multiDateJob=false;
   late Set<int> _workingDayInts;
   var daysInRange;
+  final _formKey = GlobalKey<FormBuilderState>();
+  Map<String, dynamic> _initialForm = {};
   
   final Map<String, int> _dayStringToInt = {
     'Monday': 1,
@@ -63,7 +67,11 @@ class _ApproveJobState extends State<ApproveJob> {
     
       await _getJob();
       await _getOtherFreelancersJobs();
-    
+    final currentValues = _formKey.currentState?.value ?? {};
+    _initialForm = {
+      ...currentValues
+
+    };
       setState(() {
         _isLoading=false;
       });
@@ -295,7 +303,7 @@ class _ApproveJobState extends State<ApproveJob> {
    
   
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final _formKey = GlobalKey<FormBuilderState>();
+
    if (_isLoading) {
     return const Scaffold(
       body: Center(child: CircularProgressIndicator()),
@@ -343,192 +351,210 @@ class _ApproveJobState extends State<ApproveJob> {
           children: [
             FormBuilder(
             key: _formKey,
+            initialValue: _initialForm,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
             
-                Card(
-                color: const Color.fromRGBO(27, 76, 125, 25),
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
-  Container(
-    padding: const EdgeInsets.all(12),
-    margin: const EdgeInsets.only(bottom: 16),
-    decoration: BoxDecoration(
-      color: Colors.amber.shade100,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        const Icon(Icons.info, color: Colors.black87),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: Text(
-            "Ovaj posao je ažuriran.",
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ),
-        if(jobResult?.result.first.isEdited==true)
-        ElevatedButton(
-          onPressed: () async {
-            final jobUpdateRequest = {
-              "userId": widget.job.user?.userId,
-              "freelancerId": widget.job.freelancer?.freelancerId,
-              "companyId":null,
-              "jobTitle": widget.job.jobTitle,
-              "isTenderFinalized": false,
-              "isFreelancer": false,
-              "isInvoiced": false,
-              "isRated": false,
-              "startEstimate": widget.job.startEstimate,
-              "endEstimate": widget.job.endEstimate,
-              "payEstimate": widget.job.payEstimate,
-              "payInvoice": null,
-              "jobDate": widget.job.jobDate.toIso8601String(),
-              "dateFinished": widget.job.dateFinished?.toIso8601String(),
-             
-
-              "jobDescription": widget.job.jobDescription,
-              "image": widget.job.image,
-              "jobStatus": widget.job.jobStatus.name,
-              "serviceId": widget.job.jobsServices
-                  ?.map((e) => e.service?.serviceId)
-                  .toList(),
-              "isEdited": false,
-
-            };
-
-            try {
-              await jobProvider.update(widget.job.jobId, jobUpdateRequest);
-              await _getJob(); 
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Posao označen kao pregledan.")),
-                );
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Greška: $e")),
-                );
-              }
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text("Označi kao pregledano"),
-        ),
-      ],
-    ),
-  ),
-],
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                     width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                           borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                    child: Card(
+                    color: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (jobResult?.result.first.isEdited == true || jobResult?.result.first.isWorkerEdited == true) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info, color: Colors.black87),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                "Ovaj posao je ažuriran.",
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            if(jobResult?.result.first.isEdited==true)
+                            ElevatedButton(
+                              onPressed: () async {
+                                final jobUpdateRequest = {
+                                  "userId": widget.job.user?.userId,
+                                  "freelancerId": widget.job.freelancer?.freelancerId,
+                                  "companyId":null,
+                                  "jobTitle": widget.job.jobTitle,
+                                  "isTenderFinalized": false,
+                                  "isFreelancer": false,
+                                  "isInvoiced": false,
+                                  "isRated": false,
+                                  "startEstimate": widget.job.startEstimate,
+                                  "endEstimate": widget.job.endEstimate,
+                                  "payEstimate": widget.job.payEstimate,
+                                  "payInvoice": null,
+                                  "jobDate": widget.job.jobDate.toIso8601String(),
+                                  "dateFinished": widget.job.dateFinished?.toIso8601String(),
+                                 
                     
-                   _sectionTitle('Radne specifikacije'),
-                  _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
-                  _buildDetailRow('Servis', widget.job.jobsServices
-                          ?.map((e) => e.service?.serviceName)
-                          .where((e) => e != null)
-                          .join(', ') ??
-                      'N/A'),
-                 
-                                _buildDetailRow('Datum početka\nradova', dateFormat.format(job.jobDate)),
-                  if(job.dateFinished!=null)
-                  _buildDetailRow('Datum završetka\nradova', dateFormat.format(job.dateFinished!)),
-                  if(job.dateFinished!=null)
-                 _buildDetailRow('Radni dani',  daysInRange.join(', ')),
-
-                  if(job.dateFinished==null)
-                  _buildDetailRow('Vrijeme početka', job.startEstimate.toString().substring(0,5)),
-                  if(job.dateFinished==null)
-                  _buildDetailRow('Vrijeme završetka',
-                 job.endEstimate!=null ?
-                      job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
-                      if(job.endEstimate!=null && job.dateFinished!=null)
-                  _buildDetailRow('Vremenski', 'Svakim navedenim danom od ${job.startEstimate.toString().substring(0,5)} do ${job.endEstimate.toString().substring(0,5)}'),
-                  _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
-                  _buildDetailRow('Servis', jobResult.result.first.jobsServices?.map((e) => e.service?.serviceName).join(', ')??'Nije uneseno'),
-                   jobResult.result.first.image!=null ?
-                        _buildImageRow(
-                                  'Slika',
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(context: context, builder: (context) => _openImageDialog());
-                                    
-                                    
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ),
-                                    child:  const Text(
-                                      'Otvori sliku',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(27, 76, 125, 25)),
-                                    ),
-                                  ))
-                              : _buildDetailRow('Slika','Nije unesena'),
-
-                  _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
- if(jobResult.result.first.isEdited==true)
-                  const Divider(height: 32,),
-                   if(jobResult.result.first.isEdited==true)
-                  _sectionTitle('Promjene'),
-                   if(jobResult.result.first.isEdited==true)
-                  _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena'),
-
-                  const Divider(height: 32),
-                  _sectionTitle('Korisnički podaci'),
-                  _buildDetailRow(
-                    'Ime i prezime',
-                    widget.job.user != null
-                        ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
-                        : 'Nepoznato',
-                  ),
-                   _buildDetailRow('Broj Telefona', formatPhoneNumber(widget.job.user!.phoneNumber!)),
-                   _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
-                  _buildDetailRow(
-                    'Adresa',
-                    widget.job.user != null
-                        ? '${widget.job.user?.address}'
-                        : 'Nepoznato',
-                  ),
-
-                  const Divider(height: 32),
+                                  "jobDescription": widget.job.jobDescription,
+                                  "image": widget.job.image,
+                                  "jobStatus": widget.job.jobStatus.name,
+                                  "serviceId": widget.job.jobsServices
+                      ?.map((e) => e.service?.serviceId)
+                      .toList(),
+                                  "isEdited": false,
                     
-                  _sectionTitle('Račun'),
-                   jobResult.result.first.payEstimate!=null ?
-                  _buildDetailRow('Procijena',
-                      '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM'):
-                      _buildDetailRow('Procijena','Nije unesena'),
-                  
-                     
-                  
-                 
-                 
-
-                      
-                           
+                                };
+                    
+                                try {
+                                  await jobProvider.update(widget.job.jobId, jobUpdateRequest);
+                                  await _getJob(); 
+                                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Posao označen kao pregledan.")),
+                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Greška: $e")),
+                    );
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text("Označi kao pregledano"),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
+                        
+                       _sectionTitle('Radne specifikacije'),
+                      _buildDetailRow('Posao', jobResult.result.first.jobTitle?? 'Nije dostupan'), 
+                      _buildDetailRow('Servis', widget.job.jobsServices
+                              ?.map((e) => e.service?.serviceName)
+                              .where((e) => e != null)
+                              .join(', ') ??
+                          'N/A'),
+                     
+                                    _buildDetailRow('Datum početka\nradova', dateFormat.format(job.jobDate)),
+                      if(job.dateFinished!=null)
+                      _buildDetailRow('Datum završetka\nradova', dateFormat.format(job.dateFinished!)),
+                      if(job.dateFinished!=null)
+                     _buildDetailRow('Radni dani',  daysInRange.join(', ')),
                     
-                
+                      if(job.dateFinished==null)
+                      _buildDetailRow('Vrijeme početka', job.startEstimate.toString().substring(0,5)),
+                      if(job.dateFinished==null)
+                      _buildDetailRow('Vrijeme završetka',
+                     job.endEstimate!=null ?
+                          job.endEstimate.toString().substring(0,5) : 'Nije uneseno'),
+                          if(job.endEstimate!=null && job.dateFinished!=null)
+                      _buildDetailRow('Vremenski', 'Svakim navedenim danom od ${job.startEstimate.toString().substring(0,5)} do ${job.endEstimate.toString().substring(0,5)}'),
+                      _buildDetailRow('Opis posla', jobResult.result.first.jobDescription),
+                      _buildDetailRow('Servis', jobResult.result.first.jobsServices?.map((e) => e.service?.serviceName).join(', ')??'Nije uneseno'),
+                       jobResult.result.first.image!=null ?
+                            _buildImageRow(
+                                      'Slika',
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(context: context, builder: (context) => _openImageDialog());
+                                        
+                                        
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12)),
+                                        ),
+                                        child:  const Text(
+                                          'Otvori sliku',
+                                          style: TextStyle(
+                                              color:
+                                                  Color.fromRGBO(27, 76, 125, 25)),
+                                        ),
+                                      ))
+                                  : _buildDetailRow('Slika','Nije unesena'),
+                    
+                      _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
+                     if(jobResult.result.first.isEdited==true)
+                      const Divider(height: 32,),
+                       if(jobResult.result.first.isEdited==true)
+                      _sectionTitle('Promjene'),
+                       if(jobResult.result.first.isEdited==true)
+                      _buildDetailRow('Poruka korisniku', jobResult.result.first.rescheduleNote??'Nije unesena'),
+                    
+                      const Divider(height: 32),
+                      _sectionTitle('Korisnički podaci'),
+                      _buildDetailRow(
+                        'Ime i prezime',
+                        widget.job.user != null
+                            ? '${widget.job.user?.firstName ?? ''} ${widget.job.user?.lastName ?? ''}'
+                            : 'Nepoznato',
+                      ),
+                       _buildDetailRow('Broj Telefona', formatPhoneNumber(widget.job.user!.phoneNumber!)),
+                       _buildDetailRow('Lokacija', widget.job.user?.location?.locationName??'Nepoznato'),
+                      _buildDetailRow(
+                        'Adresa',
+                        widget.job.user != null
+                            ? '${widget.job.user?.address}'
+                            : 'Nepoznato',
+                      ),
+                    
+                      const Divider(height: 32),
+                        
+                      _sectionTitle('Račun'),
+                       jobResult.result.first.payEstimate!=null ?
+                      _buildDetailRow('Procijena',
+                          '${jobResult.result.first.payEstimate?.toStringAsFixed(2)} KM'):
+                          _buildDetailRow('Procijena','Nije unesena'),
+                      
+                         
+                      
+                     
+                     
+                    
+                          
+                               
+                        ],
+                        
+                    
+                      ),
+                    
+                    ),
+                    ),
                   ),
-                
-                ),
                 ),
                 _buildFreelancerJobView(),
                 Padding(padding: const EdgeInsets.all(8.0)
@@ -599,6 +625,7 @@ class _ApproveJobState extends State<ApproveJob> {
                 "serviceId": widget.job.jobsServices
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
+                "pin": values["pin"],
           };
            try {
            await jobProvider.update(widget.job.jobId,
@@ -613,11 +640,12 @@ class _ApproveJobState extends State<ApproveJob> {
             navigator.pop(true);
         
 
+          } on UserException catch (e) {
+            _formKey.currentState?.invalidateField(name: 'pin',errorText: e.exMessage);
+          
           } on Exception catch (e) {
             message.showSnackBar(const SnackBar(content: Text('Greška tokom odobravanja posla. Molimo pokušajte ponoovo.')));
-            
-            
-
+          
           }
               
            
@@ -646,7 +674,7 @@ ElevatedButton(onPressed: () async{
     );
   }
 
-  Widget _buildFreelancerJobView() {
+  Widget _buildFreelancerJobView(){
     final job;
    _isLoading==true ? job = null : job = jobResult.result.first;
 
@@ -700,32 +728,52 @@ if (listOfOtherEndTimes.isNotEmpty) {
 }
 
 
+
    
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-       
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+                       width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(16)
+                                     
+                                    ),
+                                  ),
+                       child: Text(
+                        widget.job.jobStatus==JobStatus.unapproved ?
+                         'Prihvati posao' : 'Završi posao',
+                         style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white), 
+                       ),
+                     ),
+        ),
      
-         Row(
-           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-           children: [
-             Padding(
-                   padding: const EdgeInsets.all(  12),
-                   child: Text(
-                     'Potrebni podaci',
-                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black), 
-                   ),
-                 ),
-                 if(jobResult.result.first.jobStatus==JobStatus.unapproved)
-              Checkbox(value: multiDateJob,onChanged: (value){
-                setState(() {
-                  multiDateJob=value!;
-                });
-              },),
-               
-           ],
-         ),
+         if(jobResult.result.first.jobStatus==JobStatus.unapproved)
+                                           Padding(
+                                             padding: const EdgeInsets.all(1.0),
+                                             child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                               
+                                               children: [
+                                                 const Text('Posao traje više dana?',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                 Checkbox(value: multiDateJob,onChanged: (value){
+                                                   setState(() {
+                                                     multiDateJob=value!;
+                                                     
+                                                   });
+                                                 },),
+                                               ],
+                                             ),
+                                           ),
        
         const SizedBox(height: 15),
       
@@ -737,13 +785,28 @@ if (listOfOtherEndTimes.isNotEmpty) {
                 Column(
                   children: [
                     if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
+                    const SizedBox(height: 15),
+                  
+                   if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
                     FormBuilderDateTimePicker(name: 'dateFinished',
+                    key: ValueKey('dateFinished'),
                     locale: Locale('bs'),
-                    firstDate: widget.job.jobDate,
+                    
+                    firstDate:  widget.job.jobDate,
                     initialDate: widget.job.jobDate,
+                    currentDate:widget.job.jobDate,
                     inputType: InputType.date,
                     selectableDayPredicate: _isWorkingDay,
-            
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                      (value) {
+                        if(value==widget.job.jobDate){
+                          return 'Posao mora trajati barem jedan dan.';
+                        }
+                      }
+                    
+                    ]),
+                                
                     decoration: const InputDecoration(
                       labelText: 'Datum završetka',
                       border: OutlineInputBorder(),
@@ -751,7 +814,10 @@ if (listOfOtherEndTimes.isNotEmpty) {
                     )
                     ),
                     const SizedBox(height: 15),
+                    if(multiDateJob==true && widget.job.jobStatus==JobStatus.unapproved)
+                    const SizedBox(width: 15),
                     FormBuilderDateTimePicker(
+                      key: ValueKey('endEstimate'),
                       name: "endEstimate",
                       
                       initialTime: parsedEstimatedStartTime,
@@ -759,7 +825,7 @@ if (listOfOtherEndTimes.isNotEmpty) {
                       firstDate: DateTime.now(),
                       currentDate: DateTime.now(),
                       initialDate: DateTime.now(),
-               
+                                   
                       decoration: const InputDecoration(
                         labelText: 'Vrijeme završetka',
                         border: OutlineInputBorder(),
@@ -771,7 +837,7 @@ if (listOfOtherEndTimes.isNotEmpty) {
                         (value) {
                           DateTime selected = normalizeTime(value!);
                         
-  DateTime threshold = normalizeTime(parsedTime);
+                      DateTime threshold = normalizeTime(parsedTime);
                          
                           if (selected.isBefore(threshold)) {
                             return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
@@ -779,7 +845,8 @@ if (listOfOtherEndTimes.isNotEmpty) {
                           if(selected==threshold){
                             return "Vrijeme mora biti nakon rezervisanog vremena od ${parsedTime.toIso8601String().split('T')[1].substring(0, 5)}h";
                           }
-
+                      
+                    
                           if (selected.isBefore(startTime)) {
                             return "Van radnog vremena";
                           }
@@ -787,58 +854,59 @@ if (listOfOtherEndTimes.isNotEmpty) {
                             return "Unesite novo vrijeme";
                           }
                          for (int j = 0; j < parsedList.length; j++) {
-        DateTime bookedStart = parsedList[j];
-  DateTime bookedEnd = parsedEndList[j];
-
-  DateTime newStart = threshold; 
-  DateTime newEnd = selected;    
-
-  bool overlaps =
-      (newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart));
-
-  if (overlaps) {
-    return "Ovaj termin je već zauzet drugim poslom. Ako želite da zadržite ovaj posao,\n potrebno je izmijeniti vrijeme početka ili datum.";
-  }
-
-
-       
-      }
+                            DateTime bookedStart = parsedList[j];
+                      DateTime bookedEnd = parsedEndList[j];
+                    
+                      DateTime newStart = threshold; 
+                      DateTime newEnd = selected;    
+                    
+                      bool overlaps =
+                          (newStart.isBefore(bookedEnd) && newEnd.isAfter(bookedStart));
+                    
+                      if (overlaps) {
+                        return "Ovaj termin je već zauzet drugim poslom. Ako želite da zadržite ovaj posao,\n potrebno je izmijeniti vrijeme početka ili datum.";
+                      }
+                    
+                    
+                           
+                          }
                           return null;
                         }
                       ]),
                       onChanged: (value) {
-    if (value == null) return;
-
-    final selected = normalizeTime(value);
-    final maxTime = normalizeTime(endTime);
-
-  DateTime threshold = normalizeTime(parsedTime);
-
-  
-
-    if (selected.isAfter(maxTime)) {
-
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Van opsega radnog vremena'),
-          content: Text(
-            'Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
-          ),
-          actions: [
-           
-           
-          TextButton(onPressed: () {
-            Navigator.of(ctx).pop();
-            
-            
-          },child: const Text("Nazad",style: TextStyle(color: Colors.black),),),
-          ],
-        ),
-      );
-    }}
+                        if (value == null) return;
+                    
+                        final selected = normalizeTime(value);
+                        final maxTime = normalizeTime(endTime);
+                    
+                      DateTime threshold = normalizeTime(parsedTime);
+                    
+                      
+                    
+                        if (selected.isAfter(maxTime)) {
+                    
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Van opsega radnog vremena'),
+                              content: Text(
+                                'Izabrano vrijeme završetka posla, ${selected.toString().substring(11, 16)} je van definisanog radnog vremena. Da li ste sigurni da želite odabrati navedeno vrijeme?',
+                              ),
+                              actions: [
+                               
+                               
+                              TextButton(onPressed: () {
+                                Navigator.of(ctx).pop();
+                                
+                                
+                              },child: const Text("Nazad",style: TextStyle(color: Colors.black),),),
+                              ],
+                            ),
+                          );
+                        }}
                     ),
                     const SizedBox(height: 15),
+
                     FormBuilderTextField(
                       name: "payEstimate",
                       keyboardType:
@@ -850,7 +918,7 @@ if (listOfOtherEndTimes.isNotEmpty) {
                       ),
                       validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                        FormBuilderValidators.numeric(errorText: 'Numeričko polje, npr 10.00'),
                         ]
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),
@@ -861,7 +929,25 @@ if (listOfOtherEndTimes.isNotEmpty) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                   
+                       FormBuilderTextField(
+                        name: "pin",
+                        enabled:  jobResult.result.first.isEdited==true || jobResult.result.first.isWorkerEdited==true ? false:true,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: 'Pin',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.pin),
+                        ),
+                         validator: FormBuilderValidators.compose(
+                        [FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                        FormBuilderValidators.numeric(errorText: 'Numeričko polje, npr 10.00'),
+                        FormBuilderValidators.max(999,errorText: 'Pin se sastoji od tri broja.'),
+                        FormBuilderValidators.min(1,errorText: 'Pin se sastoji od tri broja.'),
+                        ]
+                      ),
+                      ),
+                       const SizedBox(height: 15),
                       FormBuilderTextField(
                         name: "payInvoice",
                         enabled:  jobResult.result.first.isEdited==true || jobResult.result.first.isWorkerEdited==true ? false:true,
@@ -874,11 +960,13 @@ if (listOfOtherEndTimes.isNotEmpty) {
                         ),
                          validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                        FormBuilderValidators.numeric(errorText: 'Numeričko polje, npr 10.00'),
                         ]
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),
                       ),
+                  
+                     
                     ],
                   ),
               ],

@@ -150,6 +150,10 @@ namespace KoRadio.Services
 					)
 				);
 			}
+			if(search.Location!=null)
+			{
+				query = query.Where(x => x.User.Location.LocationId == search.Location);
+			}
 
 
 
@@ -495,6 +499,21 @@ namespace KoRadio.Services
 			//}
 
 			await base.AfterUpdateAsync(request, entity, cancellationToken);
+		}
+
+		public override async Task BeforeDeleteAsync(Database.Job entity, CancellationToken cancellationToken)
+		{
+			if(entity.IsTenderFinalized==true)
+			{
+				var asignments = _context.CompanyJobAssignments.Where(x => x.JobId == entity.JobId).ToList();
+
+				_context.RemoveRange(asignments);
+
+				var bids = _context.TenderBids.Where(x => x.JobId == entity.JobId).ToList();
+
+				_context.RemoveRange(bids);
+			}
+			await base.BeforeDeleteAsync(entity, cancellationToken);
 		}
 
 

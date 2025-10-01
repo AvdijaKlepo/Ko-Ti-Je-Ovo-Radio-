@@ -146,16 +146,16 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
     }
   }
   String formatPhoneNumber(String phone) {
-  // Step 1: Replace +387 at the start with 0
+
   String normalized = phone.replaceFirst(RegExp(r'^\+387'), '0');
 
-  // Step 2: Remove any non-digit characters (in case user inputs spaces, dashes, etc.)
+
   normalized = normalized.replaceAll(RegExp(r'\D'), '');
 
-  // Step 3: Ensure we only format if we have at least 9 digits
+
   if (normalized.length < 9) return normalized;
 
-  // Step 4: Insert dashes in 3-3-3 format
+
   String part1 = normalized.substring(0, 3);
   String part2 = normalized.substring(3, 6);
   String part3 = normalized.substring(6, 9);
@@ -208,107 +208,124 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
     
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Card(
-            color: const Color.fromRGBO(27, 76, 125, 25),
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Specifikacije tendera'),
-          
-          _buildDetailRow('Posao', tenderResult?.result.first.jobTitle ?? 'Nije dostupan'), 
-           _buildDetailRow('Potreban', tenderResult?.result.first.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ') ?? 'Nije dostupan'), 
-              _buildDetailRow('Početak radova', formatDateTime(tenderResult?.result.first.jobDate)), 
-              _buildDetailRow('Opis', tenderResult?.result.first.jobDescription ?? 'Nije dostupan'),
-              tenderResult?.result.first.image!=null ?
-              _buildImageRow(
-                                  'Slika',
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(context: context, builder: (context) => _openImageDialog(tender));
-                                    
-                                    
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ),
-                                    child:  const Text(
-                                      'Otvori sliku',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(27, 76, 125, 25)),
-                                    ),
-                                  ))
-                              : _buildDetailRow('Slika','Nije unesena'),
-              const SizedBox(height: 10),
-                 _sectionTitle('Korisnički podaci'),
-                  _buildDetailRow('Korisnik', tenderResult?.result.first.user?.firstName ?? 'Nije dostupan'), 
-                  _buildDetailRow('Lokacija', tenderResult?.result.first.user?.location?.locationName ?? 'Nije dostupan'), 
-                  _buildDetailRow('Adresa', tenderResult?.result.first.user?.address ?? 'Nije dostupan'), 
-                  _buildDetailRow('Telefonski broj',  formatPhoneNumber(tenderResult?.result.first.user?.phoneNumber ?? 'Nije dostupan')),
-                  _buildDetailRow('Email adresa',  tenderResult?.result.first.user?.email ?? 'Nije dostupan'),
-
-            
-                 
-                
-        
-           if(AuthProvider.selectedRole=="User" && tenderBidFetcher.items.isEmpty)
-              const SizedBox(height: 30,),
-                  if(AuthProvider.selectedRole=="User" && tenderBidFetcher.items.isEmpty)
-Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () async{
-  await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BookTender(tender: tender),
+      child: Container(
+          width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration:  BoxDecoration(
+                gradient: LinearGradient(
+                 colors: 
+                                        [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)] ,
+                                       
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
-                
-              ); 
-              await tenderBidFetcher.refresh(newFilter: {
-              'tenderId': widget.tender?.jobId,
-            });
-            await _getTender();
-            if(!mounted) return;
-            setState(() {
+               borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+        child: Card(
+              color: Colors.transparent,
+              shadowColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionTitle('Specifikacije tendera'),
+            
+            _buildDetailRow('Posao', tenderResult?.result.first.jobTitle ?? 'Nije dostupan'), 
+             _buildDetailRow('Potreban', tenderResult?.result.first.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ') ?? 'Nije dostupan'), 
+                _buildDetailRow('Početak radova', formatDateTime(tenderResult?.result.first.jobDate)), 
+                _buildDetailRow('Opis', tenderResult?.result.first.jobDescription ?? 'Nije dostupan'),
+                tenderResult?.result.first.image!=null ?
+                _buildImageRow(
+                                    'Slika',
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(context: context, builder: (context) => _openImageDialog(tender));
+                                      
+                                      
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                      ),
+                                      child:  const Text(
+                                        'Otvori sliku',
+                                        style: TextStyle(
+                                            color:
+                                                Color.fromRGBO(27, 76, 125, 25)),
+                                      ),
+                                    ))
+                                : _buildDetailRow('Slika','Nije unesena'),
+                const SizedBox(height: 10),
+                   _sectionTitle('Korisnički podaci'),
+                    _buildDetailRow('Korisnik', tenderResult?.result.first.user?.firstName ?? 'Nije dostupan'), 
+                    _buildDetailRow('Lokacija', tenderResult?.result.first.user?.location?.locationName ?? 'Nije dostupan'), 
+                    _buildDetailRow('Adresa', tenderResult?.result.first.user?.address ?? 'Nije dostupan'), 
+                    _buildDetailRow('Telefonski broj',  formatPhoneNumber(tenderResult?.result.first.user?.phoneNumber ?? 'Nije dostupan')),
+                    _buildDetailRow('Email adresa',  tenderResult?.result.first.user?.email ?? 'Nije dostupan'),
+        
               
-            });
-},style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12)),
-            ),
-            child: const Text(
-              'Uredi tender',
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-),
-const SizedBox(height: 30,),
-Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () => _deleteTender(),style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12)),
-            ),
-            child: const Text(
-              'Izbriši tender',
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-),
-                ],
+                   
+                  
+          
+             if(AuthProvider.selectedRole=="User" && tenderBidFetcher.items.isEmpty)
+                const SizedBox(height: 30,),
+                    if(AuthProvider.selectedRole=="User" && tenderBidFetcher.items.isEmpty)
+        Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () async{
+          await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => BookTender(tender: tender),
+                  ),
+                  
+                ); 
+                await tenderBidFetcher.refresh(newFilter: {
+                'tenderId': widget.tender?.jobId,
+              });
+              await _getTender();
+              if(!mounted) return;
+              setState(() {
+                
+              });
+        },style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Uredi tender',
+                style: TextStyle(color: Colors.black),
               ),
             ),
-
         ),
+        const SizedBox(height: 30,),
+        if(AuthProvider.selectedRole=="User")
+        Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () => _deleteTender(),style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Izbriši tender',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+        ),
+                  ],
+                ),
+              ),
+        
+          ),
+      ),
     );
   }
   void _deleteTender() async {
@@ -384,58 +401,163 @@ Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: () => _d
   }
 
 Widget _buildBidCard(TenderBid tenderBid) {
-  return Card(
-    surfaceTintColor: const Color.fromRGBO(27, 76, 125, 25),
-    color: const Color.fromRGBO(27, 76, 125, 25),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(vertical: 8),
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: _buildBidCardContent(tenderBid),
-    ),
+  final theme = Theme.of(context);
+  final isFreelancerBid = tenderBid.freelancer != null;
+
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final isWide = constraints.maxWidth > 500; 
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 6,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: isFreelancerBid
+                  ? [Colors.indigo.shade700, Colors.indigoAccent.shade200]
+                  : [Colors.teal.shade700, Colors.tealAccent.shade200],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: isWide
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildBidCardContent(tenderBid, theme)),
+                    const SizedBox(width: 20),
+                    _buildAcceptButton(tenderBid),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBidCardContent(tenderBid, theme),
+                    const SizedBox(height: 12),
+                    _buildAcceptButton(tenderBid),
+                  ],
+                ),
+        ),
+      );
+    },
   );
 }
 
-// Function to build the content of the card
-Widget _buildBidCardContent(TenderBid tenderBid) {
+Widget _buildBidCardContent(TenderBid tenderBid, ThemeData theme) {
   final isFreelancerBid = tenderBid.freelancer != null;
   final bidderName = isFreelancerBid
-      ? '${tenderBid.freelancer?.freelancerNavigation?.firstName} ${tenderBid.freelancer?.freelancerNavigation?.lastName}'
+      ? '${tenderBid.freelancer?.freelancerNavigation?.firstName} '
+        '${tenderBid.freelancer?.freelancerNavigation?.lastName}'
       : tenderBid.company?.companyName;
+
   final durationText = isFreelancerBid
-      ? 'Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} - ${tenderBid.endEstimate?.substring(0, 5)}'
-      : 'Trajanje: ${DateFormat('dd-MM-yyyy').format(widget.tender!.jobDate)} do ${DateFormat('dd-MM-yyyy').format(tenderBid.dateFinished ?? DateTime.now())}';
+      ? 'Trajanje: ${tenderBid.startEstimate?.substring(0, 5)} – ${tenderBid.endEstimate?.substring(0, 5)}'
+      : 'Trajanje: ${DateFormat('dd.MM.yyyy').format(widget.tender!.jobDate)} '
+        'do ${DateFormat('dd.MM.yyyy').format(tenderBid.dateFinished ?? DateTime.now())}';
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text('${tenderBid.bidAmount} KM',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+      Text(
+        "${tenderBid.bidAmount} KM",
+        style: theme.textTheme.headlineSmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       const SizedBox(height: 6),
-      Text(isFreelancerBid ? 'Radnik: $bidderName' : 'Firma: $bidderName',
-          style: const TextStyle(fontSize: 15, color: Colors.white)),
-      Text('Potrebno: ${tenderBid.bidDescription}',
-          style: const TextStyle(fontSize: 15, color: Colors.white)),
+      Row(
+        children: [
+          Icon(
+            isFreelancerBid ? Icons.person : Icons.business,
+            color: Colors.white70,
+            size: 18,
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              isFreelancerBid ? "Radnik: $bidderName" : "Firma: $bidderName",
+              style: const TextStyle(color: Colors.white, fontSize: 15),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 4),
+      Text(
+        "Opis: ${tenderBid.bidDescription}",
+        style: const TextStyle(color: Colors.white70, fontSize: 14),
+      ),
       const SizedBox(height: 6),
-      Text(durationText, style: const TextStyle(fontSize: 13, color: Colors.white70)),
-      const SizedBox(height: 10),
-      // Use a single, unified function to build the button
-      _buildAcceptButton(tenderBid),
+      if(tenderBid.dateFinished!=null)
+       Text(
+        "Datum završetka: ${DateFormat.yMMMMd('bs').format(tenderBid.dateFinished!)}",
+        style: const TextStyle(color: Colors.white70, fontSize: 14),
+      ),
+      const SizedBox(height: 6),
+
+      Row(
+        children: [
+          const Icon(Icons.access_time, size: 16, color: Colors.white70),
+          const SizedBox(width: 6),
+          Text(durationText,
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ],
+      ),
+      const SizedBox(height: 6),
+      if(tenderBid.freelancerId==AuthProvider.user?.userId)
+      ElevatedButton(onPressed: () async{
+        await Navigator.of(context).push(MaterialPageRoute(builder: (_) => TenderBidScreen(tenderBid: tenderBid,freelancer: freelancerResult?.result.first,tender: widget.tender,)));
+        await tenderBidFetcher.refresh(newFilter: {'TenderId': widget.tender?.jobId});
+      },style: ElevatedButton.styleFrom(backgroundColor: Colors.white,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+       child: const Text('Uredi ponudu',style: TextStyle(color: Colors.black),),),
+        if(tenderBid.freelancerId==AuthProvider.user?.userId)
+      const SizedBox(height: 6),
+        if(tenderBid.freelancerId==AuthProvider.user?.userId)
+
+      ElevatedButton(onPressed: () async{
+        await showDialog(context: context, builder: (context) => AlertDialog(
+          title: const Text('Izbriši ponudu?'),
+          content: const Text('Jeste li sigurni da želite izbrisati ovu ponudu?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Nazad",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+            TextButton(onPressed: () async {
+              Navigator.of(context).pop();
+              await tenderBidProvider.delete(tenderBid.tenderBidId);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Ponuda je izbrisana")),
+              );
+              tenderBidFetcher.refresh(newFilter: {'TenderId': widget.tender?.jobId});
+             
+            },
+            child: const Text("Da",style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),)),
+          ],
+        ));
+      },style: ElevatedButton.styleFrom(backgroundColor: Colors.red,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+       child: const Text('Izbriši ponudu',style: TextStyle(color: Colors.black),),),
+     
+
     ],
   );
 }
 
-// Function to conditionally build the accept button
+
 Widget _buildAcceptButton(TenderBid tenderBid) {
   final canAccept = AuthProvider.selectedRole == "User" &&
       AuthProvider.user?.userId != tenderBid.job?.user?.userId;
 
   if (!canAccept) {
-    return const SizedBox.shrink(); // Hide the button if not applicable
+    return const SizedBox.shrink();
   }
 
-  // Use a single button with conditional logic for freelancer vs company
+
   return Center(
     child: ElevatedButton(
       onPressed: () => _showAcceptDialog(tenderBid),
@@ -493,6 +615,7 @@ Map<String, dynamic> _buildFreelancerRequest(TenderBid tenderBid) {
     'jobStatus': JobStatus.approved.name,
     'endEstimate': tenderBid.endEstimate,
     'payEstimate': tenderBid.bidAmount,
+    'dateFinished': tenderBid.dateFinished?.toIso8601String(),
     'freelancerId': tenderBid.freelancer?.freelancerId,
     'startEstimate': tenderBid.startEstimate,
     'userId': tenderBid.job?.user?.userId,
@@ -507,15 +630,16 @@ Map<String, dynamic> _buildFreelancerRequest(TenderBid tenderBid) {
   };
 }
 
-// Helper function for building company request data
+
 Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
   return {
     'jobStatus': JobStatus.approved.name,
-    'endEstimate': null,
+    'endEstimate': tenderBid.endEstimate,
+    
     'payEstimate': tenderBid.bidAmount,
     'freelancerId': null,
     'companyId': tenderBid.company?.companyId,
-    'startEstimate': null,
+       'startEstimate': tenderBid.startEstimate,
     'userId': tenderBid.job?.user?.userId,
     'serviceId': tenderBid.job?.jobsServices?.map((e) => e.service?.serviceId).toList(),
     'jobDescription': tenderBid.bidDescription,
@@ -552,7 +676,7 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
                 ); 
                 Navigator.of(context).pop();
                   await tenderBidFetcher.refresh(newFilter: {
-                    'tenderId': widget.tender?.jobId,
+                    'TenderId': widget.tender?.jobId,
                   });
                
               }, child: const Text("Da"),),
@@ -589,7 +713,7 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
 
 
     return Scaffold(
-      appBar: AppBar(title:  Text('Detalji tendera',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,),
+      appBar: AppBar(title:  Text('Detalji tendera',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25)),),centerTitle: true,scrolledUnderElevation: 0,),
       body: RefreshIndicator(
         onRefresh: tenderBidFetcher.refresh,
         child:
@@ -617,7 +741,7 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
                   ),
                 ),
             ] else ...[
-               Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25)),)),
+               Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20,fontWeight: FontWeight.bold, fontFamily: GoogleFonts.roboto().fontFamily,color: Colors.indigo),)),
               ...tenderBidFetcher.items.map(_buildBidCard),
               if (tenderBidFetcher.hasNextPage)
                 const Padding(
@@ -631,7 +755,7 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+                              backgroundColor:  Colors.indigoAccent,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

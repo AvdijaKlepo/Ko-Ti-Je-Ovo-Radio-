@@ -137,7 +137,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     return  Scaffold(
 
       
-      appBar: AppBar(scrolledUnderElevation: 0,title:  Text("Notifikacije",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text("Notifikacije",style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
       centerTitle: true,
       ),
       
@@ -190,9 +190,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
               'UserId': AuthProvider.user?.userId ?? 0,
          'OrderBy': 'desc',
             });
+            await _fetchData();
     
             setState(() {
-              isLoading=false;
+              isLoading=false;  
             });
             message.showSnackBar(
               const SnackBar(content: Text("Notifikacije označene kao pročitane.")),
@@ -360,7 +361,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   );
 } on Exception catch (e) {
   message.showSnackBar(
-    SnackBar(content: Text('Greška tokom brisanja notifikacije. Pokušajte ponovo.')),
+    const SnackBar(content: Text('Greška tokom brisanja notifikacije. Pokušajte ponovo.')),
   );
 }
             },

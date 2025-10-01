@@ -21,7 +21,9 @@ namespace KoRadio.Services
 		public override IQueryable<EmployeeTask> AddFilter(EmployeeTaskSearchObject search, IQueryable<EmployeeTask> query)
 		{
 			query = query.Include(x => x.CompanyEmployee).ThenInclude(x => x.User);
-			if(search.CompanyId!=null)
+			query = query.Include(x => x.CompanyEmployee).ThenInclude(x=>x.CompanyRole);
+
+			if (search.CompanyId!=null)
 			{
 				query = query.Where(x => x.CompanyId == search.CompanyId);
 			}

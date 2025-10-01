@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Flutter Demo',
        supportedLocales: const[
-        Locale('en', 'Latn'),
+    
         Locale('bs', 'Latn'),
       ],
       localizationsDelegates: const [

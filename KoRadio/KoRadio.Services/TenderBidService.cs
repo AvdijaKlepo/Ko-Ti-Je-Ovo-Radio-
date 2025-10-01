@@ -43,5 +43,13 @@ namespace KoRadio.Services
 				.ThenInclude(js => js.Service)
 				.LoadAsync(cancellationToken);
 		}
+		public override async Task BeforeUpdateAsync(TenderBidUpdateRequest request, TenderBid entity, CancellationToken cancellationToken = default)
+		{
+			if(request.DateFinished==null)
+			{
+				 entity.DateFinished = null;
+			}
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
 	}
 }

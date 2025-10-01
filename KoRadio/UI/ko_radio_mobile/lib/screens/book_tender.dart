@@ -193,20 +193,25 @@ class _BookTenderState extends State<BookTender> {
           key: _formKey,
           initialValue: _initialValue,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             
+              Text('Posao i servis',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                                const SizedBox(height: 10),
               
               FormBuilderTextField(
                 name: "jobTitle",
                 decoration: const InputDecoration(
                   labelText: 'Naslov posla',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
+                  prefixIcon: Icon(Icons.title),
                 ),
 
                 
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
+                  FormBuilderValidators.maxLength(15, errorText: 'Maksimalno 15 znakova'),
+                  FormBuilderValidators.minLength(3, errorText: 'Minimalno 3 znaka'),
                      (value) {
       if (value == null || value.isEmpty) return null;
       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$'); 
@@ -228,6 +233,8 @@ class _BookTenderState extends State<BookTender> {
                 maxLines: 3,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
+                         FormBuilderValidators.maxLength(230, errorText: 'Maksimalno 230 znakova'),
+                  FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znaka'),
                      (value) {
       if (value == null || value.isEmpty) return null;
       final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.]+$');
@@ -237,8 +244,20 @@ class _BookTenderState extends State<BookTender> {
       return null;
     },
                 ]),
+              ),     SizedBox(height: 20,),
+                FormBuilderCheckboxGroup<int>(
+                name: "serviceId",
+                decoration: const InputDecoration(labelText: "Servisi",
+                border: OutlineInputBorder()),
+                options: serviceOptions,
+                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
               ),
-             SizedBox(height: 20,),
+              const SizedBox(height: 15),
+               
+               Text('Rezervacija',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+              const SizedBox(height: 15),
+
               FormBuilderDateTimePicker(
                 name: "jobDate",
                 initialDate: DateTime.now().add(const Duration(days: 5)),
@@ -256,13 +275,10 @@ class _BookTenderState extends State<BookTender> {
               ),
               
               const SizedBox(height: 15),
-              FormBuilderCheckboxGroup<int>(
-                name: "serviceId",
-                decoration: const InputDecoration(labelText: "Servisi"),
-                options: serviceOptions,
-                validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
-              ),
+                 Text('Slika',style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
               const SizedBox(height: 15),
+
             FormBuilderField(
   name: "image",
   builder: (field) {

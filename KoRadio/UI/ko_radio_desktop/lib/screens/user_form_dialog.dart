@@ -40,6 +40,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
   bool _isLoadingLocations = true;
   File? _image;
   String? _base64Image;
+  bool changePassword=false;
 
   @override
   void initState() {
@@ -101,16 +102,16 @@ class _UserFormDialogState extends State<UserFormDialog> {
   surfaceTintColor: Colors.white,
   child: SizedBox(
     width: MediaQuery.of(context).size.width * 0.25,
-    height: MediaQuery.of(context).size.height * 1,
     child:ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
             ),
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              
+                   mainAxisSize: MainAxisSize.min,
                 children: [
-                  // --- HEADER ---
+          
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -154,6 +155,8 @@ class _UserFormDialogState extends State<UserFormDialog> {
                       initialValue: _initialValue,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
+                           mainAxisSize: MainAxisSize.min,
+                     
                         children: [
                           // --- PERSONAL INFO ---
                           const Text(
@@ -279,65 +282,87 @@ class _UserFormDialogState extends State<UserFormDialog> {
 
                           const SizedBox(height: 20),
 
-                          // --- IMAGE UPLOAD ---
-                          FormBuilderField(
-                            name: "image",
-                            builder: (field) {
-                              return InputDecorator(
-                                decoration: const InputDecoration(
-                                  labelText: "Profilna slika",
-                                  border: OutlineInputBorder(),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      leading: const Icon(Icons.image),
-                                      title: _image != null
-                                          ? Text(_image!.path.split('/').last)
-                                          : widget.user?.image != null
-                                              ? const Text('Proslijeđena slika')
-                                              : const Text("Nema slike"),
-                                      trailing: ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-                                        ),
-                                        icon: const Icon(Icons.file_upload, color: Colors.white),
-                                        label: _image == null && widget.user?.image == null
-                                            ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                                            : const Text("Promijeni", style: TextStyle(color: Colors.white)),
-                                        onPressed: () => _pickImage(),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    if (_image != null)
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.file(_image!, fit: BoxFit.cover),
-                                      )
-                                    else if (_decodedImage != null)
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.memory(_decodedImage!, fit: BoxFit.cover),
-                                      )
-                                    else
-                                      const SizedBox.shrink(),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                
+                         FormBuilderField(
+  name: "image",
+  builder: (field) {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: "Profilna slika",
+        border: OutlineInputBorder(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.image, color: Colors.grey),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _image != null
+                      ? _image!.path.split('/').last
+                      : widget.user?.image != null
+                          ? "Proslijeđena slika"
+                          : "Nema slike",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  minimumSize: const Size(90, 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                onPressed: _pickImage,
+                child: Text(
+                  _image == null && widget.user?.image == null
+                      ? "Odaberi"
+                      : "Promijeni",
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          if (_image != null || _decodedImage != null) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _image != null
+                  ? Image.file(_image!, fit: BoxFit.cover, height: 120)
+                  : Image.memory(_decodedImage!,
+                      fit: BoxFit.cover, height: 120),
+            ),
+          ]
+        ],
+      ),
+    );
+  },
+),
+
 
                           const SizedBox(height: 20),
+                            Row(
+                                                    children: [
+                                                      const Text('Promijeni lozinku?',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                      Checkbox(value: changePassword,onChanged: (value){
+                                                        setState(() {
+                                                          changePassword=value!;
+                                                          if(changePassword==false)
+                                                          {
+                                                            _formKey.currentState?.fields['password']?.didChange(null);
+                                                            _formKey.currentState?.fields['confirmPassword']?.didChange(null);
+                                                          }
+                                                          
+                                                        });
+                                                      },),
+                                                    ],
+                                                  ),
 
-                          // --- PASSWORD ---
-                          const Text(
-                            'Ako ne mijenjate lozinku, ostavite polja prazna.',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                     
+                         
                           const SizedBox(height: 8),
-
+                          if(changePassword)
                           FormBuilderTextField(
                             name: "password",
                             obscureText: true,
@@ -347,8 +372,14 @@ class _UserFormDialogState extends State<UserFormDialog> {
                               filled: true,
                               fillColor: Colors.grey[100],
                             ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Lozinka je obavezna.'),
+                              FormBuilderValidators.minLength(6, errorText: 'Minimalno 6 znakova.'),
+                              FormBuilderValidators.maxLength(40, errorText: 'Maksimalno 15 znakova.'),
+                            ]),
                           ),
                           const SizedBox(height: 12),
+                          if(changePassword)
                           FormBuilderTextField(
                             name: "confirmPassword",
                             obscureText: true,
@@ -358,11 +389,16 @@ class _UserFormDialogState extends State<UserFormDialog> {
                               filled: true,
                               fillColor: Colors.grey[100],
                             ),
+                             validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Lozinka je obavezna.'),
+                              FormBuilderValidators.minLength(6, errorText: 'Minimalno 6 znakova.'),
+                              FormBuilderValidators.maxLength(40, errorText: 'Maksimalno 15 znakova.'),
+                            ]),
                           ),
 
                           const SizedBox(height: 24),
 
-                          // --- SAVE BUTTON ---
+               
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -400,7 +436,8 @@ class _UserFormDialogState extends State<UserFormDialog> {
       request['roles']= [11];
       if(request['password']!=request['confirmPassword'])
       {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lozinke se ne poklapaju")));
+       
+        _formKey.currentState?.invalidateField(name: 'confirmPassword', errorText: 'Lozinke se ne poklapaju');
         return;
       }
   

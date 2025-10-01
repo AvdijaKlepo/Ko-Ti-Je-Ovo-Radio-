@@ -437,105 +437,113 @@ final expiry = result['saleExpires'] as DateTime?;
   Future _openCatalogueDialog(BuildContext context) {
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        surfaceTintColor: Colors.white,
-        titlePadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+        return  AlertDialog(
+          surfaceTintColor: Colors.white,
+          titlePadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Objavi katalog proizvoda', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white)),
-            ],
-          )),
-           actions: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FormBuilder(child: 
-              FormBuilderField(
-                name: "storeCatalogue",
-                validator: (val) {
-                  if (_pdfFile == null) {
-                    return "Obavezno je učitati PDF dokument";
-                  }
-                  return null;
+          title: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Objavi katalog proizvoda', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white)),
+              ],
+            )),
+             actions: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FormBuilder(child: 
+                FormBuilderField(
+                  name: "storeCatalogue",
+                  validator: (val) {
+                    if (_pdfFile == null) {
+                      return "Obavezno je učitati PDF dokument";
+                    }
+                    return null;
+                  },
+                  builder: (field) {
+                    return InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: "Katalog (PDF)",
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                title: _pdfFile != null
+                    ? Text(_pdfFile!.path.split('/').last)
+                    : const Text("Nema učitanog PDF dokumenta"),
+                trailing: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  ),
+                  icon: const Icon(Icons.file_upload, color: Colors.white),
+                  label: _pdfFile == null
+                      ? const Text("Odaberi", style: TextStyle(color: Colors.white))
+                      : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
+                  onPressed: () async {
+                     await _pickPdf();
+                     setStateDialog((){});
                 },
-                builder: (field) {
-                  return InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: "Katalog (PDF)",
-                      border: OutlineInputBorder(),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-              title: _pdfFile != null
-                  ? Text(_pdfFile!.path.split('/').last)
-                  : const Text("Nema učitanog PDF dokumenta"),
-              trailing: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+                  
                 ),
-                icon: const Icon(Icons.file_upload, color: Colors.white),
-                label: _pdfFile == null
-                    ? const Text("Odaberi", style: TextStyle(color: Colors.white))
-                    : const Text("Promijeni PDF", style: TextStyle(color: Colors.white)),
-                onPressed: () => _pickPdf(),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                ),
               ),
-                        ),
-                      ],
-                    ),
-                  );
+               ElevatedButton(
+                child: const Text("Pošalji korisnicima", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+          
+              backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+            ),
+                onPressed: () async {
+                  try {
+          await storeProvider.update(AuthProvider.selectedStoreId!,
+          {
+            
+            'storeCatalogue': _base64Pdf,
+            'storeCataloguePublish': DateTime.now().toIso8601String(),
+          });
+        } on UserException catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.exMessage)));
+         
+        }
+        
+        on Exception catch (e) {
+          
+        }
+                 
                 },
               ),
-              ),
-            ),
-             ElevatedButton(
-              child: const Text("Pošalji korisnicima", style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
+           
+          ],
         
-            backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
-          ),
-              onPressed: () async {
-                try {
-  await storeProvider.update(AuthProvider.selectedStoreId!,
-  {
-    
-    'storeCatalogue': _base64Pdf,
-    'storeCataloguePublish': DateTime.now().toIso8601String(),
-  });
-} on UserException catch (e) {
-  if (!mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.exMessage)));
- 
-}
-
-on Exception catch (e) {
-  
-}
-               
-              },
-            ),
-         
-        ],
+        );}
       ),
     );
   }

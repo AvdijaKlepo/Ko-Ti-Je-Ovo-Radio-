@@ -93,6 +93,7 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
   final DateTime? jobDate;
   final List<Job>? bookedJobs;
   final Function? onChange;
+  final Locale? locale;
   @override
   final ValueChanged<TimeOfDay?>? onChanged;
 
@@ -108,6 +109,7 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
     required this.bookedJobs,
     this.onChange,
     this.onChanged,
+    this.locale,
 
     super.validator,
     super.initialValue,
@@ -121,8 +123,11 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
           
            return GestureDetector(
             
+            
   onTap: () async {
                   final picked = await showTimePicker(
+                    
+                    
                     context: field.context,
                     initialTime: jobDate?.toIso8601String().split('T')[0]!=DateTime.now().toIso8601String().split('T')[0] ? field.value ?? minTime : field.value ?? now,
                     
@@ -213,7 +218,7 @@ class FormBuilderCustomTimePicker extends FormBuilderField<TimeOfDay> {
       labelText: field.value!=null ? 'Vrijeme početka' : '',
       errorText: field.errorText,
     ),
-    // this makes the inside text look like a standard input
+
     child: Text(
       field.value?.format(field.context) ?? 'Vrijeme početka',
       style: Theme.of(field.context).textTheme.bodyMedium,

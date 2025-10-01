@@ -7,6 +7,7 @@ import 'package:ko_radio_mobile/models/freelancer_dto.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
+import 'package:ko_radio_mobile/providers/base_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
@@ -275,7 +276,7 @@ void initState() {
                         Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25)),
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25)),
                             icon: const Icon(Icons.save,color: Colors.white,),
                             label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
                             onPressed: _save,
@@ -335,9 +336,15 @@ void initState() {
           const SnackBar(content: Text("Ažuriranje je uspješno završeno.")),
         );
         navigator.pop(true);
-      } catch (e) {
+      } on UserException catch (e) {
         meessage.showSnackBar(
-          SnackBar(content: Text("Greška. Pokušajte ponovo.")),
+          SnackBar(content: Text(e.exMessage)),
+        );
+      }
+      
+      catch (e) {
+        meessage.showSnackBar(
+          const SnackBar(content: Text("Greška. Pokušajte ponovo.")),
         );
       }
     }
