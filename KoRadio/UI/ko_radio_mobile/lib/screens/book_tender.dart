@@ -210,7 +210,7 @@ class _BookTenderState extends State<BookTender> {
                 
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.maxLength(15, errorText: 'Maksimalno 15 znakova'),
+                  FormBuilderValidators.maxLength(25, errorText: 'Maksimalno 25 znakova'),
                   FormBuilderValidators.minLength(3, errorText: 'Minimalno 3 znaka'),
                      (value) {
       if (value == null || value.isEmpty) return null;

@@ -83,27 +83,12 @@ Future<void> _pickPdf() async {
  
    return Scaffold(
   appBar: AppBar(
-    automaticallyImplyLeading: true,
-    
-    scrolledUnderElevation: 0,
-    centerTitle: true,
-    flexibleSpace: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.vertical(
         
-        ),
+      
+        title:  Text('Prijava trgovine',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      centerTitle: true,
+      scrolledUnderElevation: 0,
       ),
-    ),
-    title: const Text(
-      "Prijava trgovine",
-      style: TextStyle(fontSize: 16, color: Colors.white),
-    ),
-  ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: FormBuilder(
@@ -236,24 +221,26 @@ Future<void> _pickPdf() async {
                                   filled: true,
                                   fillColor: Colors.grey[100],
                                 ),
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(
-                                      errorText: "Kraj smjene je obavezan."),
-                                  (value) {
-                                    final start = FormBuilder.of(context)
-                                        ?.fields['startTime']
-                                        ?.value;
-                                    if (start != null && value != null) {
-                                      if (value.isBefore(start)) {
-                                        return "Kraj smjene mora biti nakon početka.";
-                                      }
-                                      if (value.difference(start).inHours < 3) {
-                                        return "Smjena mora trajati najmanje 3 sata.";
-                                      }
-                                    }
-                                    return null;
-                                  }
-                                ]),
+                               validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena je 3 sata";
+  }
+
+  return null;
+},
                               ),
                             ),
                           ],

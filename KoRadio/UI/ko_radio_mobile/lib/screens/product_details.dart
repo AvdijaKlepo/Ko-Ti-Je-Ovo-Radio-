@@ -24,6 +24,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   late Future<List<Product>> recommendedProducts;
   late UserProvider userProvider;
   bool _isLoading = false;
+  Map<int, int> _productQty = {};
 
   @override
   void initState() {
@@ -46,9 +47,24 @@ class _ProductDetailsState extends State<ProductDetails> {
       return [];
     }
   }
+  void _decrementQty() {
+    if (_productQty.isNotEmpty) {
+      setState(() {
+        _productQty.removeWhere((key, value) => value == 0);
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
+final cart = context.watch<CartProvider>();
+
+
+final cartQuantity = cart.items
+    .where((item) => item.product.productId == product!.productId)
+    .fold<int>(0, (sum, item) => sum + item.quantity);
+
+final remainingQty = (product!.stockQuantity ?? 0) - cartQuantity;
 
     if (product == null) {
       return const Scaffold(
@@ -189,18 +205,18 @@ const SizedBox(height: 20),
               alignment: Alignment.bottomRight,
 
               child:   ElevatedButton(onPressed: (){
-                if(widget.product?.isOutOfStock==false)
-                {
-              context.read<CartProvider>().add(product);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${product.productName} dodan u korpu.')),
-          );
-                }
-                else{
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${product.productName} nije na lageru.')),
-                  );
-                }
+                 final cart = context.read<CartProvider>();
+
+  if (remainingQty > 0) {
+    cart.add(product);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product.productName} dodan u korpu.')),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product.productName} nije na lageru.')),
+    );
+  }
             }, child: Text('Dodaj u korpu',style: TextStyle(color: Colors.white),)
             
           ,

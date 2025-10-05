@@ -481,7 +481,7 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
                       ),
                     ),
                   ),
-                const Expanded(flex: 4, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                const Expanded(flex: 3, child: Text("Usluge", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
       showApplicants ? const Expanded(flex: 1, child: Center(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))) : const SizedBox(width: 0),
 
                const Expanded(flex: 1, child: Center(child: Text("Akcije", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
@@ -623,7 +623,7 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
               ),
             ),
           ),
-          Expanded( flex: 4, child: Wrap(
+          Expanded( flex: 3, child: Wrap(
               spacing: 4,
               runSpacing: 4,
               children: freelancer.freelancerServices.map((FreelancerService s) {

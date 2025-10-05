@@ -605,10 +605,10 @@ C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio\obj\Debug\net8.0\ref\KoRadio.API.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\Subscriber.deps.json
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\Subscriber.runtimeconfig.json
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\Subscriber.exe
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\appsettings.json
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\KoRadio.API.staticwebassets.endpoints.json
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\Subscriber.exe
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\KoRadio.API.exe
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\KoRadio.API.deps.json
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\bin\Debug\net8.0\KoRadio.API.runtimeconfig.json
@@ -808,10 +808,10 @@ C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\KoRadio..D85337A6.Up2Date
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\KoRadio.API.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\refint\KoRadio.API.dll
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\KoRadio.API.pdb
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\KoRadio.API.genruntimeconfig.cache
 C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\ref\KoRadio.API.dll
+C:\Users\Avdija\Documents\Razvojsoftvera\Ko-Ti-Je-Ovo-Radio-\KoRadio\KoRadio.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

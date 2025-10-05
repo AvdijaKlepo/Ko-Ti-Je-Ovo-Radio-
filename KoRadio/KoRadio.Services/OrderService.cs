@@ -112,7 +112,25 @@ namespace KoRadio.Services
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
 
 			}
+			if(request.IsCancelled==true)
+			{
+				notification = $"Vaša narudžba broj #{order.OrderNumber} je otkazana.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
 			
+
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
 		

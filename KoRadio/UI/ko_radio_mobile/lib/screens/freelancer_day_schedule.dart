@@ -13,6 +13,7 @@ import 'package:ko_radio_mobile/screens/book_job.dart';
 
 import 'package:provider/provider.dart';
 import 'package:ko_radio_mobile/models/job_status.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class FreelancerDaySchedule extends StatefulWidget {
   const FreelancerDaySchedule(this.selectedDay, this.freelancerId, {super.key});
@@ -36,6 +37,7 @@ class _FreelancerDayScheduleState extends State<FreelancerDaySchedule> {
   @override
   void initState() {
     super.initState();
+        initializeDateFormatting('bs', null);
     setState(() {
       _isLoading=true;
     });
@@ -136,7 +138,7 @@ Widget build(BuildContext context) {
                 
                      
                      
-                       Text('Raspored slobodan za ${DateFormat('dd-MM-yyyy').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),),
+                       Text('Raspored slobodan za ${DateFormat.yMMMd('bs').format(widget.selectedDay)}.',style: TextStyle(fontFamily: GoogleFonts.robotoCondensed().fontFamily,color: Colors.black),),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
                         

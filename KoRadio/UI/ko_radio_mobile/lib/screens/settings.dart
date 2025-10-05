@@ -6,21 +6,21 @@ import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/user.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
-import 'package:ko_radio_mobile/providers/bottom_nav_provider.dart';
+
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
 import 'package:ko_radio_mobile/providers/company_employee_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
 import 'package:ko_radio_mobile/providers/signalr_provider.dart';
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
-import 'package:ko_radio_mobile/screens/messages.dart';
+
 import 'package:ko_radio_mobile/screens/update_freelancer.dart';
 import 'package:ko_radio_mobile/screens/user_company_apply.dart';
 import 'package:ko_radio_mobile/screens/user_freelancer_apply.dart';
 import 'package:ko_radio_mobile/screens/user_store_apply.dart';
 import 'package:ko_radio_mobile/screens/user_update.dart';
 import 'package:provider/provider.dart';
-import 'package:signalr_netcore/hub_connection.dart';
+
 
 class Settings extends StatefulWidget {
  const Settings({super.key});
@@ -57,6 +57,8 @@ class _SettingsState extends State<Settings> {
       await _getFreelancer();
       }
     });
+
+  
 
  
   }
@@ -149,8 +151,8 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
         borderRadius: BorderRadius.circular(100),
         child: user.image != null
             ? imageFromString(user.image!, width: 100, height: 100)
-            : Image.network(
-                'https://www.gravatar.com/avatar/${_userId}?s=200&d=identicon',
+            : Image.asset(
+                'assets/images/user.png',
                 width: 100,
                 height: 100,
               ),
@@ -169,7 +171,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
       },
     ),
     const SizedBox(width: 10),
-    // 👇 This ensures text shrinks inside remaining width
+ 
     Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,8 +339,8 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
   collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
   children: [
-    // Only show the "Apply as Freelancer" tile if the user is not already a freelancer
-    if (user.freelancer?.freelancerId == null && AuthProvider.selectedRole != "Freelancer")
+   
+    if (AuthProvider.user?.freelancer?.freelancerId==null)
       Card(
         color: const Color.fromRGBO(27, 76, 125, 25),
         elevation: 2,
@@ -356,7 +358,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
           onTap: () async {
             final message = ScaffoldMessenger.of(context);
 
-            // Double-check just before navigation
+        
             if (user.freelancer?.freelancerId != null) {
               message.showSnackBar(
                 const SnackBar(content: Text("Već ste freelancer!")),
@@ -370,6 +372,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
 
             if (updated == true) {
               _expansionTileController.collapse();
+              AuthProvider.user?.freelancer?.freelancerId= AuthProvider.user?.userId;
               await _getUserById();
               setState(() {});
             } else if (updated == false) {

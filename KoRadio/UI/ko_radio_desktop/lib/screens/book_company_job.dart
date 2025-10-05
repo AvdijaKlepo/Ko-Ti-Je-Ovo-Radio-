@@ -509,11 +509,11 @@ final currentValues = _formKey.currentState?.value ?? {};
   Future<void> _editJob() async {
     final job = await showDialog<Job>(
       context: context,
-      builder: (c) => EditJob(job: widget.job),
+      builder: (c) => EditJob(job: _jobResult!.result.first),
     );
-    if (job != null) {
+  
       await _loadData();
-    }
+    
   }
    Future<void> _editApproveJob() async {
     final job = await showDialog<Job>(
@@ -545,7 +545,8 @@ final currentValues = _formKey.currentState?.value ?? {};
     try {
       final jobUpdateRequest = {
     
-        'jobStatus': JobStatus.cancelled.name
+        'jobStatus': JobStatus.cancelled.name,
+        'isApproved':false,
       };
 
       await _jobProvider.update(widget.job.jobId, jobUpdateRequest);
@@ -939,7 +940,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                             onChanged: 
                                 (value) {
                                     if (value != null &&
-                                        !selectedIds.contains(value)) {
+                                        !selectedIds.contains(value) && !checkIfValid(value)) {
                                       field.didChange(
                                           [...selectedIds, value]);
                                     }
@@ -1141,6 +1142,12 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                                         initialDate: job.jobDate.isAfter(DateTime.now()) ? job.jobDate : DateTime.now(),
                                                         validator: FormBuilderValidators.compose([
                                                           FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                                          (value){
+                                                            if(value==widget.job.jobDate)
+                                                            {
+                                                              return 'Posao mora trajati barem dva dana.';
+                                                            }
+                                                          }
                                                           
                                                         ]),
                                                         selectableDayPredicate: _isWorkingDay,
@@ -1148,6 +1155,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                                       
                                                          _dateFinishedValue = value;
                                                          _dateFinishedValue!.toIso8601String();
+                                                         
                                                          
                                                         
                                                           
@@ -1184,12 +1192,10 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                                                                                 final end = baseDate.add(formatter.parse(endOfShift)
                                                                                                     .difference(DateTime(1970)));
                                                                     
-                                                                                                if (value.isBefore(start)) {
-                                                                                                  return 'Smijena počinje u ${startOfShift.substring(0, 5)}';
+                                                                                                if (value.isBefore(start) || value.isAfter(end)) {
+                                                                                                  return 'Smijena je između ${startOfShift.substring(0, 5)} i ${endOfShift.substring(0, 5)}';
                                                                                                 }
-                                                                                                if (value.isAfter(end)) {
-                                                                                                  return 'Smijena završava u ${endOfShift.substring(0, 5)}';
-                                                                                                }
+                                                                                                
                                                                     
                                                                                                 return null;
                                                                                               },
@@ -1289,7 +1295,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                   }).toList(),
                   onChanged: canSelectEmployees
                       ? (value) {
-                          if (value != null && !selectedIds.contains(value)) {
+                          if (value != null && !selectedIds.contains(value) && !checkIfValid(value)) {
                             field.didChange([...selectedIds, value]);
                           }
                         }
@@ -1333,7 +1339,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
           );
         },
       ),
-    );
+    );  
   },
 )
 
@@ -1408,6 +1414,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                             onPressed: _cancelJob,
                                           ),
                                           const SizedBox(width: 12),
+                                          if(job.isEdited==false && job.isWorkerEdited==false)
                                             ElevatedButton.icon(
                                             icon: const Icon(Icons.edit, color: Colors.amber),
                                             label: const Text('Uredi', style: TextStyle(color: Colors.amber)),

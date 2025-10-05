@@ -215,7 +215,7 @@ return Scaffold(
                               ),
                             ],
                           ),
-                          if (isFreelancer) ...[
+                       
                             const SizedBox(height: 6),
                             Row(
                               children: [
@@ -224,14 +224,14 @@ return Scaffold(
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Iskustvo: ${freelancer?.experianceYears} godine',
+                                    'Iskustvo: ${isFreelancer ? freelancer?.experianceYears : company?.experianceYears} godina',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ],
                             ),
-                          ],
+                    
                           const SizedBox(height: 6),
                           Row(
                             children: [

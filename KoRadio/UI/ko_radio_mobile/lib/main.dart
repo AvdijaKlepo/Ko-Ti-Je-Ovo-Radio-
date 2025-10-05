@@ -129,51 +129,85 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
-      body: Center(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 400),
-            child: Card(
-            
-              
-              color: Colors.white,
-              surfaceTintColor: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                 Text('Ko Ti Je Ovo Radio?',style: TextStyle(fontSize: 45,fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: const Color.fromRGBO(27, 76, 125, 25)),),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: usernameController,
-                     
-                      decoration:  InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                          labelText: "Email adresa", prefixIcon: const Icon(Icons.email,color: Color.fromRGBO(27, 76, 125, 25))),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      obscureText: true,
-                      obscuringCharacter: '*',
-                      controller: passwordController,
-                      decoration:  InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          labelStyle: const TextStyle(color: Color.fromRGBO(27, 76, 125, 25)),
-                          labelText: "Lozinka",
-                          prefixIcon: const Icon(Icons.password,color: Color.fromRGBO(27, 76, 125, 25))),
-                    ),
-                  ),
+    body: Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Ko Ti Je Ovo Radio?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 36,
+                fontFamily: GoogleFonts.lobster().fontFamily,
+                letterSpacing: 1.2,
+                color: const Color.fromRGBO(27, 76, 125, 1),
+                
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Username
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelStyle: const TextStyle(
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+                labelText: "Email adresa",
+                prefixIcon: const Icon(
+                  Icons.email,
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Password
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              obscuringCharacter: '*',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelStyle: const TextStyle(
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+                labelText: "Lozinka",
+                prefixIcon: const Icon(
+                  Icons.lock,
+                  color: Color.fromRGBO(27, 76, 125, 1),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
                   ElevatedButton(
+                    clipBehavior: Clip.hardEdge,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                   onPressed: () async {
+  onPressed: () async {
 
        try {               
   AuthProvider.username = usernameController.text;
@@ -231,11 +265,40 @@ class _LoginPageState extends State<LoginPage> {
     context: context,
     builder: (context) {
       return SimpleDialog(
-        title: const Text("Odaberite ulogu"),
+         surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+          
+            title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabir uloge', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
         children: filteredRoles.map((userRole) {
           return SimpleDialogOption(
             onPressed: () async {
-              // Set selected role
+            
               AuthProvider.selectedRole = userRole.role?.roleName ?? "";
 
              if (!validateAccountStatus(user)) {
@@ -252,10 +315,10 @@ class _LoginPageState extends State<LoginPage> {
       ],
     ),
   );
-  return; // 🚫 stop here
+  return; 
 }
 
-              // Start SignalR connection
+             
               final signalrProvider = context.read<SignalRProvider>();
               await signalrProvider.startConnection();
            
@@ -268,7 +331,7 @@ class _LoginPageState extends State<LoginPage> {
 
 if (AuthProvider.selectedRole == "CompanyEmployee" &&
     companyEmployees.length > 1) {
-  // filter out employees where the user is owner
+
   final nonOwnerEmployees = companyEmployees.where((ce) => ce.isOwner != true).toList();
 
 
@@ -277,7 +340,34 @@ if (AuthProvider.selectedRole == "CompanyEmployee" &&
     context: context,
     builder: (context) {
       return SimpleDialog(
-        title: const Text("Odaberite firmu:"),
+       surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16)),
+               title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabirite firmu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
         children: nonOwnerEmployees.map((ce) {
           return SimpleDialogOption(
             onPressed: () {
@@ -291,7 +381,21 @@ if (AuthProvider.selectedRole == "CompanyEmployee" &&
                 MaterialPageRoute(builder: (context) => const MasterScreen()),
               );
             },
-            child: Text(ce.companyName ?? 'Nepoznata firma'),
+            child:  Container(
+                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                      child: Center(
+                        child: Text(ce.companyName ?? 'Nepoznata firma',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      ),
+                    ),
           );
         }).toList(),
       );
@@ -312,7 +416,18 @@ else {
                 );
               }
             },
-            child: Text(translateRole(userRole.role?.roleName)),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+              child: Text(translateRole(userRole.role?.roleName),style: const TextStyle(color: Colors.white, fontSize: 18)),
+            ),
           );
         }).toList(),
       );
@@ -372,6 +487,7 @@ else {
 
 
                       child: const Text("Login",style: TextStyle(color: Colors.white),)),
+                      SizedBox(height: 20,),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
@@ -386,8 +502,8 @@ else {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
+      
+    
   }
 }

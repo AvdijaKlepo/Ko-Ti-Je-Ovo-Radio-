@@ -63,7 +63,7 @@ class _TenderScreenState extends State<TenderScreen> {
 }
 void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 100), () async {
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
       setState(() {
         _isLoading = true;
       });
@@ -177,12 +177,27 @@ void _onSearchChanged() {
 
     super.dispose();
   }
+  
+  void _clearDateFilter() async {
+    setState(() {
+      _selectedDay = null;
+
+      _isLoading = true;
+    });
+    await tenderFetcher.refresh(newFilter:_createFilterMap());
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
+   
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 900, minHeight: 600),
@@ -197,6 +212,14 @@ void _onSearchChanged() {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    if (_selectedDay != null )
+                            TextButton.icon(
+                              icon: const Icon(Icons.close),
+                              label: const Text('Poništi aktivni filter datuma'),
+                            onPressed: (){
+                              _clearDateFilter();
+                            },
+                            ),
                     TableCalendar(
                       shouldFillViewport: false,
                       locale: 'bs',
@@ -282,10 +305,12 @@ void _onSearchChanged() {
               ),
             ),
             const VerticalDivider(width: 24),
-
+            
+ 
             // Tenders Grid
             Expanded(
-              child: tenderFetcher.items.isEmpty
+              child: _isLoading ? const Center(child: CircularProgressIndicator()) :
+              tenderFetcher.items.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -303,7 +328,8 @@ void _onSearchChanged() {
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : 
+                   ListView.builder(
                                     controller: _scrollController,
                               
                                     itemCount: tenderFetcher.items.length + (tenderFetcher.hasNextPage ? 1 : 0),

@@ -25,7 +25,7 @@ class SignalRProvider with ChangeNotifier {
   SignalRProvider._privateConstructor(String endpoint) {
     _endpoint = endpoint;
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "http://localhost:5053/");
+        defaultValue: "http://10.0.2.2:5053/");
   }
 
   static final SignalRProvider _instance =

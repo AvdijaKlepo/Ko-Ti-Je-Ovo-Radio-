@@ -106,6 +106,7 @@ void initState() {
           .whereType<int>()
           .toSet()
           .toList(),
+      
     };
     _prepareInitialForm();
      if (widget.job?.image != null) {
@@ -356,36 +357,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                        firstDate: DateTime.now(),
                        selectableDayPredicate: _isWorkingDay,
                        onChanged: (value) async {
-                         setState(() {
-                           _currentJobDate = value;
                          
-                          if (jobDifference != null) {
-          var newDateFinished = DateTime(
-            value!.year,
-            value.month,
-            value.day + jobDifference,
-          );
-               
-                              if(!_isWorkingDay(newDateFinished))
-                           {
-                             
-                            while (!_isWorkingDay(newDateFinished)) {
-                               newDateFinished = newDateFinished.add(const Duration(days: 1));
-                             }
-                             _formKey.currentState?.patchValue({
-                               'dateFinished': newDateFinished,
-                             });
-                           }
-                           else{
-                           _formKey.currentState?.patchValue({
-                             'dateFinished': newDateFinished,
-                           });
-                           }
-                      
-                        
-                          
-                       }});
-               
                         
                
                
@@ -397,7 +369,20 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                      FormBuilderDateTimePicker(
                      
                        format: DateFormat('dd-MM-yyyy'),
-                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
+                   validator: FormBuilderValidators.compose([
+                     FormBuilderValidators.required(errorText: "Obavezno polje"),
+                     (value) {
+                      final jobStart = _formKey.currentState?.fields['jobDate']?.value;
+                      if(value!.isBefore(jobStart))
+                      {
+                        return 'Datum mora biti nakon početka posla';
+                      }
+                      if(value==jobStart)
+                      {
+                        return 'Posao mora trajati barem jedan dan.';
+                      }
+                     }
+                   ]),
                        decoration: const InputDecoration(
                          labelText: 'Kraj radova',
                          border: OutlineInputBorder(),
@@ -411,6 +396,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
               ? widget.job.jobDate
               : DateTime.now(),
                        selectableDayPredicate: _isWorkingDay,
+                       
                       
                      ),
                      const SizedBox(height: 15,),
@@ -480,6 +466,14 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                                           if (value.isAfter(end)) {
                                             return 'Smijena završava u ${endOfShift.substring(0, 5)}';
                                           }
+                                          
+      final jobStart = _formKey.currentState?.fields['startEstimate']?.value;
+       final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, jobStart.hour, jobStart.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value!.hour, value.minute);
+      if (startDt != null && endDt!.isBefore(startDt)) {
+        return 'Vrijeme završetka mora biti nakon početka posla';
+      }
                                                                   
                                           return null;
                                         },
@@ -507,6 +501,8 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                    maxLines: 3,
                    validator: FormBuilderValidators.compose([
                      FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                     FormBuilderValidators.maxLength(50,errorText: 'Maksimalno 50 znakova.'),
+                     FormBuilderValidators.minLength(3,errorText: 'Minimalno 3 znakova.'),
                     (value) {
               if (value == null || value.isEmpty) return null;
            final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
@@ -574,6 +570,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
                                                         children: [
                                                           FormBuilderCheckboxGroup<int>(
                                   name: 'companyEmployeeId',
+                                  enabled: false,
                                   validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                   decoration: const InputDecoration(labelText: 'Zaduženi radnici'),
                                   options: companyJobAssignmentResult!.result.map((e) {
@@ -835,7 +832,7 @@ for (var jobCheck in selectedEmployeeJobs) {
                   formData["jobDate"] =
                       (formData["jobDate"] as DateTime).toIso8601String();
                 }
-                 if (formData["dateFinished"] is DateTime && formData["dateFinished"]!=null) {
+                 if (formData["dateFinished"] is DateTime && widget.job.dateFinished!=null) {
                   formData["dateFinished"] =
                       (formData["dateFinished"] as DateTime).toIso8601String();
                 }
@@ -870,11 +867,12 @@ for (var jobCheck in selectedEmployeeJobs) {
                   "payEstimate": formData["payEstimate"],
           
                   "jobDate": formData["jobDate"],
-                  "dateFinished": formData["jobDate"],
+                  "dateFinished": formData["dateFinished"],
                   "jobDescription": formData["jobDescription"],
                   "image": formData["image"],
                   "jobStatus": widget.job.jobStatus.name,
                   "serviceId": formData["serviceId"],
+                  'isWorkerEdited': true,
                  
                 };
 

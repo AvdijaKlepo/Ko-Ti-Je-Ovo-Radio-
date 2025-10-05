@@ -99,6 +99,12 @@ class _CompanyJobState extends State<CompanyJob> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await jobsPagination.refresh();
+      await _loadCompany();
+       _workingDayInts = companyResult?.result.first.workingDays
+            ?.map((day) => _dayStringToInt[day] ?? -1)
+            .where((dayInt) => dayInt != -1)
+            .toSet() ?? {};
+ 
       await _loadAllJobsForCalendar();
 
       
@@ -147,21 +153,26 @@ class _CompanyJobState extends State<CompanyJob> {
   setState(() {
     jobsByDate.clear();
 
-    for (var job in jobResult!.result) {
+    for (var job in jobResult?.result ?? []) {
       final start = DateTime(job.jobDate.year, job.jobDate.month, job.jobDate.day);
-
 
       if (job.dateFinished != null) {
         final end = DateTime(job.dateFinished!.year, job.dateFinished!.month, job.dateFinished!.day);
 
         for (var date = start;
-            !date.isAfter(end); 
+            !date.isAfter(end);
             date = date.add(const Duration(days: 1))) {
-          jobsByDate.putIfAbsent(date, () => []).add(job);
+          
+          
+          if (_isWorkingDay(date)) {
+            jobsByDate.putIfAbsent(date, () => []).add(job);
+          }
         }
       } else {
 
-        jobsByDate.putIfAbsent(start, () => []).add(job);
+        if (_isWorkingDay(start)) {
+          jobsByDate.putIfAbsent(start, () => []).add(job);
+        }
       }
     }
   });
@@ -470,6 +481,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                               
                          SizedBox(
                           child: TextField(
+                           
                             controller: _employeeController,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(
@@ -540,7 +552,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
 
   Widget _jobCard(BuildContext context, Job job) {
     return Card(
-      color: job.isEdited == false || job.isWorkerEdited == false ? const Color.fromRGBO(27, 76, 125, 1) : Colors.amber,
+      color:Colors.transparent,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -553,13 +565,16 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
         child: Container(
            width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)],
+            colors: (job.isEdited == true || job.isWorkerEdited == true)
+    ? [const Color.fromRGBO(27, 76, 125, 1), Colors.amberAccent ]
+    : [const Color.fromRGBO(27, 76, 125, 1), const Color(0xFF4A90E2)],
+
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16),
             topRight: Radius.circular(16),
           ),
@@ -575,7 +590,7 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                   borderRadius: BorderRadius.circular(25),
                   child: job.user?.image!= null ?
                 imageFromString(job.user!.image!, width: 40, height: 40) :
-                Image.asset('Sample_User_Icon.png',width: 40,height: 40,),
+                Image.asset('assets/images/Sample_User_Icon.png',width: 40,height: 40,),
                 ),
                
                 const SizedBox(width: 16),
@@ -627,17 +642,35 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ),
-                       if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
+                       
+                      Row(
+                        children: [
+                          if(job.jobStatus==JobStatus.approved || job.jobStatus==JobStatus.unapproved)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: job.jobStatus==JobStatus.approved ? Colors.green : Colors.red,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              job.jobStatus==JobStatus.approved ? 'U toku' : 'Neodobren',
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                          SizedBox(width: 15,),
+                          if(job.isEdited==true || job.isWorkerEdited==true)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Izmjenjen',
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                        ],
                       ),
                        if(job.jobStatus==JobStatus.cancelled)
                       Container(
@@ -646,9 +679,9 @@ Map<String, dynamic> _createFilterMap(JobStatus status, {DateTime? date}) {
                           color:  Colors.red,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Otkazan',
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                          style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ),
                     ],

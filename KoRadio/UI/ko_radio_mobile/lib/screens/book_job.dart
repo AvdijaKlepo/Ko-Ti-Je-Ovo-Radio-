@@ -159,7 +159,7 @@ class _BookJobState extends State<BookJob> {
 
     return Scaffold(
 
-      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
+      appBar: AppBar(scrolledUnderElevation: 0,title:  Text('Rezerviši posao',style: TextStyle(color: const Color.fromRGBO(27, 76, 125, 1),fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2)),
       centerTitle: true,
       ),
       
@@ -189,7 +189,7 @@ class _BookJobState extends State<BookJob> {
                 '${job.startEstimate?.substring(0, 5)} - ${job.endEstimate?.substring(0, 5)}',
               ),
               disabledColor: Colors.grey.shade200,
-              onPressed: null, // keeps them non-interactive
+              onPressed: null, 
             ),
           ).toList(),
         ),
@@ -197,7 +197,7 @@ class _BookJobState extends State<BookJob> {
       ] else
         const SizedBox.shrink(),
               
-                 Text('Posao i servis',style: const TextStyle(
+                 const Text('Posao i servis',style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),),
                     const SizedBox(height: 15,),
               
@@ -220,11 +220,11 @@ class _BookJobState extends State<BookJob> {
                       name: "jobTitle",
                       decoration:  InputDecoration(
                         labelText: 'Naslov posla',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.description),
                         filled: true,
                         fillColor: Colors.grey[100],
-                        helperText: 'Maksimalno 15 znakova'
+                        helperText: 'Minimalno 15 znakova'
                       ),
                    
                     ),  
@@ -247,8 +247,8 @@ class _BookJobState extends State<BookJob> {
                       name: "jobDescription",
                       decoration:  InputDecoration(
                         labelText: 'Opis problema',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.description),
                          filled: true,
                         fillColor: Colors.grey[100],
                         helperText: 'Maksimalno 230 znakova'
@@ -261,7 +261,7 @@ class _BookJobState extends State<BookJob> {
                       validator: (value) => value == null || value.isEmpty ? "Odaberite barem jednu uslugu" : null,
                       decoration:  InputDecoration(
                         labelText: "Servis",
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                         filled: true,
                         fillColor: Colors.grey[100],
                         
@@ -280,14 +280,14 @@ class _BookJobState extends State<BookJob> {
                     const SizedBox(height: 15),
                     
                     
-                                 Text('Rezervacija',style: const TextStyle(
+                                 const Text('Rezervacija',style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),),
                     const SizedBox(height: 15),
 
                 FormBuilderDateTimePicker(
                   validator: FormBuilderValidators.required(errorText: "Obavezno polje"),
-                  locale: Locale('bs'),
-                      decoration:  InputDecoration(
+                  locale: const Locale('bs'),
+                      decoration:  const InputDecoration(
                         labelText: 'Datum rezervacije',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.calendar_today),
@@ -321,7 +321,7 @@ class _BookJobState extends State<BookJob> {
                       errorText: 'Obavezno polje'),
                 ),
                   const SizedBox(height: 15,),
-                           Text('Slika',style: const TextStyle(
+                           const Text('Slika',style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),),
                   const SizedBox(height: 15,),
 
@@ -344,7 +344,7 @@ class _BookJobState extends State<BookJob> {
                 : const Text("Nema izabrane slike"),
             trailing: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(27, 76, 125, 1),
+                backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
                 textStyle: const TextStyle(color: Colors.white),
               ),
               icon: const Icon(Icons.file_upload, color: Colors.white),

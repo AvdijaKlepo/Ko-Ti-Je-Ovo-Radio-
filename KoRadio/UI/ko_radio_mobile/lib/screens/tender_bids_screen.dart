@@ -416,8 +416,8 @@ Widget _buildBidCard(TenderBid tenderBid) {
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: isFreelancerBid
-                  ? [Colors.indigo.shade700, Colors.indigoAccent.shade200]
-                  : [Colors.teal.shade700, Colors.tealAccent.shade200],
+                  ? [Colors.blue.shade700, Colors.indigoAccent.shade200]
+                  : [Colors.blue.shade700, Colors.indigoAccent.shade200],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -477,16 +477,25 @@ Widget _buildBidCardContent(TenderBid tenderBid, ThemeData theme) {
             size: 18,
           ),
           const SizedBox(width: 6),
-          Expanded(
+         
+            Expanded(
             child: Text(
               isFreelancerBid ? "Radnik: $bidderName" : "Firma: $bidderName",
               style: const TextStyle(color: Colors.white, fontSize: 15),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          
         ],
       ),
       const SizedBox(height: 4),
+       Text(
+         isFreelancerBid ? "Ocjena radnika: ${tenderBid.freelancer?.rating}" : "Ocjena firme: ${tenderBid.company?.rating}",
+         style: const TextStyle(color: Colors.white, fontSize: 15),
+         overflow: TextOverflow.ellipsis,
+       ),
+      const SizedBox(height: 4),
+
       Text(
         "Opis: ${tenderBid.bidDescription}",
         style: const TextStyle(color: Colors.white70, fontSize: 14),
@@ -541,7 +550,7 @@ Widget _buildBidCardContent(TenderBid tenderBid, ThemeData theme) {
           ],
         ));
       },style: ElevatedButton.styleFrom(backgroundColor: Colors.red,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
-       child: const Text('Izbriši ponudu',style: TextStyle(color: Colors.black),),),
+       child: const Text('Izbriši ponudu',style: TextStyle(color: Colors.white),),),
      
 
     ],
@@ -569,8 +578,10 @@ Widget _buildAcceptButton(TenderBid tenderBid) {
   );
 }
 
-// Unified function to show the accept dialog and handle the logic
+
 Future<void> _showAcceptDialog(TenderBid tenderBid) async {
+  final message = ScaffoldMessenger.of(context);
+  final navigator = Navigator.of(context);
   return showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -591,17 +602,17 @@ Future<void> _showAcceptDialog(TenderBid tenderBid) async {
 
               await jobProvider.update(tenderBid.jobId!, requestData);
 
-              ScaffoldMessenger.of(context).showSnackBar(
+              message.showSnackBar(
                 const SnackBar(content: Text("Posao potvrđen!")),
               );
-              Navigator.of(context).pop(true);
-              Navigator.of(context).pop(true);
+              navigator.pop(true);
+              navigator.pop(true);
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              message.showSnackBar(
                 SnackBar(content: Text("Greška: ${e.toString()}")),
               );
-              Navigator.of(context).pop(false);
-              Navigator.of(context).pop(false);
+             navigator.pop(false);
+              navigator.pop(false);
             }
           },
           child: const Text("Potvrdi", style: TextStyle(color: Color.fromRGBO(27, 76, 125, 1))),
@@ -706,10 +717,24 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final hasBids = tenderBidFetcher.items.isNotEmpty;
-    final hasUserAlreadyBid = tenderBidFetcher.items.any(
+   final hasBids = tenderBidFetcher.items.isNotEmpty;
+final hasUserAlreadyBid = tenderBidFetcher.items.any(
   (bid) => bid.freelancer?.freelancerId == AuthProvider.user?.userId,
 );
+
+final bids = tenderBidFetcher.items.toList();
+
+// If freelancer, reorder so their bid comes first
+if (AuthProvider.selectedRole == "Freelancer" && hasUserAlreadyBid) {
+  final userId = AuthProvider.user?.userId;
+  final myBid = bids.firstWhere(
+    (b) => b.freelancer?.freelancerId == userId,
+  );
+
+  // Move logged-in freelancer’s bid to the top
+  bids.remove(myBid);
+  bids.insert(0, myBid);
+}
 
 
     return Scaffold(
@@ -741,8 +766,11 @@ Map<String, dynamic> _buildCompanyRequest(TenderBid tenderBid) {
                   ),
                 ),
             ] else ...[
-               Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20,fontWeight: FontWeight.bold, fontFamily: GoogleFonts.roboto().fontFamily,color: Colors.indigo),)),
-              ...tenderBidFetcher.items.map(_buildBidCard),
+               Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20,fontWeight: FontWeight.bold, fontFamily: GoogleFonts.roboto().fontFamily,color: Colors.blue.shade700),)),
+              ...bids.map((bid) {
+        final isMyBid = bid.freelancer?.freelancerId == AuthProvider.user?.userId;
+        return _buildBidCard(bid,);
+      }),
               if (tenderBidFetcher.hasNextPage)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),

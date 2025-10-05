@@ -16,8 +16,7 @@ namespace Subscriber.MailSenderService
 			public async Task SendEmail(Email emailObj)
 			{
 				if (emailObj == null) return;
-
-			Env.Load(Path.Combine(AppContext.BaseDirectory, @"..\..\..\..\.env"));
+			Env.Load();
 
 
 

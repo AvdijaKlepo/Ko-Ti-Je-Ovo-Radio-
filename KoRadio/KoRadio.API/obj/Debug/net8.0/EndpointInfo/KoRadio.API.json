@@ -658,6 +658,17 @@
             }
           },
           {
+            "name": "CompanyEmployeeIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
             "name": "DateRange",
             "in": "query",
             "schema": {

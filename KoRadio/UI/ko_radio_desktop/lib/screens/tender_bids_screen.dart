@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/tender_bids.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
@@ -29,6 +30,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
   @override
   void initState() {
     super.initState();
+        initializeDateFormatting('bs', null);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       jobProvider = context.read<JobProvider>();
     });
@@ -181,7 +183,7 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                 style: const TextStyle(fontSize: 15, color: Colors.white)),
             const SizedBox(height: 6),
             if(tenderBid.dateFinished!=null)
-            Text('Posao traje od: ${DateFormat('dd‑MM‑yyyy').format(widget.tender.jobDate)} do ${DateFormat('dd‑MM‑yyyy').format(tenderBid.dateFinished ?? DateTime.now())}',
+            Text('Posao traje od: ${DateFormat.yMMMd('bs').format(widget.tender.jobDate)} do ${DateFormat.yMMMd('bs').format(tenderBid.dateFinished ?? DateTime.now())}',
                 style: const TextStyle(fontSize: 13, color: Colors.white70),
             
 
@@ -196,6 +198,50 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
                
            
             ),
+            if(tenderBid.companyId==AuthProvider.selectedCompanyId)
+            ElevatedButton(onPressed: () async{
+              final message = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
+              await showDialog(context: context, builder: (_) => AlertDialog(
+                title: const Text('Izbriši ponudu?'),
+                content: const Text('Jeste li sigurni da želite izbrisati ovu ponudu?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Ne'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      try{
+                        await tenderBidProvider.delete(tenderBid.tenderBidId);
+                        await tenderBidFetcher.refresh(newFilter: {
+                          'tenderId': widget.tender.jobId,
+                        });
+                        message.showSnackBar(
+                          const SnackBar(content: Text("Ponudu je uspješno izbrisana.")),
+                        );
+                      } on Exception catch (e) {
+                        message.showSnackBar(
+                          const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
+                        );
+                      }
+                      navigator.pop(true);
+                    },
+                    child: const Text('Da'),
+                  ),
+                ],
+              ));
+            }, style:ElevatedButton.styleFrom(backgroundColor:  Colors.red),
+            child: const Text('Izbriši ponudu', style: TextStyle(color: Colors.white))),
+            const SizedBox(height: 10,),
+            if(tenderBid.companyId==AuthProvider.selectedCompanyId)
+            ElevatedButton(onPressed: () async{
+              await showDialog(context: context, builder: (_) => TenderBidScreen(tender: widget.tender,tenderBid: tenderBid));
+              await tenderBidFetcher.refresh(newFilter: {
+                'tenderId': widget.tender.jobId,
+              });
+            },style:ElevatedButton.styleFrom(backgroundColor:  Colors.amberAccent),
+             child: const Text('Uredi ponudu', style: TextStyle(color: Colors.white))),
           ],
         ),
       ),

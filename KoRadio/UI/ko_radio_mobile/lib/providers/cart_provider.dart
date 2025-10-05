@@ -17,6 +17,9 @@ class CartProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
+  
+
+
 
   void remove(Product product) {
     _items.removeWhere((item) => item.product.productId == product.productId);

@@ -22,6 +22,7 @@ import 'package:ko_radio_mobile/providers/messages_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class EditCompanyJob extends StatefulWidget {
   const EditCompanyJob({required this.job, super.key});
@@ -34,7 +35,7 @@ class EditCompanyJob extends StatefulWidget {
 class _EditCompanyJobState extends State<EditCompanyJob> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
-  late DateTime? _currentJobDate;
+  DateTime? _currentJobDate;
   List<CompanyJobAssignment>? _currentBookedJobs;
   List<Job>? _employeeJobs;
   late Set<int> _workingDayInts;
@@ -60,6 +61,7 @@ class _EditCompanyJobState extends State<EditCompanyJob> {
   SearchResult<CompanyJobAssignment>? jobResult;
   SearchResult<Service>? serviceResult;
   SearchResult<Company>? companyResult;
+  SearchResult<CompanyJobAssignment>? companyJobResult;
 
   TimeOfDay _parseTime(String timeStr) {
     final parts = timeStr.split(':');
@@ -152,6 +154,7 @@ Future<void> _pickImage() async {
   @override
   void initState() {
     super.initState();
+       initializeDateFormatting('bs', null);
     _currentJobDate = widget.job.jobDate;
     _initialValue = _buildInitialValues(widget.job);
 
@@ -177,15 +180,23 @@ Future<void> _pickImage() async {
       _decodedImage = null;
     }
   }
+  
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       setState(() {
         isLoading = true;
-      });
+      }); 
+      await _getCompanyJobs();
       await _getJobs(); 
+    
+  
       initForm();
-      _currentBookedJobs = jobResult?.result
-          .where((element) => element.jobId != widget.job.jobId)
-          .toList();
+       final assignedEmployeeIds =
+      companyJobResult?.result.map((e) => e.companyEmployeeId).toSet() ?? {};
+     _currentBookedJobs = jobResult?.result
+      .where((element) =>
+          element.jobId != widget.job.jobId &&
+          assignedEmployeeIds.contains(element.companyEmployeeId))
+      .toList();
           _employeeJobs = _currentBookedJobs?.map((e) => e.job!).toList();
       setState(() {
         isLoading = false;
@@ -206,20 +217,45 @@ Future<void> _getJobs() async {
   setState(() => isLoading = true);
   try {
     final job = await companyJobCheck.get(filter: {
-      'JobId': widget.job.jobId,
+     'DateRange': requested,
       'IsFinished': false,
       'IsCancelled': false,
+      
     });
+    print(requested);
     if (!mounted || requested != _currentJobDate) return; 
     setState(() {
       jobResult = job;
-
+        final assignedEmployeeIds =
+      companyJobResult?.result.map((e) => e.companyEmployeeId).toSet() ?? {};
+     _currentBookedJobs = jobResult?.result
+      .where((element) =>
+          element.jobId != widget.job.jobId &&
+          assignedEmployeeIds.contains(element.companyEmployeeId))
+      .toList();
+          _employeeJobs = _currentBookedJobs?.map((e) => e.job!).toList();
       isLoading = false;
     });
   } catch (e) {
     if (!mounted) return;
     setState(() => isLoading = false);
     message.showSnackBar(const SnackBar(content: Text('Greška u prikazivanju termina. Molimo pokušajte ponovo.')));
+  }
+}
+
+Future<void> _getCompanyJobs() async {
+  var filter = {'JobId': widget.job.jobId};
+  try {
+    var fetchedCompanyJob = await companyJobCheck.get(filter: filter);
+    setState(() {
+      companyJobResult = fetchedCompanyJob;
+  
+    });
+  } on Exception catch (e) {
+    if(!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
   }
 }
 
@@ -308,31 +344,69 @@ if (jobStartTime != null && jobEndTime != null) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 isLoading ? const Center(child: LinearProgressIndicator()) :
-               
-                _currentBookedJobs!=null && _currentBookedJobs!.isNotEmpty ? 
-                 Text(
-                    'Rezervacije radnika za ${DateFormat('dd-MM-yyyy').format(_currentJobDate ?? DateTime.now())}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 12),
-                  ) : const SizedBox.shrink(),
+          
+                 if (_currentBookedJobs != null && _currentBookedJobs!.isNotEmpty) ...[
+        Text(
+          'Rezervacije za ${DateFormat.yMMMMd('bs').format(_currentJobDate!)}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 6),
+               Wrap(
+          spacing: 6,
+          runSpacing: -8,
+          children: _currentBookedJobs!.map(
+            (job) {
+              final startRaw = job.job?.startEstimate ?? '';
+              final endRaw = job.job?.endEstimate ?? '';
+              final start = startRaw.length >= 5 ? startRaw.substring(0, 5) : startRaw;
+              final end = endRaw.length >= 5 ? endRaw.substring(0, 5) : endRaw;
+
+              final firstName = job.companyEmployee?.user?.firstName ?? '';
+              final lastName = job.companyEmployee?.user?.lastName ?? '';
+              final employeeDisplay = (firstName + (lastName.isNotEmpty ? ' $lastName' : '')).trim();
+              final initials = (firstName.isNotEmpty ? firstName[0] : '') +
+                  (lastName.isNotEmpty ? lastName[0] : '');
+
+              final chipLabel = employeeDisplay.isNotEmpty
+                  ? '$employeeDisplay — $start - $end'
+                  : '$start - $end';
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Tooltip(
+                          
+                  message: chipLabel,
+                  child: InputChip(
                   
-              
-                  const SizedBox(height: 6),
-                 
-                  ...?_currentBookedJobs?.map(
-                    (job) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
+                    avatar: CircleAvatar(
                       child: Text(
-                        '  ${job.job?.startEstimate?.substring(0, 5)} - ${job.job?.endEstimate?.substring(0, 5)}',
-                        style: const TextStyle(color: Colors.grey),
+                        initials.toUpperCase(),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
+                    label: Text(chipLabel),
+                    disabledColor: Colors.grey.shade200,
+                    onPressed: null,
                   ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+        
+
+        const Divider(height: 20),
+      ] else
+        const SizedBox.shrink(),
                   
                   
               
-                const SizedBox(height: 20),
+            const Text('Posao i servis',style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                
                 FormBuilderTextField(
               
@@ -356,8 +430,61 @@ if (jobStartTime != null && jobEndTime != null) {
                     ]
                       
                 ),
+               
+                ),
+           
+                const SizedBox(height: 15,),
+               
+                FormBuilderTextField(
+                  name: "jobDescription",
+                  enabled:true,
+                  decoration: const InputDecoration(
+                    labelText: 'Opis problema',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                  maxLines: 3,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                    (value) {
+                      if (value == null || value.isEmpty) return null;
+                      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
+
+                      if (!regex.hasMatch(value)) {
+                        return 'Dozvoljena su samo slova i brojevi';
+                      }
+                      return null;
+                    },
+                  ]),
                 ),
                 const SizedBox(height: 15),
+                FormBuilderCheckboxGroup<int>(
+               
+                  name: "serviceId",
+                  decoration: const InputDecoration(
+                    labelText: "Servis",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Obavezno polje'),
+                  options: widget.job.company?.companyServices
+                          .map(
+                            (item) => FormBuilderFieldOption<int>(
+                              value: item.service!.serviceId,
+                              child: Text(item.service?.serviceName ?? ""),
+                            ),
+                          )
+                          .toList() ??
+                      [],
+                ),
+                const SizedBox(height: 15),
+
+               
+                    
+            const Text('Rezervacija',style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
+               
                 FormBuilderDateTimePicker(
                   enabled: !isLoading,
                   format: DateFormat('dd-MM-yyyy'),
@@ -515,55 +642,12 @@ if (jobStartTime != null && jobEndTime != null) {
                       ]),
                       
                     ),
-                const SizedBox(height: 15),
-                if (widget.job.jobStatus == JobStatus.approved)
-                  const SizedBox(
-                    height: 15,
-                  ),
-                FormBuilderTextField(
-                  name: "jobDescription",
-                  enabled: AuthProvider.user?.freelancer?.freelancerId != null
-                      ? false
-                      : true,
-                  decoration: const InputDecoration(
-                    labelText: 'Opis problema',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                  maxLines: 3,
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                    (value) {
-                      if (value == null || value.isEmpty) return null;
-                      final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');
-
-                      if (!regex.hasMatch(value)) {
-                        return 'Dozvoljena su samo slova i brojevi';
-                      }
-                      return null;
-                    },
-                  ]),
-                ),
-                const SizedBox(height: 15),
-                FormBuilderCheckboxGroup<int>(
+                  if(widget.job.jobStatus==JobStatus.approved)
+            const Text('Procijena',style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                
-                  name: "serviceId",
-                  decoration: const InputDecoration(
-                    labelText: "Servis",
-                    border: InputBorder.none,
-                  ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Obavezno polje'),
-                  options: widget.job.freelancer?.freelancerServices
-                          .map(
-                            (item) => FormBuilderFieldOption<int>(
-                              value: item.service!.serviceId,
-                              child: Text(item.service?.serviceName ?? ""),
-                            ),
-                          )
-                          .toList() ??
-                      [],
-                ),
+              
                 const SizedBox(height: 15),
                 if (widget.job.jobStatus != JobStatus.unapproved)
                   FormBuilderTextField(
@@ -584,9 +668,10 @@ if (jobStartTime != null && jobEndTime != null) {
                     ]),
                     valueTransformer: (value) => double.tryParse(value ?? ''),
                   ),
-                const SizedBox(
-                  height: 15,
-                ),
+              
+                 const Text('Slika',style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),),
+                    const SizedBox(height: 15,),
                FormBuilderField(
   name: "image",
   builder: (field) {
@@ -672,7 +757,7 @@ if (jobStartTime != null && jobEndTime != null) {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
               onPressed: () async {
                 
                 
@@ -688,10 +773,7 @@ if (jobStartTime != null && jobEndTime != null) {
                 var formData = Map<String, dynamic>.from(
                     _formKey.currentState?.value ?? {});
 
-        if(formData["jobDate"]==widget.job.jobDate && formData["dateFinished"]==widget.job.dateFinished){
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Niste napravili promjene.")));
-          return;
-        }
+    
 
                 if (formData["jobDate"] is DateTime) {
                   formData["jobDate"] =
@@ -760,13 +842,7 @@ if (jobStartTime != null && jobEndTime != null) {
               try{
                
                 await jobProvider.update(widget.job.jobId,jobInsertRequest);
-                await messagesProvider.insert({
-                      'message1':
-                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
-                      'companyId': widget.job.company?.companyId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
+               
             
                 if(!mounted) return;
                  Navigator.of(context).pop();
@@ -808,13 +884,7 @@ var jobInsertRequestApproved = {
               try{
                
                 await jobProvider.update(widget.job.jobId,jobInsertRequestApproved);
-                await messagesProvider.insert({
-                      'message1':
-                          "Posao ${widget.job.jobTitle} je uređen od strane korisnika",
-                      'companyId': widget.job.company?.companyId,
-                      'createdAt': DateTime.now().toIso8601String(),
-                      'isOpened': false,
-                    });
+               
             
                 if(!mounted) return;
                  Navigator.of(context).pop();

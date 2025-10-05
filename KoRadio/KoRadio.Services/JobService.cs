@@ -457,8 +457,69 @@ namespace KoRadio.Services
 				await _messageService.InsertAsync(insertRequest, cancellationToken);
 
 			}
-				
-			
+			if(entity.FreelancerId!=null && entity.CompanyId==null && request.JobStatus== "cancelled" && request.IsApproved==false)
+			{
+				var messageContent = $"Radnik {job.Freelancer.FreelancerNavigation.FirstName} {job.Freelancer.FreelancerNavigation.LastName} je otkazao posao {job.JobTitle}.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					UserId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			if (entity.FreelancerId == null && entity.CompanyId != null && request.JobStatus == "cancelled" && request.IsApproved == false)
+			{
+				var messageContent = $"Firma {job.Company.CompanyName}  je otkazala posao {job.JobTitle}.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					UserId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			if (entity.FreelancerId != null && entity.CompanyId == null && request.JobStatus == "cancelled" && request.IsApproved == true)
+			{
+				var messageContent = $"Korisnik {job.User.FirstName} {job.User.LastName} je otkazao posao {job.JobTitle}.";
+				await _hubContext.Clients.User(entity.FreelancerId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					UserId = entity.FreelancerId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+			if (entity.FreelancerId == null && entity.CompanyId != null && request.JobStatus == "cancelled" && request.IsApproved == true)
+			{
+				var messageContent = $"Korisnik {job.User.FirstName} {job.User.LastName} je otkazao posao {job.JobTitle}.";
+				await _hubContext.Clients.User(entity.CompanyId.ToString())
+					.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = messageContent,
+					CompanyId = entity.CompanyId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
+			}
+
+
+
 
 
 

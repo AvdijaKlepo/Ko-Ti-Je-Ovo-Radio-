@@ -738,7 +738,7 @@ const SizedBox(height: 16),
                               borderRadius: BorderRadius.circular(20),
                                                   ),
                                                   child: const Text(
-                              'Izmenjen',
+                              'Izmjenjen',
                               style: TextStyle(color: Colors.white, fontSize: 12),
                                                   ),
                                                 ),

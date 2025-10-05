@@ -107,7 +107,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                FormBuilderTextField(
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: "Obavezno polje"),
-                    FormBuilderValidators.maxLength(15,errorText: 'Maksimalno 15 znakova'),
+                    FormBuilderValidators.maxLength(25,errorText: 'Maksimalno 25 znakova'),
                     FormBuilderValidators.minLength(4,errorText: 'Minimalno 4 znaka'),
 
 
@@ -127,7 +127,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                         prefixIcon: Icon(Icons.description),
                         filled: true,
                         fillColor: Colors.grey[100],
-                        helperText: 'Maksimalno 15 znakova'
+                        helperText: 'Maksimalno 25 znakova'
                       ),
                    
                     ),  
@@ -136,7 +136,7 @@ class _BookCompanyJobState extends State<BookCompanyJob> {
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: "Obavezno polje"),
                     FormBuilderValidators.maxLength(230,errorText: 'Maksimalno 230 znakova'),
-                    FormBuilderValidators.minLength(15,errorText: 'Minimalno 15 znaka'),
+                    FormBuilderValidators.minLength(15,errorText: 'Minimalno 15 znakova'),
                    (value) {
       if (value == null || value.isEmpty) return null;
        final regex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ0-9\s.,]+$');

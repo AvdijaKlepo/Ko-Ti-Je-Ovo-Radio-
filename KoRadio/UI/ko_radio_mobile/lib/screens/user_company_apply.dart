@@ -188,11 +188,7 @@ _formKey.currentState?.invalidateField(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Prijava firme za korisnika: ${widget.user?.firstName} ${widget.user?.lastName}",
-                  style: Theme.of(context).textTheme.titleLarge),
-             
-             
-          SizedBox(height: 20,),
+           
            const Text(
                               'Informacije o firmi',
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -333,16 +329,26 @@ _formKey.currentState?.invalidateField(
                                       fillColor: Colors.grey[100],
                                     ),
                                     inputType: InputType.time,
-                                    validator: (value) {
-                                      final form = FormBuilder.of(context);
-                                      final start = form?.fields['startTime']?.value;
-                                      if (value == null) return "Kraj je obavezan.";
-                                      if (start != null) {
-                                        if (value.isBefore(start)) return "Kraj mora biti nakon početka.";
-                                        if (value.difference(start).inHours < 3) return "Smjena mora trajati barem 3 sata.";
-                                      }
-                                      return null;
-                                    },
+                                   validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena je 3 sata";
+  }
+
+  return null;
+},
                                   ),
                                 ),
                               ],

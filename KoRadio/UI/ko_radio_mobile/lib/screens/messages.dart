@@ -297,7 +297,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     
                    
                     return Card(
-  color: e.isOpened == true ? const Color(0xFF2E2E2E) : const Color(0xFFFFF3CD), // grey/amber improved
+  color: e.isOpened == true ? const Color(0xFF2E2E2E) : const Color(0xFFFFF3CD), 
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(12),
   ),
@@ -308,6 +308,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     onTap: () async {
       await showDialog(context: context, builder: (_) => MessageDetails(messages: e));
       await messagesPagination.refresh();
+      await _fetchData();
     },
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -327,7 +328,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  e.message1.toString().split('.')[0],
+                  e.message1!,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: e.isOpened! ? Colors.white70 : Colors.black,
                     fontWeight: FontWeight.w600,

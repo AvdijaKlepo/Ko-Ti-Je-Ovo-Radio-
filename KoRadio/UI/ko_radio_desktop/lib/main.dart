@@ -350,7 +350,10 @@ Widget build(BuildContext context) {
               }, icon: const Icon(Icons.close, color: Colors.white)),
             ],
           )),
-                children: companyEmployees.map((company) {
+                children:
+                 
+                
+                companyEmployees.map((company) {
                   return SimpleDialogOption(
                     onPressed: () async {
                       AuthProvider.selectedCompanyId = company.companyId;
@@ -532,7 +535,35 @@ Widget build(BuildContext context) {
           await showDialog(
             context: context,
             builder: (context) => SimpleDialog(
-              title: const Text("Odaberite firmu:"),
+              
+                 surfaceTintColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16)),
+               title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Odabirite firmu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              IconButton(onPressed: () {  
+              Navigator.of(context, rootNavigator: true).pop();
+                
+              
+              }, icon: const Icon(Icons.close, color: Colors.white)),
+            ],
+          )),
               children: companyEmployees.map((company) {
                 return SimpleDialogOption(
                   onPressed: () async {
@@ -560,8 +591,21 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (_) => const MasterScreen()),
                     );
                   },
-                  child: Text(company.companyName ?? 'Nepoznata firma',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                      child: Center(
+                        child: Text(company.companyName ?? 'Nepoznata firma',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      ),
+                    ),
                 );
               }).toList(),
             ),
@@ -606,8 +650,21 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (_) => const MasterScreen()),
                     );
                   },
-                  child: Text(store.storeName ?? 'Nepoznata trgovina',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.all( Radius.circular(16)),
+          ),
+                      child: Center(
+                        child: Text(store.storeName ?? 'Nepoznata trgovina',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      ),
+                    ),
                 );
               }).toList(),
             ),

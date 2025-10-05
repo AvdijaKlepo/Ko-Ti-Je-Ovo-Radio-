@@ -37,6 +37,7 @@ class _UserUpdateState extends State<UserUpdate> {
   File? _image;
   String? _base64Image;
   Uint8List? _decodedImage;
+  bool changePassword=false;
   @override
   void initState() {
     super.initState();
@@ -119,8 +120,12 @@ _initialValue = {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text('Ažuriraj račun',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
+      appBar: AppBar(
+        
+      
+        title:  Text('Ažuriraj račun',style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,color: Color.fromRGBO(27, 76, 125, 25),letterSpacing: 1.2),),
       centerTitle: true,
+      scrolledUnderElevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -311,15 +316,31 @@ _initialValue = {
                             },
                           ),
 
-                          const SizedBox(height: 20),
+                      
 
                           // --- PASSWORD ---
-                          const Text(
-                            'Ako ne mijenjate lozinku, ostavite polja prazna.',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(height: 8),
+                             const SizedBox(height: 20),
+                            Row(
+                                                    children: [
+                                                      const Text('Promijeni lozinku?',style: TextStyle(fontWeight: FontWeight.bold),),
+                                                      Checkbox(value: changePassword,onChanged: (value){
+                                                        setState(() {
+                                                          changePassword=value!;
+                                                          if(changePassword==false)
+                                                          {
+                                                            _formKey.currentState?.fields['password']?.didChange(null);
+                                                            _formKey.currentState?.fields['confirmPassword']?.didChange(null);
+                                                          }
+                                                          
+                                                        });
+                                                      },),
+                                                    ],
+                                                  ),
 
+                     
+                         
+                          const SizedBox(height: 8),
+                          if(changePassword)
                           FormBuilderTextField(
                             name: "password",
                             obscureText: true,
@@ -329,8 +350,14 @@ _initialValue = {
                               filled: true,
                               fillColor: Colors.grey[100],
                             ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Lozinka je obavezna.'),
+                              FormBuilderValidators.minLength(6, errorText: 'Minimalno 6 znakova.'),
+                              FormBuilderValidators.maxLength(40, errorText: 'Maksimalno 15 znakova.'),
+                            ]),
                           ),
                           const SizedBox(height: 12),
+                          if(changePassword)
                           FormBuilderTextField(
                             name: "confirmPassword",
                             obscureText: true,
@@ -340,14 +367,14 @@ _initialValue = {
                               filled: true,
                               fillColor: Colors.grey[100],
                             ),
+                             validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(errorText: 'Lozinka je obavezna.'),
+                              FormBuilderValidators.minLength(6, errorText: 'Minimalno 6 znakova.'),
+                              FormBuilderValidators.maxLength(40, errorText: 'Maksimalno 15 znakova.'),
+                            ]),
                           ),
 
-                          const SizedBox(height: 24),
-        
-                        const SizedBox(height: 20),
-        
-                  
-                        const SizedBox(height: 30),
+                   
         
                         Align(
                           alignment: Alignment.centerRight,
@@ -371,6 +398,11 @@ _initialValue = {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final request = Map<String, dynamic>.from(_formKey.currentState!.value);
       request['image'] = _base64Image;
+
+      if(request['password']!=request['confirmPassword']){
+      _formKey.currentState?.invalidateField(name: 'confirmPassword',errorText: 'Lozinke se ne poklapaju.');
+      return;
+      }
 
 
     

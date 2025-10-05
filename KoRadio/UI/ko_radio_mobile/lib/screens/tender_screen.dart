@@ -13,6 +13,7 @@ import 'package:ko_radio_mobile/providers/tender_bid_provider.dart';
 
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/screens/book_tender.dart';
+import 'package:ko_radio_mobile/screens/tender_bid.dart';
 import 'package:ko_radio_mobile/screens/tender_bids_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -225,6 +226,8 @@ class _TenderScreenState extends State<TenderScreen> {
       onRefresh: tenderFetcher.refresh,
       child: filterOutLoggedInFreelancer.isEmpty
           ? Column(
+           mainAxisAlignment: tenderFetcher.items.isEmpty && AuthProvider.selectedRole=="User" ? MainAxisAlignment.center
+           : MainAxisAlignment.start,
               
               children: [
                   _buildServiceDropdown(),
@@ -306,183 +309,191 @@ class _TenderScreenState extends State<TenderScreen> {
                 const Text('Vaši trenutno aktivni tenderi',style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),),
               _buildServiceDropdown(),
-                Expanded(
-                  child: ListView.builder(
-                 
-                    controller: _scrollController,
-                    itemCount: tenderFetcher.items.length +
-                        (tenderFetcher.hasNextPage ? 1 : 0),
-                    padding: const EdgeInsets.all(24),
-                    itemBuilder: (context, index) {
-                      if (index < tenderFetcher.items.length) {
-                        final tender = filterOutLoggedInFreelancer[index];
+               Expanded(
+  child: ListView.builder(
+    controller: _scrollController,
+    itemCount: tenderFetcher.items.length +
+        (tenderFetcher.hasNextPage ? 1 : 0) +
+        (AuthProvider.selectedRole == "User" ? 1 : 0),
+    padding: const EdgeInsets.all(16),
+    itemBuilder: (context, index) {
+      if (index < tenderFetcher.items.length) {
+        final tender = filterOutLoggedInFreelancer[index];
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Container(
-                              width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                        decoration:  const BoxDecoration(
-                                          gradient: LinearGradient(
-                                           colors: 
-                                          [Color.fromRGBO(27, 76, 125, 1),Color(0xFF4A90E2)] ,
-                                         
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                         borderRadius: BorderRadius.all(Radius.circular(16)),
-                                        ),
-                            child: Card(
-                              color: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              surfaceTintColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
-                              elevation: 4,
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: ListTile(
-                                tileColor: Colors.transparent,
-                                onTap: () async {
-                                  final updated = await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          TenderBidsScreen(tender: tender),
-                                    ),
-                            
-                                  );
-                            
-                            
-                                 _refreshWithFilter();
-                                },
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.grey.shade200,
-                                  child:ClipRRect(
-                                              borderRadius: BorderRadius.circular(20),
-                                            child: imageFromString(
-                                                tender.user!.image!,
-                                                height: 40,
-                                                width: 40,
-                                                fit: BoxFit.cover,
-                                              ),
-                                          )
-                                ),
-                                title:  Text('Naslov:  ${tender.jobTitle}',
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white)),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 6.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                   
-                                     
-                                      Text(
-                                        'Korisnik:  ${tender.user?.firstName} ${tender.user?.lastName}' ??
-                                            "",
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        'Potreban servis:  ${tender.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ')}',
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        "Početak radova:  ${formatDateTime(tender.jobDate)}",
-                                        style: const TextStyle(
-                                            fontSize: 14, color: Colors.white),
-                                      ),
-                                    
-                                      Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color:  Colors.amberAccent,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Tender',
-                                style: TextStyle(color: Colors.black, fontSize: 12),
-                              ),
-                            ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                        
-                      }
-                      
-
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    },
-                  ),
+        return GestureDetector(
+          onTap: () async {
+            await Navigator.of(context).push(MaterialPageRoute(builder: (context)=> TenderBidsScreen(tender: tender)));
+            tenderFetcher.refresh(newFilter: {
+      'IsTenderFinalized': true,
+      if (AuthProvider.selectedRole != "Freelancer")
+        'UserId': AuthProvider.user?.userId
+      else
+        'IsFreelancer': true,
+    });
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.only(bottom: 12),
+            color: Colors.transparent,
+            shadowColor: Colors.black45,
+            elevation: 3,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color.fromRGBO(27, 76, 125, 1), Color(0xFF4A90E2)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
-                if(AuthProvider.selectedRole=="User")
-                 ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromRGBO(27, 76, 125, 25),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.grey.shade200,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: tender.user?.image!=null ? imageFromString(
+                        tender.user!.image!,
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ) : Image.asset('assets/images/user.png',height: 40,width: 40,fit: BoxFit.cover,),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Naslov: ${tender.jobTitle}',
+                            style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Korisnik: ${tender.user?.firstName} ${tender.user?.lastName}',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white),
                         ),
-                        onPressed: () {
-                          final alert = AlertDialog(
-                            title: const Text("Kreiraj tender"),
-                            content: const Text("Stranka?",
-                                style: TextStyle(fontSize: 16)),
-                            actions: [
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                  _isFreelancer = true;
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          BookTender(isFreelancer: _isFreelancer),
-                                    ),
-                                  );
-                                  await _refreshWithFilter();
-                                },
-                                child: const Text("Radnik"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                  _isFreelancer = false;
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          BookTender(isFreelancer: _isFreelancer),
-                                    ),
-                                  );
-                                  await _refreshWithFilter();
-                                },
-                                child: const Text("Firma"),
-                              ),
-                            ],
-                          );
+                        const SizedBox(height: 4),
+                        Text(
+                          'Potreban servis: ${tender.jobsServices?.map((e) => e.service?.serviceName ?? '').join(' i ')}',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Početak radova: ${formatDateTime(tender.jobDate)}",
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.white),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amberAccent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Tender',
+                            style: TextStyle(
+                                color: Colors.black, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }
 
-                          showDialog(
-                            context: context,
-                            builder: (context) => alert,
-                          );
-                        },
-                        child: const Text(
-                          "Dodaj novi tender",
-                          style: TextStyle(color: Colors.white),
+
+      if (index == tenderFetcher.items.length && tenderFetcher.hasNextPage) {
+        return const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (AuthProvider.selectedRole == "User" &&
+          index == tenderFetcher.items.length +
+              (tenderFetcher.hasNextPage ? 1 : 0)) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              final alert = AlertDialog(
+                title: const Text("Kreiraj tender"),
+                content: const Text("Stranka?",
+                    style: TextStyle(fontSize: 16)),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      _isFreelancer = true;
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              BookTender(isFreelancer: _isFreelancer),
                         ),
-                      ),
+                      );
+                      await _refreshWithFilter();
+                    },
+                    child: const Text("Radnik"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      _isFreelancer = false;
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              BookTender(isFreelancer: _isFreelancer),
+                        ),
+                      );
+                      await _refreshWithFilter();
+                    },
+                    child: const Text("Firma"),
+                  ),
+                ],
+              );
+
+              showDialog(
+                context: context,
+                builder: (context) => alert,
+              );
+            },
+            child: const Text(
+              "Objavi novi tender",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      }
+
+      return const SizedBox.shrink();
+    },
+  ),
+),
+
               ],
             ),
     );

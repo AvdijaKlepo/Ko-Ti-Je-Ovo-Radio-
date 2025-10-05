@@ -281,17 +281,26 @@ if (result != null && result.files.single.path != null) {
                                     filled: true,
                                     fillColor: Colors.grey[100],
                                   ),
-                                  validator: (value) {
-                                    final start = FormBuilder.of(context)?.fields['startTime']?.value;
-                                    if (value == null) return "Kraj smjene je obavezan.";
-                                    if (start != null) {
-                                      if (value.isBefore(start)) return "Kraj mora biti nakon početka.";
-                                      if (value.difference(start).inHours < 3) {
-                                        return "Smjena mora trajati najmanje 3 sata.";
-                                      }
-                                    }
-                                    return null;
-                                  },
+                                 validator: (value) {
+  final start = _formKey.currentState?.fields['startTime']?.value;
+
+  if (value == null) return "Kraj smjene je obavezan.";
+  if (start == null) return null;
+
+
+  final now = DateTime.now();
+  final startDt = DateTime(now.year, now.month, now.day, start.hour, start.minute);
+  final endDt = DateTime(now.year, now.month, now.day, value.hour, value.minute);
+
+  if (endDt.isBefore(startDt)) {
+    return "Kraj mora biti nakon početka.";
+  }
+  if (endDt.difference(startDt).inHours < 3) {
+    return "Smjena je 3 sata";
+  }
+
+  return null;
+},
                                 ),
                               ),
                             ],
@@ -361,6 +370,7 @@ FormBuilderField(
     );
   },
 ),
+SizedBox(height: 20,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

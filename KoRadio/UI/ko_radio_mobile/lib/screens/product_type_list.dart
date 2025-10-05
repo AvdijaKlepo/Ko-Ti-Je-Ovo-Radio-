@@ -39,6 +39,8 @@ class _ProductTypeListState extends State<ProductTypeList> {
   bool _isLoading = false;
   bool _showOutOfStock=false;
   bool _showSale=false;
+  
+
 
   @override
   void initState() {
@@ -46,6 +48,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
     setState(() {
       _isLoading=true;
     });
+   
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -133,6 +136,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
       });
     });
   }
+
   Future<void> _getServices() async {
   try {
     var fetchedServices = await serviceProvider.get();
@@ -331,6 +335,18 @@ class _ProductTypeListState extends State<ProductTypeList> {
                             (context, index) {
                               if (index < productPagination.items.length) {
                                 final product = productPagination.items[index];
+final cart = context.watch<CartProvider>();
+
+
+final cartQuantity = cart.items
+    .where((item) => item.product.productId == product.productId)
+    .fold<int>(0, (sum, item) => sum + item.quantity);
+
+final remainingQty = (product.stockQuantity ?? 0) - cartQuantity;
+
+
+
+                               
                                 return GestureDetector(
                                   onTap: () async {
                                     await Navigator.of(context).push(MaterialPageRoute(
@@ -363,7 +379,7 @@ class _ProductTypeListState extends State<ProductTypeList> {
           child: Banner(
             message: "Akcija",
             location: BannerLocation.topStart,
-            color: Colors.redAccent, // background color of banner
+            color: Colors.redAccent, 
             textStyle: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -434,36 +450,34 @@ class _ProductTypeListState extends State<ProductTypeList> {
                                             
                                           ),
                                         ),
-                                        if(product.isOutOfStock==false)
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: Material(
-                                            color: Colors.white,
-                                            shape: const CircleBorder(),
-                                            elevation: 2,
-                                            child: IconButton(
-                                              icon: const Icon(Icons.add_shopping_cart),
-                                              onPressed: () {
-                                                if(product.stockQuantity!=null && product.stockQuantity!>0){
-                                                context.read<CartProvider>().add(product);
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          '${product.productName} dodan u korpu.')),
-                                                );
-                                                }
-                                                else{
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(
-                                                        content: Text(
-                                                            '${product.productName} nije na lageru.')),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
+                                       if (product.isOutOfStock == false)
+  Positioned(
+    top: 8,
+    right: 8,
+    child: Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      elevation: 2,
+      child: IconButton(
+        icon: const Icon(Icons.add_shopping_cart),
+       onPressed: () {
+  final cart = context.read<CartProvider>();
+
+  if (remainingQty > 0) {
+    cart.add(product);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product.productName} dodan u korpu.')),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product.productName} nije na lageru.')),
+    );
+  }
+},
+
+      ),
+    ),
+  ),
                                       ],
                                     ),
                                   ),

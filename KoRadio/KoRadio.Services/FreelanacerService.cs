@@ -207,7 +207,9 @@ namespace KoRadio.Services
 
 
 		public override async Task BeforeUpdateAsync(FreelancerUpdateRequest request, Database.Freelancer entity, CancellationToken cancellationToken = default)
-		{
+		{var jobs = _context.Jobs.Any(x => x.FreelancerId == entity.FreelancerId
+												   && x.JobStatus == "approved");
+
 			if (request.ServiceId != null && request.ServiceId.Any())
 			{
 				
@@ -219,29 +221,48 @@ namespace KoRadio.Services
 				var services = _context.Services
 					.Where(s => request.ServiceId.Contains(s.ServiceId))
 					.ToList();
-
-				entity.FreelancerServices = services.Select(service => new Database.FreelancerService
+				if(existingServices!=services)
 				{
-					ServiceId = service.ServiceId,
-					FreelancerId = entity.FreelancerId,
-					CreatedAt = DateTime.Now,
-				}).ToList();
+					if(jobs)
+					{
+						throw new UserException("Ne možete uređivati servise dok imate aktivne poslove!");
+					}
+					entity.FreelancerServices = services.Select(service => new Database.FreelancerService
+					{
+						ServiceId = service.ServiceId,
+						FreelancerId = entity.FreelancerId,
+						CreatedAt = DateTime.Now,
+					}).ToList();
+				}
+				
 
 			}
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
 			{
+				var requestedWorkingDaysFlags = request.WorkingDays
+					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
+
+				var currentWorkingDays = (WorkingDaysFlags)entity.WorkingDays;
 
 				
+				if (currentWorkingDays != requestedWorkingDaysFlags)
+				{
+					
+					if (jobs)
+					{
+						throw new UserException("Ne možete uređivati radne dane dok imate aktivne poslove!");
+					}
 
-				var workingDaysEnum = request.WorkingDays
-					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
-				entity.WorkingDays = (int)workingDaysEnum;
+				
+					entity.WorkingDays = (int)requestedWorkingDaysFlags;
+				}
 			}
 			else
 			{
 				entity.WorkingDays = (int)WorkingDaysFlags.None;
 			}
+
 
 			if (request.IsApplicant == false && entity.IsApplicant == true)
 			{
@@ -304,18 +325,12 @@ namespace KoRadio.Services
 				.FirstOrDefaultAsync(u => u.UserId == entity.FreelancerId, cancellationToken);
 
 
-			var jobs =  _context.Jobs.Where(x => x.FreelancerId == entity.FreelancerId
-			&& x.JobStatus=="approved").Any();
-
-			if(request.WorkingDays!=null)
-			{
-				if(jobs)
-				{
-					throw new UserException("Ne možete urađivati radne dane dok imate aktivne poslove!");
-				}
-			}
-
+		
+				
+				
 			
+
+
 
 
 

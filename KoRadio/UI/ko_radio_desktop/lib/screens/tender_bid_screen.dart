@@ -10,6 +10,7 @@ import 'package:ko_radio_desktop/models/company_employee.dart';
 import 'package:ko_radio_desktop/models/company_job_assignment.dart';
 import 'package:ko_radio_desktop/models/job.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
+import 'package:ko_radio_desktop/models/tender_bids.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
 import 'package:ko_radio_desktop/providers/company_employee_provider.dart';
@@ -20,8 +21,9 @@ import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:provider/provider.dart';
 
 class TenderBidScreen extends StatefulWidget {
-  const TenderBidScreen({required this.tender,super.key});
+  const TenderBidScreen({required this.tender,super.key ,this.tenderBid});
   final Job tender;
+  final TenderBid? tenderBid;
 
   @override
   State<TenderBidScreen> createState() => _TenderBidScreenState();
@@ -30,14 +32,16 @@ class TenderBidScreen extends StatefulWidget {
 class _TenderBidScreenState extends State<TenderBidScreen> {
    var companyId = AuthProvider.selectedCompanyId;
   final _formKey = GlobalKey<FormBuilderState>();
-  var _initialForm = {};
+    Map<String, dynamic> _initialForm = {};
   late TenderBidProvider tenderBidProvider;
   late CompanyProvider companyProvider;
   late Company company;
   late CompanyJobAssignmentProvider _companyJobCheck;
   late CompanyEmployeeProvider companyEmployeeProvider;
+  
   SearchResult<CompanyJobAssignment>? companyJobCheck;
   SearchResult<CompanyEmployee>? _companyEmployeeResult;
+  SearchResult<CompanyJobAssignment>? tenderAssignedEmployees;
   Set<int> _workingDayInts ={};
   bool _isLoading = true;
   bool multiDateJob=false;
@@ -57,6 +61,8 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+       final jobStartTime = parseTime(widget.tenderBid?.startEstimate ?? "08:00");
+    final endTimeDate = parseTime(widget.tenderBid?.endEstimate ?? "17:00");
       tenderBidProvider = context.read<TenderBidProvider>();
       companyProvider = context.read<CompanyProvider>();
       companyEmployeeProvider = context.read<CompanyEmployeeProvider>();
@@ -64,16 +70,35 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
       await _getCompany();
       await _getEmployees();
       await _getAssignments();
+      await _getTenderAssignedEmployees();
         List<String>? workingDays = company.workingDays;
     _workingDayInts = workingDays
         ?.map((day) => _dayStringToInt[day] ?? -1)
         .where((dayInt) => dayInt != -1)
         .toSet() ?? {};
+         if(widget.tenderBid?.dateFinished!=null)
+    {
+      multiDateJob=true;
+    }
+       if(widget.tenderBid!=null)
+    {
+    _initialForm = {
+      'startEstimate': jobStartTime,
+      'endEstimate': endTimeDate,
+      'dateFinished': widget.tenderBid?.dateFinished,
+      'bidAmount': widget.tenderBid?.bidAmount.toString(),
+      'bidDescription': widget.tenderBid?.bidDescription,
+      'freelancerId': widget.tenderBid?.freelancerId,
+    };
+    }
+    if(widget.tenderBid==null)
+    {
        final currentValues = _formKey.currentState?.value ?? {};
     _initialForm = {
       ...currentValues
 
     };
+    }
     setState(() {
       _isLoading = false;
     });
@@ -86,17 +111,69 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
   }
   return candidate;
 }
+Future<void> _getTenderAssignedEmployees() async {
+  setState(() {
+    _isLoading = true;
+  });
+  try {
+    var fetchedCompanyJobAssignments = await _companyJobCheck.get(filter: {
+      'JobId': widget.tender.jobId,
+    });
+    if (!mounted) return;
+    setState(() {
+      tenderAssignedEmployees = fetchedCompanyJobAssignments;
+
+      
+      selectedIds = tenderAssignedEmployees?.result
+              ?.map((e) => e.companyEmployeeId ?? -1)
+              .where((id) => id != -1)
+              .toList() ??
+          [];
+    });
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Greška: ${e.toString()}")),
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+}
+
+    
 
 
   Future<void> _submit() async {
+    final message = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
   if (_formKey.currentState?.saveAndValidate() ?? false) {
     final values = _formKey.currentState!.value;
-  
+   String? dateFinished;
+  if (multiDateJob==true && values["dateFinished"] is DateTime) {
+    dateFinished = (values["dateFinished"] as DateTime)
+        .toIso8601String()
+        .split('T')[0];
+  }
+  else{
+    dateFinished=null;
+  }
+  if(selectedIds.isEmpty)
+  {
+    message.showSnackBar(
+      const SnackBar(content: Text("Morate odabrati radnike")),
+    );
+    return;
+  }
+
 
     final request = {
       "jobId": widget.tender.jobId,
       "companyId": companyId,
-      "dateFinished": multiDateJob==true ? (values['dateFinished'] as DateTime).toIso8601String().split('T')[0] : null,
+      "dateFinished": dateFinished,
       "freelancerId": null,
       "bidDescription":values['bidDescription'],
       "startEstimate": DateFormat.Hms().format(values['startEstimate']),
@@ -105,6 +182,7 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
       "createdAt": DateTime.now().toIso8601String(),
       
     };
+ 
     final selectedEmployees = values['companyEmployeeId'] as List<dynamic>?;
     if (selectedEmployees != null && selectedEmployees.isNotEmpty) {
       for (final employeeId in selectedEmployees!) {
@@ -118,19 +196,31 @@ class _TenderBidScreenState extends State<TenderBidScreen> {
 
 }
       }
+    
     }
 
    
     try {
+      if(widget.tenderBid==null)
+      {
       await tenderBidProvider.insert(request);
      
-      ScaffoldMessenger.of(context).showSnackBar(
+      message.showSnackBar(
         const SnackBar(content: Text("Ponuda uspješno dodana")),
       );
      
-      Navigator.pop(context); 
+      navigator.pop();
+      } else {
+      await tenderBidProvider.update(widget.tenderBid!.tenderBidId, request);
+     
+      message.showSnackBar(
+        const SnackBar(content: Text("Ponuda uspješno uređena")),
+      );
+     
+      navigator.pop();
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      message.showSnackBar(
         SnackBar(content: Text("Greška: ${e.toString()}")),
       );
     }
@@ -303,6 +393,7 @@ bool checkIfValid(int companyEmployeeId) {
                     
                     child: FormBuilder(
                       key: _formKey,
+                      initialValue: _initialForm,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -500,9 +591,9 @@ bool checkIfValid(int companyEmployeeId) {
       child: FormBuilderField<List<int>>(
         name: 'companyEmployeeId',
         enabled: canSelectEmployees,
-        validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+      
         builder: (field) {
-          selectedIds = field.value ?? [];
+          selectedIds = field.value ?? selectedIds;
       
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

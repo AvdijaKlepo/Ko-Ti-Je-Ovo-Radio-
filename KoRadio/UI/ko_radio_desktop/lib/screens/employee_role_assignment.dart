@@ -53,61 +53,79 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
   Widget build(BuildContext context) {
     return  Dialog(
       insetPadding: const EdgeInsets.all(24),
+      surfaceTintColor: Colors.white,
       child: SizedBox(
-        width: 500,
-        height: 300,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: SvgPicture.asset(
-                  'assets/images/undraw_data-input_whqw.svg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const Padding(padding: EdgeInsets.all(24.0), child: Column(
+        width: MediaQuery.of(context).size.width * 0.5,
+        child: 
+             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
-              ],
-            )),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: FormBuilder(
-                  key: _formKey,
-                  initialValue: _initialValue,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                     Text("Dodaj ulogu za zaposlenika ${widget.companyEmployee.user?.firstName} ${widget.companyEmployee.user?.lastName}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 20),
-                     FormBuilderDropdown(
-                      initialValue: widget.companyEmployee.companyRoleId,
-                      name: 'companyRoleId', decoration: const InputDecoration(labelText: "Uloga:"),
-                      items: companyRoleResult?.result.map((e) => DropdownMenuItem(value: e.companyRoleId, child: Text(e.roleName ?? ''))).toList() ?? []),
-
-                 
-                 const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          icon: const Icon(Icons.save, color: Colors.white),
-                          label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
-                          onPressed: _save,
+                 SingleChildScrollView(
+                   child: FormBuilder(
+                     key: _formKey,
+                     initialValue: _initialValue,
+                   child: Column(
+                     mainAxisSize: MainAxisSize.min,
+                     children: [
+                        Container(
+                         width: double.infinity,
+                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                         decoration: const BoxDecoration(
+                           gradient: LinearGradient(
+                             colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+                             begin: Alignment.centerLeft,
+                             end: Alignment.centerRight,
+                           ),
+                           borderRadius: BorderRadius.only(
+                             topLeft: Radius.circular(16),
+                             topRight: Radius.circular(16),
+                           ),
+                         ),
+                         child: Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           children: [
+                             Text("Dodaj ulogu za zaposlenika ${widget.companyEmployee.user?.firstName} ${widget.companyEmployee.user?.lastName}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                             IconButton(
+                               icon: const Icon(Icons.close, color: Colors.white),
+                               onPressed: () => Navigator.of(context).pop(),
+                               splashRadius: 20,
+                             ),
+                           ],
+                         ),
+                       ),
+                       const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              FormBuilderDropdown(
+                               initialValue: widget.companyEmployee.companyRoleId,
+                               name: 'companyRoleId', decoration: const InputDecoration(labelText: "Uloga:"),
+                               items: companyRoleResult?.result.map((e) => DropdownMenuItem(value: e.companyRoleId, child: Text(e.roleName ?? ''))).toList() ?? []),
+                                    
+                                                  
+                                                  const SizedBox(height: 30),
+                               Align(
+                                 alignment: Alignment.centerRight,
+                                 child: ElevatedButton.icon(
+                                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                                   icon: const Icon(Icons.save, color: Colors.white),
+                                   label: const Text("Sačuvaj",style: TextStyle(color: Colors.white),),
+                                   onPressed: _save,
+                                 ),
+                               ),
+                            ],
+                          ),
                         ),
-                      ),
-
-                  ],
-                ),
-                ),
-              ),
-            ),
-          ],
-        ),
+                              
+                     ],
+                   ),
+                   ),
+                 ),
+              ],
+                         ),
+           
+       
       ),
     );
     

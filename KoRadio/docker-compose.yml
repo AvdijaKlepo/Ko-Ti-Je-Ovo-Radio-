@@ -1,0 +1,110 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${_rabbitMqUser}
+      - RABBITMQ_DEFAULT_PASS=${_rabbitMqPassword}
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    networks:
+      - koradio_network
+
+  koradio-sql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: koradio-sql
+    restart: unless-stopped
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${_saPassword}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    networks:
+      - koradio_network
+
+  migrations:
+    build:
+      context: .
+      dockerfile: KoRadio.API/Dockerfile
+    container_name: koradio-migrations
+    depends_on:
+      - koradio-sql
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=koradio-sql,1433;Database=${_catalog};User=sa;Password=${_saPassword};TrustServerCertificate=True;Encrypt=False;
+    entrypoint: >
+      sh -c "
+        /wait-for-it.sh koradio-sql:1433 --timeout=120 -- \
+        dotnet ef database update --project KoRadio.API --startup-project KoRadio.API
+      "
+    networks:
+      - koradio_network
+
+  koradio-api:
+    build:
+      context: .
+      dockerfile: KoRadio.API/Dockerfile
+    container_name: koradio-api
+    restart: unless-stopped
+    depends_on:
+      - koradio-sql
+      - rabbitmq
+      - migrations
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=koradio-sql,1433;Database=${_catalog};User=sa;Password=${_saPassword};TrustServerCertificate=True;Encrypt=False;
+      - _fromAddress=${_fromAddress}
+      - _password=${_password}
+      - _host=${_host}
+      - _enableSSL=${_enableSSL}
+      - _displayName=${_displayName}
+      - _timeout=${_timeout}
+      - _port=${_port}
+      - _rabbitMqHost=rabbitmq
+      - _rabbitMqUser=${_rabbitMqUser}
+      - _rabbitMqPassword=${_rabbitMqPassword}
+      - _rabbitMqPort=${_rabbitMqPort}
+    ports:
+      - "5053:5053"
+    networks:
+      - koradio_network
+    command: ["dotnet", "KoRadio.API.dll"]
+
+  koradio-subscriber:
+    build:
+      context: .
+      dockerfile: Subscriber/Dockerfile
+    container_name: koradio-subscriber
+    depends_on:
+      - rabbitmq
+      - koradio-api
+    restart: unless-stopped
+    environment:
+      - _fromAddress=${_fromAddress}
+      - _password=${_password}
+      - _host=${_host}
+      - _enableSSL=${_enableSSL}
+      - _displayName=${_displayName}
+      - _timeout=${_timeout}
+      - _port=${_port}
+      - _rabbitMqHost=rabbitmq
+      - _rabbitMqUser=${_rabbitMqUser}
+      - _rabbitMqPassword=${_rabbitMqPassword}
+      - _rabbitMqPort=${_rabbitMqPort}
+    networks:
+      - koradio_network
+
+networks:
+  koradio_network:
+    driver: bridge

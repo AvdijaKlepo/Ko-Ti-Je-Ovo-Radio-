@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/freelancer.dart';
 import 'package:ko_radio_mobile/models/freelancer_dto.dart';
+import 'package:ko_radio_mobile/models/job.dart';
 import 'package:ko_radio_mobile/models/search_result.dart';
 import 'package:ko_radio_mobile/models/service.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
 import 'package:ko_radio_mobile/providers/base_provider.dart';
 import 'package:ko_radio_mobile/providers/freelancer_provider.dart';
+import 'package:ko_radio_mobile/providers/job_provider.dart';
 import 'package:ko_radio_mobile/providers/service_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +32,7 @@ class _FreelancerUpdateState extends State<FreelancerUpdate> {
   late FreelancerProvider freelancerProvider;
   late ServiceProvider serviceProvider;
   late SearchResult<Freelancer>? freelancerResult;
+
 
   SearchResult<Service>? serviceResult;
   late TimeOfDay _startTime;
@@ -108,6 +112,7 @@ void initState() {
       _isLoadingServices = false;
     }
   }
+  
   @override
   Widget build(BuildContext context) {
      if (!mounted || _initialValue.isEmpty || _isLoadingServices || serviceResult == null) {
@@ -116,7 +121,11 @@ void initState() {
     );
   }
     return Scaffold(
-      appBar: AppBar(title: const Text('Ažuriraj radničke podatke')),
+      
+      appBar: AppBar(
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+        title:  Text('Ažuriraj radničke podatke', style: TextStyle(fontFamily: GoogleFonts.lobster().fontFamily,letterSpacing: 1.2,color: Color.fromRGBO(27, 76, 125, 25)))),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
@@ -312,12 +321,12 @@ void initState() {
       'Nedjelja': 'Sunday',
     };
 
-    // Convert the localized working day strings to English using the map.
+
     request['workingDays'] = (request['workingDays'] as List<dynamic>)
         .map((localizedDay) {
           return dayOfWeekMapping[localizedDay.toString()];
         })
-        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .whereType<String>() 
         .toList();
 
 

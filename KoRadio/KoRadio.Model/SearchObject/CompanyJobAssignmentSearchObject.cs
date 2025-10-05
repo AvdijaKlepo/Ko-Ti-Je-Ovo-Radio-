@@ -13,6 +13,7 @@ namespace KoRadio.Model.SearchObject
 		public bool? IsCancelled { get; set; }
 		public int? CompanyId { get; set; }
 		public int? CompanyEmployeeId { get; set; }
+		public List<int>? CompanyEmployeeIds { get; set; }
 		public DateTime? DateRange { get; set; }
 
 		public DateTime? JobDate { get; set; }

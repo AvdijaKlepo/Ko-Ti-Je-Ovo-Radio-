@@ -138,6 +138,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
                                 : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
                       );
+                      await _getNotifications();
                       setState(() {
                         isChecked = false;
                         isLoading = false;
@@ -215,7 +216,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
             : widget.storeId != null
                 ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
                 : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'} );
+                await _getNotifications();
                   },
+
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
@@ -233,7 +236,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                e.message1?.split('.').first ?? '',
+                                e.message1!,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: e.isOpened! ? Colors.white70 : Colors.black,
                                   fontWeight: FontWeight.w600,
@@ -257,6 +261,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             icon: const Icon(Icons.delete_outline),
                             color: Colors.white54,
                             onPressed: () async {
+                              final message = ScaffoldMessenger.of(context);
                               await messagesProvider.delete(e.messageId!);
                               await messagesPagination.refresh(
                                 newFilter: widget.companyId != null
@@ -265,6 +270,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
                                         : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
                               );
+                              message.showSnackBar(const SnackBar(content: Text('Poruka je obrisana.')));
                             },
                             tooltip: 'Obriši poruku',
                           ),

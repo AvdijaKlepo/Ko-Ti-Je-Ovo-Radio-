@@ -229,6 +229,7 @@ class _ApproveJobState extends State<ApproveJob> {
                 "companyId": null,
                 "jobTitle": widget.job.jobTitle,
                 "isTenderFinalized": false,
+                'isApproved':false,
                 "isFreelancer": true,
                 "isInvoiced": false,
                 "isRated": false,
@@ -245,15 +246,10 @@ class _ApproveJobState extends State<ApproveJob> {
                         ?.map((e) => e.service?.serviceId)
                         .toList(),
           };
-               var messageRequest = {
-                'message1': "Posao ${widget.job.jobTitle} koji ste zakazali za ${DateFormat('dd-MM-yyyy').format(widget.job.jobDate)} je odbijen od strane radnika ${widget.job.freelancer?.freelancerNavigation?.firstName} ${widget.job.freelancer?.freelancerNavigation?.lastName}",
-                'userId': widget.job.user?.userId,
-                'createdAt': DateTime.now().toIso8601String(),
-                'isOpened': false,
-              };
+              
               try{
                 
-                await messagesProvider.insert(messageRequest);
+              
                 await jobProvider.update(widget.job.jobId,
                 jobUpdateRequest
                 );

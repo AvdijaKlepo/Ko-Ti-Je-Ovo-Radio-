@@ -179,33 +179,54 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
 
   
   return Dialog(
+    surfaceTintColor: Colors.white,
     insetPadding: const EdgeInsets.all(16),
+
     child: SizedBox(
       width: MediaQuery.of(context).size.width * 0.3,
-      height: MediaQuery.of(context).size.height * 0.95,
+
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                Text('Uredi i prihvati',style: const TextStyle(color: Colors.black),),
-          
-                
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                )
-              ],
-            ),
+          Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Ažuriraj zahtjev',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        ),
+      ),
       
       
-       Expanded(
+       Flexible(
+        fit: FlexFit.loose,
          child: SingleChildScrollView(
+          
           padding: const EdgeInsets.all(16),
            
          child: FormBuilder(
@@ -213,6 +234,7 @@ if(_isLoading) return const Center(child: CircularProgressIndicator());
            initialValue: _initialValue,
            
            child: Column(
+             mainAxisSize: MainAxisSize.min,
              crossAxisAlignment: CrossAxisAlignment.end,
           
              children: [

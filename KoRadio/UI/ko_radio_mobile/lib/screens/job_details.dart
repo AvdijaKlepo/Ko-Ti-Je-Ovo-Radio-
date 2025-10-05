@@ -175,7 +175,8 @@ class _JobDetailsState extends State<JobDetails> {
                 var jobUpdateRequest = {
                
                
-                "jobStatus": JobStatus.cancelled.name
+                "jobStatus": JobStatus.cancelled.name,
+                'isApproved':true,
                 
           };
         
@@ -247,6 +248,13 @@ class _JobDetailsState extends State<JobDetails> {
 
 
   final job = jobResult.result.first;
+  final isCompanyJob = job.company?.companyId != null &&
+    (job.jobStatus == JobStatus.approved || job.jobStatus == JobStatus.finished);
+
+final assignedEmployees = companyJobAssignmentResult?.result
+    ?.where((e) => e.companyEmployee?.user != null)
+    .map((e) => '${e.companyEmployee!.user!.firstName} ${e.companyEmployee!.user!.lastName}')
+    .join(', ') ?? 'Nema dodijeljenih radnika';
 
 
   if (job.dateFinished != null) {
@@ -409,19 +417,12 @@ class _JobDetailsState extends State<JobDetails> {
                               _buildDetailRow('Pin', jobResult.result.first.pin==null ? 'Nije unesen' : '${jobResult.result.first.pin}'),
 
                   _buildDetailRow('Stanje', jobResult.result.first.jobStatus==JobStatus.unapproved ? 'Posao još nije odoboren' : 'Odobren posao'), 
-  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
-  
-  const Divider(height: 32,),
-  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished) )
-
+ if (isCompanyJob) ...[
+  const Divider(height: 32),
   _sectionTitle('Preuzeli dužnost'),
-  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
-
-  _buildDetailRow('Radnici', '${companyJobAssignmentResult?.result.map((e) => '${e.companyEmployee?.user?.firstName} ${e.companyEmployee?.user?.lastName}').join(', ')}'),
-  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
-
-  const SizedBox(height: 15,),
-  if(jobResult.result.first.company?.companyId!=null && (jobResult.result.first.jobStatus==JobStatus.approved ||jobResult.result.first.jobStatus==JobStatus.finished))
+  _buildDetailRow('Radnici', assignedEmployees),
+  const SizedBox(height: 15),
+],
 
   if(companyJobAssignmentResult?.result.isNotEmpty==true && AuthProvider.selectedRole == "CompanyEmployee")
   if(jobResult.result.first.company?.companyId!=null && jobResult.result.first.jobStatus==JobStatus.approved)
@@ -503,7 +504,7 @@ class _JobDetailsState extends State<JobDetails> {
                       ,
                  if(jobResult.result.first.isRated==true)
                  _buildDetailRow('Ocjena',
-                    '${userRatingsResult?.result.first.rating}'),
+                    '${userRatingsResult?.result.first.rating ?? 0}'),
 
                   const SizedBox(height: 30),
                     if(AuthProvider.selectedRole!="CompanyEmployee")
