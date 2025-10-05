@@ -261,7 +261,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                           ),
                           const SizedBox(height: 20),
 
-                          // --- LOCATION ---
+                   
                           FormBuilderDropdown<int>(
                             name: 'locationId',
                             decoration: InputDecoration(

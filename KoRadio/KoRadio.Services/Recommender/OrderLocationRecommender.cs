@@ -30,7 +30,6 @@ namespace KoRadio.Services.Recommender
 		{
 			LoadOrTrainModel();
 
-			// products the user already ordered
 			var orderedProductIds = await _context.Orders
 				.Where(o => o.UserId == userId)
 				.SelectMany(o => o.OrderItems)
@@ -38,7 +37,6 @@ namespace KoRadio.Services.Recommender
 				.Distinct()
 				.ToListAsync();
 
-			// all candidate products from same location as the user
 			var userLocationId = await _context.Users
 				.Where(u => u.UserId == userId)
 				.Select(u => u.LocationId)
@@ -118,7 +116,7 @@ namespace KoRadio.Services.Recommender
 				{
 					UserId = (uint)oi.Order.UserId,
 					ProductId = (uint)oi.ProductId,
-					Label = (float)oi.Quantity // implicit feedback
+					Label = (float)oi.Quantity 
 				})
 				.ToList();
 

@@ -36,7 +36,7 @@ namespace KoRadio.Services.Recommender
 				.Distinct()
 				.ToListAsync();
 
-			// Filter freelancers by service if serviceId is provided
+		
 			var freelancersQuery = _context.Freelancers
 				.Where(f => !f.IsDeleted && !ratedFreelancerIds.Contains(f.FreelancerId))
 				.Include(f => f.FreelancerNavigation)
@@ -181,7 +181,6 @@ namespace KoRadio.Services.Recommender
 			}).ToList();
 		}
 
-		// And add this helper method inside the class:
 		private List<DayOfWeek> ConvertIntToDaysOfWeekList(int daysBitmask)
 		{
 			var days = new List<DayOfWeek>();

@@ -260,85 +260,102 @@ class _TenderBidsScreenState extends State<TenderBidsScreen> {
       });
 
   }
-  @override
-  Widget build(BuildContext context) {
-     if (!_isInitialized) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    final hasBids = tenderBidFetcher.items.isNotEmpty;
-    final hasCompanyAlreadyBid = tenderBidFetcher.items.any(
-  (bid) => bid.company?.companyId == AuthProvider.selectedCompanyId,
-);
-    return
-    Padding(padding: const EdgeInsets.only(left: 1800),
-    child:
-     Scaffold(
-      
-      
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title:  const Text('Detalji tendera'),
-        centerTitle: true,
-      ),
-      body: RefreshIndicator(
-        onRefresh: tenderBidFetcher.refresh,
-        child:
-            ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              children: [
-                _buildTenderHeader(),
-                if (!hasBids) ...[
-              const Center(child: Text("Tender trenutno nema ponuda.", style: TextStyle(fontSize: 16))),
-              const SizedBox(height: 12),
-            
-              if (!hasCompanyAlreadyBid)
-                Align(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                    ),
-                    onPressed: _navigateToBidScreen,
-                    child: const Text("Napravi ponudu", style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-            ] else ...[
-              Center(child: Text('Lista ponuda',style:  TextStyle(fontSize: 20, fontFamily: GoogleFonts.roboto().fontFamily,color: const Color.fromRGBO(27, 76, 125, 25)),)),
-              ...tenderBidFetcher.items.map(_buildBidCard),
-              if (tenderBidFetcher.hasNextPage)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              const SizedBox(height: 10),
-               
-              if (!hasCompanyAlreadyBid)
-                Align(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                    ),
-                    onPressed: _navigateToBidScreen,
-                    child: const Text("Dodaj novu ponudu", style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-            
-            
-                ]
-              ],
-            ),
-       
-
-      ),
-    ));
+ @override
+Widget build(BuildContext context) {
+  if (!_isInitialized) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
+
+  final hasBids = tenderBidFetcher.items.isNotEmpty;
+  final hasCompanyAlreadyBid = tenderBidFetcher.items.any(
+    (bid) => bid.company?.companyId == AuthProvider.selectedCompanyId,
+  );
+
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isMobile = screenWidth < 700;
+  final panelWidth = isMobile ? screenWidth : screenWidth * 0.45;
+
+  return Align(
+    alignment: isMobile ? Alignment.bottomCenter : Alignment.centerRight,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: panelWidth,
+        minWidth: isMobile ? screenWidth : 300,
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Detalji tendera'),
+          centerTitle: true,
+        ),
+        body: RefreshIndicator(
+          onRefresh: tenderBidFetcher.refresh,
+          child: ListView(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            children: [
+              _buildTenderHeader(),
+              if (!hasBids) ...[
+                const Center(
+                    child: Text("Tender trenutno nema ponuda.",
+                        style: TextStyle(fontSize: 16))),
+                const SizedBox(height: 12),
+                if (!hasCompanyAlreadyBid)
+                  Align(
+                    alignment: Alignment.center,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromRGBO(27, 76, 125, 25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _navigateToBidScreen,
+                      child: const Text("Napravi ponudu",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+              ] else ...[
+                Center(
+                    child: Text(
+                  'Lista ponuda',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: GoogleFonts.roboto().fontFamily,
+                    color: const Color.fromRGBO(27, 76, 125, 25),
+                  ),
+                )),
+                ...tenderBidFetcher.items.map(_buildBidCard),
+                if (tenderBidFetcher.hasNextPage)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                const SizedBox(height: 10),
+                if (!hasCompanyAlreadyBid)
+                  Align(
+                    alignment: Alignment.center,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromRGBO(27, 76, 125, 25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _navigateToBidScreen,
+                      child: const Text("Dodaj novu ponudu",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+              ]
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 }

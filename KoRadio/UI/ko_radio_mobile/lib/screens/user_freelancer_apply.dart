@@ -337,6 +337,7 @@ FormBuilderField(
     if (_pdfFile == null) {
       return "Obavezno je učitati PDF dokument";
     }
+
     return null;
   },
   builder: (field) {

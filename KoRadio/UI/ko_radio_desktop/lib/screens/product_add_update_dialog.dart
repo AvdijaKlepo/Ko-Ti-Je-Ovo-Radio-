@@ -239,6 +239,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                                   validator: FormBuilderValidators.compose([
                                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                     FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
+                                
                                   ]),
                                   valueTransformer: (value) => double.tryParse(value ?? ''),
                                 ),

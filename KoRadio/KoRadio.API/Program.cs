@@ -85,7 +85,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 
-var connectionString = builder.Configuration.GetConnectionString("KoRadio");
+var connectionString = builder.Configuration.GetConnectionString("koRadioConnection");
 
 builder.Services.AddDbContext<KoTiJeOvoRadioContext>(options =>
 	options.UseSqlServer(connectionString));
@@ -135,10 +135,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-//using (var scope = app.Services.CreateScope())
-//{
-//	var dataContext = scope.ServiceProvider.GetRequiredService<KoTiJeOvoRadioContext>();
-//	dataContext.Database.Migrate();
-//}
+using (var scope = app.Services.CreateScope())
+{
+	var dataContext = scope.ServiceProvider.GetRequiredService<KoTiJeOvoRadioContext>();
+	dataContext.Database.Migrate();
+}
 
 app.Run();
