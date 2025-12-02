@@ -24,8 +24,8 @@ docker-compose up --build
 ```
 
 ### 3. Aplikacije
-*   🖥️ **Desktop:** Ekstraktujte `fit-build-02-12-2025` (desktop) i pokrenite `ko_radio_desktop.exe`.
-*   📱 **Mobile:** Ekstraktujte `fit-build-02-12-2025` (mobile), uzmite `app-release.apk` i instalirajte na emulator/uređaj.
+*   🖥️ **Desktop:** Ekstraktujte `fit-build-02-12-2025 desktop` i pokrenite `ko_radio_desktop.exe`.
+*   📱 **Mobile:** Ekstraktujte `fit-build-02-12-2025 mobile`, uzmite `app-release.apk` i instalirajte na emulator/uređaj.
 
 ---
 
