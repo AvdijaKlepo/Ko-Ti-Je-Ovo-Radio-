@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvojsoftvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}|KoRadio.API\\KoRadio.API.csproj|c:\\users\\avdija\\documents\\razvojsoftvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3B1DFF1E-23F2-4DA4-ACB8-AF661D511F07}|KoRadio.API\\KoRadio.API.csproj|solutionrelative:koradio.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -62,7 +66,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,7 +74,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
+              "Title": "KoTiJeOvoRadioContext.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "RelativeDocumentMoniker": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "RelativeToolTip": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "ViewState": "AgIAAJUDAAAAAAAAAAAAAKgDAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T16:13:38.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "OrderLocationRecommender.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Recommender\\OrderLocationRecommender.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\Recommender\\OrderLocationRecommender.cs",
@@ -78,12 +95,11 @@
               "RelativeToolTip": "KoRadio.Services\\Recommender\\OrderLocationRecommender.cs",
               "ViewState": "AgIAAGwAAAAAAAAAAAAUwKUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T20:06:40.477Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T20:06:40.477Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "UserGradeRecommenderService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Recommender\\UserGradeRecommenderService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\Recommender\\UserGradeRecommenderService.cs",
@@ -95,7 +111,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "CompanyRecommenderService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Recommender\\CompanyRecommenderService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\Recommender\\CompanyRecommenderService.cs",
@@ -107,7 +123,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.API\\Program.cs",
               "RelativeDocumentMoniker": "KoRadio.API\\Program.cs",
@@ -120,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "CustomUserIdProvider.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.API\\CustomUserIdProvider.cs",
               "RelativeDocumentMoniker": "KoRadio.API\\CustomUserIdProvider.cs",
@@ -132,7 +148,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio\\Program.cs",
               "RelativeDocumentMoniker": "KoRadio\\Program.cs",
@@ -144,7 +160,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio\\appsettings.json",
               "RelativeDocumentMoniker": "KoRadio\\appsettings.json",
@@ -156,7 +172,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.API\\appsettings.json",
               "RelativeDocumentMoniker": "KoRadio.API\\appsettings.json",
@@ -164,12 +180,11 @@
               "RelativeToolTip": "KoRadio.API\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-05T17:42:48.124Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T17:42:48.124Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.API\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "KoRadio.API\\Properties\\launchSettings.json",
@@ -177,12 +192,11 @@
               "RelativeToolTip": "KoRadio.API\\Properties\\launchSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-05T17:22:05.446Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T17:22:05.446Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "Dockerfile",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\Dockerfile",
               "RelativeDocumentMoniker": "Dockerfile",
@@ -194,7 +208,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "Dockerfile",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\Subscriber\\Dockerfile",
               "RelativeDocumentMoniker": "Subscriber\\Dockerfile",
@@ -206,7 +220,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "Dockerfile",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.API\\Dockerfile",
               "RelativeDocumentMoniker": "KoRadio.API\\Dockerfile",
@@ -218,7 +232,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "docker-compose.yml",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\docker-compose.yml",
               "RelativeDocumentMoniker": "docker-compose.yml",
