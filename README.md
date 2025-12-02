@@ -1,63 +1,45 @@
-# 🛠️ KoTiJeOvoRadio?
+KoTiJeOvoRadio? - Seminarski rad iz predmeta Razvoj Softvera II
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
-![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+Mobilna i desktop aplikacija za unajmljivanje radnika i firma za zanatske potrebe
+razvijena u Flutteru, .NET i SQLServer
+Upute za pokretanje aplikacije
 
-> **Seminarski rad iz predmeta Razvoj Softvera II**
-> 
-> Mobilna i desktop aplikacija za unajmljivanje radnika i firmi za zanatske potrebe.
+Extraktujte fit-env-02-12-2025 env zip u Ko-Ti-Je-Ovo-Radio/KoRadio folder
+Pokrenite docker-compose up --build iz Ko-Ti-Je-Ovo-Radio/KoRadio putanje
+Extraktujte fit-build-02-12-2025 desktop preuzimajući ko_radio_desktop.exe file
+Extraktujte fit-build-02-12-2025 mobile preuzimajući app-release.apk file i učitajte ga u mobilni emulator
+Kredencijali korisnika koji imaju pristup mobilnoj aplikaciji
 
----
+Lozinka svakog korisnika je test123
+Korisnici koji imaju samo ulogu korisnik
+korisnik@email.com
+korisnik2@email.com
+test@email.com
+Korisnici koji imaju ulogu korisnika i radnika
+imezanata@email.com npr. struja@email.com
+Korisnici koji imaju ulogu korisnika i ili radnika/radnika firme
+terenac@email.com
+monter@email.com
+novi@email.com
+dva@email.com
+uposlenik@email.com
+Kredencijali korisnika koji imaju pristup desktop aplikaciji
 
-## 📥 Upute za pokretanje (Installation)
+Lozinka svakog korisnika je test123, isključujući administratora
+Admin
+Email: admin@email.com
+Lozinka: admin
+Administrator firme
+vlasnik@email.com
+Administrator trgovine
+trgovina@email.com
+PayPal Kredencijali
 
-### 1. Priprema okruženja
-1. Ekstraktujte `fit-env-02-12-2025.zip` u folder:
-   `Ko-Ti-Je-Ovo-Radio/KoRadio`
+Email: sb-shm3c43271033@business.example.com
+Lozinka: $Uh>k0as
+RabbitMQ
 
-### 2. Docker (Backend)
-Pokrenite terminal u `Ko-Ti-Je-Ovo-Radio/KoRadio` i izvršite:
-```bash
-docker-compose up --build
-```
+RabbitMQ se koristi za slanje mailova svim korisnicima aplikacije, tako što email sadrži katalog proizvoda koji određuju administratori trgovine poslan na mail u pdf formatu.
+SignalR
 
-### 3. Aplikacije
-*   🖥️ **Desktop:** Ekstraktujte `fit-build-02-12-2025 desktop` i pokrenite `ko_radio_desktop.exe`.
-*   📱 **Mobile:** Ekstraktujte `fit-build-02-12-2025 mobile`, uzmite `app-release.apk` i instalirajte na emulator/uređaj.
-
----
-
-## 🔐 Kredencijali (Credentials)
-
-### 📱 Mobilna Aplikacija
-**Default Password:** `test123`
-
-| Tip Naloga | Email Adrese |
-| :--- | :--- |
-| **Korisnici** | `korisnik@email.com`<br>`korisnik2@email.com`<br>`test@email.com` |
-| **Korisnik + Radnik** | `struja@email.com` |
-| **Kombinovano** <br>*(Korisnik i/ili Radnik i/ili Zaposlenik firme)* | `terenac@email.com`<br>`monter@email.com`<br>`novi@email.com`<br>`dva@email.com`<br>`uposlenik@email.com` |
-
-### 🖥️ Desktop Aplikacija
-
-| Uloga | Email | Lozinka |
-| :--- | :--- | :--- |
-| 🛡️ **Admin** | `admin@email.com` | `admin` |
-| 🏢 **Admin Firme** | `vlasnik@email.com` | `test123` |
-| 🏪 **Admin Trgovine** | `trgovina@email.com` | `test123` |
-
-### 💳 PayPal Sandbox
-*   **Email:** `sb-shm3c43271033@business.example.com`
-*   **Pass:** `$Uh>k0as`
-
----
-
-## 🧩 Arhitektura i Servisi
-
-### 🐰 RabbitMQ
-RabbitMQ servis služi za slanje emailova svim korisnicima aplikacije. Email sadrži PDF katalog proizvoda definisan od strane administratora trgovine.
-
-### 📡 SignalR
-Implementiran za **Real-time notifikacije**. Omogućava korisnicima da trenutno prime obavijest bez potrebe za osvježavanjem aplikacije.
+SignalR se koristi za real time obavijesti o prispjelim notifikacija korisniku.
