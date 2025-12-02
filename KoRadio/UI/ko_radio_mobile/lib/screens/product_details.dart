@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ko_radio_mobile/models/product.dart';
 import 'package:ko_radio_mobile/models/store.dart';
 import 'package:ko_radio_mobile/providers/cart_provider.dart';
+import 'package:ko_radio_mobile/providers/product_provider.dart'; // Ensure this is imported
 import 'package:ko_radio_mobile/providers/user_provider.dart';
 import 'package:ko_radio_mobile/providers/utils.dart';
 import 'package:ko_radio_mobile/providers/auth_provider.dart';
@@ -23,54 +24,76 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   late Future<List<Product>> recommendedProducts;
   late UserProvider userProvider;
+  late ProductProvider productProvider; // Add ProductProvider
   bool _isLoading = false;
-  Map<int, int> _productQty = {};
+  
+  // Create a local variable to hold the product data
+  Product? _displayedProduct;
 
   @override
   void initState() {
     super.initState();
     userProvider = context.read<UserProvider>();
+    productProvider = context.read<ProductProvider>(); // Initialize ProductProvider
+    
+    // Initialize displayed product with the passed widget data
+    _displayedProduct = widget.product;
+
     if (AuthProvider.user != null && widget.product != null) {
       recommendedProducts = getRecommendedProducts(AuthProvider.user!.userId);
+      // Fetch full details to get fresh stockQuantity
+      _fetchFullProduct(widget.product!.productId!);
     } else {
       recommendedProducts = Future.value([]);
     }
   }
+
+  // NEW METHOD: Fetch full product details (including stock)
+  Future<void> _fetchFullProduct(int productId) async {
+    try {
+      // Assuming you have a getById or similar method in your ProductProvider
+      // If not, you need to implement the API call here.
+      var fullProduct = await productProvider.getById(productId); 
+      
+      if (mounted && fullProduct != null) {
+        setState(() {
+          _displayedProduct = fullProduct;
+        });
+      }
+    } catch (e) {
+      print("Error fetching full product details: $e");
+    }
+  }
+
   Future<List<Product>> getRecommendedProducts(int userId) async {
-    if(mounted) setState(() => _isLoading = true);
-    try{
+    // Note: We don't want to trigger global loading for background recs
+    // so we kept this local or silent.
+    try {
       final recommendedProducts = await userProvider.getRecommendedProducts(userId);
-      if(mounted) setState(() => _isLoading = false);
       return recommendedProducts;
     } catch (e) {
-      if(mounted) setState(() => _isLoading = false);
       return [];
     }
   }
-  void _decrementQty() {
-    if (_productQty.isNotEmpty) {
-      setState(() {
-        _productQty.removeWhere((key, value) => value == 0);
-      });
-    }
-  }
+
   @override
   Widget build(BuildContext context) {
-    final product = widget.product;
-final cart = context.watch<CartProvider>();
-
-
-final cartQuantity = cart.items
-    .where((item) => item.product.productId == product!.productId)
-    .fold<int>(0, (sum, item) => sum + item.quantity);
-
-final remainingQty = (product!.stockQuantity ?? 0) - cartQuantity;
+    // USE _displayedProduct instead of widget.product
+    final product = _displayedProduct;
+    final cart = context.watch<CartProvider>();
 
     if (product == null) {
       return const Scaffold(
         body: Center(child: Text("Proizvod nije pronađen.")),
       );
     }
+
+    final cartQuantity = cart.items
+        .where((item) => item.product.productId == product.productId)
+        .fold<int>(0, (sum, item) => sum + item.quantity);
+
+    // Now this will use the updated stockQuantity once _fetchFullProduct completes
+    final remainingQty = (product.stockQuantity ?? 0) - cartQuantity;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,58 +108,55 @@ final remainingQty = (product!.stockQuantity ?? 0) - cartQuantity;
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
-    
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
- 
-Stack(
-  children:[ Container(
-    width: double.infinity,
-    height: MediaQuery.of(context).size.height * 0.4,
-    decoration: BoxDecoration(
-      border: Border.all(
-        color: Colors.grey.shade400, 
-        width: 2, 
-      ),
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(14), 
-      child: product.image != null
-          ? imageFromString(
-              product.image!,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            )
-          : Image.asset(
-              'assets/images/productPlaceholder.jpg',
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
-    ),
-  ),
-     if (product.isOnSale == true)
-      Positioned(
-        top: 0,
-        left: 0,
-        child: Banner(
-          message: "Akcija",
-          location: BannerLocation.topStart,
-          color: Colors.redAccent, // background color of banner
-          textStyle: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        )),
-          ]),
-const SizedBox(height: 20),
-
+            Stack(children: [
+              Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.4,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey.shade400,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: product.image != null
+                      ? imageFromString(
+                          product.image!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        )
+                      : Image.asset(
+                          'assets/images/productPlaceholder.jpg',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                ),
+              ),
+              if (product.isOnSale == true)
+                Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Banner(
+                      message: "Akcija",
+                      location: BannerLocation.topStart,
+                      color: Colors.redAccent,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    )),
+            ]),
+            const SizedBox(height: 20),
 
             // Product name
             if (product.productName != null)
@@ -158,43 +178,43 @@ const SizedBox(height: 20),
             const SizedBox(height: 20),
 
             // Price
-           product.isOnSale==false?
-              Text(
-                'Cijena: ${product.price} KM',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(
+            product.isOnSale == false
+                ? Text(
+                    'Cijena: ${product.price} KM',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: const Color.fromRGBO(27, 76, 125, 25),
                         fontWeight: FontWeight.bold),
-              ):
-             Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Text('Stara cijena: ${product.price} KM',
-                 style: TextStyle(decoration: TextDecoration.lineThrough),),
-                  Text('Akcijska cijena: ${product.salePrice} KM',
-                 ),
-                 Text('Ponuda traje do: ${DateFormat('dd.MM.yyyy').format(product.saleExpires!)}',
-                   ),
-               ],
-             )
-              ,
-            
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Stara cijena: ${product.price} KM',
+                        style: const TextStyle(decoration: TextDecoration.lineThrough),
+                      ),
+                      Text(
+                        'Akcijska cijena: ${product.salePrice} KM',
+                      ),
+                      if (product.saleExpires != null)
+                        Text(
+                          'Ponuda traje do: ${DateFormat('dd.MM.yyyy').format(product.saleExpires!)}',
+                        ),
+                    ],
+                  ),
+
             const SizedBox(height: 5),
+            
+            // Stock Quantity Display
             Text(
-                'Na lageru: ${product.stockQuantity} komada',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(
-                        color: const Color.fromRGBO(27, 76, 125, 25),
-                        fontWeight: FontWeight.bold),
-              ),
+              'Na lageru: ${product.stockQuantity ?? "..."} komada', // Show ... while loading if null
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: const Color.fromRGBO(27, 76, 125, 25),
+                  fontWeight: FontWeight.bold),
+            ),
 
             // Store info
             Text(
-              'Trgovina: ${widget.store?.storeName ?? "Nepoznata"}',
+              'Trgovina: ${widget.store?.storeName ?? "..."}',
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -203,29 +223,37 @@ const SizedBox(height: 20),
             const SizedBox(height: 30),
             Align(
               alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  final cart = context.read<CartProvider>();
 
-              child:   ElevatedButton(onPressed: (){
-                 final cart = context.read<CartProvider>();
-
-  if (remainingQty > 0) {
-    cart.add(product);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${product.productName} dodan u korpu.')),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${product.productName} nije na lageru.')),
-    );
-  }
-            }, child: Text('Dodaj u korpu',style: TextStyle(color: Colors.white),)
-            
-          ,
-            style: ElevatedButton.styleFrom(backgroundColor:  Color.fromRGBO(27, 76, 125, 25),elevation: 0,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),),
+                  if (remainingQty > 0) {
+                    cart.add(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${product.productName} dodan u korpu.')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${product.productName} nije na lageru.')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text(
+                  'Dodaj u korpu',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
-            )
-          ,
-SizedBox(height: 30,),
-            // Recommended products section
+            const SizedBox(
+              height: 30,
+            ),
+
             Text(
               'Popularno sa drugim kupcima i trgovinama',
               style: Theme.of(context)
@@ -261,21 +289,40 @@ SizedBox(height: 30,),
                                 width: 50,
                                 height: 50,
                               ),
-                        title: Text(p.productName ?? "Nepoznat proizvod",style: TextStyle(color: Colors.white),),
-                        subtitle: Text('${p.price} KM', style: TextStyle(color: Colors.white),),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          color: Colors.white,
-                          onPressed: () {
-                            context.read<CartProvider>().add(p);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      '${p.productName} dodan u korpu.')),
-                            );
-                          },
+                        title: Text(
+                          p.productName ?? "Nepoznat proizvod",
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        
+                        subtitle: Row(
+                          children: [
+                            Text(
+                              '${p.price} KM',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        trailing: Wrap(
+                          children: [
+                            
+                            IconButton(
+                              icon: const Icon(Icons.arrow_circle_right_sharp),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ProductDetails(
+                                          product: p,
+                                          // Note: Recommended products often don't include store details.
+                                          // You might want to pass widget.store if it's the same store, 
+                                          // or handle null store in the UI.
+                                          store: widget.store, 
+                                        )));
+                              },
+                            ),
+                           
+                            
+                            
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),
@@ -288,6 +335,3 @@ SizedBox(height: 30,),
     );
   }
 }
-
-
-

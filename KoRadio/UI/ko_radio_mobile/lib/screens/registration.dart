@@ -86,23 +86,23 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildTextField('firstName', 'Ime*',validator: FormBuilderValidators.compose([
+              _buildTextField('firstName', 'Ime ',validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: "Obavezno polje."),
                 FormBuilderValidators.minLength(2,
                     errorText: "Minimalna dužina imena je 2 znaka."),
                 FormBuilderValidators.maxLength(40,
                     errorText: "Maksimalna dužina imena je 40 znakova."),
-                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ]*$',
+                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ] $',
                     errorText:
                         "Ime mora počinjati sa velikim slovom i smije sadržavati samo slova.")
               ]),),
-              _buildTextField('lastName', 'Prezime*',validator: FormBuilderValidators.compose([
+              _buildTextField('lastName', 'Prezime ',validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: "Obavezno polje."),
                 FormBuilderValidators.minLength(2,
                     errorText: "Minimalna dužina prezimena je 2 znaka."),
                 FormBuilderValidators.maxLength(40,
                     errorText: "Maksimalna dužina prezimena je 40 znakova."),
-                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ]*$',
+                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ] $',
                     errorText:
                         "Prezime mora počinjati sa velikim slovom i smije sadržavati samo slova.")
               ]),),
@@ -129,19 +129,19 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
               ])
       ),
     ),
-              _buildTextField('phoneNumber', 'Broj Telefona*',  validator: FormBuilderValidators.compose([
+              _buildTextField('phoneNumber', 'Broj Telefona ',  validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: "Obavezno polje."),
                 FormBuilderValidators.match(r'^\+387\d{7,15}$',
                     errorText:
                         "Telefon mora imati 11 cifara \ni počinjati sa +387."),
               ]),),
-              _buildTextField('password', 'Lozinka*',
+              _buildTextField('password', 'Lozinka ',
                   obscureText: true,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
                     FormBuilderValidators.minLength(6, errorText: 'Min 6 karaktera'),
                   ])),
-              _buildTextField('confirmPassword', 'Potvrdi Lozinku*',
+              _buildTextField('confirmPassword', 'Potvrdi Lozinku ',
                   obscureText: true,
                   validator: (val) => _Validators.confirmPassword(
                       val, _formKey.currentState?.fields['password']?.value)),
@@ -151,7 +151,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : FormBuilderDropdown<int>(
                       name: 'locationId',
-                      decoration: const InputDecoration(labelText: "Lokacija*"),
+                      decoration: const InputDecoration(labelText: "Lokacija ",border: OutlineInputBorder()),
                       validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
                       items: locationResult?.result
                               .map((loc) => DropdownMenuItem(
@@ -162,7 +162,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                           [],
                     ),
               const SizedBox(height: 16),
-              _buildTextField('address', 'Adresa*',validator: FormBuilderValidators.compose([
+              _buildTextField('address', 'Adresa ',validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(errorText: 'Obavezno polje'),
                             FormBuilderValidators.minLength(5, errorText: 'Minimalna dužina adrese je 5 znaka.'),
                             FormBuilderValidators.match(

@@ -487,7 +487,7 @@ else {
 
 
                       child: const Text("Login",style: TextStyle(color: Colors.white),)),
-                      SizedBox(height: 20,),
+                      
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(27, 76, 125, 25),

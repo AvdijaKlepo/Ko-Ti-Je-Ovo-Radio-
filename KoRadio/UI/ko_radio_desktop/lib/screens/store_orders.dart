@@ -424,6 +424,7 @@ class _StoreOrdersState extends State<StoreOrders> {
                                    await orderPagination.refresh(newFilter: {
                                   'StoreId': AuthProvider.selectedStoreId,
                                   'IsShipped': showShipped,
+                                  'IsCancelled': showCancelled
                                 });
                                   },
                                 )),

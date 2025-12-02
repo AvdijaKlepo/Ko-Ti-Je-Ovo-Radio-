@@ -56,8 +56,10 @@ class _CompanyRoleAssignmentDialogState extends State<CompanyRoleAssignmentDialo
       surfaceTintColor: Colors.white,
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
+       
         child: 
              Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                  SingleChildScrollView(

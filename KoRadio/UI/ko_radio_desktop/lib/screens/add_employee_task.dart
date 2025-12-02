@@ -297,7 +297,7 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
             FormBuilderDropdown<int>(
               name: 'companyEmployeeId',
               decoration: const InputDecoration(
-                labelText: 'Zaposleni',
+                labelText: 'Zaposlenik',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person_outline),
               ),
@@ -381,87 +381,81 @@ class _AddEmployeeTaskState extends State<AddEmployeeTask> {
     );
   }
 
-  Widget _buildEmployeeTaskList() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-   
-
-    return Column(
-      children: [
-        Center(
-            child: SegmentedButton<TaskStatus>(
-              style: SegmentedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      
-                      selectedBackgroundColor: const Color.fromRGBO(27, 76, 125, 25),
-                      selectedForegroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                   
-                      
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-
-              segments: const <ButtonSegment<TaskStatus>>[
-                ButtonSegment<TaskStatus>(
-                  value: TaskStatus.finished,
-                  label: Text('Završeni'),
-                  icon: Icon(Icons.check),
-
-                ),
-                ButtonSegment<TaskStatus>(
-
-                  value: TaskStatus.inProgress,
-                  label: Text('U toku'),
-                  icon: Icon(Icons.content_paste_search_sharp),
-                ),
-              ],
-              selected: {_taskStatus},
-              onSelectionChanged: (Set<TaskStatus> newSelection) async {
-                setState(() {
-                  _taskStatus = newSelection.first;
-                  _isFinished = !_isFinished;
-                  
-                });
-                await _getEmployeeTasks();
-              },
-            ),
-          ),
-        ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: employeeTaskResult?.result.length ?? 0,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-               if (employeeTaskResult == null) {
+ Widget _buildEmployeeTaskList() {
+  if (_isLoading) {
     return const Center(child: CircularProgressIndicator());
   }
-               if (employeeTaskResult?.result.isEmpty ?? true) {
-      return const Center(child: Text("Nema zadataka za prikaz."));
-    }
-   
 
-              return EmployeeTaskCard(task: employeeTaskResult!.result[index]
-              , employeeTaskProvider: employeeTaskProvider,
-              onDeleted: () {
-          setState(() {
-            employeeTaskResult!.result.removeAt(index);
-          });
-        },
-        onEdited: () async {
-        await  _getEmployeeTasks();
-        }
-              
-              );
-            },
+  return Column(
+    children: [
+      Center(
+        // FIX 1: Removed the "&& employeeTaskResult!.result.isNotEmpty" check.
+        // Now the button stays visible even if the list is empty.
+        child: SegmentedButton<TaskStatus>(
+          style: SegmentedButton.styleFrom(
+            backgroundColor: Colors.white,
+            selectedBackgroundColor: const Color.fromRGBO(27, 76, 125, 25),
+            selectedForegroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        
-      ],
-    );
-  }
+          segments: const <ButtonSegment<TaskStatus>>[
+            ButtonSegment<TaskStatus>(
+              value: TaskStatus.finished,
+              label: Text('Završeni'),
+              icon: Icon(Icons.check),
+            ),
+            ButtonSegment<TaskStatus>(
+              value: TaskStatus.inProgress,
+              label: Text('U toku'),
+              icon: Icon(Icons.content_paste_search_sharp),
+            ),
+          ],
+          selected: {_taskStatus},
+          onSelectionChanged: (Set<TaskStatus> newSelection) async {
+            setState(() {
+              _taskStatus = newSelection.first;
+              _isFinished = !_isFinished;
+            });
+            await _getEmployeeTasks();
+          },
+        ),
+      ),
+      const SizedBox(height: 16), // Added spacing between button and list
+      
+      // FIX 2: Handle empty state OUTSIDE the ListView.
+      // If itemCount is 0, ListView builder is never called, so your previous check inside builder wouldn't work.
+      if (employeeTaskResult?.result.isEmpty ?? true)
+        const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Center(child: Text("Nema zadataka za prikaz.")),
+        )
+      else
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: employeeTaskResult!.result.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            return EmployeeTaskCard(
+              task: employeeTaskResult!.result[index],
+              employeeTaskProvider: employeeTaskProvider,
+              onDeleted: () {
+                setState(() {
+                  employeeTaskResult!.result.removeAt(index);
+                });
+              },
+              onEdited: () async {
+                await _getEmployeeTasks();
+              },
+            );
+          },
+        ),
+    ],
+  );
+}
 }
 
 class EmployeeTaskCard extends StatefulWidget {
@@ -625,6 +619,7 @@ class _EmployeeTaskCardState extends State<EmployeeTaskCard> {
                 ),
               ),
               const SizedBox(width: 8),
+           
               Wrap(
                 spacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,

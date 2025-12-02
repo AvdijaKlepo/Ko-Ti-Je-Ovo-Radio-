@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ko_radio_desktop/models/company.dart';
@@ -484,7 +485,7 @@ void initState() {
     
          Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
            gradient: LinearGradient(
           colors: [Color(0xFF4A90E2), Color.fromRGBO(27, 76, 125, 1)],
           begin: Alignment.centerLeft,
@@ -523,6 +524,7 @@ void initState() {
       : companyEmployeePagination.items.isEmpty
           ? const Center(child: Text('Nema zaposlenika.'))
           : ListView.separated(
+            
               
               itemCount: filterOutLoggedInUser.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
@@ -531,7 +533,7 @@ void initState() {
 
                 final c = filterOutLoggedInUser[index];
                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
+              
                   child: Container(
                     color: index.isEven ? Colors.grey.shade50 : Colors.white,
                     child: _buildEmployee(c),
@@ -632,14 +634,19 @@ if (_companyNameController.text.isEmpty && companyEmployeePagination.hasNextPage
                       Expanded(flex: 3, child: Text(c.user?.phoneNumber ?? '')),
                       Expanded(
                         flex: 3,
-                        child: InkWell(
-                          child: Text(c.companyRoleName ?? 'Nema Ulogu'),
-                          onTap: () async {
-                            _openEmployeeRoleAddDialog(
-                              companyId: _selectedCompanyId,
-                              companyEmployee: c,
-                            );
-                          },
+                        child: Wrap(
+                          
+                          children: [
+                            Text(c.companyRoleName ?? 'Nema Ulogu'),
+                            c.companyRoleName==null ?
+                            IconButton(tooltip: 'Dodaj ulogu',onPressed: () async{
+                               _openEmployeeRoleAddDialog(
+                            companyId: _selectedCompanyId,
+                            companyEmployee: c,
+                          );
+                            }, icon: const Icon(Icons.assignment_add))
+                            : const SizedBox.shrink()
+                          ],
                         ),
                       ),
                        Expanded(
@@ -650,7 +657,7 @@ if (_companyNameController.text.isEmpty && companyEmployeePagination.hasNextPage
                     ? imageFromString(c.user!.image!, width: 40, height: 40)
                     : const Image(
                         image: AssetImage(
-                          'assets/images/Sample_User_Icon.png',
+                          'assets/images/user.png',
                         ),
                         fit: BoxFit.contain,
                         width: 40,
@@ -664,7 +671,7 @@ if (_companyNameController.text.isEmpty && companyEmployeePagination.hasNextPage
                         flex: 3,
                         child: c.userId != AuthProvider.user?.userId
                             ? Center(child: Text('${getJobsPerEmployee(c.companyEmployeeId)}'))
-                            : Center(child: const Text('Administrator')),
+                            : const Center(child: Text('Administrator')),
                       ),
                       if (!showApplicants && !showDeleted)
                         Expanded(

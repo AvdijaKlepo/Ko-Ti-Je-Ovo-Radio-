@@ -521,6 +521,8 @@ final expiry = result['saleExpires'] as DateTime?;
               backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
             ),
                 onPressed: () async {
+                  final navigator = Navigator.of(context);
+                  final message = ScaffoldMessenger.of(context);
                   try {
           await storeProvider.update(AuthProvider.selectedStoreId!,
           {
@@ -528,14 +530,15 @@ final expiry = result['saleExpires'] as DateTime?;
             'storeCatalogue': _base64Pdf,
             'storeCataloguePublish': DateTime.now().toIso8601String(),
           });
+          navigator.pop();
         } on UserException catch (e) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.exMessage)));
+          message.showSnackBar(SnackBar(content: Text(e.exMessage)));
          
         }
         
         on Exception catch (e) {
-          
+          message.showSnackBar(SnackBar(content: Text('Došlo je do greške. Pokušajte ponoovo.')));
         }
                  
                 },

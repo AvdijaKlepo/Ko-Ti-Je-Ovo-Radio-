@@ -284,6 +284,7 @@ class SearchBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: TextField(
+        
         controller: controller,
         decoration: InputDecoration(
           hintText: "Pretražite servise...",
@@ -291,7 +292,17 @@ class SearchBar extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
+          suffixIcon: controller.text.isNotEmpty ? IconButton(
+            
+            onPressed: () {
+              controller.clear();
+              onChanged("");
+             
+            },
+            icon: const Icon(Icons.clear),
+          ) : null,
         ),
+        
         onChanged: onChanged,
       ),
     );

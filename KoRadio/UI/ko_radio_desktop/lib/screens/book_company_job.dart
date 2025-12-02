@@ -230,6 +230,7 @@ final currentValues = _formKey.currentState?.value ?? {};
   }
 
   Future<void> _assignSelectedEmployees() async {
+    final currentJob = _jobResult?.result.first ?? widget.job; 
     final isValid = _employeeFormKey.currentState?.saveAndValidate() ?? false;
     if (!isValid) return;
 
@@ -237,7 +238,7 @@ final currentValues = _formKey.currentState?.value ?? {};
     final selectedEmployees = form['companyEmployeeId'] as List<int>; 
 
 
-  final parts = widget.job.startEstimate!.split(":");
+  final parts = currentJob.startEstimate!.split(":");
   final parsedTime = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -250,15 +251,16 @@ final currentValues = _formKey.currentState?.value ?? {};
     final now = DateTime.now();
     return DateTime(now.year, now.month, now.day, t.hour, t.minute, t.second);
   }
-  var jobEnd = parseTime(widget.job.endEstimate!);
+  var jobEnd = parseTime(currentJob.endEstimate!);
 
   DateTime selectedEnd = normalizeTime(jobEnd);
   DateTime newStart = normalizeTime(parsedTime);
   DateTime newEnd = selectedEnd;
 
 
+
   final selectedEmployeeJobs = _companyJobCheck?.result
-      .where((e) => selectedEmployees.contains(e.companyEmployeeId) && e.jobId!=widget.job.jobId)
+      .where((e) => selectedEmployees.contains(e.companyEmployeeId) && e.jobId!=currentJob.jobId)
       .toList() ?? [];
 
   for (var jobCheck in selectedEmployeeJobs) {
@@ -290,6 +292,7 @@ final currentValues = _formKey.currentState?.value ?? {};
     }
 
     setState(() => _loading = true);
+    print('Radi');
 
     try {
       for (final id in selectedEmployees!) {
@@ -1138,8 +1141,8 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                                         inputType: InputType.date,
                                                         locale: const Locale('bs'),
                                                         decoration: const InputDecoration(labelText: 'Datum završetka', border: OutlineInputBorder(), prefixIcon: Icon(Icons.calendar_today)),
-                                                        firstDate: job.jobDate,
-                                                        initialDate: job.jobDate.isAfter(DateTime.now()) ? job.jobDate : DateTime.now(),
+                                                        firstDate: job.jobDate.add(Duration(days: 1)),
+                                                        initialDate: job.jobDate.add(Duration(days: 1)),
                                                         validator: FormBuilderValidators.compose([
                                                           FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                                           (value){
@@ -1238,6 +1241,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                   FormBuilderValidators.numeric(errorText: 'Numerička vrijednost.'),
+                                  FormBuilderValidators.min(1,errorText: 'Procijna ne može biti negativna.')
                                 ]),
                                 valueTransformer: (value) => double.tryParse(value ?? ''),
                               ),
@@ -1273,7 +1277,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                     labelText: 'Dodaj radnika',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.person_add),
-                    // Subtle helper text when disabled
+                 
                     helperText: canSelectEmployees
                         ? null
                         : 'Onemogućeno dok ne unesete datume',
@@ -1403,7 +1407,7 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                             
                                     const SizedBox(height: 16),
                             
-                                    // Actions
+                             
                                     if (job.jobStatus != JobStatus.cancelled && job.jobStatus != JobStatus.finished)
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.end,

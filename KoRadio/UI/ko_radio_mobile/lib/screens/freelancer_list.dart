@@ -254,6 +254,7 @@ Future<void> _loadRecommendedCompanies() async {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        scrolledUnderElevation: 0,
         title: Text(
           'Lista servisera',
           style: TextStyle(
@@ -339,12 +340,12 @@ const Align(alignment: Alignment.centerLeft,child: Text('Lista servisera',style:
         if ((freelancerPagination?.items.isEmpty ?? true) &&
             (view == Options.radnici)) {
           return ListView(
-            children:   [
+            children:   const [
             
              
-              const SizedBox(height: 50),
+              SizedBox(height: 50),
               
-              const Center(child: Text("Nema rezultata.")),
+              Center(child: Text("Nema rezultata.")),
                   
     
             ],
@@ -530,29 +531,28 @@ Widget _buildCompanyList() {
 Widget _buildRecommendedFreelancers() {
   if (_isRecommendedLoading) {
     return const SizedBox(
-      height: 120,
+      height: 100, // Reduced height for loader
       child: Center(child: CircularProgressIndicator()),
     );
   }
 
   if (recommendedFreelancers.isEmpty) {
-    return const SizedBox.shrink(); 
+    return const SizedBox.shrink();
   }
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-const Divider(height: 12,thickness: 2,),
-
+      const Divider(height: 12, thickness: 2),
       const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: 4), // Reduced padding
         child: Text(
           "Preporučeno za vas",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Slightly smaller header
         ),
       ),
       SizedBox(
-        height: 150,
+        height: 130, // Reduced from MediaQuery height (~160+) to fixed 130
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: recommendedFreelancers.length,
@@ -566,32 +566,33 @@ const Divider(height: 12,thickness: 2,),
                 MaterialPageRoute(builder: (_) => FreelancerDetails(freelancerId: f.freelancerId)),
               ),
               child: Container(
-                width: 120,
+                width: 100, // Reduced width
                 margin: const EdgeInsets.only(right: 12),
                 child: Column(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        
-                        width: 100,
-                        height: 100,
+                        width: 80, // Reduced from 100
+                        height: 80, // Reduced from 100
                         color: Colors.transparent,
                         child: user?.image != null
-                            ? imageFromString(user!.image!, height: 100, width: 100, fit: BoxFit.cover)
+                            ? imageFromString(user!.image!, height: 80, width: 80, fit: BoxFit.cover)
                             : SvgPicture.asset(
                                 "assets/images/undraw_construction-workers_z99i.svg",
-                                width: 100,
-                                height: 100,
+                                width: 80,
+                                height: 80,
                                 fit: BoxFit.cover,
                               ),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       "${user?.firstName ?? ''} ${user?.lastName ?? ''}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12), // Smaller font
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
                     ),
                   ],
                 ),
@@ -603,38 +604,38 @@ const Divider(height: 12,thickness: 2,),
     ],
   );
 }
+
 Widget _buildRecommendedCompanies() {
   if (_isRecommendedLoading) {
     return const SizedBox(
-      height: 120,
+      height: 100, // Reduced height for loader
       child: Center(child: CircularProgressIndicator()),
     );
   }
 
-  if (recommendedFreelancers.isEmpty) {
-    return const SizedBox.shrink(); // nothing to show
+  // FIXED: Was checking 'recommendedFreelancers.isEmpty', changed to 'recommendedCompanies'
+  if (recommendedCompanies.isEmpty) {
+    return const SizedBox.shrink();
   }
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-const Divider(height: 12,thickness: 2,),
-
+      const Divider(height: 12, thickness: 2),
       const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: 4), // Reduced padding
         child: Text(
           "Preporučeno za vas",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Slightly smaller header
         ),
       ),
       SizedBox(
-        height: 150,
+        height: 130, // Reduced from 150 to 130
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: recommendedCompanies.length,
           itemBuilder: (context, index) {
             final f = recommendedCompanies[index];
-            
 
             return GestureDetector(
               onTap: () => Navigator.push(
@@ -642,31 +643,33 @@ const Divider(height: 12,thickness: 2,),
                 MaterialPageRoute(builder: (_) => FreelancerDetails(companyId: f.companyId)),
               ),
               child: Container(
-                width: 120,
+                width: 100,
                 margin: const EdgeInsets.only(right: 12),
                 child: Column(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        width: 100,
-                        height: 100,
+                        width: 80, // Reduced from 100
+                        height: 80, // Reduced from 100
                         color: Colors.white,
                         child: f.image != null
-                            ? imageFromString(f.image!, height: 100, width: 100, fit: BoxFit.cover)
+                            ? imageFromString(f.image!, height: 80, width: 80, fit: BoxFit.cover)
                             : SvgPicture.asset(
                                 "assets/images/undraw_under-construction_c2y1.svg",
-                                width: 100,
-                                height: 100,
+                                width: 80,
+                                height: 80,
                                 fit: BoxFit.cover,
                               ),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       "${f.companyName}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
                     ),
                   ],
                 ),

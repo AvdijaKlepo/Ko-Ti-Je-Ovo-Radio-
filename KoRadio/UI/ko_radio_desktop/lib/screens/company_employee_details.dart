@@ -197,7 +197,7 @@ class _CompanyEmployeeDetailsState extends State<CompanyEmployeeDetails> with Si
             child: user?.image != null
                 ? imageFromString(user?.image ?? '')
                 : const Image(
-                    image: AssetImage('assets/images/Sample_User_Icon.png'),
+                    image: AssetImage('assets/images/user.png'),
                     fit: BoxFit.cover,
                   ),
           ),
