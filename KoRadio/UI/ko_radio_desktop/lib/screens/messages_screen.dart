@@ -270,9 +270,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         ? {'StoreId': widget.storeId, 'OrderBy': 'desc'}
                                         : {'UserId': AuthProvider.user?.userId, 'OrderBy': 'desc'},
                               );
-                              message.showSnackBar(const SnackBar(content: Text('Poruka je obrisana.')));
+                              await _getNotifications();
+                              message.showSnackBar(const SnackBar(content: Text('Notifikacija je obrisana.')));
                             },
-                            tooltip: 'Obriši poruku',
+                            tooltip: 'Obriši notifikaciju.',
                           ),
                       ],
                     ),

@@ -135,7 +135,7 @@ class _ServiceFormDialogState extends State<LocationFormDialog> {
           await locationProvider.update(widget.location!.locationId!, request);
         }
 
-        Navigator.of(context).pop(true); // Return success
+        Navigator.of(context).pop(true); 
       } on UserException catch (e) {
         _formKey.currentState?.invalidateField(
         name: "locationName",

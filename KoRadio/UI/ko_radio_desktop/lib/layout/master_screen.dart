@@ -51,6 +51,8 @@ class _MasterScreenState extends State<MasterScreen> {
     companyProvider = context.read<CompanyProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     
+
+    await Future.delayed(const Duration(milliseconds: 500));
      await _getNotifications();
 
     
@@ -61,6 +63,8 @@ signalR.onNotificationReceived = (message) async {
   rootScaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(content: Text(message)),
   );
+    await Future.delayed(const Duration(milliseconds: 500));
+
   await _getNotifications();
 
 };

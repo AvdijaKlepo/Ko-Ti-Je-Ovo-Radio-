@@ -37,6 +37,13 @@ namespace KoRadio.Services
 				throw new UserException("Lokacija već postoji.");
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
+		public override async Task BeforeUpdateAsync(LocationUpdateRequest request, Database.Location entity, CancellationToken cancellationToken = default)
+		{
+			var locations = await _context.Locations.AnyAsync(x => x.LocationName == request.LocationName);
+			if (locations)
+				throw new UserException("Lokacija već postoji.");
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
 
 		public async Task<Model.PagedResult<Model.Location>> GetForRegistration(LocationSearchObject locationSearchObject)
 		{

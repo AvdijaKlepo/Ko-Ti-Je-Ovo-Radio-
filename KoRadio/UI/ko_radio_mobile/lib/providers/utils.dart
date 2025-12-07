@@ -67,7 +67,7 @@ String _dayName(int weekday) {
 
 
 Image imageFromString(String input, {double? width, double? height, BoxFit? fit = BoxFit.cover, }) {
-  return Image.memory(base64Decode(input), width: width, height: height,fit:fit,);
+  return Image.memory(base64Decode(input), width: width, height: height,fit:fit,gaplessPlayback: true,);
 }
 
 AppBar appBar({required String title,   Widget? actions, required bool automaticallyImplyLeading, bool centerTitle = true}) {

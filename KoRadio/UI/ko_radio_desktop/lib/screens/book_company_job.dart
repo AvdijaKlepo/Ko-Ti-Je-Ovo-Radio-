@@ -1241,7 +1241,8 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                   FormBuilderValidators.numeric(errorText: 'Numerička vrijednost.'),
-                                  FormBuilderValidators.min(1,errorText: 'Procijna ne može biti negativna.')
+                                  FormBuilderValidators.min(1,errorText: 'Procijna ne može biti negativna.'),
+                                  FormBuilderValidators.max(10000,errorText: 'Maximalna procijena je 10000KM')
                                 ]),
                                 valueTransformer: (value) => double.tryParse(value ?? ''),
                               ),
@@ -1386,6 +1387,8 @@ final dateFormat = DateFormat('dd.MM.yyyy');
                                                         validator: FormBuilderValidators.compose([
                                                           FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                                           FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                                                              FormBuilderValidators.min(1,errorText: 'Cijena ne može biti negativna.'),
+                                                                FormBuilderValidators.max(10000,errorText: 'Maximalna cijena je 10000KM')
                                                         ]),
                                                         valueTransformer: (value) => double.tryParse(value ?? ''),
                                                       ),

@@ -202,27 +202,36 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                        fillColor: Colors.grey[100],),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.maxLength(20, errorText: 'Maksimalno 20 znakova'),
+                        FormBuilderValidators.maxLength(20, errorText: 'Maksimalno 40 znakova'),
                         FormBuilderValidators.minLength(2, errorText: 'Minimalno 2 znaka'),
                         FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9 ]+$', errorText: 'Dozvoljena su samo slova i brojevi sa prvim velikim.'),
                       ]),
                       ),
                       const SizedBox(height: 20),
-                      FormBuilderTextField(name: "productDescription", decoration:  InputDecoration(
-                        labelText: "Opis", border: OutlineInputBorder(),
-                       helperText: "Maksimalno 100 znakova",
-                       filled: true,
-                       fillColor: Colors.grey[100],
-                      ),
-                      maxLines: 3,
-                      
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: 'Obavezno polje'),
-                        FormBuilderValidators.maxLength(100, errorText: 'Maksimalno 100 znakova'),
-                        FormBuilderValidators.minLength(10, errorText: 'Minimalno 10 znaka'),
-                        FormBuilderValidators.match(r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9 .,-]+$', errorText: 'Dozvoljena su samo slova i brojevi sa prvim velikim i osnovnim znakovima.'),
-                      ]),
-                      ),
+                      FormBuilderTextField(
+  name: "productDescription",
+  decoration: InputDecoration(
+    labelText: "Opis",
+    border: OutlineInputBorder(),
+    helperText: "Maksimalno 100 znakova",
+    filled: true,
+    fillColor: Colors.grey[100],
+  ),
+  maxLines: 3,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: 'Obavezno polje'),
+    FormBuilderValidators.maxLength(100,
+        errorText: 'Maksimalno 100 znakova'),
+    FormBuilderValidators.minLength(10,
+        errorText: 'Minimalno 10 znaka'),
+    FormBuilderValidators.match(
+        // FIXED REGEX BELOW:
+        // Changed from [...,- ] to [..., -] (Hyphen moved to the very end)
+        r'^[A-ZĆČĐŠŽ][A-Za-zĆČĐŠŽćčđšž0-9., -]+$', 
+        errorText:
+            'Dozvoljena su samo slova i brojevi sa prvim velikim i osnovnim znakovima.'),
+  ]),
+),
                       const SizedBox(height: 20),
                      
                        FormBuilderTextField(
@@ -239,6 +248,8 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                                   validator: FormBuilderValidators.compose([
                                     FormBuilderValidators.required(errorText: 'Obavezno polje'),
                                     FormBuilderValidators.numeric(errorText: 'Mora biti broj, npr. 10.00'),
+                                    FormBuilderValidators.max(10000,errorText: 'Maximalna cijena proizvoda je 10000KM'),
+                                    FormBuilderValidators.min(1,errorText: 'Maximalna cijena proizvoda je 1KM'),
                                 
                                   ]),
                                   valueTransformer: (value) => double.tryParse(value ?? ''),
@@ -250,6 +261,8 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.integer(errorText: 'Mora biti broj, npr. 10'),
+                         FormBuilderValidators.max(10000,errorText: 'Maximalna količina na lageru je 10000 komada'),
+                         FormBuilderValidators.min(0,errorText: 'Minimalna količina na lageru je 1 ili 0 komada.'),
                       ]),
                       ),
                       if(widget.product!=null)

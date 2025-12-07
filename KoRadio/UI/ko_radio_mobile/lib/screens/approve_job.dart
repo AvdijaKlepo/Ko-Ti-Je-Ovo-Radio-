@@ -915,6 +915,8 @@ if (listOfOtherEndTimes.isNotEmpty) {
                       validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.numeric(errorText: 'Numeričko polje, npr 10.00'),
+                         FormBuilderValidators.min(1,errorText: 'Cijena ne može biti negativna.'),
+                          FormBuilderValidators.max(10000,errorText: 'Maximalna cijena je 10000KM')
                         ]
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),
@@ -957,6 +959,8 @@ if (listOfOtherEndTimes.isNotEmpty) {
                          validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.numeric(errorText: 'Numeričko polje, npr 10.00'),
+                         FormBuilderValidators.min(1,errorText: 'Cijena ne može biti negativna.'),
+                         FormBuilderValidators.max(10000,errorText: 'Maximalna cijena je 10000KM')
                         ]
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),

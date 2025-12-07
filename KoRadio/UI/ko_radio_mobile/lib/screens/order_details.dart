@@ -20,7 +20,7 @@ class _OrderDetailsState extends State<OrderDetails> {
     final items = widget.order?.orderItems ?? [];
 
     return Scaffold(
-      appBar: AppBar(title:  Text('Detalji narudžbe', style: TextStyle(color: Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
+      appBar: AppBar(title:  Text('Detalji narudžbe', style: TextStyle(color: const Color.fromRGBO(27, 76, 125, 25),fontFamily: GoogleFonts.lobster().fontFamily),),centerTitle: true,),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -43,7 +43,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                       itemBuilder: (context, index) {
                         final item = items[index];
                         final product = item.product;
-                        final price = product?.price ?? 0.0;
+                        final price = item.quantity!*item.productPrice!;
                       
 
                         return Card(
@@ -52,16 +52,17 @@ class _OrderDetailsState extends State<OrderDetails> {
                           ),
                           elevation: 2,
                           child: ListTile(
-                            tileColor: Color.fromRGBO(27, 76, 125, 25),
+                            tileColor: const Color.fromRGBO(27, 76, 125, 25),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            title: Text(product?.productName ?? "Proizvod",style: TextStyle(color: Colors.white),),
-                            subtitle: Text('Količina: ${item.quantity}\nUkupno plaćeno: ${item.quantity!*item.productPrice!} KM',style: TextStyle(color: Colors.white),),
+                            title: Text(product?.productName ?? "Proizvod",style: const TextStyle(color: Colors.white),),
+                            subtitle: Text('Količina: ${item.quantity}\nUkupno plaćeno: ${price.toStringAsFixed(2)} KM',
+                            style: const TextStyle(color: Colors.white),),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('${item.productPrice!.toStringAsFixed(2)} KM',style: TextStyle(color: Colors.white),),
+                                Text('${item.productPrice!.toStringAsFixed(2)} KM',style: const TextStyle(color: Colors.white),),
                                
                                 
                               ],

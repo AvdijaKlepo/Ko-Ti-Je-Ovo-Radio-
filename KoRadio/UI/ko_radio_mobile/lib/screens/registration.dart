@@ -92,7 +92,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                     errorText: "Minimalna dužina imena je 2 znaka."),
                 FormBuilderValidators.maxLength(40,
                     errorText: "Maksimalna dužina imena je 40 znakova."),
-                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ] $',
+                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ]*$',
                     errorText:
                         "Ime mora počinjati sa velikim slovom i smije sadržavati samo slova.")
               ]),),
@@ -102,7 +102,7 @@ class _RegistrastionScreenState extends State<RegistrastionScreen> {
                     errorText: "Minimalna dužina prezimena je 2 znaka."),
                 FormBuilderValidators.maxLength(40,
                     errorText: "Maksimalna dužina prezimena je 40 znakova."),
-                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ] $',
+                FormBuilderValidators.match(r'^[A-ZČĆŽĐŠ][a-zA-ZčćžđšČĆŽĐŠ]*$',
                     errorText:
                         "Prezime mora počinjati sa velikim slovom i smije sadržavati samo slova.")
               ]),),

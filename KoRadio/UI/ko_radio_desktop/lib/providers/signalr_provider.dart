@@ -87,6 +87,7 @@ class SignalRProvider with ChangeNotifier {
           'UserId': AuthProvider.user?.userId,
           'IsOpened': false,
         });
+        print('Ui Notifikacija.');
        }
 
 

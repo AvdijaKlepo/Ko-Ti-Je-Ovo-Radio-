@@ -603,7 +603,7 @@ Future<void> _showAcceptDialog(TenderBid tenderBid) async {
               await jobProvider.update(tenderBid.jobId!, requestData);
 
               message.showSnackBar(
-                const SnackBar(content: Text("Posao potvrđen!")),
+                const SnackBar(content: Text("Tender odobren. Posao možete pratiti iz sekcije poslovi!")),
               );
               navigator.pop(true);
               navigator.pop(true);

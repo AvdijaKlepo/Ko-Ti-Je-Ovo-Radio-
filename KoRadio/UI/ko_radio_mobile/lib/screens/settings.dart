@@ -482,7 +482,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
                           tooltip: 'Prihvati',
                           onPressed: () async {
                             try {
-                              companyEmployeeProvider.update(_companyEmployeeId,
+                             await companyEmployeeProvider.update(_companyEmployeeId,
                                   {
                                       "userId": _userId,
                                       "companyId": _companyId,
@@ -500,6 +500,7 @@ int? _companyId = (companyEmployeeResult?.result?.isNotEmpty ?? false)
           
         );
         await _getEmployee();
+        
         
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

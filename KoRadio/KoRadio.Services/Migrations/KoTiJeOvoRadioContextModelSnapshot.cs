@@ -1833,48 +1833,6 @@ namespace KoRadio.Services.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Orders");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderId = 1,
-                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsCancelled = false,
-                            IsShipped = false,
-                            OrderNumber = 20124,
-                            Price = 0m,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            OrderId = 2,
-                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsCancelled = false,
-                            IsShipped = false,
-                            OrderNumber = 20125,
-                            Price = 0m,
-                            UserId = 3
-                        },
-                        new
-                        {
-                            OrderId = 3,
-                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsCancelled = false,
-                            IsShipped = false,
-                            OrderNumber = 20126,
-                            Price = 0m,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            OrderId = 4,
-                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsCancelled = false,
-                            IsShipped = false,
-                            OrderNumber = 20127,
-                            Price = 0m,
-                            UserId = 3
-                        });
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.OrderItem", b =>
@@ -1913,88 +1871,6 @@ namespace KoRadio.Services.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("OrderItems");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderItemsId = 1,
-                            OrderId = 1,
-                            ProductId = 1,
-                            ProductPrice = 0m,
-                            Quantity = 2,
-                            StoreId = 1,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 2,
-                            OrderId = 1,
-                            ProductId = 4,
-                            ProductPrice = 0m,
-                            Quantity = 5,
-                            StoreId = 1,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 3,
-                            OrderId = 2,
-                            ProductId = 2,
-                            ProductPrice = 0m,
-                            Quantity = 1,
-                            StoreId = 1,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 4,
-                            OrderId = 2,
-                            ProductId = 3,
-                            ProductPrice = 0m,
-                            Quantity = 3,
-                            StoreId = 1,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 5,
-                            OrderId = 3,
-                            ProductId = 5,
-                            ProductPrice = 0m,
-                            Quantity = 4,
-                            StoreId = 2,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 6,
-                            OrderId = 3,
-                            ProductId = 6,
-                            ProductPrice = 0m,
-                            Quantity = 2,
-                            StoreId = 2,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 7,
-                            OrderId = 4,
-                            ProductId = 7,
-                            ProductPrice = 0m,
-                            Quantity = 1,
-                            StoreId = 2,
-                            UnitPrice = 0m
-                        },
-                        new
-                        {
-                            OrderItemsId = 8,
-                            OrderId = 4,
-                            ProductId = 8,
-                            ProductPrice = 0m,
-                            Quantity = 3,
-                            StoreId = 2,
-                            UnitPrice = 0m
-                        });
                 });
 
             modelBuilder.Entity("KoRadio.Services.Database.Product", b =>
@@ -2056,7 +1932,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 25.00m,
-                            ProductDescription = " Produžni kabl dužine 5 metara, idealan za kućnu i kancelarijsku upotrebu.",
+                            ProductDescription = " Produžni kabal 5m.",
                             ProductName = "Produžni kabl 5m",
                             StockQuantity = 15,
                             StoreId = 1
@@ -2068,7 +1944,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 45.00m,
-                            ProductDescription = "Visokokvalitetni Ethernet kabal dužine 20 metara za pouzdanu mrežnu povezanost.",
+                            ProductDescription = "Cat6 Ethernet kabal",
                             ProductName = "Ethernet kabal 20m",
                             StockQuantity = 15,
                             StoreId = 1
@@ -2080,8 +1956,8 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 15.00m,
-                            ProductDescription = "Standardni prekidač naizmenične struje za kućnu i industrijsku upotrebu.",
-                            ProductName = "Prekidač naizmenične struje",
+                            ProductDescription = "Standardni prekidač naizmjenične struje.",
+                            ProductName = "Prekidač naizmjenične struje",
                             StockQuantity = 15,
                             StoreId = 1
                         },
@@ -2092,8 +1968,8 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 10.00m,
-                            ProductDescription = "Energetski efikasna LED žarulja snage 9W, pruža jarko svetlo uz nisku potrošnju energije.",
-                            ProductName = "LED žarulja 9W",
+                            ProductDescription = "Energetski efikasna LED sijalica.",
+                            ProductName = "LED sijalica 9W",
                             StockQuantity = 15,
                             StoreId = 1
                         },
@@ -2104,8 +1980,8 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 20.00m,
-                            ProductDescription = "Visokokvalitetna ravna keramika dimenzija 30x30cm, idealna za podove i zidove.",
-                            ProductName = "Ravna keramika 30x30cm",
+                            ProductDescription = "Visokokvalitetna ravna keramika.",
+                            ProductName = "Ravna keramika",
                             StockQuantity = 15,
                             StoreId = 2
                         },
@@ -2116,7 +1992,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 15.00m,
-                            ProductDescription = "Izdržljive keramičke pločice dimenzija 20x20cm, pogodne za različite površine.",
+                            ProductDescription = "Izdržljive keramičke pločice.",
                             ProductName = "Keramičke pločice 20x20cm",
                             StockQuantity = 15,
                             StoreId = 2
@@ -2128,7 +2004,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 30.00m,
-                            ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg, idealna za popunjavanje spojeva između pločica.",
+                            ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg.",
                             ProductName = "Fug masa 5kg",
                             StockQuantity = 15,
                             StoreId = 2
@@ -2140,7 +2016,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 50.00m,
-                            ProductDescription = "Snažno ljepilo za keramiku u pakovanju od 10kg, pruža čvrsto prizemljivanje pločica na različite površine.",
+                            ProductDescription = "Snažno ljepilo za keramiku.",
                             ProductName = "Ljepilo za keramiku 10kg",
                             StockQuantity = 15,
                             StoreId = 2
@@ -2152,7 +2028,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 8.00m,
-                            ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg, pogodan za različite građevinske radove.",
+                            ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg.",
                             ProductName = "Cement 25kg",
                             StockQuantity = 15,
                             StoreId = 3
@@ -2164,7 +2040,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 5.00m,
-                            ProductDescription = "Fini pijesak u pakovanju od 50kg, idealan za malterisanje i druge građevinske primjene.",
+                            ProductDescription = "Fini pijesak u pakovanju od 50kg.",
                             ProductName = "Pijesak 50kg",
                             StockQuantity = 15,
                             StoreId = 3
@@ -2176,7 +2052,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 12.00m,
-                            ProductDescription = "Kvalitetan malter u pakovanju od 30kg, pogodan za unutrašnje i vanjske zidove.",
+                            ProductDescription = "Kvalitetan malter u pakovanju od 30kg.",
                             ProductName = "Malter 30kg",
                             StockQuantity = 15,
                             StoreId = 3
@@ -2188,7 +2064,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 25.00m,
-                            ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L, dostupna u različitim bojama.",
+                            ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L.",
                             ProductName = "Boja za zidove 5L",
                             StockQuantity = 15,
                             StoreId = 4
@@ -2200,7 +2076,7 @@ namespace KoRadio.Services.Migrations
                             IsOnSale = false,
                             IsOutOfStock = false,
                             Price = 15.00m,
-                            ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L, pruža zaštitu i sjaj drvenim površinama.",
+                            ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L.",
                             ProductName = "Lak za drvo 1L",
                             StockQuantity = 15,
                             StoreId = 4
@@ -3610,13 +3486,6 @@ namespace KoRadio.Services.Migrations
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 2,
                             UserId = 21
-                        },
-                        new
-                        {
-                            UserRoleId = 39,
-                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RoleId = 4,
-                            UserId = 7
                         });
                 });
 

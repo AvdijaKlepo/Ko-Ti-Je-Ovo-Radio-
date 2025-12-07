@@ -95,7 +95,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                         children: [
                            Text(widget.service!=null ?
                             'Uredi uslugu': 'Dodaj uslugu',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -192,6 +192,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                             alignment: Alignment.centerRight,
                             child: ElevatedButton.icon(
                               icon: const Icon(Icons.save),
+                           
                               label: const Text("Sačuvaj"),
                               onPressed: _save,
                             ),

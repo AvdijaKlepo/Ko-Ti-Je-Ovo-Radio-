@@ -2,7 +2,10 @@
 using KoRadio.Model.Request;
 using KoRadio.Model.SearchObject;
 using KoRadio.Services.Database;
+using KoRadio.Services.Interfaces;
+using KoRadio.Services.SignalRService;
 using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,10 +19,14 @@ namespace KoRadio.Services
 	{
 		private readonly KoTiJeOvoRadioContext _context;
 		private readonly IMapper _mapper;
-		public CompanyEmployeeService(IMapper mapper, KoTiJeOvoRadioContext context): base(context, mapper)
+		private readonly IHubContext<SignalRHubService> _hubContext;
+		private readonly IMessageService _messageService;
+		public CompanyEmployeeService(IMapper mapper, KoTiJeOvoRadioContext context, IHubContext<SignalRHubService> hubContext, IMessageService messageService) : base(context, mapper)
 		{
 			_context = context;
 			_mapper = mapper;
+			_hubContext = hubContext;
+			_messageService = messageService;
 		}
 
 		public override IQueryable<KoRadio.Services.Database.CompanyEmployee> AddFilter(CompanyEmployeeSearchObject search, IQueryable<KoRadio.Services.Database.CompanyEmployee> query)
@@ -121,6 +128,26 @@ namespace KoRadio.Services
 			entity.DateJoined = DateTime.UtcNow;
 			entity.IsApplicant = true;
 			entity.IsDeleted = false;
+
+			
+				string notification;
+			string signalRMessage = "Nova obavijest je stigla.";
+
+
+			notification = $"Novi zahtjev za zaposlenje. Provjerite sekciju račun.";
+				await _hubContext.Clients.User(entity.UserId.ToString())
+				.SendAsync("ReceiveNotification", signalRMessage, cancellationToken);
+
+
+				var insertRequest = new MessageInsertRequest
+				{
+					Message1 = notification,
+					UserId = entity.UserId,
+					CreatedAt = DateTime.Now,
+					IsOpened = false
+				};
+
+				await _messageService.InsertAsync(insertRequest, cancellationToken);
 			
 
 			await base.BeforeInsertAsync(request, entity, cancellationToken);

@@ -391,6 +391,8 @@ class _ApproveJobEditState extends State<ApproveJobEdit> {
                       validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(errorText: 'Obavezno polje'),
                         FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                         FormBuilderValidators.min(1,errorText: 'Cijena ne može biti negativna.'),
+                          FormBuilderValidators.max(10000,errorText: 'Maximalna cijena je 10000KM')
                         ]
                       ),
                       valueTransformer: (value) => double.tryParse(value ?? ''),

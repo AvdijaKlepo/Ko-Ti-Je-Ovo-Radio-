@@ -91,7 +91,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 1), () {
       _refreshWithFilter();
     });
   }
@@ -119,6 +119,7 @@ class _UserListScreenState extends State<UserListScreen> {
         'isDeleted': showDeleted,
         'IsFreelancerIncluded': true,
       });
+      currentPage = 1;
       if (!mounted) return;
       setState(() {
         isLoading = false;

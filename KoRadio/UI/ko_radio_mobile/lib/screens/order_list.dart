@@ -115,7 +115,7 @@ class _OrderListState extends State<OrderList> {
 
 
   void _onSegmentChanged(String segment) {
-  if (_isLoading) return; // skip if already refreshing
+  if (_isLoading) return; 
   setState(() => _selectedSegment = segment);
   _refreshWithFilter();
 }
@@ -137,7 +137,7 @@ class _OrderListState extends State<OrderList> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // SegmentedButton filter
+            
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   child: SegmentedButton<String>(

@@ -207,7 +207,9 @@ namespace KoRadio.Services
 
 
 		public override async Task BeforeUpdateAsync(FreelancerUpdateRequest request, Database.Freelancer entity, CancellationToken cancellationToken = default)
-		{var jobs = _context.Jobs.Any(x => x.FreelancerId == entity.FreelancerId
+		{
+			
+			var jobs = _context.Jobs.Any(x => x.FreelancerId == entity.FreelancerId
 												   && x.JobStatus == "approved");
 
 			if (request.ServiceId != null && request.ServiceId.Any())
@@ -236,6 +238,11 @@ namespace KoRadio.Services
 				}
 				
 
+			}
+			if (request.isDeleted == true && entity.IsDeleted == false)
+			{
+				if(jobs)
+					throw new UserException("Radnik ne može biti izbrisan dok ima aktivne poslove!");
 			}
 
 			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))

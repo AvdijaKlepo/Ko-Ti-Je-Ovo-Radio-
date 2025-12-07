@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,6 +27,7 @@ class ProductTypeList extends StatefulWidget {
 
 class _ProductTypeListState extends State<ProductTypeList> {
   int? _selectedServiceId;
+  Uint8List? _decodedImage;
 
   late ProductProvider productProvider;
   late ServiceProvider serviceProvider;
@@ -39,7 +42,6 @@ class _ProductTypeListState extends State<ProductTypeList> {
   bool _isLoading = false;
   bool _showOutOfStock=false;
   bool _showSale=false;
-  
 
 
   @override
@@ -336,6 +338,13 @@ class _ProductTypeListState extends State<ProductTypeList> {
                               if (index < productPagination.items.length) {
                                 final product = productPagination.items[index];
 final cart = context.watch<CartProvider>();
+if(product.image!=null)
+{
+  _decodedImage = base64Decode(product.image!);
+}
+else{
+  _decodedImage=null;
+}
 
 
 final cartQuantity = cart.items
@@ -365,9 +374,10 @@ final remainingQty = (product.stockQuantity ?? 0) - cartQuantity;
                                       children: [
                                         Positioned.fill(
                                           child: product.image != null
-                                              ? imageFromString(
-                                                  product.image!,
+                                              ? Image.memory(
+                                                  _decodedImage!,
                                                   fit: BoxFit.contain,
+                                                  gaplessPlayback: true,
                                                 )
                                               : Image.asset('assets/images/productPlaceholder.jpg',fit: BoxFit.cover,),
                                         ),

@@ -1268,15 +1268,15 @@ public static class ModelBuilderExtensions
 						RoleId = 2,
 						CreatedAt = new DateTime(2025, 05, 21),
 						ChangedAt = null
-					},
-					new Database.UserRole
-					{
-						UserRoleId = 39,
-						UserId = 7,
-						RoleId = 4,
-						CreatedAt = new DateTime(2025, 05, 21),
-						ChangedAt = null
 					}
+					//new Database.UserRole
+					//{
+					//	UserRoleId = 39,
+					//	UserId = 7,
+					//	RoleId = 4,
+					//	CreatedAt = new DateTime(2025, 05, 21),
+					//	ChangedAt = null
+					//}
 
 
 		   );
@@ -2110,7 +2110,7 @@ public static class ModelBuilderExtensions
 		   new Database.Product
 		   {
 			   ProductId = 1,
-			   ProductName = "Produžni kabl 5m",
+			   ProductName = "Produžni kabal 5m",
 			   Price = 25.00m,
 			   StoreId = 1,
                IsOnSale = false,
@@ -2118,7 +2118,7 @@ public static class ModelBuilderExtensions
                StockQuantity=15,
 			   IsDeleted = false,
 			   Image = null,
-			   ProductDescription = " Produžni kabl dužine 5 metara, idealan za kućnu i kancelarijsku upotrebu."
+			   ProductDescription = " Produžni kabal 5m."
 
 		   },
 			new Database.Product
@@ -2132,13 +2132,13 @@ public static class ModelBuilderExtensions
 				StockQuantity = 15,
 				IsDeleted = false,
 				Image = null,
-				ProductDescription = "Visokokvalitetni Ethernet kabal dužine 20 metara za pouzdanu mrežnu povezanost.",
+				ProductDescription = "Cat6 Ethernet kabal",
 
 			},
 			new Database.Product
 			{
 				ProductId = 3,
-				ProductName = "Prekidač naizmenične struje",
+				ProductName = "Prekidač naizmjenične struje",
 				Price = 15.00m,
 				StoreId = 1,
 				IsOnSale = false,
@@ -2146,12 +2146,12 @@ public static class ModelBuilderExtensions
 				StockQuantity = 15,
 				IsDeleted = false,
 				Image = null,
-				ProductDescription = "Standardni prekidač naizmenične struje za kućnu i industrijsku upotrebu.",
+				ProductDescription = "Standardni prekidač naizmjenične struje.",
 			},
 			new Database.Product
 			{
 				ProductId = 4,
-				ProductName = "LED žarulja 9W",
+				ProductName = "LED sijalica 9W",
 				Price = 10.00m,
 				StoreId = 1,
 				IsOnSale = false,
@@ -2159,13 +2159,13 @@ public static class ModelBuilderExtensions
 				StockQuantity = 15,
 				IsDeleted = false,
 				Image = null,
-				ProductDescription = "Energetski efikasna LED žarulja snage 9W, pruža jarko svetlo uz nisku potrošnju energije."
+				ProductDescription = "Energetski efikasna LED sijalica."
 
 			},
 			new Database.Product
 			{
 				ProductId = 5,
-				ProductName = "Ravna keramika 30x30cm",
+				ProductName = "Ravna keramika",
 				Price = 20.00m,
 				StoreId = 2,
 				IsOnSale = false,
@@ -2173,7 +2173,7 @@ public static class ModelBuilderExtensions
 				StockQuantity = 15,
 				IsDeleted = false,
 				Image = null,
-				ProductDescription = "Visokokvalitetna ravna keramika dimenzija 30x30cm, idealna za podove i zidove.",
+				ProductDescription = "Visokokvalitetna ravna keramika.",
 			},
 			 new Database.Product
 			 {
@@ -2186,7 +2186,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Izdržljive keramičke pločice dimenzija 20x20cm, pogodne za različite površine.",
+				 ProductDescription = "Izdržljive keramičke pločice.",
 			 },
 			 new Database.Product
 			 {
@@ -2199,7 +2199,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg, idealna za popunjavanje spojeva između pločica."
+				 ProductDescription = "Kvalitetna fug masa u pakovanju od 5kg."
 			 },
 			 new Database.Product
 			 {
@@ -2212,7 +2212,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Snažno ljepilo za keramiku u pakovanju od 10kg, pruža čvrsto prizemljivanje pločica na različite površine."
+				 ProductDescription = "Snažno ljepilo za keramiku."
 			 },
 			 new Database.Product
 			 {
@@ -2225,7 +2225,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg, pogodan za različite građevinske radove."
+				 ProductDescription = "Visokokvalitetni cement u pakovanju od 25kg."
 			 },
 			 new Database.Product
 			 {
@@ -2238,7 +2238,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Fini pijesak u pakovanju od 50kg, idealan za malterisanje i druge građevinske primjene."
+				 ProductDescription = "Fini pijesak u pakovanju od 50kg."
 			 },
 			 new Database.Product
 			 {
@@ -2252,7 +2252,7 @@ public static class ModelBuilderExtensions
 				 StockQuantity = 15,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Kvalitetan malter u pakovanju od 30kg, pogodan za unutrašnje i vanjske zidove."
+				 ProductDescription = "Kvalitetan malter u pakovanju od 30kg."
 			 },
 			 new Database.Product
 			 {
@@ -2265,7 +2265,7 @@ public static class ModelBuilderExtensions
 				 StoreId = 4,
 				 IsDeleted = false,
 				 Image = null,
-				 ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L, dostupna u različitim bojama."
+				 ProductDescription = "Unutrašnja boja za zidove u pakovanju od 5L."
 			 },
 			  new Database.Product
 			  {
@@ -2278,7 +2278,7 @@ public static class ModelBuilderExtensions
 				  IsOutOfStock = false,
 				  StockQuantity = 15,
 				  Image = null,
-				  ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L, pruža zaštitu i sjaj drvenim površinama."
+				  ProductDescription = "Visokokvalitetni lak za drvo u pakovanju od 1L."
 			  },
 			  new Database.Product
 			  {
@@ -2423,120 +2423,120 @@ public static class ModelBuilderExtensions
              );
 		
 
-		modelBuilder.Entity<Database.Order>().HasData(
-            new Database.Order
-            {
-                OrderId = 1,
-                UserId = 2,
-                CreatedAt = new DateTime(2025,05,21),
-                IsCancelled = false,
-                IsShipped = false,
-                OrderNumber = 20124,
+		//modelBuilder.Entity<Database.Order>().HasData(
+  //          new Database.Order
+  //          {
+  //              OrderId = 1,
+  //              UserId = 2,
+  //              CreatedAt = new DateTime(2025,05,21),
+  //              IsCancelled = false,
+  //              IsShipped = false,
+  //              OrderNumber = 20124,
 
 
-            },
-            new Database.Order
-            {
-                OrderId = 2,
-                UserId = 3,
-                CreatedAt = new DateTime(2025,05,21),
-                IsCancelled = false,
-                IsShipped = false,
-                OrderNumber = 20125,
-            },
-            new Database.Order
-            {
-                OrderId = 3,
-                UserId = 2,
-                CreatedAt = new DateTime(2025,05,21),
-                IsCancelled = false,
-                IsShipped = false,
-                OrderNumber = 20126,
-            },
-            new Database.Order
-            {
-                OrderId = 4,
-                UserId = 3,
-                CreatedAt = new DateTime(2025,05,21),
-                IsCancelled = false,
-                IsShipped = false,
-                OrderNumber = 20127,
-            }
+  //          },
+  //          new Database.Order
+  //          {
+  //              OrderId = 2,
+  //              UserId = 3,
+  //              CreatedAt = new DateTime(2025,05,21),
+  //              IsCancelled = false,
+  //              IsShipped = false,
+  //              OrderNumber = 20125,
+  //          },
+  //          new Database.Order
+  //          {
+  //              OrderId = 3,
+  //              UserId = 2,
+  //              CreatedAt = new DateTime(2025,05,21),
+  //              IsCancelled = false,
+  //              IsShipped = false,
+  //              OrderNumber = 20126,
+  //          },
+  //          new Database.Order
+  //          {
+  //              OrderId = 4,
+  //              UserId = 3,
+  //              CreatedAt = new DateTime(2025,05,21),
+  //              IsCancelled = false,
+  //              IsShipped = false,
+  //              OrderNumber = 20127,
+  //          }
         
 
-            );
-        modelBuilder.Entity<Database.OrderItem>().HasData(
-            new Database.OrderItem
-            {
-                OrderItemsId = 1,
-                OrderId = 1,
-                ProductId = 1,
-                StoreId = 1,
-                Quantity = 2,
+  //          );
+  //      modelBuilder.Entity<Database.OrderItem>().HasData(
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 1,
+  //              OrderId = 1,
+  //              ProductId = 1,
+  //              StoreId = 1,
+  //              Quantity = 2,
 
 
 
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 2,
-                OrderId = 1,
-                ProductId = 4,
-                StoreId = 1,
-                Quantity = 5,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 3,
-                OrderId = 2,
-                ProductId = 2,
-                StoreId = 1,
-                Quantity = 1,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 4,
-                OrderId = 2,
-                ProductId = 3,
-                StoreId = 1,
-                Quantity = 3,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 5,
-                OrderId = 3,
-                ProductId = 5,
-                StoreId = 2,
-                Quantity = 4,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 6,
-                OrderId = 3,
-                ProductId = 6,
-                StoreId = 2,
-                Quantity = 2,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 7,
-                OrderId = 4,
-                ProductId = 7,
-                StoreId = 2,
-                Quantity = 1,
-            },
-            new Database.OrderItem
-            {
-                OrderItemsId = 8,
-                OrderId = 4,
-                ProductId = 8,
-                StoreId = 2,
-                Quantity = 3,
-            }
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 2,
+  //              OrderId = 1,
+  //              ProductId = 4,
+  //              StoreId = 1,
+  //              Quantity = 5,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 3,
+  //              OrderId = 2,
+  //              ProductId = 2,
+  //              StoreId = 1,
+  //              Quantity = 1,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 4,
+  //              OrderId = 2,
+  //              ProductId = 3,
+  //              StoreId = 1,
+  //              Quantity = 3,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 5,
+  //              OrderId = 3,
+  //              ProductId = 5,
+  //              StoreId = 2,
+  //              Quantity = 4,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 6,
+  //              OrderId = 3,
+  //              ProductId = 6,
+  //              StoreId = 2,
+  //              Quantity = 2,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 7,
+  //              OrderId = 4,
+  //              ProductId = 7,
+  //              StoreId = 2,
+  //              Quantity = 1,
+  //          },
+  //          new Database.OrderItem
+  //          {
+  //              OrderItemsId = 8,
+  //              OrderId = 4,
+  //              ProductId = 8,
+  //              StoreId = 2,
+  //              Quantity = 3,
+  //          }
         
 
 
-        );
+  //      );
         modelBuilder.Entity<Database.Job>().HasData(
             new Database.Job
             {

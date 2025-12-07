@@ -115,7 +115,7 @@ class _ReportState extends State<Report> {
       await file.writeAsBytes(await pdf.save());
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Izvještaj uspješno sačuvan')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Izvještaj uspješno sačuvan u dokumente.')));
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));

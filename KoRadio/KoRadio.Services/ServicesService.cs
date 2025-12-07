@@ -49,6 +49,13 @@ namespace KoRadio.Services
 				throw new UserException("Servis već postoji");
 			await base.BeforeInsertAsync(request, entity, cancellationToken);
 		}
+		public override async Task BeforeUpdateAsync(ServiceUpdateRequest request, Database.Service entity, CancellationToken cancellationToken = default)
+		{
+			var serviceExists = await _context.Services.AnyAsync(x => x.ServiceName == request.ServiceName, cancellationToken);
+			if (serviceExists)
+				throw new UserException("Servis već postoji");
+			await base.BeforeUpdateAsync(request, entity, cancellationToken);
+		}
 		public override async Task BeforeDeleteAsync(Database.Service entity, CancellationToken cancellationToken)
 		{
 			var isUsedByFreelancer = await _context.FreelancerServices

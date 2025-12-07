@@ -129,7 +129,7 @@ class _StoreReportState extends State<StoreReport> {
     final path = '${dir.path}/Izvjestaj-Trgovine-${formatDate(vrijeme.toString())}.pdf';
     await File(path).writeAsBytes(await pdf.save());
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Izvještaj uspješno sačuvan')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Izvještaj uspješno sačuvan u dokumente.')));
   }
 
   @override

@@ -14,6 +14,7 @@ import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
@@ -580,12 +581,12 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
       'Nedjelja': 'Sunday',
     };
 
-    // Convert the localized working day strings to English using the map.
+   
     request['workingDays'] = (request['workingDays'] as List<dynamic>)
         .map((localizedDay) {
           return dayOfWeekMapping[localizedDay.toString()];
         })
-        .whereType<String>() // Filter out any nulls if a key wasn't found.
+        .whereType<String>() 
         .toList();
 
 
@@ -597,14 +598,21 @@ class _CompanyUpdateDialogState extends State<CompanyUpdateDialog> {
     if (request["endTime"] is DateTime) {
       request["endTime"] = (request["endTime"] as DateTime).toIso8601String().substring(11, 19);
     }
+    var message = ScaffoldMessenger.of(context);
 
       try {
         await companyProvider.update(widget.company.companyId, request);
-        ScaffoldMessenger.of(context).showSnackBar(
+        message.showSnackBar(
           const SnackBar(content: Text("Podaci uspješno uređeni!")),
         );
         Navigator.pop(context, true);
-      } catch (e) {
+      }
+      on UserException catch (e) {
+        message.showSnackBar(
+          SnackBar(content: Text(e.exMessage)),
+        );
+      } 
+      catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Greška: ${e.toString()}")),
         );

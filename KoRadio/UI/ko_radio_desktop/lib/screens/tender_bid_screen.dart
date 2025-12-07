@@ -572,7 +572,12 @@ bool checkIfValid(int companyEmployeeId) {
                       prefixIcon: Icon(Icons.attach_money),
                     ),
                     valueTransformer: (value) => double.tryParse(value ?? ''),
-                       validator: FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                       validator: FormBuilderValidators.compose([
+                         FormBuilderValidators.required(errorText: 'Obavezno polje'),
+                                                          FormBuilderValidators.numeric(errorText: 'Decimalu diskriminirati sa tačkom'),
+                                                              FormBuilderValidators.min(1,errorText: 'Cijena ne može biti negativna.'),
+                                                                FormBuilderValidators.max(10000,errorText: 'Maximalna cijena je 10000KM')
+                       ]),
                   ),
                 ],
               ),

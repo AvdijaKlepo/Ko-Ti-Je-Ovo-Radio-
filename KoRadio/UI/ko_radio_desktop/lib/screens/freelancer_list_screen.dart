@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:ko_radio_desktop/models/freelancer.dart';
 import 'package:ko_radio_desktop/models/freelancer_service.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/freelancer_provider.dart';
 import 'package:ko_radio_desktop/providers/utils.dart';
 import 'package:ko_radio_desktop/screens/freelancer_update_dialog.dart';
@@ -194,7 +195,13 @@ List<String> getWorkingDaysShort(List<dynamic>? workingDays) {
                   const SnackBar(content: Text("Radnik je uspješno izbrisan.")),
                 );
                
-              } on Exception catch (e) {
+              }on UserException catch(e)
+              {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(content: Text("$e.exMessage")),
+                );
+              } 
+              on Exception catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Greška tokom brisanja podataka. Pokušajte ponovo.")),
                 );

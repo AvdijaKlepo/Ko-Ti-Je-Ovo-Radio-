@@ -531,6 +531,7 @@ final expiry = result['saleExpires'] as DateTime?;
             'storeCataloguePublish': DateTime.now().toIso8601String(),
           });
           navigator.pop();
+          message.showSnackBar(SnackBar(content: Text('Uspješno poslan katalog.')));
         } on UserException catch (e) {
           if (!mounted) return;
           message.showSnackBar(SnackBar(content: Text(e.exMessage)));
@@ -762,6 +763,7 @@ final expiry = result['saleExpires'] as DateTime?;
             label: const Text("Spasi lokalno"),
             onPressed: () {
               Navigator.pop(context);
+              
               _generatePdfCatalog(selected, selectedBackground, true);
             },
           ),
@@ -949,13 +951,13 @@ final pdfBytes = await pdf.save();
 
 
   if (isLocal==true) {
-    // Save to local storage
+
     final dir = await getApplicationDocumentsDirectory();
     final file = File(
         '${dir.path}/Lokalno_${storeName}_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf');
     await file.writeAsBytes(pdfBytes);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Katalog je spremljen u dokumente.")));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Katalog je uspješno spremljen u dokumente.")));
   } else {
 
     final base64Pdf = base64Encode(pdfBytes);
@@ -967,6 +969,8 @@ final pdfBytes = await pdf.save();
     'storeCatalogue': base64Pdf,
     'storeCataloguePublish': DateTime.now().toIso8601String(),
   });
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Katalog je uspješno spremljen u dokumente i poslan korisnicima.")));
+  
 } on UserException catch (e) {
   if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.exMessage)));
@@ -1062,7 +1066,20 @@ final pdfBytes = await pdf.save();
               SizedBox(
                 width: 200,
                 child: ElevatedButton(onPressed:  () async{
-                            await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
+                           final navigation = await showDialog(context: context, builder: (_) => const ProductDetailsDialog());
+                           if(navigation==true)
+                           {
+                            await productPagination.refresh(newFilter: {
+                                      'isDeleted': showDeleted,
+                                      'storeId': AuthProvider.selectedStoreId,
+                                      'IsOnSale': true
+                                    });
+                           }
+                           else{
+                            null;
+                           }
+                           
+                            
                           },style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(27, 76, 125, 1),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1137,13 +1154,25 @@ Expanded(
               ),
             ],
           )
-        : ListView.separated(
-   
+        : Column(
+  children: [
+
+    if (isLoading)
+      const LinearProgressIndicator(minHeight: 4)
+    else
+      const SizedBox(height: 4),
+
+
+    Expanded(
+      child: AbsorbPointer(
+        absorbing: isLoading,
+        child: Opacity(
+          opacity: isLoading ? 0.6 : 1.0,
+          child: ListView.separated(
             itemCount: productPagination.items.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
-              final p = productPagination.items[index];
-              if(isLoading) return const Center(child: CircularProgressIndicator());
+               final p = productPagination.items[index];
                return MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: Container(
@@ -1152,7 +1181,12 @@ Expanded(
                   ),
                 );
             },
-        )
+          ),
+        ),
+      ),
+    ),
+  ],
+)
   )
   ),
   if (_productNameController.text.isEmpty && productPagination.hasNextPage == false)
@@ -1269,7 +1303,9 @@ Expanded(
           
         
       
-              Expanded(flex: 2, child: Text(p.stockQuantity!>1 ? "${p.stockQuantity} komada" : "Van zaliha")),
+              Expanded(flex: 2, child: Text(
+                p.stockQuantity!>1 ? "${p.stockQuantity} komada" : p.stockQuantity!>0 ? "${p.stockQuantity} komad" :
+                 "Van zaliha")),
        
               Expanded(
                 flex: 3,
@@ -1301,7 +1337,7 @@ Expanded(
                   alignment: Alignment.center,
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
-                    child: ClipOval(
+                    child: ClipRRect(
                       child: p.image != null
                           ? imageFromString(p.image!)
                           : const Image(
@@ -1412,12 +1448,12 @@ Expanded(
   icon: const Icon(Icons.local_offer),
   label: const Text("Stavi na akciju"),
   onPressed: () async {
-    // Find all selected products
+ 
     final selected = productPagination.items
         .where((p) => selectedProductIds.contains(p.productId))
         .toList();
 
-    // Check if any are out of stock
+ 
     final outOfStock = selected.any((p) => (p.isOutOfStock==true));
 
     if (outOfStock) {
@@ -1428,7 +1464,7 @@ Expanded(
       return;
     }
 
-    // Otherwise proceed with sale dialog
+ 
     await _openBatchSaleDialog(selected);
   },
 ),

@@ -144,7 +144,7 @@ namespace KoRadio.Services
 		.Collection(c => c.CompanyEmployees)
 		.LoadAsync(cancellationToken);
 
-			// Now you can safely access entity.CompanyEmployees.First()
+		
 			var employee = entity.CompanyEmployees.FirstOrDefault();
 			if (employee != null)
 			{
@@ -273,12 +273,64 @@ namespace KoRadio.Services
 			var jobs = _context.Jobs.Where(x => x.CompanyId == entity.CompanyId
 			&& x.JobStatus == "approved").Any();
 
-			if (request.WorkingDays != null)
+			if (request.WorkingDays != null && request.WorkingDays.All(d => Enum.IsDefined(typeof(DayOfWeek), d)))
 			{
-				if (jobs)
+				var requestedWorkingDaysFlags = request.WorkingDays
+					.Aggregate(WorkingDaysFlags.None, (acc, day) => acc | (WorkingDaysFlags)(1 << (int)day));
+
+				var currentWorkingDays = (WorkingDaysFlags)entity.WorkingDays;
+
+
+				if (currentWorkingDays != requestedWorkingDaysFlags)
 				{
-					throw new UserException("Ne možete urađivati radne dane dok imate aktivne poslove!");
+
+					if (jobs)
+					{
+						throw new UserException("Ne mogu se uređivati firmini radni dani dok ima aktivne poslove!");
+					}
+
+
+					entity.WorkingDays = (int)requestedWorkingDaysFlags;
 				}
+			}
+			else
+			{
+				entity.WorkingDays = (int)WorkingDaysFlags.None;
+			}
+			if (request.ServiceId != null && request.ServiceId.Any())
+			{
+
+				var existingServices = _context.CompanyServices
+					.Where(fs => fs.CompanyId == entity.CompanyId);
+
+				_context.CompanyServices.RemoveRange(existingServices);
+
+				var services = _context.Services
+					.Where(s => request.ServiceId.Contains(s.ServiceId))
+					.ToList();
+				if (existingServices != services)
+				{
+					if (jobs)
+					{
+						throw new UserException("Firma ne može uređivati servise dok ima aktivne poslove!");
+					}
+					entity.CompanyServices = services.Select(service => new Database.CompanyService
+					{
+						ServiceId = service.ServiceId,
+						CompanyId = entity.CompanyId,
+						CreatedAt = DateTime.Now,
+					}).ToList();
+				}
+
+
+			}
+			if(request.IsDeleted==true && entity.IsDeleted==false)
+			{
+				if(jobs)
+				{
+					throw new UserException("Firma ne može biti izbrisana dok ima aktivne poslove!");
+				}
+				
 			}
 
 
@@ -286,6 +338,7 @@ namespace KoRadio.Services
 
 			await base.BeforeUpdateAsync(request, entity, cancellationToken);
 		}
+		
 
 		public override Task AfterInsertAsync(CompanyInsertRequest request, Database.Company entity, CancellationToken cancellationToken = default)
 		{

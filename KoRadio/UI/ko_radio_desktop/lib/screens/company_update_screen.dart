@@ -14,6 +14,7 @@ import 'package:ko_radio_desktop/models/location.dart';
 import 'package:ko_radio_desktop/models/search_result.dart';
 import 'package:ko_radio_desktop/models/service.dart';
 import 'package:ko_radio_desktop/providers/auth_provider.dart';
+import 'package:ko_radio_desktop/providers/base_provider.dart';
 import 'package:ko_radio_desktop/providers/company_provider.dart';
 import 'package:ko_radio_desktop/providers/location_provider.dart';
 import 'package:ko_radio_desktop/providers/service_provider.dart';
@@ -606,7 +607,13 @@ const Map<String, String> dayOfWeekMapping = {
       );
            navigator.pop(true);
      
-    } catch (e) {
+    }
+    on UserException catch (e) {
+        message.showSnackBar(
+          SnackBar(content: Text(e.exMessage)),
+        );
+      } 
+     catch (e) {
       message.showSnackBar(
         const SnackBar(content: Text("Greška tokom ažuriranja podataka. Molimo pokušajte ponovo.")),
       );
