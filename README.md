@@ -49,11 +49,19 @@ Mobilna i desktop aplikacija za angažman radnika i firma za zanatske potrebe ra
 
 **Lozinka svakog korisnika je `test123`, isključujući administratora.**
 
-| Uloga | Email | Lozinka |
-| :--- | :--- | :--- |
-| **Admin** | `admin@email.com` | `admin` |
-| **Administrator firme** | `vlasnik@email.com` | `test123` |
-| **Administrator trgovine** | `trgovina@email.com` | `test123` |
+
+## Kredencijali korisnika koji imaju pristup desktop aplikaciji
+
+**Lozinka svakog korisnika je `test123`, isključujući administratora.**
+
+| Uloga | Email | Lozinka | Firme / Trgovine |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@email.com` | `admin` | *Super Administrator* |
+| **Administrator firme** | `vlasnik@email.com` | `test123` | Elektroinženjering d.o.o.<br>Zidarstvo i Moleraj d.o.o.<br>Umreži<br>Zidarstvo Sarajevo |
+| **Administrator firme** | `firma@email.com` | `test123` | Elektroinženjering i Keramika d.o.o.<br>Moleraj i Higijena d.o.o.<br>Staklo Mostar |
+| **Administrator trgovine** | `trgovina@email.com` | `test123` | Elektro Materijal |
+| **Administrator trgovine** | `trgovina2@email.com` | `test123` | Keramik Stop |
+| **Administrator trgovine** | `korisnik2@email.com` | `test123` | Građevinski Materijal<br>Moleraj Plus |
 
 ---
 
@@ -118,11 +126,14 @@ Mobile and desktop application for hiring workers and firms for craft needs deve
 
 **The password for every user is `test123`, excluding the administrator.**
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Admin** | `admin@email.com` | `admin` |
-| **Firm Administrator** | `vlasnik@email.com` | `test123` |
-| **Store Administrator** | `trgovina@email.com` | `test123` |
+| Uloga | Email | Lozinka | Firme / Trgovine |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@email.com` | `admin` | *Super Administrator* |
+| **Company admin** | `vlasnik@email.com` | `test123` | Elektroinženjering d.o.o.<br>Zidarstvo i Moleraj d.o.o.<br>Umreži<br>Zidarstvo Sarajevo |
+| **Company admin** | `firma@email.com` | `test123` | Elektroinženjering i Keramika d.o.o.<br>Moleraj i Higijena d.o.o.<br>Staklo Mostar |
+| **Store admin** | `trgovina@email.com` | `test123` | Elektro Materijal |
+| **Store admin** | `trgovina2@email.com` | `test123` | Keramik Stop |
+| **Store admin** | `korisnik2@email.com` | `test123` | Građevinski Materijal<br>Moleraj Plus |
 
 ---
 
