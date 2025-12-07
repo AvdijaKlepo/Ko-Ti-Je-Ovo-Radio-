@@ -30,8 +30,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -55,8 +59,7 @@
               "RelativeToolTip": "KoRadio.Services\\FreelanacerService.cs",
               "ViewState": "AgIAANMAAAAAAAAAAAAcwPMAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T16:25:26.908Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-06T16:25:26.908Z"
             },
             {
               "$type": "Document",
@@ -68,8 +71,7 @@
               "RelativeToolTip": "KoRadio.Services\\CompanyEmployeeService.cs",
               "ViewState": "AgIAAGYAAAAAAAAAAAAiwIgAAABJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T16:24:55.302Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-06T16:24:55.302Z"
             },
             {
               "$type": "Document",
@@ -81,8 +83,7 @@
               "RelativeToolTip": "KoRadio.Services\\ServicesService.cs",
               "ViewState": "AgIAAA8AAAAAAAAAAAAAADYAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T14:52:48.721Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-06T14:52:48.721Z"
             },
             {
               "$type": "Document",
@@ -94,12 +95,7 @@
               "RelativeToolTip": "KoRadio.Services\\LocationService.cs",
               "ViewState": "AgIAAA8AAAAAAAAAAAAAACwAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T14:52:12.69Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+              "WhenOpened": "2025-12-06T14:52:12.69Z"
             }
           ]
         }
