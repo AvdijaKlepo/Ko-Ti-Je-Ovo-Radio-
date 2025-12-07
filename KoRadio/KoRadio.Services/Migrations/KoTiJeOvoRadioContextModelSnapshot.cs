@@ -1933,7 +1933,7 @@ namespace KoRadio.Services.Migrations
                             IsOutOfStock = false,
                             Price = 25.00m,
                             ProductDescription = " Produžni kabal 5m.",
-                            ProductName = "Produžni kabl 5m",
+                            ProductName = "Produžni kabal 5m",
                             StockQuantity = 15,
                             StoreId = 1
                         },

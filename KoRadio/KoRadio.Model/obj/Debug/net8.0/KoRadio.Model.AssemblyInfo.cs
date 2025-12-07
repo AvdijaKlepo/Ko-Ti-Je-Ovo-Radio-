@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KoRadio.Model")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+205b7638e71c3a8f47862ddb31cbc3f342d0a124")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ce186c27ea9ef5a0779128d8c8f5a52b382083c")]
 [assembly: System.Reflection.AssemblyProductAttribute("KoRadio.Model")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KoRadio.Model")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

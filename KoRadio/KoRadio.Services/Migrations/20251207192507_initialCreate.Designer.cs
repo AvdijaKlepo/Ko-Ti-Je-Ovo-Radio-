@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KoRadio.Services.Migrations
 {
     [DbContext(typeof(KoTiJeOvoRadioContext))]
-    [Migration("20251206143422_ProductSale")]
-    partial class ProductSale
+    [Migration("20251207192507_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1936,7 +1936,7 @@ namespace KoRadio.Services.Migrations
                             IsOutOfStock = false,
                             Price = 25.00m,
                             ProductDescription = " Produžni kabal 5m.",
-                            ProductName = "Produžni kabl 5m",
+                            ProductName = "Produžni kabal 5m",
                             StockQuantity = 15,
                             StoreId = 1
                         },

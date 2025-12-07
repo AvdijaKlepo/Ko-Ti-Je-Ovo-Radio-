@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace KoRadio.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class initalCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -889,17 +889,6 @@ namespace KoRadio.Services.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Orders",
-                columns: new[] { "OrderId", "CreatedAt", "IsCancelled", "IsShipped", "OrderNumber", "Price", "UserId" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, 20124, 0m, 2 },
-                    { 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, 20125, 0m, 3 },
-                    { 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, 20126, 0m, 2 },
-                    { 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, 20127, 0m, 3 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Stores",
                 columns: new[] { "StoreId", "Address", "BusinessCertificate", "Description", "EndTime", "Image", "IsApplicant", "IsDeleted", "LocationId", "Rating", "RatingSum", "StartTime", "StoreCatalogue", "StoreCataloguePublish", "StoreName", "TotalRatings", "UserId", "WorkingDays" },
                 values: new object[,]
@@ -952,8 +941,7 @@ namespace KoRadio.Services.Migrations
                     { 35, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 19 },
                     { 36, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 20 },
                     { 37, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 20 },
-                    { 38, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 21 },
-                    { 39, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, 7 }
+                    { 38, null, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 21 }
                 });
 
             migrationBuilder.InsertData(
@@ -1030,19 +1018,19 @@ namespace KoRadio.Services.Migrations
                 columns: new[] { "ProductId", "Image", "IsDeleted", "IsOnSale", "IsOutOfStock", "Price", "ProductDescription", "ProductName", "SaleExpires", "SalePrice", "StockQuantity", "StoreId" },
                 values: new object[,]
                 {
-                    { 1, null, false, false, false, 25.00m, " Produžni kabl dužine 5 metara, idealan za kućnu i kancelarijsku upotrebu.", "Produžni kabl 5m", null, null, 15, 1 },
-                    { 2, null, false, false, false, 45.00m, "Visokokvalitetni Ethernet kabal dužine 20 metara za pouzdanu mrežnu povezanost.", "Ethernet kabal 20m", null, null, 15, 1 },
-                    { 3, null, false, false, false, 15.00m, "Standardni prekidač naizmenične struje za kućnu i industrijsku upotrebu.", "Prekidač naizmenične struje", null, null, 15, 1 },
-                    { 4, null, false, false, false, 10.00m, "Energetski efikasna LED žarulja snage 9W, pruža jarko svetlo uz nisku potrošnju energije.", "LED žarulja 9W", null, null, 15, 1 },
-                    { 5, null, false, false, false, 20.00m, "Visokokvalitetna ravna keramika dimenzija 30x30cm, idealna za podove i zidove.", "Ravna keramika 30x30cm", null, null, 15, 2 },
-                    { 6, null, false, false, false, 15.00m, "Izdržljive keramičke pločice dimenzija 20x20cm, pogodne za različite površine.", "Keramičke pločice 20x20cm", null, null, 15, 2 },
-                    { 7, null, false, false, false, 30.00m, "Kvalitetna fug masa u pakovanju od 5kg, idealna za popunjavanje spojeva između pločica.", "Fug masa 5kg", null, null, 15, 2 },
-                    { 8, null, false, false, false, 50.00m, "Snažno ljepilo za keramiku u pakovanju od 10kg, pruža čvrsto prizemljivanje pločica na različite površine.", "Ljepilo za keramiku 10kg", null, null, 15, 2 },
-                    { 9, null, false, false, false, 8.00m, "Visokokvalitetni cement u pakovanju od 25kg, pogodan za različite građevinske radove.", "Cement 25kg", null, null, 15, 3 },
-                    { 10, null, false, false, false, 5.00m, "Fini pijesak u pakovanju od 50kg, idealan za malterisanje i druge građevinske primjene.", "Pijesak 50kg", null, null, 15, 3 },
-                    { 11, null, false, false, false, 12.00m, "Kvalitetan malter u pakovanju od 30kg, pogodan za unutrašnje i vanjske zidove.", "Malter 30kg", null, null, 15, 3 },
-                    { 12, null, false, false, false, 25.00m, "Unutrašnja boja za zidove u pakovanju od 5L, dostupna u različitim bojama.", "Boja za zidove 5L", null, null, 15, 4 },
-                    { 13, null, false, false, false, 15.00m, "Visokokvalitetni lak za drvo u pakovanju od 1L, pruža zaštitu i sjaj drvenim površinama.", "Lak za drvo 1L", null, null, 15, 4 },
+                    { 1, null, false, false, false, 25.00m, " Produžni kabal 5m.", "Produžni kabal 5m", null, null, 15, 1 },
+                    { 2, null, false, false, false, 45.00m, "Cat6 Ethernet kabal", "Ethernet kabal 20m", null, null, 15, 1 },
+                    { 3, null, false, false, false, 15.00m, "Standardni prekidač naizmjenične struje.", "Prekidač naizmjenične struje", null, null, 15, 1 },
+                    { 4, null, false, false, false, 10.00m, "Energetski efikasna LED sijalica.", "LED sijalica 9W", null, null, 15, 1 },
+                    { 5, null, false, false, false, 20.00m, "Visokokvalitetna ravna keramika.", "Ravna keramika", null, null, 15, 2 },
+                    { 6, null, false, false, false, 15.00m, "Izdržljive keramičke pločice.", "Keramičke pločice 20x20cm", null, null, 15, 2 },
+                    { 7, null, false, false, false, 30.00m, "Kvalitetna fug masa u pakovanju od 5kg.", "Fug masa 5kg", null, null, 15, 2 },
+                    { 8, null, false, false, false, 50.00m, "Snažno ljepilo za keramiku.", "Ljepilo za keramiku 10kg", null, null, 15, 2 },
+                    { 9, null, false, false, false, 8.00m, "Visokokvalitetni cement u pakovanju od 25kg.", "Cement 25kg", null, null, 15, 3 },
+                    { 10, null, false, false, false, 5.00m, "Fini pijesak u pakovanju od 50kg.", "Pijesak 50kg", null, null, 15, 3 },
+                    { 11, null, false, false, false, 12.00m, "Kvalitetan malter u pakovanju od 30kg.", "Malter 30kg", null, null, 15, 3 },
+                    { 12, null, false, false, false, 25.00m, "Unutrašnja boja za zidove u pakovanju od 5L.", "Boja za zidove 5L", null, null, 15, 4 },
+                    { 13, null, false, false, false, 15.00m, "Visokokvalitetni lak za drvo u pakovanju od 1L.", "Lak za drvo 1L", null, null, 15, 4 },
                     { 14, null, false, false, false, 7.00m, "Kvalitetan valjak za boju, idealan za brzo i ravnomerno nanošenje boje na zidove.", "Valjak za boju", null, null, 15, 4 },
                     { 15, null, false, false, false, 5.00m, "Izdržljiva četka za boju, pogodna za precizno nanošenje boje na različite površine.", "Četka za boju", null, null, 15, 4 },
                     { 16, null, false, false, false, 40.00m, "Velika kanta za boju u pakovanju od 10L, idealna za veće projekte farbanja.", "Kanta za boju 10L", null, null, 15, 4 }
@@ -1078,21 +1066,6 @@ namespace KoRadio.Services.Migrations
                     { 7, 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 8, 5, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) },
                     { 9, 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
-
-            migrationBuilder.InsertData(
-                table: "OrderItems",
-                columns: new[] { "OrderItemsId", "OrderId", "ProductId", "ProductPrice", "Quantity", "StoreId", "UnitPrice" },
-                values: new object[,]
-                {
-                    { 1, 1, 1, 0m, 2, 1, 0m },
-                    { 2, 1, 4, 0m, 5, 1, 0m },
-                    { 3, 2, 2, 0m, 1, 1, 0m },
-                    { 4, 2, 3, 0m, 3, 1, 0m },
-                    { 5, 3, 5, 0m, 4, 2, 0m },
-                    { 6, 3, 6, 0m, 2, 2, 0m },
-                    { 7, 4, 7, 0m, 1, 2, 0m },
-                    { 8, 4, 8, 0m, 3, 2, 0m }
                 });
 
             migrationBuilder.InsertData(
