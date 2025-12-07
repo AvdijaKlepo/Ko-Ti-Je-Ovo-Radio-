@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KoRadio.Services")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f0df73bc1946b80b92d5e7603506f2cad8307dc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+848641362a91cd5f117dff58510e1bcda8c4f7eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("KoRadio.Services")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KoRadio.Services")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -12,11 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KoRadio.Services.Migrations
 {
     [DbContext(typeof(KoTiJeOvoRadioContext))]
-<<<<<<<< HEAD:KoRadio/KoRadio.Services/Migrations/20251207192507_initialCreate.Designer.cs
-    [Migration("20251207192507_initialCreate")]
-========
-    [Migration("20251207191419_initialCreate")]
->>>>>>>> 93295421a96d7f837d20e40ac3554215fafea7f6:KoRadio/KoRadio.Services/Migrations/20251207191419_initialCreate.Designer.cs
+    [Migration("20251207193831_initialCreate")]
     partial class initialCreate
     {
         /// <inheritdoc />

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvojsoftvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\database\\kotijeovoradiocontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|c:\\users\\avdija\\documents\\razvojsoftvera\\ko-ti-je-ovo-radio-\\koradio\\koradio.services\\companyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7F723CC6-467F-4AAA-92DF-BB65F04511C9}|KoRadio.Services\\KoRadio.Services.csproj|solutionrelative:koradio.services\\companyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -39,6 +43,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "KoTiJeOvoRadioContext.cs",
+              "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "RelativeDocumentMoniker": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "ToolTip": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "RelativeToolTip": "KoRadio.Services\\Database\\KoTiJeOvoRadioContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:24:29.768Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "CompanyService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\CompanyService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\CompanyService.cs",
@@ -51,7 +68,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "FreelanacerService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\FreelanacerService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\FreelanacerService.cs",
@@ -63,7 +80,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "CompanyEmployeeService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\CompanyEmployeeService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\CompanyEmployeeService.cs",
@@ -75,7 +92,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ServicesService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\ServicesService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\ServicesService.cs",
@@ -87,7 +104,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "LocationService.cs",
               "DocumentMoniker": "C:\\Users\\Avdija\\Documents\\Razvojsoftvera\\Ko-Ti-Je-Ovo-Radio-\\KoRadio\\KoRadio.Services\\LocationService.cs",
               "RelativeDocumentMoniker": "KoRadio.Services\\LocationService.cs",
