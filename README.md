@@ -19,8 +19,8 @@ Mobilna i desktop aplikacija za angažman radnika i firma za zanatske potrebe ra
     ```bash
     docker-compose up --build
     ```
-3.  Extraktujte `fit-build-02-12-2025 desktop` preuzimajući `Debug folder` i pokrenite iz njega `ko_radio_desktop.exe`.
-4.  Extraktujte `fit-build-02-12-2025 mobile` preuzimajući `flutter-apk` folder i učitajte iz njega `app-release.apk` u mobilni emulator.
+3.  Extraktujte `fit-build-2025-12-07 desktop` preuzimajući `Debug folder` i pokrenite iz njega `ko_radio_desktop.exe`.
+4.  Extraktujte `fit-build-2025-12-07 mobile` preuzimajući `flutter-apk` folder i učitajte iz njega `app-release.apk` u mobilni emulator.
 
 ---
 
